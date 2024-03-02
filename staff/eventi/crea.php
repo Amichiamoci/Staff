@@ -5,7 +5,7 @@ $titolo = "";
 $testo = "";
 $inizio = "";
 $fine = "";
-$edizione = getCurrentEdition($connection);
+$edizione = Edizione::Current($connection);
 function addDot($str)
 {
     return ".$str";

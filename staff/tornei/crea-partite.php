@@ -42,7 +42,7 @@ if ($row1 = $result1->fetch_assoc())
 }
 if (isset($_POST["id"]))
 {
-    if (GeneraCalendario($connection, $id))
+    if (Torneo::GenerateCalendar($connection, $id))
     {
         //Successo!
         header("Location: ./index.php");

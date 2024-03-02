@@ -1,16 +1,11 @@
 <?php
-require_once "./config.php";
-require_once "./cookie.php";
-require_once "./file_functions.php";
-require_once "./link.php";
-require_once "./security.php";
+$dir = dirname(__DIR__);
+require_once "$dir/config.php";
+require_once "$dir/cookie.php";
+require_once "$dir/file_functions.php";
+require_once "$dir/link.php";
+require_once "$dir/security.php";
 $user_names_regex = "/[A-Za-z0-9]{6,16}/";
-function acc($str):string
-{
-    if (!isset($str))
-        return "";
-    return htmlentities($str, 0, 'UTF-8');
-}
 
 function send_email(
     string $to, 
@@ -20,7 +15,7 @@ function send_email(
     bool $hide_output = false):bool
 {
     $headers_array = array(
-        'From: Amichiamoci <dev@amichiamoci.it>',
+        'From: Amichiamoci <' . EMAIL_SOURCE . '>',
         'X-Mailer: PHP/' . phpversion(),
         'Content-Type: text/html; charset=UTF-8'
         //'MIME-Version: 1.0'
@@ -40,17 +35,17 @@ function send_email(
             $sanitized_body = preg_replace($code_regex, "> ????<!--RIMOSSO--> </code>", $sanitized_body);
         }
         $query = "CALL CreateEmail('$sanitized_email', '" . 
-            sql_sanitize($subject) . "', '" .
-            sql_sanitize($sanitized_body) ."')";
+            $connection->real_escape_string($subject) . "', '" .
+            $connection->real_escape_string($sanitized_body) ."')";
         try {
-            $result = mysqli_query($connection, $query);
+            $result = $connection->query($query);
             if ($result) {
                 if ($row = $result->fetch_assoc())
                 {
                     if (isset($row["id"]))
                     {
                         $id = (int)$row["id"];
-                        $add = "\r\n<img src=\"https://www.amichiamoci.it/admin/view_email.php?id=$id\" 
+                        $add = "\r\n<img src=\"" . ADMIN_URL . "/view_email.php?id=$id\" 
                             width=\"1\" height=\"1\" style=\"width:1px;height:1px;\" loading=\"eager\" />";
                     }
                 }
@@ -58,7 +53,7 @@ function send_email(
             }
             mysqli_next_result($connection);
         } catch(Exception $ex) {
-            echo acc($ex->getMessage());
+            echo htmlspecialchars($ex->getMessage());
         }
     }
     $ret = mail($sanitized_email, $subject, $body . $add, $headers);
@@ -70,14 +65,4 @@ function send_email(
         $connection->query($query);
     }
     return $ret;
-}
-
-function sql_sanitize($str):string
-{
-    if (!isset($str) || is_array($str))
-        return "";
-    $copy = str_replace("\\", "\\\\", $str);
-    $copy = str_replace("'", "\\'", $str);
-    //$copy = str_replace("\"", "\\\"", $copy);
-    return $copy;
 }

@@ -1,9 +1,18 @@
 <?php
-//Do not add the ./ in the paths
-require_once 'config.php';
-require_once 'basic_functions.php';
-include "staff-functions.php";
-function listaMaglie($connection, bool $group = true, string $table_id = "", bool $editable = true):string
+require_once dirname(__DIR__) . "/basic_functions.php";
+require_once dirname(__DIR__) . "/models/anagrafica.php";
+require_once dirname(__DIR__) . "/models/edizione.php";
+require_once dirname(__DIR__) . "/models/iscrizione.php";
+require_once dirname(__DIR__) . "/models/parrocchia.php";
+
+$connection = new mysqli(MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB);
+$connection->set_charset("utf8");
+
+function listaMaglie(
+    mysqli $connection, 
+    bool $group = true, 
+    string $table_id = "", 
+    bool $editable = true) : string
 {
     if (!$connection)
         return "";
@@ -17,10 +26,10 @@ function listaMaglie($connection, bool $group = true, string $table_id = "", boo
         $query .= "FALSE";
     }
     $query .= ")";
-    $result = mysqli_query($connection, $query);
+    $result = $connection->query($query);
     if (!$result)
     {
-        mysqli_next_result($connection);
+        $connection->next_result();
         return "";
     }
     $str = "";
@@ -81,22 +90,22 @@ function listaMaglie($connection, bool $group = true, string $table_id = "", boo
                 $str .= "pattern='[0-9]+' data-min='$elem' ";
                 if (strlen($data_ref) > 0)
                 {
-                    $data = acc($data_ref . "|" . $col);
+                    $data = htmlspecialchars($data_ref . "|" . $col);
                     $str .= " data-ref='$data'";
                 }
             } else {
                 $data_ref = $elem;
             }
-            $str .= ">" . acc($elem) . "</td>";
+            $str .= ">" . htmlspecialchars($elem) . "</td>";
         }
         $str .= "</tr>";
     }
     $str .= "</tbody></table>";
     $result->close();
-    mysqli_next_result($connection);
+    $connection->next_result();
     return $str;
 }
-function listaIscrizioni($connection, string $table):string
+function listaIscrizioni(mysqli $connection, string $table) : string
 {
     if (!$connection)
         return "";
@@ -116,9 +125,9 @@ function listaIscrizioni($connection, string $table):string
     $str .= $blank_row;
     $str .= 
         "<tr>
-        <td colspan=\"2\"> <b>Societ&agrave; sportiva:</b> </td>
+        <td colspan=\"2\"> <b>Società sportiva:</b> </td>
         <td colspan=\"2\" contenteditable=\"true\">Amichiamoci A.S.D.</td>
-        <td colspan=\"2\"> <b>Codice Societ&agrave;:</b> </td>
+        <td colspan=\"2\"> <b>Codice Società:</b> </td>
         <td colspan=\"2\" contenteditable=\"true\"></td>
         </tr>\n";
     $str .= $blank_row;
@@ -145,11 +154,11 @@ function listaIscrizioni($connection, string $table):string
         $i = 1;
         while ($row = $result->fetch_assoc())
         {
-            $cognome = acc($row["cognome"]);
-            $nome = acc($row["nome"]);
+            $cognome = htmlspecialchars($row["cognome"]);
+            $nome = htmlspecialchars($row["nome"]);
             $sesso = $row["sesso"];
-            $luogo = acc($row["luogo_nascita"]);
-            $data = acc($row["data_nascita"]);
+            $luogo = htmlspecialchars($row["luogo_nascita"]);
+            $data = htmlspecialchars($row["data_nascita"]);
             $tel = $row["telefono"];
             if (strlen($tel) > 0)
             {
@@ -172,280 +181,6 @@ function listaIscrizioni($connection, string $table):string
     $str .= "</tbody>";
     $str .= "</table>";
     return $str;
-}
-class rawedizione
-{
-    public int $id = 0;
-    public int $year = 0;
-    public $motto = "";
-    public string $imgpath = "";
-    public function ok():bool
-    {
-        return $this->id != 0;
-    }
-}
-function tutteLeEdizioni($connection)
-{
-    $query = "SELECT id, anno, motto, path_immagine FROM edizioni ORDER BY anno DESC";
-    $ret = array();
-    $result = mysqli_query($connection, $query);
-    if ($result)
-    {
-        while($row = $result->fetch_assoc())
-        {
-            $edizione = new rawedizione();
-            if (isset($row["id"]))
-            {
-                $edizione->id = (int) $row["id"];
-            }
-            if (isset($row["anno"]))
-            {
-                $edizione->year = (int) $row["anno"];
-            }
-            if (isset($row["motto"]))
-            {
-                $edizione->motto = $row["motto"];
-            }
-            if (isset($row["path_immagine"]))
-            {
-                $edizione->imgpath = $row["path_immagine"];
-            }
-            $ret[] = $edizione;
-        }
-    }
-    return $ret;
-}
-
-function edizioneFromId($connection, int $id)
-{
-    $query = "SELECT id, anno, motto, path_immagine FROM edizioni WHERE id = $id";
-    $result = mysqli_query($connection, $query);
-    $edizione = new rawedizione();
-    if ($result)
-    {
-        while($row = $result->fetch_assoc())
-        {
-            if (isset($row["id"]))
-            {
-                $edizione->id = (int) $row["id"];
-            }
-            if (isset($row["anno"]))
-            {
-                $edizione->year = (int) $row["anno"];
-            }
-            if (isset($row["motto"]))
-            {
-                $edizione->motto = $row["motto"];
-            }
-            if (isset($row["path_immagine"]))
-            {
-                $edizione->imgpath = $row["path_immagine"];
-            }
-        }
-    }
-    return $edizione;
-}
-function getCurrentEdition($connection)
-{
-    $query = "SELECT * FROM edizioni WHERE anno = YEAR(CURRENT_DATE)";
-    $result = mysqli_query($connection, $query);
-    $edizione = new rawedizione();
-    if ($result)
-    {
-        if ($row = $result->fetch_assoc())
-        {
-            if (isset($row["id"]))
-            {
-                $edizione->id = (int) $row["id"];
-            }
-            if (isset($row["anno"]))
-            {
-                $edizione->year = (int) $row["anno"];
-            }
-            if (isset($row["motto"]))
-            {
-                $edizione->motto = $row["motto"];
-            }
-            if (isset($row["path_immagine"]))
-            {
-                $edizione->imgpath = $row["path_immagine"];
-            }
-        }
-    }
-    return $edizione;
-}
-function isIscritto($connection, int $id_anagrafica, int $edizione)
-{
-    $query = "SELECT * FROM iscritti WHERE dati_anagrafici = $id_anagrafica AND edizione = $edizione";
-    $result = mysqli_query($connection, $query);
-    if (!$result)
-        return false;
-    return (bool)$result->fetch_assoc();
-}
-function iscrivi($connection, int $id_anagrafica, int $tutore, $certificato, int $parrocchia, string $taglia, int $edizione)
-{
-    if (!$connection)
-        return false;
-    $maglia_sana = sql_sanitize($taglia);
-    $query = "INSERT INTO iscritti (id, dati_anagrafici, edizione, tutore, certificato_medico, parrocchia, taglia_maglietta) VALUES (NULL, $id_anagrafica, $edizione, ";
-    if ($tutore <= 0)
-    {
-        $query .= "NULL, ";
-    } else {
-        $query .= "$tutore, ";
-    }
-    if (isset($certificato) && strlen($certificato) > 0)
-    {
-        $query .= "'$certificato', ";
-    } else {
-        $query .= "NULL, ";
-    }
-    $query .= "$parrocchia, '$maglia_sana')";
-    $result = mysqli_query($connection, $query);
-    return (bool)$result;
-}
-function aggiorna_certificato_iscrizione($connection, int $id, string $certificato)
-{
-    if (!$connection)
-        return false;
-    $certificato = sql_sanitize($certificato);
-    $query = "UPDATE iscritti SET certificato_medico = '$certificato' WHERE id = $id";
-    $result = mysqli_query($connection, $query);
-    if (!$result)
-    {
-        return false;
-    }
-    return mysqli_affected_rows($connection) === 1;
-}
-function aggiorna_iscrizione($connection, raw_iscrizione $i)
-{
-    if (!$connection)
-        return false;
-    $taglia = sql_sanitize($i->taglia);
-    $tutore = $i->id_tutore;
-    if ($tutore === 0)
-    {
-        $tutore = "NULL";
-    }
-    $parrocchia = $i->id_parrocchia;
-
-    $query = "UPDATE iscritti SET taglia_maglietta = '$taglia', tutore = $tutore, parrocchia = $parrocchia WHERE id = $i->id";
-    $result = mysqli_query($connection, $query);
-    if (!$result)
-    {
-        return false;
-    }
-    return mysqli_affected_rows($connection) === 1;
-}
-function crea_anagrafica($connection, string $nome, string $cognome, 
-    string $compleanno, string $provenienza, string $tel, 
-    string $email, string $cf, int $doc_type, 
-    string $doc_code, string $doc_expires, string $nome_file, bool $is_extern = false)
-{
-    if (!$connection)
-        return 0;
-    //Input is already sanitized by the caller
-    $query = "CALL CreaAnagrafica('$nome', '$cognome', '$compleanno', '$provenienza', ";
-    if ($tel == "")
-    {
-        $query .= "NULL, ";
-    } else {
-        $query .= "'$tel', ";
-    }
-    if ($email == "")
-    {
-        $query .= "NULL, ";
-    } else {
-        $query .= "'$email', ";
-    }
-    $query .= "'$cf', $doc_type, '$doc_code', '$doc_expires', '$nome_file', ";
-    if ($is_extern)
-    {
-        $query .= "1";
-    } else {
-        $query .= "0";
-    } $query .= ");";
-    $result = mysqli_query($connection, $query);
-    $id = 0;
-    if ($result && $row = $result->fetch_assoc())
-    {
-        if (isset($row["id"]))
-        {
-            $id = (int)$row["id"];
-        }
-        $result->close();
-    }
-    mysqli_next_result($connection);
-    return $id;
-}
-
-
-//
-//  Parrocchie
-//
-
-class parrocchia
-{
-    public int $id = 0;
-    public string $nome = "";
-}
-function getParrocchia($connection, int $id)
-{
-    if ($connection == null || $id <= 0)
-        return "";
-    $query  = "SELECT nome FROM parrocchie WHERE id = $id";
-
-    $result = mysqli_query($connection, $query);
-
-    if (!$result)
-    {
-        return "";
-    }
-    if ($row = $result->fetch_assoc())
-    {
-        return $row["nome"];
-    }
-    return "";
-}
-function getParrocchiaDaUserName($connection, int $id)
-{
-    if ($connection == null || $id <= 0)
-        return 0;
-    $query  = "SELECT DISTINCT parrocchia FROM staffisti WHERE id_utente = $id";
-
-    $result = mysqli_query($connection, $query);
-
-    if (!$result)
-    {
-        return 0;
-    }
-    if ($row = $result->fetch_assoc())
-    {
-        return (int)$row["parrocchia"];
-    }
-    return 0;
-}
-function parrocchie($connection)
-{
-    if (!$connection)
-        return array();
-    $query  = "SELECT id, nome FROM parrocchie";
-
-    $result = mysqli_query($connection, $query);
-
-    if (!$result)
-    {
-        return array();
-    }
-    $parr = array();
-    while ($row = $result->fetch_assoc())
-    {
-        $curr = new parrocchia();
-        $curr->id = (int)$row["id"];
-        $curr->nome = $row["nome"];
-        $parr[] = $curr;
-    }
-    return $parr;
 }
 
 //

@@ -37,7 +37,7 @@
         header("Location: ../index.php");
         exit;
     }
-    $edizione = getCurrentEdition($connection);
+    $edizione = Edizione::Current($connection);
     function addDot($str)
     {
         return ".$str";
@@ -51,11 +51,11 @@
         "pptx");
     $file_accept = join(", ", array_map("addDot", $allowed_ext));
     $iscrizione = new raw_iscrizione();
-    $iscrizione->nome =  getNomeAnagrafica($connection, $id_anagrafica);
+    $iscrizione->nome =  Anagrafica::NomeDaId($connection, $id_anagrafica);
     $errore = "";
     if ($cod_iscrizione !== 0)
     {
-        $iscrizione = getRawIscrizione($connection, $cod_iscrizione);
+        $iscrizione = Iscrizione::Load($connection, $cod_iscrizione);
     }
     function form()
     {
@@ -66,7 +66,7 @@
         global $iscrizione;
         global $allowed_ext;
 
-        if (isIscritto($connection, $id_anagrafica, $edizione->id) && $cod_iscrizione === 0)
+        if (Iscrizione::Exists($connection, $id_anagrafica, $edizione->id) && $cod_iscrizione === 0)
         {
             $errore = acc($iscrizione->nome). " &egrave; gi&agrave; iscritto ad Amichiamoci per questa edizione!";
             return;
@@ -97,14 +97,14 @@
             if (strlen($nome_file) > 0)
             {
                 //Certificato da aggiornare
-                if (!aggiorna_certificato_iscrizione($connection, $cod_iscrizione, $nome_file))
+                if (!Iscrizione::UpdateCertificato($connection, $cod_iscrizione, $nome_file))
                 {
                     $errore = "Impossibile inserire certificato!";
                     return;
                     //Riempire la form per far ritentare piu facilemnte l'utente
                 }
             }
-            if (!aggiorna_iscrizione($connection, $iscrizione))
+            if (!$iscrizione->Update($connection))
             {
                 $errore = "Impossibile aggiornare iscrizione!";
                 //Riempire la form per far ritentare piu facilemnte l'utente
@@ -118,7 +118,7 @@
         }
         
         //Voglio iscrivere l'utente
-        if (!iscrivi(
+        if (!Iscrizione::Create(
             $connection, 
             $id_anagrafica, 
             $iscrizione->id_tutore, 
@@ -157,7 +157,7 @@
         }
         form();
     }
-    $lista_parrocchie = parrocchie($connection);
+    $lista_parrocchie = Parrocchia::GetAll($connection);
     $staff_possibili = getRawStaffList($connection);
 ?>
 <!DOCTYPE html>
@@ -248,7 +248,7 @@
                     <select name="tutore" required>
                         <option value="0">Nessun tutore</option>
                         <?php
-                            $anagrafiche = getRawAnagrafiche($connection, function ($a){
+                            $anagrafiche = Anagrafica::GetAll($connection, function (Anagrafica $a){
                                 return $a->eta >= 18;
                             });
                             foreach ($anagrafiche as $a)

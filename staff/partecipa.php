@@ -56,7 +56,7 @@
                     Ti stai iscrivendo come staff ad Amichiamoci 
                     <select name="edizione" required style="display: inline-block;">
                     <?php
-                        $edizioni = tutteLeEdizioni($connection);
+                        $edizioni = Edizione::LoadAll($connection);
                         foreach($edizioni as $edizione)
                         {
                             if ($edizione->id === $def_edizione) {

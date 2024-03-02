@@ -46,7 +46,7 @@
                 </label>
                 <select id="parrocchia" class="select">
                     <?php 
-                        $lista_parrocchie = parrocchie($connection);
+                        $lista_parrocchie = Parrocchia::GetAll($connection);
                         foreach ($lista_parrocchie as $parr)
                         {
                             $label = acc($parr->nome);

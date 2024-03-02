@@ -107,8 +107,9 @@
             upload_file($_FILES["doc_file"], $allowed_ext, $nome_file, $errore))
         {
 
-            $id_anagrafica = crea_anagrafica(
-                $connection, $nome, $cognome, 
+            $id_anagrafica = Anagrafica::Create(
+                $connection, 
+                $nome, $cognome, 
                 $compleanno, $provenienza, $tel, 
                 $email, $cf, $doc_type, 
                 $doc_code, $doc_expires, 
@@ -406,7 +407,7 @@
                         value="<?php echo $doc_type ?>" title="La tessera sanitaria non va bene">
                         <optgroup label="Documenti di riconoscimento (hanno la foto)">
                             <?php
-                                $tipi = getTipiDocumento($connection);
+                                $tipi = TipoDocumento::GetAll($connection);
                                 foreach ($tipi as $tipo)
                                 {
                                     $label = acc($tipo->label);

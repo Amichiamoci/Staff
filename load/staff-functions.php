@@ -457,26 +457,12 @@ class raw_staff
 }
 class raw_iscrizione
 {
-    public int $id = 0;
-    public string $nome = "";
-    public string $parrocchia = "";
-    public int $id_parrocchia = 0;
-    public int $anno_edizione = 0;
-    public int $id_edizione = 0;
-    public string $taglia = "";
-    public int $id_tutore = 0;
 }
 class raw_anagrafica
 {
-    public int $id = 0;
-    public string $nome = "";
-    public string $cognome = "";
-    public int $eta = 0;
 }
 class tipo_documento
 {
-    public int $id = 0;
-    public string $label = "";
 }
 class raw_commissione
 {
@@ -507,109 +493,6 @@ function getRawStaffList($connection)
     mysqli_next_result($connection);
     return $arr;
 }
-function getRawIscrizioni($connection, $filter = null)
-{
-    $query = "CALL IscrizioniList(YEAR(CURRENT_DATE), NULL);";
-    $result = mysqli_query($connection, $query);
-    $iscrizioni = array();
-    if (!$result)
-    {
-        mysqli_next_result($connection);
-        return $iscrizioni;
-    }
-    while ($row = $result->fetch_assoc())
-    {
-        $iscritto = new raw_iscrizione();
-
-        $iscritto->id = (int)$row["id_iscrizione"];
-        $iscritto->nome = $row["nome"] . " " . $row["cognome"];
-
-        $iscritto->anno_edizione = (int)$row["anno"];
-        $iscritto->id_edizione = (int)$row["id_edizione"];
-
-        $iscritto->parrocchia = $row["parrocchia"];
-        $iscritto->id_parrocchia = (int)$row["id_parrocchia"];
-        
-        $iscrizioni[] = $iscritto;
-    }
-    $result->close();
-    mysqli_next_result($connection);
-    if (!is_null($filter))
-        $iscrizioni = array_filter($iscrizioni, $filter);
-    return $iscrizioni;
-}
-function getRawIscrizione($connection, int $id)
-{
-    $query = "CALL SingolaIscrizione($id);";
-    $result = mysqli_query($connection, $query);
-    $iscritto = new raw_iscrizione();
-    if (!$result)
-    {
-        mysqli_next_result($connection);
-        return $iscritto;
-    }
-    if ($row = $result->fetch_assoc())
-    {
-        $iscritto->id = (int)$row["id_iscrizione"];
-        $iscritto->nome = $row["nome"] . " " . $row["cognome"];
-
-        $iscritto->anno_edizione = (int)$row["anno"];
-        $iscritto->id_edizione = (int)$row["id_edizione"];
-
-        $iscritto->parrocchia = $row["parrocchia"];
-        $iscritto->id_parrocchia = (int)$row["id_parrocchia"];
-
-        $iscritto->taglia = $row["maglia"];
-
-        if (isset($row["id_tutore"]))
-        {
-            $iscritto->id_tutore = (int)$row["id_tutore"];
-        }
-    }
-    $result->close();
-    mysqli_next_result($connection);
-    return $iscritto;
-}
-function getRawAnagrafiche($connection, $filter = null)
-{
-    if (!$connection)
-        return array();
-    $query = "SELECT id, nome, cognome, Eta(data_nascita) AS eta FROM anagrafiche ORDER BY cognome, nome ASC";
-    $result = mysqli_query($connection, $query);
-    if (!$result)
-        return array();
-    $arr = array();
-    while ($row = $result->fetch_assoc())
-    {
-        $anagrafica = new raw_anagrafica();
-        $anagrafica->id = (int)$row["id"];
-        $anagrafica->nome = $row["nome"];
-        $anagrafica->cognome = $row["cognome"];
-        $anagrafica->eta = (int)$row["eta"];
-        $arr[] = $anagrafica;
-    }
-    if (!is_null($filter))
-        $arr = array_filter($arr, $filter);
-    return $arr;
-}
-function getTipiDocumento($connection)
-{
-    if (!$connection)
-        return array();
-    $query = "SELECT id, label FROM tipi_documento";
-    $result = mysqli_query($connection, $query);
-    if (!$result)
-        return array();
-    $tipi = array();
-    while ($row = $result->fetch_assoc())
-    {
-        $doc = new tipo_documento();
-        $doc->id = (int)$row["id"];
-        $doc->label = $row["label"];
-        $tipi[] = $doc;
-    }
-    return $tipi;
-}
 function tutteLeCommissioni($connection)
 {
     $arr = array();
@@ -630,25 +513,6 @@ function tutteLeCommissioni($connection)
 //
 //  Simple query
 //
-function getNomeAnagrafica($connection, int $id_anagrafica):string
-{
-    if (!$connection)
-        return "";
-    $query = "CALL NomeDaAnagrafica($id_anagrafica)";
-    $result = mysqli_query($connection, $query);
-    if ($result)
-    {
-        if ($row = $result->fetch_assoc())
-        {
-            $result->close();
-            mysqli_next_result($connection);
-            return $row["nome_completo"];
-        }
-        $result->close();
-    }
-    mysqli_next_result($connection);
-    return "";
-}
 function crea_staff($connection, int $id_anagrafica, int $user, int $parrocchia)
 {
     if (!$connection)

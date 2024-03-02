@@ -15,7 +15,7 @@ if (
 {
     $torneo = (int)$_POST["torneo"];
     $squadra = (int)$_POST["squadra"];
-    if (iscrivi_a_torneo($connection, $torneo, $squadra))
+    if (Torneo::Iscrivi($connection, $torneo, $squadra))
     {
         header("Location: index.php");
         exit;
@@ -55,7 +55,7 @@ if (
             </label>
             <select name="torneo" id="torneo" required>
                 <?php
-                    $tornei = lista_tornei($connection);
+                    $tornei = Torneo::GetAll($connection);
                     foreach ($tornei as $t)
                     {
                         $label = acc($t->nome . " | " . $t->sport . ": " . $t->tipo . ", " . $t->numero_squadre . " squadre");
@@ -75,7 +75,7 @@ if (
             </label>
             <select name="squadra" id="squadra" required>
                 <?php
-                    $squadre = raw_squadre_list($connection, date("Y"));
+                    $squadre = Squadra::List($connection, date("Y"));
                     foreach ($squadre as $s)
                     {
                         $label = acc($s->nome . " | " . $s->sport);

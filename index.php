@@ -30,7 +30,7 @@ Cookie::DeleteIfExists("form");
 			<div class="column col-33 flex vertical">
 				<div class="admin-card flex vertical top">
 					<h3>
-						<?= acc($anagrafica->label()) ?>, diventa staffista!
+						<?= htmlspecialchars($anagrafica->label()) ?>, diventa staffista!
 					</h3>
 
 					<a class="button" href="staff/diventa-staff.php">Vai</a>

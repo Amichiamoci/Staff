@@ -80,5 +80,5 @@ function we_have_file(string $path):bool
 }
 function get_file_export_url(string $path)
 {
-    return "/admin/get_file.php?target=$path";
+    return ADMIN_PATH . "/get_file.php?target=$path";
 }

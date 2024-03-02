@@ -18,7 +18,7 @@ if (
     $tipo = (int)$_POST["tipo_torneo"];
     $sport = (int)$_POST["sport_torneo"];
     $nome = $_POST["nome_torneo"];
-    if (crea_torneo($connection, $sport, $nome, $tipo))
+    if (Torneo::Create($connection, $sport, $nome, $tipo))
     {
         header("Location: ../index.php");
         exit;
@@ -63,7 +63,7 @@ if (
             </label>
             <select name="tipo_torneo" id="tipo" required>
                 <?php
-                    $tipi_torneo = tipiTorneo($connection);
+                    $tipi_torneo = TipoTorneo::GetAll($connection);
                     foreach ($tipi_torneo as $t)
                     {
                         $label = acc($t->label);
@@ -83,7 +83,7 @@ if (
             </label>
             <select name="sport_torneo" id="sport" required>
                 <?php
-                    $lista_sport = tuttiGliSport($connection);
+                    $lista_sport = Sport::GetAll($connection);
                     foreach ($lista_sport as $sport)
                     {
                         $label = acc($sport->label);

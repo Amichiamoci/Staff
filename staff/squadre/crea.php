@@ -2,12 +2,12 @@
 
 include "../../check_login.php";
 $dati_staff = getCurrentYearStaffData($connection, $anagrafica->staff_id);
-$squadra = new raw_squadra();
+$squadra = new Squadra();
 //Imposto valori di default
 $squadra->id_parrocchia = $dati_staff->id_parrocchia;
 $squadra->parrocchia = $dati_staff->parrocchia;
 
-$curr_edition = getCurrentEdition($connection);
+$curr_edition = Edizione::Current($connection);
 if (!$curr_edition->ok())
 {
     header("Location: ../");
@@ -16,7 +16,7 @@ if (!$curr_edition->ok())
 if (isset($_GET["id"]) && !is_array($_GET["id"]))
 {
     //Carica squadra qui
-    $squadra = raw_squadra($connection, (int)$_GET["id"]);
+    $squadra = Squadra::Load($connection, (int)$_GET["id"]);
 }
 if (
     isset($_POST["id"]) &&
@@ -33,7 +33,7 @@ if (
 
     if ($squadra->id === 0)
     {
-        if (crea_squadra(
+        if (Squadra::Create(
             $connection, 
             $squadra->nome, 
             $squadra->id_parrocchia, 
@@ -47,7 +47,7 @@ if (
 
         $errore = "Impossibile creare la squadra.\nRiprova pi&ugrave; tardi";
     } else {
-        if (modifica_squadra(
+        if (Squadra::Edit(
             $connection, 
             $squadra->id,
             $squadra->nome, 
@@ -63,8 +63,8 @@ if (
     }
     
 }
-$lista_parrocchie = parrocchie($connection);
-$lista_sport = tuttiGliSport($connection);
+$lista_parrocchie = Parrocchia::GetAll($connection);
+$lista_sport = Sport::GetAll($connection);
 
 ?>
 
@@ -165,7 +165,7 @@ $lista_sport = tuttiGliSport($connection);
                 </style>
                 <ul id="member-list">
                     <?php
-                        $iscritti = getRawIscrizioni($connection);
+                        $iscritti = Iscrizione::GetAll($connection);
                         $lista_membri = explode(",", $squadra->id_iscr_membri);
                         foreach ($iscritti as $iscritto)
                         {

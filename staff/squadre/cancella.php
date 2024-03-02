@@ -22,17 +22,17 @@ if (isset($_GET["id"]) && !is_array($_GET["id"]))
 {
     //Si sta caricando la pagina di conferma
     $id_squadra = (int)$_GET["id"];
-    $nome_squadra = getNomeSquadra($connection, $id_squadra);
+    $nome_squadra = Squadra::NomeFromId($connection, $id_squadra);
 } elseif (!is_array($_POST["id_squadra"])) {
     //E' stato premuto conferma
     $id_squadra = (int)$_POST["id_squadra"];
-    $r = raw_squadra($connection, $id_squadra);
+    $r = Squadra::Load($connection, $id_squadra);
     $nome_squadra = acc($r->nome);
     if ($r->id_parrocchia == $dati_staff->id_parrocchia || $anagrafica->is_admin)
     {
         //Si sta cancellando una squadra della propria parrocchia
         try {
-            $errore = cancellaSquadra($connection, $id_squadra);
+            $errore = Squadra::Delete($connection, $id_squadra);
         } catch (Exception $ex) {
             $errore = "Impossibile cancellare la squadra!";
         }

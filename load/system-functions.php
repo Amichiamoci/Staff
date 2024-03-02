@@ -1,5 +1,5 @@
 <?php
-function last_log_edit($connection, string $row)
+function last_log_edit(mysqli $connection, string $row)
 {
     $query = "CALL LastLogEdit(";
     if (!$row)
@@ -7,20 +7,20 @@ function last_log_edit($connection, string $row)
         //Update every row
         $query .= "NULL";
     } else {
-        $query .= "'" . sql_sanitize($row) . "'";
+        $query .= "'" . $connection->real_escape_string($row) . "'";
     }
     $query .= ");";
-    $result = (bool)mysqli_query($connection, $query);
-    mysqli_next_result($connection);
+    $result = (bool)$connection->query($query);
+    $connection->next_result();
     return $result;
 }
-function last_log_get($connection)
+function last_log_get(mysqli $connection)
 {
     $query = "SELECT * FROM LastLogGet";
-    $result = mysqli_query($connection, $query);
+    $result = $connection->query($query);
     if (!$result)
     {
-        mysqli_next_result($connection);
+        $connection->next_result();
         return "";
     }
     $data = "[\n";
@@ -38,14 +38,14 @@ function last_log_get($connection)
             "  },\n";
     }
     $result->close();
-    mysqli_next_result($connection);
+    $connection->next_result();
     return $data . "]";
 }
-function getSystemStatus($connection)
+function getSystemStatus(mysqli $connection)
 {
     $query = "CALL SelectSystemStatus()";
     $status = "Sconosciuto";
-    $ret = mysqli_query($connection, $query);
+    $ret = $connection->query($query);
     if ($ret)
     {
         if ($row = $ret->fetch_assoc())
@@ -55,6 +55,6 @@ function getSystemStatus($connection)
         }
         $ret->close();
     }
-    mysqli_next_result($connection);
+    $connection->next_result();
     return $status;
 }

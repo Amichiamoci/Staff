@@ -39,7 +39,7 @@
         $errore = "&Egrave; avvenuto un errore, non &egarve; stato possibile eseguire la query adesso, ritorna pi&ugrave; tardi.";
         
     }
-    $lista_parrocchie = parrocchie($connection);
+    $lista_parrocchie = Parrocchia::GetAll($connection);
 ?>
 <!DOCTYPE html>
 <html>

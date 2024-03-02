@@ -1,4 +1,4 @@
-<?php $edizione = getCurrentEdition($connection); ?>
+<?php $edizione = Edizione::Current($connection); ?>
 <div class="edizione">
 	<?php if ($edizione->ok()) { ?>
 		<h3>Amichiamoci <?= $edizione->year ?></h3>
