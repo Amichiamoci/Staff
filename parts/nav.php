@@ -31,7 +31,7 @@ if (isset($is_extern) && $is_extern)
 			&nbsp;
 		</span>
 	<?php } ?>
-	<?php if (!is_viewing_from_app()) { ?>
+	<?php if (!Security::IsFromApp()) { ?>
 		<div class="logo">
 			<a href="<?= $__link_href ?>" title="Torna al menù">
 				<img src="<?= "$DOMAIN/assets/icons/logo.png" ?>">

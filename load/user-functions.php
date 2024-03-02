@@ -3,7 +3,7 @@ function logUserOut($id)
 {
     if ($id == null || (int)$id == 0)
         return false;
-    our_delete_cookie("user_id");
+    Cookie::Delete("user_id");
     return true;
 }
 class AnagraficaResult
@@ -94,10 +94,10 @@ function logUserIn($connection, $username, $password, $user_agent, $user_ip):boo
     {
         $id = (int)$row["id"];
         $hash = $row["password"];
-        $ret = $id != 0 && our_hash_comparison($password, $hash);
+        $ret = $id != 0 && Security::TestPassword($password, $hash);
         if ($ret)
         {
-            our_cookie("user_id", $id, 3600 * 24 * 14);
+            Cookie::Set("user_id", $id, 3600 * 24 * 14);
         }
     }
     $result->close();
@@ -137,7 +137,7 @@ function changeUserPassword($connection, $id, $password, $new_password):bool
     if ($row = $result->fetch_assoc())
     {
         $hash = $row["password"];
-        $ret = our_hash_comparison($password, $hash);
+        $ret = Security::TestPassword($password, $hash);
     }
     $result->close();
     mysqli_next_result($connection);
@@ -145,7 +145,7 @@ function changeUserPassword($connection, $id, $password, $new_password):bool
     {
         return false;
     }
-    $new_hash = our_hash($new_password);
+    $new_hash = Security::Hash($new_password);
     $query2 = "CALL SetUserPassword($id, '$new_hash')";
     $result2 = mysqli_query($connection, $query2);
     $ret = (bool)$result2;
@@ -169,7 +169,7 @@ function changeUserName($connection, $id, $password, $new_username):bool
     if ($row = $result->fetch_assoc())
     {
         $hash = $row["password"];
-        $ret = our_hash_comparison($password, $hash);
+        $ret = Security::TestPassword($password, $hash);
     }
     $result->close();
     mysqli_next_result($connection);
@@ -329,7 +329,7 @@ function resetUserPassword($connection, int $target = 0)
     if (!$connection || $target == 0)
         return "";
     $new_password = generatePassword();
-    $hashed = our_hash($new_password);
+    $hashed = Security::Hash($new_password);
     $result = mysqli_query($connection, "CALL SetUserPassword($target, '$hashed')");
     if (!$result)
     {

@@ -7,8 +7,5 @@ if (isset($_COOKIE["user_id"]))
     $id = $_COOKIE["user_id"];
     logUserOut($id);
 }
-if (isset($_COOKIE["login_forward"]))
-{
-    our_delete_cookie("login_forward");
-}
+Cookie::DeleteIfExists("login_forward");
 header("location: ../../index.php");

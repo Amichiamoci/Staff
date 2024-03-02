@@ -117,14 +117,14 @@ function send_partite_oggi()
                 if ($lat !== "?" && $lon !== "?")
                 {
                     //Possiamo fare il link con schema geo:
-                    $testo .= geo_link($lat, $lon, $nome_campo);
+                    $testo .= Link::Geo($lat, $lon, $nome_campo);
                 } else {
                     $testo .= "<span>$nome_campo</span>";
                 }
                 $testo .= "</li>\r\n";
                 if ($indirizzo !== "?")
                 {
-                    $link = indirizzo_to_maps_link($indirizzo);
+                    $link = Link::Address2Maps($indirizzo);
                     $testo .= "        <li>Indirizzo: $link</li>\r\n";
                 }
             }

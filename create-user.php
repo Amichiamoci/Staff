@@ -10,7 +10,7 @@ if (isset($_POST["create_user_submit"]) && isset($_POST["email"]))
     {
         $user_name = explode('@', $email)[0];
         $password = generatePassword();
-        $hashed = our_hash($password);
+        $hashed = Security::Hash($password);
         $generated_id = createUser($connection, $user_name, $hashed, $is_admin);
         $mail_text = join("\r\n", array(
             "<h3>Benvenuto/a</h3>",

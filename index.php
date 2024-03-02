@@ -2,11 +2,7 @@
 
 include "./check_login.php";
 
-if (isset($_COOKIE["form"]))
-{
-    our_delete_cookie("form");
-}
-
+Cookie::DeleteIfExists("form");
 ?>
 
 <!DOCTYPE html>

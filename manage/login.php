@@ -27,7 +27,7 @@ if (isset($_POST["login_submit"]) &&
             if (isset($_COOKIE["login_forward"]))
             {
                 $loc = $_COOKIE["login_forward"];
-                our_delete_cookie("login_forward");
+                Cookie::Delete("login_forward");
             } 
             header("Location: $loc");
         } else {

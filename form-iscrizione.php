@@ -22,19 +22,19 @@ include "./load/config.php";
 include "./load/basic_functions.php";
 if (isset($_COOKIE["id_anagrafica"]))
 {
-    our_delete_cookie("id_anagrafica");
+    Cookie::Delete("id_anagrafica");
 }
 if (isset($_COOKIE["login_forward"]))
 {
-    our_delete_cookie("login_forward");
+    Cookie::Delete("login_forward");
 }
 if (isset($_COOKIE["success"]))
 {
-    our_delete_cookie("success");
+    Cookie::Delete("success");
 }
 if (isset($_COOKIE["form"]))
 {
-    our_delete_cookie("form");
+    Cookie::Delete("form");
 }
 //Form is open:
 //Crea anagrafica e basta
@@ -44,7 +44,7 @@ if (!isset($_COOKIE["esit"]) || $_COOKIE["esit"] == "")
     exit;
 }
 $cookie = $_COOKIE["esit"];
-our_delete_cookie("esit");
+Cookie::Delete("esit");
 ?>
 <!DOCTYPE html>
 <html lang="it-it">

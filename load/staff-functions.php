@@ -163,7 +163,7 @@ function getAnagraficheList($connection, $year = null, int $id_parrocchia = 0, $
                 $str .= "<td data-label='Telefono'><a href=\"tel:$number\" class=\"link\">$number</a></td>\n";
             } else {
                 //Non e' un fisso, usiamo link WhatsApp
-                $wa = number_to_whatsapp_link($number);
+                $wa = Link::Number2WhatsApp($number);
                 $str .= "<td data-label='WhatsApp'>$wa</td>\n";
             }
         }

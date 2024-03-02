@@ -133,9 +133,9 @@
             $nome_iscrizione = acc($iscrizione->nome);
             if (strlen($nome_file) > 0)
             {
-                our_cookie("esit", "$nome_iscrizione iscritto correttamente ad Amichiamoci " . $edizione->year . ".", 10);
+                Cookie::Set("esit", "$nome_iscrizione iscritto correttamente ad Amichiamoci " . $edizione->year . ".", 10);
             } else {
-                our_cookie("esit", "$nome_iscrizione iscritto SENZA CERTIFICATO ad Amichiamoci " . $edizione->year . ".", 10);
+                Cookie::Set("esit", "$nome_iscrizione iscritto SENZA CERTIFICATO ad Amichiamoci " . $edizione->year . ".", 10);
             }
             header("Location: index.php");
             exit;

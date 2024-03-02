@@ -5,13 +5,10 @@ include "../check_login.php";
 if (isset($_COOKIE["esit"]) && !is_array($_COOKIE["esit"]))
 {
 	$esit = $_COOKIE["esit"];
-	our_delete_cookie("esit");
+	Cookie::Delete("esit");
 }
 
-if (isset($_COOKIE["form"]))
-{
-    our_delete_cookie("form");
-}
+Cookie::DeleteIfExists("form");
 
 $dati_staff = getCurrentYearStaffData($connection, $anagrafica->staff_id);
 

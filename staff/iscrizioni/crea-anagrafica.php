@@ -3,17 +3,14 @@
     include "../../check_login.php";
     if ($is_extern)
     {
-        our_cookie("form", date("Y"), 3600);
+        Cookie::Set("form", date("Y"), 3600);
     }
 
-    if (isset($_COOKIE["id_anagrafica"]))
-    {
-        our_delete_cookie("id_anagrafica");
-    }
+    Cookie::DeleteIfExists("id_anagrafica");
     
     if (isset($_GET["success"]) && !is_array($_GET["success"]))
     {
-        our_cookie("success", $_GET["success"], 3600);
+        Cookie::Set("success", $_GET["success"], 3600);
     }
 
     $allowed_ext = array(
@@ -86,8 +83,7 @@
         $nome_file = "upload/documenti/documento $nome $cognome";
         $nome_file = str_replace(
             array(" ", ".", ",", ":", ";", "<", ">", "?", "'", "\"", "\\"), "_", $nome_file);
-        $nome_file = accent_to_vocals($nome_file);
-
+        
         $compleanno = sql_sanitize($_POST["compleanno"]);
 
         $provenienza = sql_sanitize($_POST["provenienza"]);
@@ -160,13 +156,13 @@
                     $subject = "Dati anagrafici inseriti correttamente";
                     send_email($email, $subject, $text, $connection);
                 }
-                our_cookie("id_anagrafica", "$id_anagrafica", 3600 * 2);
-                our_cookie("esit", "Dati inseriti correttamente.", 3600);
+                Cookie::Set("id_anagrafica", "$id_anagrafica", 3600 * 2);
+                Cookie::Set("esit", "Dati inseriti correttamente.", 3600);
                 $url = "../index.php";
                 if (isset($_COOKIE["success"]))
                 {
                     $url = $_COOKIE["success"] . ".php?id=$id_anagrafica";
-                    our_delete_cookie("success");
+                    Cookie::Delete("success");
                 }
                 header("Location: $url");
                 exit;
