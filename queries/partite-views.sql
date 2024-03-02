@@ -1,0 +1,109 @@
+CREATE OR REPLACE VIEW partite_tornei_attivi AS
+SELECT 
+	p.id,
+
+    t.id AS "torneo", 
+    t.nome AS "nome_torneo",
+    t.sport,
+    t.codice_sport,
+    t.area,
+    t.anno,
+
+    p.data,
+    p.orario,
+    p.campo,
+
+    s1.nome AS "casa",
+    s1.id AS "id_casa",
+    s1.parrocchia AS "id_parrocchia_casa",
+
+    s2.nome AS "ospiti",
+    s2.id AS "id_ospiti",
+    s2.parrocchia AS "id_parrocchia_ospiti"
+FROM partite p
+	INNER JOIN tornei_sport t ON t.id = p.torneo
+    INNER JOIN squadre s1 ON p.squadra_casa = s1.id
+    INNER JOIN squadre s2 ON p.squadra_ospite = s2.id
+WHERE t.anno = YEAR(CURRENT_DATE);
+
+CREATE OR REPLACE VIEW partite_da_giocare AS
+SELECT p.* 
+FROM partite_tornei_attivi p
+WHERE NOT EXISTS(SELECT * FROM punteggi r WHERE r.partita = p.id);
+
+CREATE OR REPLACE VIEW partite_da_giocare_oggi AS 
+SELECT p.*
+FROM partite_da_giocare p
+WHERE p.data = CURRENT_DATE;
+
+CREATE OR REPLACE VIEW partite_da_giocare_oggi_con_campi AS 
+SELECT p.*, 
+    IF (c.nome IS NULL, 'Non impostato', c.nome) AS "nome_campo"
+FROM partite_da_giocare_oggi p
+LEFT OUTER JOIN campi c ON p.campo = c.id;
+
+CREATE OR REPLACE VIEW chi_gioca_oggi AS
+SELECT 
+	a.nome,
+    a.email,
+    
+    -- Squadre
+    GROUP_CONCAT(s.nome SEPARATOR '|') AS "nomi_squadre",
+    GROUP_CONCAT(s2.nome SEPARATOR '|') AS "nomi_avversari",
+
+    -- Orari partite
+    GROUP_CONCAT(
+        IF (p.orario IS NULL, '?', p.orario) SEPARATOR '|'
+    ) AS "orari_partite",
+
+    -- Torneo partite
+    GROUP_CONCAT(
+        CONCAT(p.nome_torneo, ' - ', p.sport) SEPARATOR '|'
+    ) AS "nomi_tornei_sport",
+
+    -- Molte informazioni sul luogo delle partite
+    GROUP_CONCAT(
+        IF (c.nome IS NULL, '?', c.nome) SEPARATOR '|'
+    ) AS "nomi_campi",
+    GROUP_CONCAT(
+        IF (c.indirizzo IS NULL, '?', c.indirizzo) SEPARATOR '|'
+    ) AS "indirizzi_campi",
+    GROUP_CONCAT(
+        IF (c.posizione IS NULL, '?', ST_Y(c.posizione)) SEPARATOR '|'
+    ) AS "lat_campi",
+    GROUP_CONCAT(
+        IF (c.posizione IS NULL, '?', ST_X(c.posizione)) SEPARATOR '|'
+    ) AS "lon_campi",
+
+    -- Se ha il certificato medico
+    IF (i.certificato_medico IS NULL, 1, 0) AS "necessita_certificato"
+FROM anagrafiche a
+	INNER JOIN iscritti i ON i.dati_anagrafici = a.id -- Iscrizione
+    INNER JOIN squadre_iscritti si ON si.iscritto = i.id -- Partecipazione in squadra
+    INNER JOIN squadre s ON s.id = si.squadra -- Squadra dove si partecipa
+    INNER JOIN partite_da_giocare_oggi p ON p.id_casa = s.id OR p.id_ospiti = s.id -- Partita da fare
+    INNER JOIN squadre s2 ON (p.id_casa = s2.id OR p.id_ospiti = s2.id) AND s2.id <> s.id -- Squadra avversaria
+    LEFT OUTER JOIN campi c ON p.campo = c.id -- Luogo della partita, se impostato
+GROUP BY a.id;
+
+CREATE OR REPLACE VIEW partite_settimana AS 
+SELECT 
+	p.*, 
+    IF (p.data IS NULL, 
+        'Data non impostata',
+        CONCAT(
+            DATE_FORMAT(p.data, "%d/%m/%Y"),
+            IF (p.orario IS NULL, '', CONCAT(' alle ', p.orario))
+        )
+    ) AS "data_ora_italiana",
+    GROUP_CONCAT(r.home SEPARATOR '|') AS "punteggi_casa", 
+    GROUP_CONCAT(r.guest SEPARATOR '|') AS "punteggi_ospiti", 
+    GROUP_CONCAT(r.id SEPARATOR '|') AS "id_punteggi",
+    GROUP_CONCAT(CONCAT(r.home, ' - ', r.guest) SEPARATOR ', ') AS "punteggio",
+    COUNT(r.id) AS "punteggi"
+FROM partite_tornei_attivi p
+	LEFT OUTER JOIN punteggi r ON r.partita = p.id
+-- WHERE p.data IS NULL OR p.data BETWEEN DATE_SUB(CURRENT_DATE, INTERVAL 20 DAY) AND CURRENT_DATE
+WHERE p.data IS NULL OR p.data BETWEEN DATE_SUB(CURRENT_DATE, INTERVAL 6 DAY) AND CURRENT_DATE
+GROUP BY p.id
+ORDER BY p.data DESC, p.orario ASC;

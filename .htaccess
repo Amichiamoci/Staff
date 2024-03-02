@@ -1,0 +1,3 @@
+<FilesMatch "\.(save|swp|sql)$">
+    Require all denied
+</FilesMatch>
