@@ -2,7 +2,7 @@
 
 include "./check_login.php";
 
-if (isset($_POST["maintenance_status"]) && $anagrafica->is_admin)
+if (isset($_POST["maintenance_status"]) && User::$Current->is_admin)
 {
     switch ((int)$_POST["maintenance_status"])
     {

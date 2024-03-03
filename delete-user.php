@@ -3,7 +3,7 @@
 include "./check_login.php";
 $message = "";
 
-if (isset($_POST["delete_user"]) && $anagrafica->is_admin)
+if (isset($_POST["delete_user"]) && User::$Current->is_admin)
 {
     $target_id = (int)$_POST["target_id"];
     $res = User::Delete($connection, $target_id);

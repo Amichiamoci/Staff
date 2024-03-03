@@ -1,6 +1,6 @@
 <?php
     include "../check_login.php";
-    if (!isset($_GET["id"]) || !$anagrafica->is_admin)
+    if (!isset($_GET["id"]) || !User::$Current->is_admin)
     {
         header("Location: ../index.php");
         exit;

@@ -1,7 +1,7 @@
 <?php
 
     include "../check_login.php";
-    if (!$anagrafica->is_admin)
+    if (!User::$Current->is_admin)
     {
         header("Location: ../index.php");
         exit;

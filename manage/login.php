@@ -1,15 +1,13 @@
 <?php
 
 include "../load/db_manager.php";
-
-if (isset($_COOKIE["user_id"]))
+$user = User::LoadFromSession();
+if (isset($user) && $user->TimeLogged() < 60 * 30)
 {
-    $anagrafica_inutilizzata = new AnagraficaResult();
-    if (isUserLogged($connection, (int)$_COOKIE["user_id"], $_SERVER['HTTP_USER_AGENT'], getUserIp(), $anagrafica_inutilizzata)){
-        header("Location: ../index.php");
-        exit;
-    }
+    header("Location: ../index.php");
+    exit;
 }
+
 
 if (isset($_POST["login_submit"]) && 
     isset($_POST["username"]) && !is_array($_POST["username"]) &&

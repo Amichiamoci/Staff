@@ -72,7 +72,7 @@ Cookie::Delete("esit");
         Esito registrazione dati personali
     </h1>
     <h3>
-        <?= acc($cookie) ?>
+        <?= htmlspecialchars($cookie) ?>
     </h3>
     <p>
         Puoi chiudere questa pagina.

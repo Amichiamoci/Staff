@@ -25,12 +25,12 @@ Cookie::DeleteIfExists("form");
 
 <section id="admin" class="admin flex center">
     <div class="grid baseline">
-		<?php if ($anagrafica->staff_id == 0) { ?>
+		<?php if (User::$Current->staff_id === 0) { ?>
 			
 			<div class="column col-33 flex vertical">
 				<div class="admin-card flex vertical top">
 					<h3>
-						<?= htmlspecialchars($anagrafica->label()) ?>, diventa staffista!
+						<?= htmlspecialchars(User::$Current->label()) ?>, diventa staffista!
 					</h3>
 
 					<a class="button" href="staff/diventa-staff.php">Vai</a>
@@ -49,7 +49,7 @@ Cookie::DeleteIfExists("form");
 
 		<?php } ?>
 
-		<?php if ($anagrafica->is_admin) { ?>
+		<?php if (User::$Current->is_admin) { ?>
 
 			<div class="column col-33 flex vertical">
 				<div class="admin-card flex vertical top">

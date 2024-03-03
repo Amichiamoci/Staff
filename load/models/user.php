@@ -2,17 +2,35 @@
 
 class User
 {
-    public static string $COOKIE_NAME = "user_id";
+    public static string $COOKIE_NAME = "LoginSession";
     public static string $USER_NAME = "user_name";
     public static string $USER_ID = "user_id";
     public static string $LOGIN_TIME = "login_time";
+    public static string $SESSION_FLAG = "login_flag";
+    public static string $SESSION_DB_ID = "login_db_id";
     public static string $USER_IS_ADMIN = "is_admin";
+    public static string $GIVEN_NAME = "given_name";
+    public static string $ID_ANAGRAFICA = "id_anagrafica";
+    public static string $ID_STAFF = "id_staff";
     public static User|null $Current = null;
     public int $id = 0;
     public string $name = "";
     public int $login_time = 0;
+    public string $session_flag = "";
+    public int $session_db_id = 0;
     public bool $is_admin = false;
-    public function __construct(string|int $id, string $name, string|int|DateTime $login_time, bool $admin = false)
+
+    // Additional data
+    public string|null $nome_vero = null;
+    public int $staff_id = 0;
+    public int $anagrafica_id = 0;
+
+
+    public function __construct(
+        string|int $id, 
+        string $name, 
+        string|int|DateTime $login_time, 
+         bool $admin = false)
     {
         $this->id = (int)$id;
         $this->name = $name;
@@ -29,24 +47,33 @@ class User
         session_destroy();
         return Cookie::DeleteIfItIs(User::$COOKIE_NAME, (string)$this->id);
     }
+    private static function SessionStart() : bool
+    {
+        return session_start([
+            'name' => User::$COOKIE_NAME,
+            'cookie_lifetime' => '172800', // 48h
+            'cookie_domain' => DOMAIN,
+            'cookie_path' => ADMIN_PATH,
+            'cookie_httponly' => '1'
+        ]);
+    }
     private static function LogSessionStart(
         mysqli $connection,
         int $id,
-        string $user_agent,
+        string $flag,
         string $user_ip
-    ) : bool {
-        $user_flag = sha1($user_agent . $user_ip);
-        $query = "CALL StartSession($id, '$user_flag', '" . $connection->real_escape_string($user_ip) . "');";
+    ) : int {
+        $query = "CALL StartSession($id, '$flag', '" . $connection->real_escape_string($user_ip) . "');";
         $result = $connection->query($query);
         if (!$result)
         {
             $connection->next_result();
-            return false;
+            return 0;
         }
-        $ret = false;
+        $ret = 0;
         if ($row = $result->fetch_assoc())
         {
-            $ret = isset($row["session_id"]) && (int)$row["session_id"] != 0;
+            $ret = (int)$row["session_id"];
         }
         $result->close();
         $connection->next_result();
@@ -91,14 +118,17 @@ class User
         }
         if (session_status() !== PHP_SESSION_ACTIVE)
         {
-            if (!session_start())
+            if (!User::SessionStart())
                 return false;
         }
+        $flag = sha1($user_agent . $user_ip);
         $_SESSION[User::$USER_ID] = $id;
         $_SESSION[User::$USER_NAME] = $username;
         $_SESSION[User::$LOGIN_TIME] = time();
         $_SESSION[User::$USER_IS_ADMIN] = $admin;
-        return User::LogSessionStart($connection, $id, $user_agent, $user_ip);
+        $_SESSION[User::$SESSION_FLAG] = $flag;
+        $_SESSION[User::$SESSION_DB_ID] = User::LogSessionStart($connection, $id, $flag, $user_ip);
+        return $_SESSION[User::$SESSION_DB_ID] !== 0;
     }
 
     public static function LoadFromSession() : User|null
@@ -109,16 +139,95 @@ class User
         }
         if (!isset($_SESSION[User::$USER_ID]) || empty($_SESSION[User::$USER_ID]) ||
             !isset($_SESSION[User::$USER_NAME]) || empty($_SESSION[User::$USER_NAME]) ||
+            !isset($_SESSION[User::$SESSION_FLAG]) || empty($_SESSION[User::$SESSION_FLAG]) ||
+            !isset($_SESSION[User::$SESSION_DB_ID]) || $_SESSION[User::$SESSION_DB_ID] == 0 ||
             !isset($_SESSION[User::$LOGIN_TIME]))
         {
             return null;
         }
-        return new User(
+        $user = new User(
             $_SESSION[User::$USER_ID], 
             $_SESSION[User::$USER_NAME], 
             $_SESSION[User::$LOGIN_TIME], 
             isset($_SESSION[User::$USER_IS_ADMIN]) && (bool)$_SESSION[User::$USER_IS_ADMIN]);
+        $user->session_db_id = (int)$_SESSION[User::$SESSION_DB_ID];
+        $user->session_flag = $_SESSION[User::$SESSION_FLAG];
+
+        // Load optional paramters from db, if present
+        if (isset($_SESSION[User::$ID_ANAGRAFICA]) && $_SESSION[User::$ID_ANAGRAFICA] != 0)
+        {
+            $user->anagrafica_id = (int)$_SESSION[User::$ID_ANAGRAFICA];
+        }
+        if (isset($_SESSION[User::$ID_STAFF]) && $_SESSION[User::$ID_STAFF] != 0)
+        {
+            $user->staff_id = (int)$_SESSION[User::$ID_STAFF];
+        }
+        if (isset($_SESSION[User::$GIVEN_NAME]) && !empty($_SESSION[User::$GIVEN_NAME]))
+        {
+            $user->nome_vero = $_SESSION[User::$GIVEN_NAME];
+        }
+
+        return $user;
     }
+    public function LoadAdditionalData(mysqli $connection) : bool
+    {
+        if (!$connection || $this->id === 0)
+            return false;
+        $get_anagrafica_query = "CALL GetStaffFromUserId($this->id)";
+        $result = $connection->query($get_anagrafica_query);
+        if (!$result)
+        {
+            $connection->next_result();
+            return false;
+        }
+        if ($anagrafica = $result->fetch_assoc())
+        {
+            $this->nome_vero = $anagrafica["nome"];
+            $this->anagrafica_id = (int)$anagrafica["id_anagrafica"];
+            $this->staff_id = (int)$anagrafica["staffista"];
+        }
+        $result->close();
+        $connection->next_result();
+        return $this->anagrafica_id !== 0;
+    }
+    public function HasAdditionalData(): bool
+    {
+        return $this->anagrafica_id !== 0;
+    }
+    public function PutAdditionalInSession() : bool
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE || !$this->HasAdditionalData())
+            return false;
+        $_SESSION[User::$ID_ANAGRAFICA] = $this->anagrafica_id;
+        $_SESSION[User::$ID_STAFF] = $this->staff_id;
+        $_SESSION[User::$GIVEN_NAME] = $this->nome_vero;
+        return true;
+    }
+    public function TimeLogged() : int
+    {
+        return time() - $this->login_time;
+    }
+    public function UpdateLogTs()
+    {
+        $this->login_time = time();
+    }
+    public function PutLogTsInSession() : bool
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE)
+            return false;
+        $_SESSION[User::$LOGIN_TIME] = $this->login_time;
+        return $this->login_time !== 0;
+    }
+    public function UploadDbLog(mysqli $connection) : bool
+    {
+        if (!$connection || empty($this->session_flag) || $this->session_db_id === 0)
+            return false;
+        $query = "CALL UpdateSession($this->session_db_id)";
+        $result = (bool)$connection->query($query);
+        $connection->next_result();
+        return $result;
+    }
+
     private function TestPassword(mysqli $connection, string $password) : bool
     {
         if (!$connection || !isset($password) || empty($password))
@@ -279,5 +388,11 @@ class User
             return "Errore durante invio mail";
         }
         return $new_password;
+    }
+    public function label() : string
+    {
+        if (!empty($this->nome_vero))
+            return $this->nome_vero;
+        return $this->name;
     }
 }

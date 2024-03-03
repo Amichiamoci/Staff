@@ -26,7 +26,7 @@ include "./check_login.php";
             <h2>Lista utenti</h2>
             <?php
 
-			echo allUsers($connection, $anagrafica->is_admin);
+			echo allUsers($connection, User::$Current->is_admin);
 
 			?>
         </div>

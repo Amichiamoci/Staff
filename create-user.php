@@ -5,7 +5,7 @@ include "./check_login.php";
 if (isset($_POST["create_user_submit"]) && isset($_POST["email"]))
 {
     $email = $_POST["email"];
-    $is_admin = $anagrafica->is_admin && filter_has_var(INPUT_POST, 'is_admin');
+    $is_admin = User::$Current->is_admin && filter_has_var(INPUT_POST, 'is_admin');
     if (str_contains($email, "@"))
     {
         $user_name = explode('@', $email)[0];

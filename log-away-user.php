@@ -1,7 +1,7 @@
 <?php
 
 include "./check_login.php";
-if ($anagrafica->is_admin)
+if (User::$Current->is_admin)
 {
     if (isset($_POST["block_user"]))
     {

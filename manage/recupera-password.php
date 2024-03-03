@@ -2,18 +2,17 @@
 
 include "../load/db_manager.php";
 
-if (isset($_COOKIE["user_id"]))
+$user = User::LoadFromSession();
+if (isset($user) && $user->TimeLogged() < 60 * 30)
 {
-    $anagrafica_inutilizzata = new AnagraficaResult();
-    if (isUserLogged($connection, (int)$_COOKIE["user_id"], $_SERVER['HTTP_USER_AGENT'], getUserIp(), $anagrafica_inutilizzata)){
-        header("location: ../index.php");
-        exit;
-    }
+    header("Location: ../index.php");
+    exit;
 }
+
 $mail_subject = "";
-if (isset($_POST["recover_submit"]) && isset($_POST["user_name"]))
+if (isset($_POST["recover_submit"]) && isset($_POST["user_name"]) && is_string($_POST["user_name"]))
 {
-    $user = sql_sanitize($_POST["user_name"]);
+    $user = $_POST["user_name"];
     $email = "";
     $target_id = 0;
     if (preg_match($user_names_regex, $user))
