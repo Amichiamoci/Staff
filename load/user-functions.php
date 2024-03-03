@@ -1,76 +1,6 @@
 <?php
 
-class AnagraficaResult
-{
-    public string $nome = "";
-    public int $id = 0;
-    public string $username = "";
-    public int $staff_id = 0;
-    public bool $is_admin = false;
-    public int $session = 0;
-    public function label():string
-    {
-        if ($this->nome != "")
-            return $this->nome;
-        return $this->username;
-    }
-}
-function isUserLogged($connection, int $id, $user_agent, $user_ip, AnagraficaResult $obj_anagrafica):bool
-{
-    if ($id == null || $user_agent == null || $user_ip == null)
-    {
-        return false;
-    }
-
-    $user_flag = sha1($user_agent . $user_ip);
-    $find_session_query = "CALL IsUserLogged($id, '$user_flag')";
-    $result = mysqli_query($connection, $find_session_query);
-    if (!$result)
-    {
-        mysqli_next_result($connection);
-        return false;
-    }
-    $row = $result->fetch_assoc();
-    if (!$row || !isset($row["id"]))
-    {
-        $result->close();
-        mysqli_next_result($connection);
-        return false;
-    }
-    $obj_anagrafica->session = (int)$row["session_id"];
-    $obj_anagrafica->username = $row["user_name"];
-    $is_admin = $row["is_admin"];
-    $obj_anagrafica->is_admin = $is_admin == 1 || $is_admin == "1";
-    $result->close();
-    mysqli_next_result($connection);
-
-    $query2 = "CALL UpdateSession($obj_anagrafica->session)";
-    $result2 = (bool)mysqli_query($connection, $query2);
-    if (!$result2)
-    {
-        mysqli_next_result($connection);
-        return false;
-    }
-    mysqli_next_result($connection);
-
-    $get_anagrafica_query = "CALL GetStaffFromUserId($id)";
-    $result3 = mysqli_query($connection, $get_anagrafica_query);
-    if ($result3)
-    {
-        if ($anagrafica = $result3->fetch_assoc())
-        {
-            $obj_anagrafica->nome = $anagrafica["nome"];
-            $obj_anagrafica->id = (int)$anagrafica["id_anagrafica"];
-            $obj_anagrafica->staff_id = (int)$anagrafica["staffista"];
-        }
-        $result3->close();
-    }
-    mysqli_next_result($connection);
-    return true;
-}
-
-
-function allUsers($connection, bool $admin_priv = false)
+function allUsers(mysqli $connection, bool $admin_priv = false)
 {
     if (!$connection)
     {
@@ -141,16 +71,6 @@ function allUsers($connection, bool $admin_priv = false)
     $str .= "</div>";
     mysqli_next_result($connection);
     return $str;
-}
-
-
-function getUserIP():string {
-    $ipaddress = "127.0.0.1";
-    if (isset($_SERVER['REMOTE_ADDR']))
-        $ipaddress = $_SERVER['REMOTE_ADDR'];
-    elseif(isset($_SERVER['HTTP_X_FORWARDED_FOR']))
-        $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
-    return $ipaddress;
 }
 
 function getUsersActivity(mysqli $connection) 
