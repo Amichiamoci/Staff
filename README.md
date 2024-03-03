@@ -1,2 +1,7 @@
-## Sezione admin sito
-Contiene link per modificare account utente e, per gli admin, link per vedere log di email e login
+# Sezione admin sito
+## Setup della repo
+Richiede [composer](https://www.getcomposer.org "Vai al sito"), nella cartalla principale della repo eseguire:
+```bash
+composer update --no-interaction --no-progress
+```
+Questo comando dovrebbe installare le dipendenze in automatico
