@@ -1,21 +1,39 @@
 <?php
 setlocale(LC_ALL, 'ita', 'it_IT.utf8');
+
+//
+// Load from .env in root
+//
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . "../");
+$dotenv->ifPresent(array("DB_HOST", "DB_USER", "DB_NAME"))->notEmpty();
+$dotenv->safeLoad();
+if (isset($_ENV["DB_HOST"]))
+    define("MYSQL_HOST", $_ENV("DB_HOST"));
+if (isset($_ENV["DB_USER"]))
+    define("MYSQL_USER", $_ENV("DB_USER"));
+if (isset($_ENV["DB_PASSWORD"]))
+    define("MYSQL_PASSWORD", $_ENV("DB_PASSWORD"));
+if (isset($_ENV["DB_NAME"]))
+    define("MYSQL_USER", $_ENV("DB_NAME"));
+if (isset($_ENV["WEBSITE_DOMAIN"]))
+    define("DOMAIN", $_ENV("WEBSITE_DOMAIN"));
+if (isset($_ENV["EMAIL_SOURCE"]))
+    define("EMAIL_SOURCE", $_ENV("EMAIL_SOURCE"));
+unset($dotenv);
+
+
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
 
-// Todo: Load .env with data
-
-
 if (!defined("DOMAIN"))
     define("DOMAIN", "https://" . $_SERVER['HTTP_HOST']);
-if (!defined("ADMIN_PATH"))
-    define("ADMIN_PATH", "/admin");
 
+define("ADMIN_PATH", dirname($_SERVER["PHP_SELF"]));
 define("ADMIN_URL", DOMAIN . ADMIN_PATH);
 
 if (!defined("EMAIL_SOURCE"))
-    define("EMAIL_SOURCE", "dev" . $_SERVER['HTTP_HOST']);
+    define("EMAIL_SOURCE", "dev@" . $_SERVER['HTTP_HOST']);
 
 if (!defined("MYSQL_HOST"))
     define("MYSQL_HOST", "localhost");
