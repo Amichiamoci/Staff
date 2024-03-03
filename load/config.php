@@ -27,13 +27,14 @@ ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
 
 if (!defined("DOMAIN"))
-    define("DOMAIN", "https://" . $_SERVER['HTTP_HOST']);
+    define("DOMAIN", $_SERVER['HTTP_HOST']);
+define("DOMAIN_URL", "https://" . DOMAIN);
 
 define("ADMIN_PATH", dirname($_SERVER["PHP_SELF"]));
 define("ADMIN_URL", DOMAIN . ADMIN_PATH);
 
 if (!defined("EMAIL_SOURCE"))
-    define("EMAIL_SOURCE", "dev@" . $_SERVER['HTTP_HOST']);
+    define("EMAIL_SOURCE", "dev@" . DOMAIN);
 
 if (!defined("MYSQL_HOST"))
     define("MYSQL_HOST", "localhost");
