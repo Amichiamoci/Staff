@@ -1,7 +1,7 @@
 <?php
 
 include "../../check_login.php";
-$dati_staff = getCurrentYearStaffData($connection, $anagrafica->staff_id);
+$dati_staff = Staff::Get($connection, $anagrafica->staff_id);
 $squadra = new Squadra();
 //Imposto valori di default
 $squadra->id_parrocchia = $dati_staff->id_parrocchia;

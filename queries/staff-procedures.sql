@@ -96,7 +96,8 @@ BEGIN
         IF (r.tot_comm IS NULL, 0, r.tot_comm) AS totale_commissioni,
         IF (r.maglia IS NULL, 'Non scelta', r.maglia) AS maglia,
         IF (r.is_referente IS NULL, 0, r.is_referente) AS referente,
-        IF (a.codice_fiscale IS NULL, '', a.codice_fiscale) AS cf
+        IF (a.codice_fiscale IS NULL, '', a.codice_fiscale) AS cf,
+        CONCAT(a.nome, ' ', a.cognome) AS nome
     FROM staffisti AS s
         INNER JOIN anagrafiche a ON a.id = s.dati_anagrafici
         LEFT OUTER JOIN parrocchie parr ON parr.id = s.parrocchia

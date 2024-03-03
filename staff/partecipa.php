@@ -4,9 +4,9 @@
     $errore = "";
     $def_edizione = 0;
     $maglia = "L";
-    $tutte_commissioni = tutteLeCommissioni($connection);
+    $tutte_commissioni = Commissione::All($connection);
     $commissioni_scelte = array();
-    $dati_staff = getCurrentYearStaffData($connection, $anagrafica->staff_id);
+    $dati_staff = Staff::Get($connection, $anagrafica->staff_id);
     if (isset($_POST["partecipa_submit"]))
     {
         if (isset($_POST["edizione"]))
@@ -25,7 +25,7 @@
             }
         }
         $is_referente = isset($_POST["referente"]);
-        if (partecipa_staff($connection, $anagrafica->staff_id, $def_edizione, $maglia, $commissioni_scelte, $is_referente))
+        if (Staff::Partecipa($connection, $anagrafica->staff_id, $def_edizione, $maglia, $commissioni_scelte, $is_referente))
         {
             header("Location: index.php");
             exit;

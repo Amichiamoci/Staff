@@ -10,7 +10,7 @@ if (isset($_COOKIE["esit"]) && !is_array($_COOKIE["esit"]))
 
 Cookie::DeleteIfExists("form");
 
-$dati_staff = getCurrentYearStaffData($connection, $anagrafica->staff_id);
+$dati_staff = Staff::Get($connection, $anagrafica->staff_id);
 
 ?>
 <!DOCTYPE html>

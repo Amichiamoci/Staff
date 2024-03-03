@@ -2,7 +2,7 @@
 
 include "../../check_login.php";
 
-$dati_staff = getCurrentYearStaffData($connection, $anagrafica->staff_id);
+$dati_staff = Staff::Get($connection, $anagrafica->staff_id);
 
 $nome_squadra = "";
 $id_squadra = 0;

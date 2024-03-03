@@ -1,7 +1,7 @@
 <?php
 
     include "../../check_login.php";
-    $dati_staff = getCurrentYearStaffData($connection, $anagrafica->staff_id);
+    $dati_staff = Staff::Get($connection, $anagrafica->staff_id);
 
     $add_link = ($dati_staff->is_subscribed() && $dati_staff->is_referente) || $anagrafica->is_admin;
     $year = null;

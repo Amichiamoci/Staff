@@ -22,14 +22,14 @@
         }
         if (isset($_POST["cambia"]))
         {
-            if (cambia_parrocchia_staff($connection, $anagrafica->staff_id, $parrocchia))
+            if (Staff::ChangeParrocchia($connection, $anagrafica->staff_id, $parrocchia))
             {
                 Cookie::Set("esit", "Parrocchia cambiata correttamente", 3600);
             }
             header("Location: index.php");
             exit;
         } else {
-            if (crea_staff($connection, $id_anagrafica, $user_id, $parrocchia) != 0)
+            if (Staff::Create($connection, $id_anagrafica, $user_id, $parrocchia) != 0)
             {
                 Cookie::Delete("id_anagrafica");
                 header("Location: partecipa.php");

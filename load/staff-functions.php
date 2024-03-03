@@ -4,7 +4,7 @@
 //   Cool lists
 //
 //
-function getStaffList($connection, int $year = 0, bool $include_all = false) 
+function getStaffList(mysqli $connection, int $year = 0, bool $include_all = false) 
 {
     $query  = "CALL StaffList(";
     if (isset($year) && $year != 0)
@@ -103,7 +103,7 @@ function getStaffList($connection, int $year = 0, bool $include_all = false)
     return $staff_list;
 }
 
-function getAnagraficheList($connection, $year = null, int $id_parrocchia = 0, $add_link = true)
+function getAnagraficheList(mysqli $connection, $year = null, int $id_parrocchia = 0, $add_link = true)
 {
     $year_p = "NULL";
     if (isset($year))
@@ -112,7 +112,7 @@ function getAnagraficheList($connection, $year = null, int $id_parrocchia = 0, $
         {
             $year_p = "YEAR(CURRENT_DATE)";
         } else {
-            $year_p = sql_sanitize($year);
+            $year_p = $connection->real_escape_string($year);
         }
     }
     $parrocchia_p = "NULL";
@@ -246,7 +246,7 @@ function getAnagraficheList($connection, $year = null, int $id_parrocchia = 0, $
     return $str;
 }
 
-function getNonPartecipantiList($connection, $year = null)
+function getNonPartecipantiList(mysqli $connection, $year = null)
 {
     $year_p = "NULL";
     if (isset($year))
@@ -255,7 +255,7 @@ function getNonPartecipantiList($connection, $year = null)
         {
             $year_p = "YEAR(CURRENT_DATE)";
         } else {
-            $year_p = sql_sanitize($year);
+            $year_p = $connection->real_escape_string($year);
         }
     }
     $query = "CALL NonIscrittiNonStaff($year_p);";
@@ -339,7 +339,7 @@ function getNonPartecipantiList($connection, $year = null)
     $str .= "</div>";
     return $str;
 }
-function getIscrizioniSbagliate($connection, $year = null, int $id_parrocchia = 0, $add_link = true)
+function getIscrizioniSbagliate(mysqli $connection, $year = null, int $id_parrocchia = 0, $add_link = true)
 {
     $year_p = "NULL";
     if (isset($year))
@@ -348,7 +348,7 @@ function getIscrizioniSbagliate($connection, $year = null, int $id_parrocchia = 
         {
             $year_p = "YEAR(CURRENT_DATE)";
         } else {
-            $year_p = sql_sanitize($year);
+            $year_p = $connection->real_escape_string($year);
         }
     }
     $parrocchia_p = "NULL";
@@ -449,173 +449,4 @@ function getIscrizioniSbagliate($connection, $year = null, int $id_parrocchia = 
     mysqli_next_result($connection);
     $str .= "</div>";
     return $str;
-}
-class raw_staff
-{
-    public int $id = 0;
-    public string $name = "";
-}
-class raw_iscrizione
-{
-}
-class raw_anagrafica
-{
-}
-class tipo_documento
-{
-}
-class raw_commissione
-{
-    public int $id = 0;
-    public string $nome = "";
-}
-//
-//
-//   Raw data
-//
-//
-function getRawStaffList($connection)
-{
-    $query  = "CALL RawStaffList();";
-    $result = mysqli_query($connection, $query);
-    $arr = array();
-    if ($result)
-    {
-        while ($row = $result->fetch_assoc())
-        {
-            $staff = new raw_staff();
-            $staff->id = (int)$row["staff"];
-            $staff->name = $row["nome_completo"];
-            $arr[] = $staff;
-        }
-        $result->close();
-    }
-    mysqli_next_result($connection);
-    return $arr;
-}
-function tutteLeCommissioni($connection)
-{
-    $arr = array();
-    $query = "SELECT id, nome FROM commissioni ORDER BY nome, id";
-    $result = mysqli_query($connection, $query);
-    if ($result)
-    {
-        while ($row = $result->fetch_assoc())
-        {
-            $commissione = new raw_commissione();
-            $commissione->id = (int)$row["id"];
-            $commissione->nome = $row["nome"];
-            $arr[] = $commissione;
-        }
-    }
-    return $arr;
-}
-//
-//  Simple query
-//
-function crea_staff($connection, int $id_anagrafica, int $user, int $parrocchia)
-{
-    if (!$connection)
-        return 0;
-    $query = "INSERT INTO staffisti (dati_anagrafici, id_utente, parrocchia) VALUES ($id_anagrafica, $user, $parrocchia)";
-    $result = mysqli_query($connection, $query);
-    if (!$result)
-        return 0;
-    $result2 = mysqli_query($connection, "SELECT LAST_INSERT_ID() AS id");
-    if ($result2)
-    {
-        if ($row = $result2->fetch_assoc())
-        {
-            if (isset($row["id"]))
-                return (int)$row["id"];
-        }
-    }
-    return 0;
-}
-function cambia_parrocchia_staff($connection, int $staff, int $parrocchia)
-{
-    if (!$connection || $staff == 0 || $parrocchia == 0)
-        return false;
-    $query = "UPDATE staffisti SET parrocchia = $parrocchia WHERE id = $staff";
-    return (bool)mysqli_query($connection, $query);
-}
-function partecipa_staff($connection, int $staff, int $edizione, string $maglia, $commissioni, bool $is_referente = false)
-{
-    if (!$connection)
-        return false;
-    $maglia_sana = sql_sanitize($maglia);
-    $query = "CALL PartecipaStaff($staff, $edizione, '$maglia_sana', '";
-    for ($i = 0; $i < count($commissioni); $i++)
-    {
-        $commissione = $commissioni[$i];
-        $query .= "$commissione";
-        if ($i < count($commissioni) - 1)
-        {
-            $query .= ",";
-        }
-    }
-    $query .= "', ";
-    if ($is_referente) {
-        $query .= "1";
-    } else {
-        $query .= "0";
-    }
-    $query .= ");";
-    $result = (bool)mysqli_query($connection, $query);
-    mysqli_next_result($connection);
-    return $result;
-}
-class staff_data
-{
-    public string $commissioni = "";
-    public string $maglia = "";
-    public string $parrocchia = "";
-    public int $id_parrocchia = 0;
-    public bool $is_referente = false;
-    public string $cf = "";
-    public function is_subscribed():bool
-    {
-        return $this->maglia != "Non scelta" && $this->maglia != "";
-    }
-    public function valid_cf():bool
-    {
-        return isset($this->cf) && !is_array($this->cf) && strlen($this->cf);
-    }
-    public function is_in(string $commissione): bool
-    {
-        if (!$commissione || !$this->commissioni)
-            return false;
-        $comm = explode(",", $this->commissioni);
-        for ($i = 0; $i < count($comm); $i++)
-        {
-            if (strtolower($comm[$i]) == strtolower($commissione))
-                return true;
-        }
-        return false;
-    }
-};
-function getCurrentYearStaffData($connection, int $staff)
-{
-    if (!$connection || $staff == 0)
-    {
-        return new staff_data();
-    }
-    $query = "CALL StaffData($staff, YEAR(CURRENT_DATE))";
-    $result = mysqli_query($connection, $query);
-    $data = new staff_data();
-    if ($result)
-    {
-        if ($row = $result->fetch_assoc())
-        {
-            $data->commissioni = $row["commissioni"];
-            $data->parrocchia = $row["parrocchia"];
-            $data->id_parrocchia = (int)$row["id_parrocchia"];
-            $data->maglia = $row["maglia"];
-            $data->cf = $row["cf"];
-            $data->is_referente = (bool)$row["referente"];
-        }
-        $result->close();
-    }
-    mysqli_next_result($connection);
-    return $data;
 }

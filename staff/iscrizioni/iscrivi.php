@@ -31,7 +31,7 @@
         header("Location: ../../index.php");
         exit;
     }
-    $dati_staff = getCurrentYearStaffData($connection, $anagrafica->staff_id);
+    $dati_staff = Staff::Get($connection, $anagrafica->staff_id);
     if ((!$dati_staff->is_subscribed() || !$dati_staff->is_referente) && !$anagrafica->is_admin)
     {
         header("Location: ../index.php");
@@ -158,7 +158,7 @@
         form();
     }
     $lista_parrocchie = Parrocchia::GetAll($connection);
-    $staff_possibili = getRawStaffList($connection);
+    $staff_possibili = StaffBase::All($connection);
 ?>
 <!DOCTYPE html>
 <html>

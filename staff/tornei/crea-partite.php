@@ -1,7 +1,7 @@
 <?php
 include "../../check_login.php";
 
-$dati_staff = getCurrentYearStaffData($connection, $anagrafica->staff_id);
+$dati_staff = Staff::Get($connection, $anagrafica->staff_id);
 
 if (!$dati_staff->is_in("Tornei") && !$anagrafica->is_admin) {
     header("Location: ./index.php");
