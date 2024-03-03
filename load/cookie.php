@@ -21,6 +21,14 @@ class Cookie
     {
         return Cookie::Set($name, "", -3600);
     }
+    public static function DeleteIfItIs(string $name, string $value) : bool
+    {
+        if (!Cookie::Exists($name))
+            return false;
+        if (Cookie::Get($name) !== $value)
+            return true;
+        return Cookie::Delete($name);
+    }
     public static function Exists(string $name) : bool
     {
         $cookie = Cookie::Get($name);

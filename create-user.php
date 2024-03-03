@@ -9,9 +9,10 @@ if (isset($_POST["create_user_submit"]) && isset($_POST["email"]))
     if (str_contains($email, "@"))
     {
         $user_name = explode('@', $email)[0];
-        $password = generatePassword();
+        $password = Security::RandomPassword();
         $hashed = Security::Hash($password);
-        $generated_id = createUser($connection, $user_name, $hashed, $is_admin);
+        $generated_user = User::Create($connection, $user_name, $hashed, $is_admin);
+        $generated_id = isset($generated_user) ? $generated_user->id : 0;
         $mail_text = join("\r\n", array(
             "<h3>Benvenuto/a</h3>",
             "<p>&Egrave; appena stato creato un utente sul sito <a href=\"https://www.amichiamoci.it\">amichiamoci.it</a> con questa email.",
@@ -34,7 +35,7 @@ if (isset($_POST["create_user_submit"]) && isset($_POST["email"]))
         {
             //Utente creato, ora va inviata l'email
 
-            if (send_email($email, $subject, $mail_text, $connection, true))
+            if (Email::Send($email, $subject, $mail_text, $connection, true))
             {
                 $message = "Email inviata correttamente a $user_name";
                 //Email inviata correttamente

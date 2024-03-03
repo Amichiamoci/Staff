@@ -6,7 +6,7 @@ $message = "";
 if (isset($_POST["reset_user"]) && $anagrafica->is_admin)
 {
     $target_id = (int)$_POST["target_id"];
-    $res = resetUserPassword($connection, $target_id);
+    $res = User::ResetPassword($connection, $target_id);
     if ($res == "")
     {
         $message = "&Egrave; avvenuto un errore: non &egrave; stato possibile resettare la password";

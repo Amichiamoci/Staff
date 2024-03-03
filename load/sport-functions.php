@@ -38,7 +38,7 @@ function getSquadreList($connection, $year = null, $sport = null, bool $show_ink
             $membri = explode(', ', $a->membri);
             foreach ($membri as $membro)
             {
-                $str .= htmlentities($membro) . "<br>\n";
+                $str .= htmlspecialchars($membro) . "<br>\n";
             }
             $str .= "</td>\n";
         } else {
@@ -82,12 +82,12 @@ function getTornei($connection):string
     while ($row = $result->fetch_assoc())
     {
         $id = (int)$row["id"];
-        $nome = acc($row["nome"]);
-        $sport = acc($row["sport"]);
-        $tipo = acc($row["tipo"]);
-        $squadre = acc($row["squadre"]);
+        $nome = htmlspecialchars($row["nome"]);
+        $sport = htmlspecialchars($row["sport"]);
+        $tipo = htmlspecialchars($row["tipo"]);
+        $squadre = htmlspecialchars($row["squadre"]);
         $numero_squadre = (int)$row["numero_squadre"];
-        $calendario = acc($row["calendario"]);
+        $calendario = htmlspecialchars($row["calendario"]);
         $numero_partite = (int)$row["partite"];
 
         $str .= "<table>";
@@ -132,7 +132,7 @@ function calendarioTorneo($connection, int $torneo):string
     {
         while($row = $result_campi->fetch_assoc())
         {
-            $campi[] = array((int)$row["id"], acc($row["nome"]));
+            $campi[] = array((int)$row["id"], htmlspecialchars($row["nome"]));
         }
     }
     $query = "SELECT * FROM partite_tornei_attivi WHERE torneo = $torneo";
@@ -144,8 +144,8 @@ function calendarioTorneo($connection, int $torneo):string
     while ($row = $result->fetch_assoc())
     {
         $id = (int)$row["id"];
-        $casa = acc($row["casa"]);
-        $ospiti = acc($row["ospiti"]);
+        $casa = htmlspecialchars($row["casa"]);
+        $ospiti = htmlspecialchars($row["ospiti"]);
         $data = "";
         $orario = "";
         $dove = 0;
@@ -217,12 +217,12 @@ function inserisciPunteggioPartite($connection):string
     while ($row = $result->fetch_assoc())
     {
         $id = (int)$row["id"];
-        $torneo = acc($row["nome_torneo"]);
-        $sport = acc($row["sport"]);
-        $data_ora = acc($row["data_ora_italiana"]);
+        $torneo = htmlspecialchars($row["nome_torneo"]);
+        $sport = htmlspecialchars($row["sport"]);
+        $data_ora = htmlspecialchars($row["data_ora_italiana"]);
 
-        $squadra_casa = acc($row["casa"]);
-        $squadra_ospite = acc($row["ospiti"]);
+        $squadra_casa = htmlspecialchars($row["casa"]);
+        $squadra_ospite = htmlspecialchars($row["ospiti"]);
 
         $id_punteggi = array();
         if (isset($row["id_punteggi"]))
@@ -266,7 +266,7 @@ function inserisciPunteggioPartite($connection):string
             for ($i = 0; $i < count($id_punteggi); $i++)
             {
                 $id_punteggio = (int)$id_punteggi[$i];
-                $punteggio = acc($punteggi_casa[$i] . " - " . $punteggi_ospiti[$i]);
+                $punteggio = htmlspecialchars($punteggi_casa[$i] . " - " . $punteggi_ospiti[$i]);
                 $i_1 = $i + 1;
                 
                 $str .= "<td data-label='Match $i_1' data-match='$id_punteggio'>";

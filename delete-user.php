@@ -5,8 +5,8 @@ $message = "";
 
 if (isset($_POST["delete_user"]) && $anagrafica->is_admin)
 {
-    $target_id = $_POST["target_id"];
-    $res = deleteUser($connection, $target_id);
+    $target_id = (int)$_POST["target_id"];
+    $res = User::Delete($connection, $target_id);
     if ($res == "")
     {
         $message = "<span>&Egrave; avvenuto un errore: non &egrave; stato possibile cancellare l'utente</span>";

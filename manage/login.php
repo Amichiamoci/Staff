@@ -20,7 +20,7 @@ if (isset($_POST["login_submit"]) &&
 
     if (!empty($user) && !empty($pass))
     {
-        if (logUserIn($connection, $user, $pass, $_SERVER['HTTP_USER_AGENT'], getUserIp()))
+        if (User::Login($connection, $user, $pass, $_SERVER['HTTP_USER_AGENT'], getUserIp()))
         {
             $loc = "../index.php";
             //Ha passato il login

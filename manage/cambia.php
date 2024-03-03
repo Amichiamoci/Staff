@@ -12,9 +12,9 @@ if (isset($_POST["cambio_password_submit"]))
 {
     $curr_pass = $_POST["curr_password"];
     $new_pass = $_POST["new_password"];
-    if (changeUserPassword($connection, $user_id, $curr_pass, $new_pass))
+    if (User::$Current->ChangePassword($connection, $curr_pass, $new_pass))
     {
-        logUserOut($_COOKIE["user_id"]);
+        User::$Current->Logout();
         header("Location: login.php");
         exit;
     }
@@ -24,7 +24,7 @@ if (isset($_POST["cambio_username_submit"]))
 {
     $curr_pass = $_POST["curr_password"];
     $new_name = $_POST["new_username"];
-    if (!changeUserName($connection, $user_id, $curr_pass, $new_name))
+    if (!User::$Current->ChangeUserName($connection, $curr_pass, $new_name))
     {
         $message = "&Egrave; avvenuto un errore: la password potrebbe non essere corretta o il nuovo nome utente potrebbe essere gi&agrave; preso.";
         //header("location: login.php");

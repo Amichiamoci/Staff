@@ -2,10 +2,9 @@
 
 include "../load/db_manager.php";
 // Deletes the cookies
-if (isset($_COOKIE["user_id"]))
+if (isset(User::$Current))
 {
-    $id = $_COOKIE["user_id"];
-    logUserOut($id);
+    User::$Current->Logout();
 }
 Cookie::DeleteIfExists("login_forward");
 header("location: ../../index.php");

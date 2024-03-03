@@ -19,7 +19,7 @@ if (isset($_POST["recover_submit"]) && isset($_POST["user_name"]))
     if (preg_match($user_names_regex, $user))
     {
         try {
-            $data = explode(",", getAssociatedMail($connection, $user));
+            $data = explode(",", Email::GetByUserName($connection, $user));
             $email = $data[0];
             $target_id = (int)$data[1];
         } catch (Exception $ex) {

@@ -37,7 +37,7 @@ function send_compleanni()
             "<br />",
             "<p><small>Ti preghiamo di non rispondere a questa email</small></p>"));
         $subject = "Buon compleanno";
-        if (send_email($email, $subject, $mail_text, $connection))
+        if (Email::Send($email, $subject, $mail_text, $connection))
         {
             $email_inviate++;
         }

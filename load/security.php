@@ -18,5 +18,15 @@ class Security
     {
         return isset($_COOKIE['AppVersion']) && !is_array($_COOKIE['AppVersion']);
     }
+    public static function RandomPassword(int $length = 10) : string
+    {
+        $alphabet = str_split("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?/@;*+-$%&=^_");
+        $password = "";
+        for ($i = 0; $i < $length; $i++)
+        {
+            $password .= $alphabet[random_int(0, count($alphabet) - 1)];
+        }
+        return $password;
+    }
 }
 

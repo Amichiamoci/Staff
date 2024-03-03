@@ -162,7 +162,7 @@ function send_partite_oggi()
         $email = $giocatori[$i][0];
         $oggetto = $giocatori[$i][1];
         $testo = $giocatori[$i][2];
-        if (send_email($email, $oggetto, $testo, $connection))
+        if (Email::Send($email, $oggetto, $testo, $connection))
         {
             $email_inviate++;
         }

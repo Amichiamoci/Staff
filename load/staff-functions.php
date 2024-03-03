@@ -34,7 +34,7 @@ function getStaffList($connection, int $year = 0, bool $include_all = false)
             $cognome          = $row["cognome"];
             $data_nascita     = $row["data_nascita"];
             $referente        = isset($row["referente"]) && (bool)$row["referente"];
-            $parrocchia       = acc($row["parrocchia"]);
+            $parrocchia       = htmlspecialchars($row["parrocchia"]);
 
             $birth_date 	  = new DateTime($data_nascita);
             $current_date     = new DateTime(date("Y-m-d"));
@@ -46,7 +46,7 @@ function getStaffList($connection, int $year = 0, bool $include_all = false)
 
             $commissioni = null;
             if (isset($row["lista_commissioni"]))
-                $commissioni      = acc($row["lista_commissioni"]);
+                $commissioni      = htmlspecialchars($row["lista_commissioni"]);
 
             $staff_list .= "<table>";
             $staff_list .= "<thead>";
@@ -86,7 +86,7 @@ function getStaffList($connection, int $year = 0, bool $include_all = false)
             }
             if (isset($row["partecipazioni"]))
             {
-                $partecipazioni = acc($row["partecipazioni"]);
+                $partecipazioni = htmlspecialchars($row["partecipazioni"]);
                 $staff_list .= "<td data-label='Partecipazioni'>$partecipazioni</td>";
             }
             $staff_list .= "</tr>";
@@ -142,8 +142,8 @@ function getAnagraficheList($connection, $year = null, int $id_parrocchia = 0, $
         if (isset($row["sesso"]))
             $sesso = strtolower($row["sesso"]);
         $str .= "<table data-id=\"$id\" class=\"gender-$sesso\">\n<thead>\n<tr>\n";
-        $str .= "<th data-label='Nome'>" . acc($row["nome"]) . "</th>\n";
-        $str .= "<th data-label='Cognome'>" . acc($row["cognome"]) . "</th>\n";
+        $str .= "<th data-label='Nome'>" . htmlspecialchars($row["nome"]) . "</th>\n";
+        $str .= "<th data-label='Cognome'>" . htmlspecialchars($row["cognome"]) . "</th>\n";
         $str .= "</tr>\n</thead>\n<tbody>\n<tr>\n";
         
         $eta  = $row["eta"];
@@ -172,7 +172,7 @@ function getAnagraficheList($connection, $year = null, int $id_parrocchia = 0, $
             $email = $row["email"];
             $str .= "<td data-label='Email'><a href=\"mailto:$email\" class=\"link\">$email</a></td>\n";
         }
-        $label = acc($row["label"]);
+        $label = htmlspecialchars($row["label"]);
         if (isset($row["codice_documento"]) && strlen($row["codice_documento"]) > 3)
         {
             $doc_code = $row["codice_documento"];
@@ -198,7 +198,7 @@ function getAnagraficheList($connection, $year = null, int $id_parrocchia = 0, $
         if (isset($row["id_iscrizione"]))
         {
             $iscrizione = (int)$row["id_iscrizione"];
-            $str .= "<td data-label='Parrocchia'>" . $row["anno"]. ": Iscritto per " . acc($row["parrocchia"]) ."</td>\n";
+            $str .= "<td data-label='Parrocchia'>" . $row["anno"]. ": Iscritto per " . htmlspecialchars($row["parrocchia"]) ."</td>\n";
             
             $inserisci_certificato = "<a href=\"./iscrivi.php?iscrizione=$iscrizione&id=$id\" class=\"link\">Inserisci/Modifica</a>";
             if (isset($row["certificato_medico"]))
@@ -231,7 +231,7 @@ function getAnagraficheList($connection, $year = null, int $id_parrocchia = 0, $
         }
         if (isset($row["tutore"]))
         {
-            $tutore = acc($row["tutore"]);
+            $tutore = htmlspecialchars($row["tutore"]);
             $str .= "<td data-label='Genitore o tutore'>$tutore</td>\n";
         }
         if (isset($row["creatore_dati"]))
@@ -280,8 +280,8 @@ function getNonPartecipantiList($connection, $year = null)
         if (isset($row["sesso"]))
             $sesso = strtolower($row["sesso"]);
         $str .= "<table data-id=\"$id\" class=\"gender-$sesso\">\n<thead>\n<tr>\n";
-        $str .= "<th data-label='Nome'>" . acc($row["nome"]) . "</th>\n";
-        $str .= "<th data-label='Cognome'>" . acc($row["cognome"]) . "</th>\n";
+        $str .= "<th data-label='Nome'>" . htmlspecialchars($row["nome"]) . "</th>\n";
+        $str .= "<th data-label='Cognome'>" . htmlspecialchars($row["cognome"]) . "</th>\n";
         $str .= "</tr>\n</thead>\n<tbody>\n<tr>\n";
         
         $eta  = $row["eta"];
@@ -309,7 +309,7 @@ function getNonPartecipantiList($connection, $year = null)
             $email = $row["email"];
             $str .= "<td data-label='Email'><a href=\"mailto:$email\" class=\"link\">$email</a></td>\n";
         }
-        $label = acc($row["label"]);
+        $label = htmlspecialchars($row["label"]);
         if (isset($row["codice_documento"]) && strlen($row["codice_documento"]) > 3)
         {
             $doc_code = $row["codice_documento"];
@@ -380,47 +380,47 @@ function getIscrizioniSbagliate($connection, $year = null, int $id_parrocchia = 
         if (isset($row["sesso"]))
             $sesso = strtolower($row["sesso"]);
         $str .= "<table data-id=\"$id\" class=\"gender-$sesso\">\n<thead>\n<tr>\n";
-        $str .= "<th data-label='Chi'>" . acc($row["chi"]) . "</th>\n";
+        $str .= "<th data-label='Chi'>" . htmlspecialchars($row["chi"]) . "</th>\n";
         $str .= "</tr>\n</thead>\n<tbody>\n<tr>\n";
         if (isset($row["email"]))
         {
-            $str .= "<td data-label='Email'>" . acc($row["email"]) . "</td>\n";
+            $str .= "<td data-label='Email'>" . htmlspecialchars($row["email"]) . "</td>\n";
         }
         if (isset($row["email_verify"]))
         {
-            $str .= "<td data-label='Email'>" . acc($row["email_verify"]) . "</td>\n";
+            $str .= "<td data-label='Email'>" . htmlspecialchars($row["email_verify"]) . "</td>\n";
         }
         if (isset($row["telefono"]))
         {
-            $str .= "<td data-label='Telefono'>" . acc($row["telefono"]) . "</td>\n";
+            $str .= "<td data-label='Telefono'>" . htmlspecialchars($row["telefono"]) . "</td>\n";
         }
         if (isset($row["doc_code"]))
         {
-            $str .= "<td data-label='Codice Documento'>" . acc($row["doc_code"]) . "</td>\n";
+            $str .= "<td data-label='Codice Documento'>" . htmlspecialchars($row["doc_code"]) . "</td>\n";
         }
         if (isset($row["doc"]))
         {
             if ($add_link)
             {
-                $str .= "<td data-label='Documento'><strong>" . acc($row["doc"]) . "</strong> <a href=\"./crea-anagrafica.php?cf=$cf\" class=\"link\">Inserisci</a></td>\n";
+                $str .= "<td data-label='Documento'><strong>" . htmlspecialchars($row["doc"]) . "</strong> <a href=\"./crea-anagrafica.php?cf=$cf\" class=\"link\">Inserisci</a></td>\n";
             } else {
-                $str .= "<td data-label='Documento'>" . acc($row["doc"]) . "</td>\n";
+                $str .= "<td data-label='Documento'>" . htmlspecialchars($row["doc"]) . "</td>\n";
             }
-            $str .= "<td data-label='Documento'>" . acc($row["doc"]) . "</td>\n";
+            $str .= "<td data-label='Documento'>" . htmlspecialchars($row["doc"]) . "</td>\n";
         }
         if (isset($row["scadenza"]))
         {
-            $str .= "<td data-label='Scadenza Documento'>" . acc($row["scadenza"]) . "</td>\n";
+            $str .= "<td data-label='Scadenza Documento'>" . htmlspecialchars($row["scadenza"]) . "</td>\n";
         }
         if (isset($row["certificato"]))
         {
             if ($add_link)
             {
                 $str .= "<td data-label='Certificato Medico'><strong>" . 
-                    acc($row["certificato"]) . 
+                    htmlspecialchars($row["certificato"]) . 
                     "</strong> <a href=\"./iscrivi.php?iscrizione=$iscrizione&id=$id\" class=\"link\">Inserisci</a></td>\n";
             } else {
-                $str .= "<td data-label='Certificato'>" . acc($row["certificato"]) . "</td>\n";
+                $str .= "<td data-label='Certificato'>" . htmlspecialchars($row["certificato"]) . "</td>\n";
             }
         }
         if (isset($row["tutore"]))
@@ -428,20 +428,20 @@ function getIscrizioniSbagliate($connection, $year = null, int $id_parrocchia = 
             if ($add_link)
             {
                 $str .= "<td data-label='Tutore'><strong>" . 
-                    acc($row["tutore"]) . 
+                    htmlspecialchars($row["tutore"]) . 
                     "</strong> <a href=\"./iscrivi.php?iscrizione=$iscrizione&id=$id\" class=\"link\">Inserisci/Cambia</a></td>\n";
             } else {
-                $str .= "<td data-label='Tutore'>" . acc($row["tutore"]) . "</td>\n";
+                $str .= "<td data-label='Tutore'>" . htmlspecialchars($row["tutore"]) . "</td>\n";
             }
             
         }
         if (isset($row["eta"]))
         {
-            $str .= "<td data-label='Età'>" . acc($row["eta"]) . "</td>\n";
+            $str .= "<td data-label='Età'>" . htmlspecialchars($row["eta"]) . "</td>\n";
         }
         if (isset($row["maglia"]))
         {
-            $str .= "<td data-label='Maglia'>" . acc($row["maglia"]) . "</td>\n";
+            $str .= "<td data-label='Maglia'>" . htmlspecialchars($row["maglia"]) . "</td>\n";
         }
         $str .= "</tr>\n</tbody>\n</table>\n\n";
     }

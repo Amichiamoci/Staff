@@ -6,7 +6,7 @@ if ($anagrafica->is_admin)
     if (isset($_POST["block_user"]))
     {
         $target_id = $_POST["target_id"];
-        if (banUser($connection, $target_id))
+        if (User::Ban($connection, $target_id))
         {
             $message = "Ban effettuato.";
         } else {
@@ -16,7 +16,7 @@ if ($anagrafica->is_admin)
     } elseif (isset($_POST["restore_user"]))
     {
         $target_id = $_POST["target_id"];
-        if (restoreUser($connection, $target_id))
+        if (User::Restore($connection, $target_id))
         {
             $message = "Ban annullato.";
         } else {

@@ -1,11 +1,5 @@
 <?php
-function logUserOut($id)
-{
-    if ($id == null || (int)$id == 0)
-        return false;
-    Cookie::Delete("user_id");
-    return true;
-}
+
 class AnagraficaResult
 {
     public string $nome = "";
@@ -74,150 +68,8 @@ function isUserLogged($connection, int $id, $user_agent, $user_ip, AnagraficaRes
     mysqli_next_result($connection);
     return true;
 }
-function logUserIn($connection, $username, $password, $user_agent, $user_ip):bool
-{
-    if ($username == null || $password == null || $user_agent == null || $user_ip == null)
-    {
-        return false;
-    }
-    $user_flag = sha1($user_agent . $user_ip);
-    $query = "CALL GetUserPassword('$username');";
-    $result = mysqli_query($connection, $query);
-    $ret = false;
-    $id = 0;
-    if (!$result)
-    {
-        mysqli_next_result($connection);
-        return false;
-    }
-    if ($row = $result->fetch_assoc())
-    {
-        $id = (int)$row["id"];
-        $hash = $row["password"];
-        $ret = $id != 0 && Security::TestPassword($password, $hash);
-        if ($ret)
-        {
-            Cookie::Set("user_id", $id, 3600 * 24 * 14);
-        }
-    }
-    $result->close();
-    mysqli_next_result($connection);
-    if ($ret)
-    {
-        $query2 = "CALL StartSession($id, '$user_flag', '$user_ip');";
-        $result2 = mysqli_query($connection, $query2);
-        if (!$result2)
-        {
-            $ret = false;
-        } else {
-            if ($row2 = $result2->fetch_assoc())
-            {
-                $ret = isset($row2["session_id"]) && (int)$row2["session_id"] != 0;
-            }
-            $result2->close();
-        }
-        mysqli_next_result($connection);
-    }
-    return $ret;
-}
-function changeUserPassword($connection, $id, $password, $new_password):bool
-{
-    if ($connection == null || !isset($password) || !isset($new_password))
-    {
-        return false;
-    }
-    $query = "CALL GetUserPasswordFromId($id)";
-    $result = mysqli_query($connection, $query);
-    $ret = false;
-    if (!$result)
-    {
-        mysqli_next_result($connection);
-        return false;
-    }
-    if ($row = $result->fetch_assoc())
-    {
-        $hash = $row["password"];
-        $ret = Security::TestPassword($password, $hash);
-    }
-    $result->close();
-    mysqli_next_result($connection);
-    if (!$ret)
-    {
-        return false;
-    }
-    $new_hash = Security::Hash($new_password);
-    $query2 = "CALL SetUserPassword($id, '$new_hash')";
-    $result2 = mysqli_query($connection, $query2);
-    $ret = (bool)$result2;
-    mysqli_next_result($connection);
-    return $ret;
-}
-function changeUserName($connection, $id, $password, $new_username):bool
-{
-    if ($connection == null || !isset($password) || !isset($new_username))
-    {
-        return false;
-    }
-    $query = "CALL GetUserPasswordFromId($id)";
-    $result = mysqli_query($connection, $query);
-    $ret = false;
-    if (!$result)
-    {
-        mysqli_next_result($connection);
-        return false;
-    }
-    if ($row = $result->fetch_assoc())
-    {
-        $hash = $row["password"];
-        $ret = Security::TestPassword($password, $hash);
-    }
-    $result->close();
-    mysqli_next_result($connection);
-    if (!$ret)
-    {
-        return false;
-    }
-    $query2 = "CALL SetUserName($id, '$new_username')";
-    $result2 = mysqli_query($connection, $query2);
-    if ($result2)
-    {
-        if ($row2 = $result2->fetch_assoc())
-        {
-            $ret =isset($row2["result"]) && (int)$row2["result"] != 0;
-        }
-        $result2->close();
-    }
-    mysqli_next_result($connection);
-    return $ret;
-}
-function createUser($connection, $username, $hashed_password, bool $is_admin):int
-{
-    if (!$connection)
-    {
-        return 0;
-    }
-    $query = "INSERT INTO utenti(user_name, password, is_admin) VALUES ('$username', '$hashed_password', ";
-    if ($is_admin) {
-        $query .= "1";
-    } else {
-        $query .= "0";
-    }
-    $query .= ")";
-    if (!mysqli_query($connection, $query))
-        return 0;
-    $result = mysqli_query($connection, "SELECT LAST_INSERT_ID() AS id");
-    if ($result)
-    {
-        if ($row = $result->fetch_assoc())
-        {
-            if (isset($row["id"]))
-            {
-                return (int)$row["id"];
-            }
-        }
-    }
-    return 0;
-}
+
+
 function allUsers($connection, bool $admin_priv = false)
 {
     if (!$connection)
@@ -290,88 +142,8 @@ function allUsers($connection, bool $admin_priv = false)
     mysqli_next_result($connection);
     return $str;
 }
-function banUser($connection, $id)
-{
-    if (!$connection)
-        return false;
-    $target = (int)$id;
-    if ($target == 0)
-        return false;
-    $query = "CALL BanUser($target)";
-    $result = (bool)mysqli_query($connection, $query);
-    mysqli_next_result($connection);
-    return $result;
-}
-function restoreUser($connection, $id)
-{
-    if (!$connection)
-        return false;
-    $target = (int)$id;
-    if ($target == 0)
-        return false;
-    $query = "CALL RestoreUser($target)";
-    $result = (bool)mysqli_query($connection, $query);
-    mysqli_next_result($connection);
-    return $result;
-}
-function generatePassword()
-{
-    $alphabet = str_split("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?/@;*+-$%&=^_");
-    $password = "";
-    for ($i = 0; $i < 10; $i++)
-    {
-        $password .= $alphabet[rand(0, count($alphabet) - 1)];
-    }
-    return $password;
-}
-function resetUserPassword($connection, int $target = 0)
-{
-    if (!$connection || $target == 0)
-        return "";
-    $new_password = generatePassword();
-    $hashed = Security::Hash($new_password);
-    $result = mysqli_query($connection, "CALL SetUserPassword($target, '$hashed')");
-    if (!$result)
-    {
-        $new_password = "";
-    }
-    mysqli_next_result($connection);
-    if ($new_password != "")
-    {
-        $email = getAssociatedMailById($connection, $target);
-        if (strlen($email) == 0)
-            return $new_password;
-        if (send_email($email, "Cambio password", 
-            "Ciao, &egrave; appena stata cambiata la tua password.<br>\n" .
-            "<span style=\"user-select: none;\">Da adesso per accedere utilizza: </span>" . 
-            "<output style=\"font-family: monospace\">$new_password</output><br>\n" .
-            "<hr>\n".
-            "Ti preghiamo di non rispondere a questa email.<br>" . 
-            "Buona giornata", 
-            $connection, true))
-            return "Inviata per email a <a href=\"mailto:$email\" class=\"link\">$email</a>";
-        return "Errore durante invio mail";
-    }
-    return $new_password;
-}
-function deleteUser($connection, int $target = 0)
-{
-    if (!$connection || $target == 0)
-        return "";
-    $ret = "";
-    try {
-        
-        $result = mysqli_query($connection, "CALL DeleteUser($target)");
-        if ($result)
-        {
-            $ret = (string)mysqli_affected_rows($connection);
-        }
-        mysqli_next_result($connection);
-    } catch (Exception $ex) {
 
-    }
-    return $ret;
-}
+
 function getUserIP():string {
     $ipaddress = "127.0.0.1";
     if (isset($_SERVER['REMOTE_ADDR']))
@@ -380,59 +152,8 @@ function getUserIP():string {
         $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
     return $ipaddress;
 }
-function getAssociatedMail($connection, string $user)
-{
-    if (!$connection || $user == 0)
-    {
-        return "";
-    }
-    $query = "CALL GetAssociatedMailByUserName('$user')";
-    $result = mysqli_query($connection, $query);
-    $return = "";
-    if ($result)
-    {
-        if ($row = $result->fetch_assoc())
-        {
-            if (isset($row["email"]))
-            {
-                $result = $row["email"];
-            }
-            if (isset($row["id"]))
-            {
-                $id = $row["id"];
-                $result .= ",$id";
-            }
-        }
-        $result->close();
-    }
-    mysqli_next_result($connection);
-    return $return;
-}
-function getAssociatedMailById($connection, int $user)
-{
-    if (!$connection || $user == 0)
-    {
-        return "";
-    }
-    $query = "CALL SelectAssociatedMail($user)";
-    $result = mysqli_query($connection, $query);
-    $return = "";
-    if ($result)
-    {
-        if ($row = $result->fetch_assoc())
-        {
-            if (isset($row["email"]))
-            {
-                $return = $row["email"];
-            }
-        }
-        $result->close();
-    }
-    mysqli_next_result($connection);
-    return $return;
-}
 
-function getUsersActivity($connection) 
+function getUsersActivity(mysqli $connection) 
 {
     $query  = "CALL UsersActivity(NULL);";
 
@@ -463,7 +184,7 @@ function getUsersActivity($connection)
 
             $table .= "<tr>";
             $table .= "<th data-label='Utente'>$user</th>";
-            $str = acc(datefmt_format($italian_date_format, $start));
+            $str = htmlspecialchars(datefmt_format($italian_date_format, $start));
             $table .= "<td data-label='Orario'>$str</td>";
             $table .= "<td data-label='Durata'>$duration->i minuti</td>";
             $table .= "<td data-label='Flag'>$flag</td>";
@@ -487,7 +208,7 @@ function getUsersActivity($connection)
     mysqli_next_result($connection);
     return $table;
 }
-function emailList($connection) 
+function emailList(mysqli $connection) 
 {
     $query  = "CALL ListEmail();";
     if (!$connection)
@@ -507,7 +228,7 @@ function emailList($connection)
     {
         $id = (int)$row["id"];
         $dest = $row["destinatario"];
-        $sub = acc($row["oggetto"]);
+        $sub = htmlspecialchars($row["oggetto"]);
         $inviata = $row["inviata"];
         $aperta = $row["aperta"];
         $ricevuta = (int)$row["ricevuta"] == 1;
@@ -533,7 +254,7 @@ function emailList($connection)
     mysqli_next_result($connection);
     return $table;
 }
-function singleEmail($connection, int $id) 
+function singleEmail(mysqli $connection, int $id) 
 {
     $query  = "CALL ViewEmail($id)";
     if (!$connection)
@@ -552,11 +273,11 @@ function singleEmail($connection, int $id)
     if ($row = $result->fetch_assoc())
     {
         $dest = $row["destinatario"];
-        $sub = acc($row["oggetto"]);
+        $sub = htmlspecialchars($row["oggetto"]);
         $inviata = $row["inviata"];
         $aperta = $row["aperta"];
         $ricevuta = (int)$row["ricevuta"] == 1;
-        $testo = sql_sanitize($row["testo"]);
+        $testo = $connection->real_escape_string($row["testo"]);
         $testo = str_replace(array("\n", "\r"), "", $testo);
         $str .= "<h2>Email #$id</h2>";
         $str .= "<h4>Destinatario:&nbsp;<a href=\"mailto:$dest\" class=\"link\">$dest</a></h4>";
@@ -579,7 +300,7 @@ function singleEmail($connection, int $id)
 
         $str .= "<h4>HTML sorgente email:</h4>";
         $str .= "<pre style='width: 100%;height: fit-content;'>\r\n<code style='width: 100%;display: block;overflow-x: auto'>\r\n";
-        $str .= acc($row["testo"]);
+        $str .= htmlspecialchars($row["testo"]);
         $str .="\r\n</code>\r\n</pre>";
     }
 
@@ -588,11 +309,11 @@ function singleEmail($connection, int $id)
     mysqli_next_result($connection);
     return $str;
 }
-function creaMessaggio($connection, string $testo, int $user_id)
+function creaMessaggio(mysqli $connection, string $testo, int $user_id)
 {
     if (!$testo || $user_id === 0)
         return false;
-    $testo_sano = sql_sanitize($testo);
+    $testo_sano = $connection->real_escape_string($testo);
     $query = "CALL CreaMessaggio($user_id, '$testo_sano')";
     $result = (bool)mysqli_query($connection, $query);
     mysqli_next_result($connection);

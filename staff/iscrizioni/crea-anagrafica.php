@@ -155,7 +155,7 @@
                         "<hr />\r\n" .
                         "Augurandovi una buona giornata vi preghiamo di non rispondere a questa email ma di conservarla.";
                     $subject = "Dati anagrafici inseriti correttamente";
-                    send_email($email, $subject, $text, $connection);
+                    Email::Send($email, $subject, $text, $connection);
                 }
                 Cookie::Set("id_anagrafica", "$id_anagrafica", 3600 * 2);
                 Cookie::Set("esit", "Dati inseriti correttamente.", 3600);
