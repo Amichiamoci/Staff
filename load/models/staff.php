@@ -3,7 +3,7 @@
 class StaffBase
 {
     public int $id = 0;
-    public string $nome = 0;
+    public string $nome = "";
     public function __construct(string|int|null $id, string|null $nome)
     {
         if (isset($id))
@@ -35,7 +35,7 @@ class StaffBase
 class Commissione
 {
     public int $id = 0;
-    public string $nome = 0;
+    public string $nome = "";
     public function __construct(string|int|null $id, string|null $nome)
     {
         if (isset($id))

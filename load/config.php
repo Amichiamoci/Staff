@@ -4,6 +4,8 @@ setlocale(LC_ALL, 'ita', 'it_IT.utf8');
 //
 // Load from .env in root
 //
+require_once dirname(__DIR__) . '/vendor/autoload.php';
+
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . "../");
 $dotenv->ifPresent(array("DB_HOST", "DB_USER", "DB_NAME"))->notEmpty();
 $dotenv->safeLoad();

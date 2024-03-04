@@ -1,15 +1,15 @@
 <?php
 
-require_once dirname(__DIR__) . "/basic_functions.php";
-include_once dirname(__DIR__) . "/models/anagrafica.php";
-include_once dirname(__DIR__) . "/models/edizione.php";
-include_once dirname(__DIR__) . "/models/iscrizione.php";
-include_once dirname(__DIR__) . "/models/parrocchia.php";
-include_once dirname(__DIR__) . "/models/sport.php";
-include_once dirname(__DIR__) . "/models/squadra.php";
-include_once dirname(__DIR__) . "/models/staff.php";
-include_once dirname(__DIR__) . "/models/torneo.php";
-require_once dirname(__DIR__) . "/models/user.php";
+require_once __DIR__ . "/basic_functions.php";
+include_once __DIR__ . "/models/anagrafica.php";
+include_once __DIR__ . "/models/edizione.php";
+include_once __DIR__ . "/models/iscrizione.php";
+include_once __DIR__ . "/models/parrocchia.php";
+include_once __DIR__ . "/models/sport.php";
+include_once __DIR__ . "/models/squadra.php";
+include_once __DIR__ . "/models/staff.php";
+include_once __DIR__ . "/models/torneo.php";
+require_once __DIR__ . "/models/user.php";
 
 $connection = new mysqli(MYSQL_HOST, MYSQL_USER, empty(MYSQL_PASSWORD) ? null : MYSQL_PASSWORD, MYSQL_DB);
 $connection->set_charset("utf8");
@@ -192,6 +192,6 @@ function listaIscrizioni(mysqli $connection, string $table) : string
 //
 //  Altro
 //
-include_once dirname(__DIR__) . "/sport-functions.php";
-include_once dirname(__DIR__) . "/system-functions.php";
-include_once dirname(__DIR__) . "/user-functions.php";
+include_once __DIR__ . "/sport-functions.php";
+include_once __DIR__ . "/system-functions.php";
+include_once __DIR__ . "/user-functions.php";

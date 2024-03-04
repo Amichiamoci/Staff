@@ -1,7 +1,7 @@
 <?php
 //Do not add the ./ at the beginning of the path, 
 //as this file can be included from variuos subfolders
-require_once "load/db_manager.php";
+require_once __DIR__ . "/load/db_manager.php";
 $is_extern = isset($is_extern) && (bool) $is_extern;
 
 if (!$is_extern)

@@ -1,10 +1,10 @@
 <?php
-require_once dirname(__DIR__) . "/config.php";
-include_once dirname(__DIR__) . "/cookie.php";
-include_once dirname(__DIR__) . "/email.php";
-include_once dirname(__DIR__) . "/file_functions.php";
-include_once dirname(__DIR__) . "/link.php";
-require_once dirname(__DIR__) . "/security.php";
+require_once __DIR__ . "/config.php";
+include_once __DIR__ . "/cookie.php";
+include_once __DIR__ . "/email.php";
+include_once __DIR__ . "/file_functions.php";
+include_once __DIR__ . "/link.php";
+require_once __DIR__ . "/security.php";
 
 function getUserIP() : string
 {
