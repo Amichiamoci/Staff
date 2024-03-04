@@ -1,17 +1,13 @@
 <?php
-if (!isset($DOMAIN))
-{
-	$DOMAIN = "https://" . $_SERVER['HTTP_HOST'];
-}
 $__current_url = $_SERVER['REQUEST_URI'];
 if (str_contains($__current_url, "/staff/") || str_ends_with($__current_url, "/staff"))
 {
-	$__link_href = "$DOMAIN/admin/staff/";
+	$__link_href = ADMIN_URL . "/staff/";
 } else {
-	$__link_href = "$DOMAIN/admin/";
+	$__link_href = ADMIN_URL . "/";
 }
-if (isset($is_extern) && $is_extern)
-	$__link_href = $DOMAIN;
+if ($is_extern)
+	$__link_href = DOMAIN_URL;
 ?>
 <!-- Scroll top ------------------------------------------------------------ -->
 
@@ -25,21 +21,21 @@ if (isset($is_extern) && $is_extern)
 <!-- Header ---------------------------------------------------------------- -->
 
 <header class="flex center">
-	<?php if (isset($anagrafica) && !(isset($is_extern) && $is_extern)) { ?>
+	<?php if (isset(User::$Current) && !$is_extern) { ?>
 		<span style="user-select: none">
-			Ciao, <?= acc($anagrafica->label()) ?>
+			Ciao, <?= htmlspecialchars($anagrafica->label()) ?>
 			&nbsp;
 		</span>
 	<?php } ?>
 	<?php if (!Security::IsFromApp()) { ?>
 		<div class="logo">
 			<a href="<?= $__link_href ?>" title="Torna al menù">
-				<img src="<?= "$DOMAIN/assets/icons/logo.png" ?>">
+				<img src="<?= ADMIN_URL . "/assets/logo.png" ?>">
 			</a>
 		</div>
 	<?php } ?>
-	<?php if (!isset($is_extern) || !$is_extern) { ?>
-		<a class="logout" href="<?= "$DOMAIN/admin/manage/logout.php" ?>">
+	<?php if (!$is_extern) { ?>
+		<a class="logout" href="<?= ADMIN_URL . "/manage/logout.php" ?>">
 			<span>Logout</span>
 			<i class="fa-solid fa-sign-out-alt"></i>
 		</a>
