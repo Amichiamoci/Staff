@@ -32,6 +32,7 @@ define("DOMAIN_URL", "https://" . DOMAIN);
 
 define("ADMIN_PATH", dirname($_SERVER["PHP_SELF"]));
 define("ADMIN_URL", DOMAIN . ADMIN_PATH);
+define("UPLOAD_PATH", ADMIN_PATH . "/uploads");
 
 if (!defined("EMAIL_SOURCE"))
     define("EMAIL_SOURCE", "dev@" . DOMAIN);
