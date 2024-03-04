@@ -1,7 +1,7 @@
 <?php
 
  include "../../check_login.php";
- $dati_staff = Staff::Get($connection, $anagrafica->staff_id);
+ $dati_staff = Staff::Get($connection, User::$Current->staff_id);
 
 ?>
 
@@ -37,7 +37,7 @@
                 {
                     $sport = $_GET["sport"];
                 }
-                echo getSquadreList($connection, $year, $sport, $dati_staff->is_referente || $anagrafica->is_admin);
+                echo getSquadreList($connection, $year, $sport, $dati_staff->is_referente || User::$Current->is_admin);
 			?>
         </div>
     </div>

@@ -1,7 +1,7 @@
 <?php
 
 include "../../check_login.php";
-$dati_staff = Staff::Get($connection, $anagrafica->staff_id);
+$dati_staff = Staff::Get($connection, User::$Current->staff_id);
 $squadra = new Squadra();
 //Imposto valori di default
 $squadra->id_parrocchia = $dati_staff->id_parrocchia;
@@ -104,7 +104,7 @@ $lista_sport = Sport::GetAll($connection);
                     Nome
                 </label>
                 <input type="text" id="nome" name="nome" size="64" 
-                    maxlength="128" pattern="[A-Za-z0-9\s]{4,}" value="<?= acc($squadra->nome) ?>" required spellcheck="false">
+                    maxlength="128" pattern="[A-Za-z0-9\s]{4,}" value="<?= htmlspecialchars($squadra->nome) ?>" required spellcheck="false">
 
                 <label for="parrocchia">
                     Parrocchia
@@ -113,7 +113,7 @@ $lista_sport = Sport::GetAll($connection);
                     <?php
                         foreach ($lista_parrocchie as $parr)
                         {
-                            $label = acc($parr->nome);
+                            $label = htmlspecialchars($parr->nome);
                             $id = $parr->id;
                             if ($id == $squadra->id_parrocchia)
                             {
@@ -132,7 +132,7 @@ $lista_sport = Sport::GetAll($connection);
                     <?php
                         foreach ($lista_sport as $sport)
                         {
-                            $label = acc($sport->label);
+                            $label = htmlspecialchars($sport->label);
                             $id = $sport->id;
                             if ($id == $squadra->id_sport)
                             {
@@ -169,7 +169,7 @@ $lista_sport = Sport::GetAll($connection);
                         $lista_membri = explode(",", $squadra->id_iscr_membri);
                         foreach ($iscritti as $iscritto)
                         {
-                            $label = acc($iscritto->nome);
+                            $label = htmlspecialchars($iscritto->nome);
                             $id = $iscritto->id;
                             echo "<li>\n<label for='member-$id'>$label</label>";
                             echo "<div class='checkbox'>\n";

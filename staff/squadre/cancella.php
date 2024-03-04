@@ -27,8 +27,8 @@ if (isset($_GET["id"]) && !is_array($_GET["id"]))
     //E' stato premuto conferma
     $id_squadra = (int)$_POST["id_squadra"];
     $r = Squadra::Load($connection, $id_squadra);
-    $nome_squadra = acc($r->nome);
-    if ($r->id_parrocchia == $dati_staff->id_parrocchia || $anagrafica->is_admin)
+    $nome_squadra = htmlspecialchars($r->nome);
+    if ($r->id_parrocchia == $dati_staff->id_parrocchia || User::$Current->is_admin)
     {
         //Si sta cancellando una squadra della propria parrocchia
         try {
