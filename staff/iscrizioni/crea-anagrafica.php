@@ -58,16 +58,17 @@
     if (isset($_POST["anagrafica_submit"]))
     {
         //Dati form
-        $nome = sql_sanitize($_POST["nome"]);
+        $nome = $_POST["nome"];
         $nome = str_replace("/", "", $nome);
         $nome = Capitalize($nome);
 
-        $cognome = sql_sanitize($_POST["cognome"]);
+        $cognome = $_POST["cognome"];
         $cognome = str_replace("/", "", $cognome);
         $cognome = Capitalize($cognome);
 
         if ($is_editing && $nome == "" && $cognome == "")
         {
+            // To be corrected
             $query = "SELECT a.nome, a.cognome FROM anagrafiche a WHERE LOWER(a.codice_fiscale) = LOWER('$cf')";
             $res = mysqli_query($connection, $query);
             if ($res)
@@ -84,24 +85,24 @@
         $nome_file = str_replace(
             array(" ", ".", ",", ":", ";", "<", ">", "?", "'", "\"", "\\"), "_", $nome_file);
         
-        $compleanno = sql_sanitize($_POST["compleanno"]);
+        $compleanno = $_POST["compleanno"];
 
-        $provenienza = sql_sanitize($_POST["provenienza"]);
+        $provenienza = $_POST["provenienza"];
 
-        $tel = sql_sanitize($_POST["tel"]);
+        $tel = $_POST["tel"];
 
-        $email = sql_sanitize($_POST["email"]);
+        $email = $_POST["email"];
 
-        $cf = sql_sanitize($_POST["cf"]);
+        $cf = $_POST["cf"];
         
         if (isset($_POST["doc_type"]) && is_numeric($_POST["doc_type"]))
         {
             $doc_type = (int)$_POST["doc_type"];
         }
 
-        $doc_code = sql_sanitize($_POST["doc_code"]);
+        $doc_code = $_POST["doc_code"];
 
-        $doc_expires = sql_sanitize($_POST["doc_expires"]);
+        $doc_expires = $_POST["doc_expires"];
 
         if (isset($_FILES["doc_file"]) &&
             upload_file($_FILES["doc_file"], $allowed_ext, $nome_file, $errore))
@@ -124,13 +125,13 @@
             } else {
                 if ($email != "" && $is_extern)
                 {
-                    $nome = acc($nome);
-                    $cognome = acc($cognome);
-                    $tel = acc($tel);
-                    $email = strtolower(acc($email));
-                    $cf = strtoupper(acc($cf));
-                    $provenienza = acc($provenienza);
-                    $doc_code = strtoupper(acc($doc_code));
+                    $nome = htmlspecialchars($nome);
+                    $cognome = htmlspecialchars($cognome);
+                    $tel = htmlspecialchars($tel);
+                    $email = strtolower(htmlspecialchars($email));
+                    $cf = htmlspecialchars(strtoupper($cf));
+                    $provenienza = htmlspecialchars($provenienza);
+                    $doc_code = strtoupper(htmlspecialchars($doc_code));
                     $text = 
                         "<p>\r\n" .
                         "   &Egrave; appena stato compilato il form di inserimento digitale dei dati di Amichiamoci.<br />\r\n" . 
@@ -181,17 +182,17 @@
 
 <head>
     <?php include "../../parts/head.php";?>
-    <?php if (!isset($is_extern) || !$is_extern) { ?>
+    <?php if (!$is_extern) { ?>
 	    <title>Amichiamoci | Crea Anagrafica</title>
     <?php } else { ?>
 	    <title>Inserimento dati personali | Amichiamoci</title>
     <?php } ?>
-    <link rel="canonical" href="<?= "$DOMAIN/admin/form-iscrizione.php" ?>">
+    <link rel="canonical" href="<?= ADMIN_URL . "/form-iscrizione.php" ?>">
 	<meta name="description" content="Form di inserimento dati personali | Amichiamoci">
 
 	<meta property="og:title" content="Inserimento dati personali | Amichiamoci">
 	<meta property="og:type" content="website">
-	<meta property="og:url" content="https://www.amichiamoci.it/admin/form-iscrizione.php">
+	<meta property="og:url" content="<?= ADMIN_URL . "/form-iscrizione.php" ?>">
 	<meta property="og:description" content="Form di inserimento dati personali | Amichiamoci">
 	<meta property="og:image" content="../../../assets/icons/favicon.png">
 
@@ -247,7 +248,7 @@
                     </ul>
                 <?php } else { ?>
 
-                    <?php if ($anagrafica->staff_id != 0) { ?>
+                    <?php if (isset(User::$Current) && User::$Current->staff_id != 0) { ?>
                         <h3>
                             Stai creando una scheda anagrafica
                         </h3>
@@ -270,7 +271,7 @@
                         <?php } ?>
                     <?php } else { ?>
                         <h3>
-                            <?= acc($anagrafica->username) ?>, stai creando la TUA scheda anagrafica
+                            <?= htmlspecialchars(User::$Current->staff_id) ?>, stai creando la TUA scheda anagrafica
                         </h3>
                     <?php } ?>
                 <?php } ?>
@@ -410,7 +411,7 @@
                                 $tipi = TipoDocumento::GetAll($connection);
                                 foreach ($tipi as $tipo)
                                 {
-                                    $label = acc($tipo->label);
+                                    $label = htmlspecialchars($tipo->label);
                                     if ($tipo->id == $doc_type)
                                     {
                                         echo "<option value='$tipo->id' selected='selected'>$label</option>\n";

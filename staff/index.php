@@ -10,7 +10,7 @@ if (isset($_COOKIE["esit"]) && !is_array($_COOKIE["esit"]))
 
 Cookie::DeleteIfExists("form");
 
-$dati_staff = Staff::Get($connection, $anagrafica->staff_id);
+$dati_staff = Staff::Get($connection, User::$Current->staff_id);
 
 ?>
 <!DOCTYPE html>
@@ -24,21 +24,14 @@ $dati_staff = Staff::Get($connection, $anagrafica->staff_id);
 	<style type="text/css">
 
 		#cambia-parrocchia::after {
-
 			opacity: 0;
-
 			content: '| Clicca per cambiare';
-
 			user-select: none;
-
 			transition: opacity ease-in-out .8s;
-
 		}
 
 		#cambia-parrocchia:hover::after {
-
 			opacity: 1;
-
 		}
 
 	</style>
@@ -80,7 +73,7 @@ $dati_staff = Staff::Get($connection, $anagrafica->staff_id);
 		<?= ($dati_staff->is_subscribed() && $dati_staff->is_referente) ? "Referente" : "Staffista"?>
 		per 
 		<a href="diventa-staff.php?cambia-parrocchia" title="Cambia parrocchia" id="cambia-parrocchia">
-			<?= acc($dati_staff->parrocchia) ?>
+			<?= htmlspecialchars($dati_staff->parrocchia) ?>
 		</a>
 	</p>
 </div>
@@ -107,7 +100,7 @@ $dati_staff = Staff::Get($connection, $anagrafica->staff_id);
 					<h3>Sei staff per il <?= $edizione->year ?></h3>
 					<p class="text">
 						Taglia maglia: <?= $dati_staff->maglia ?> <br>
-						Commissioni: <?= acc($dati_staff->commissioni) ?>
+						Commissioni: <?= htmlspecialchars($dati_staff->commissioni) ?>
 					</p>
 				<?php } ?>
 				<br>
@@ -129,7 +122,7 @@ $dati_staff = Staff::Get($connection, $anagrafica->staff_id);
 			</div>
         </div>
 		-->
-		<?php if ($anagrafica->is_admin) { ?>
+		<?php if (User::$Current->is_admin) { ?>
 
 			<div class="column col-33 flex vertical">
 				<div class="admin-card flex vertical top">
@@ -144,7 +137,7 @@ $dati_staff = Staff::Get($connection, $anagrafica->staff_id);
 
 		<?php } ?>
 
-		<?php if (($dati_staff->is_subscribed() && $dati_staff->is_referente) || $anagrafica->is_admin) { ?>
+		<?php if (($dati_staff->is_subscribed() && $dati_staff->is_referente) || User::$Current->is_admin) { ?>
 
 			<!-- Procedure di iscrizione -->
 			<div class="column col-33 flex vertical">
@@ -223,7 +216,7 @@ $dati_staff = Staff::Get($connection, $anagrafica->staff_id);
 
 
 		<!-- Tornei -->
-		<?php if ($dati_staff->is_in("Tornei") || $anagrafica->is_admin || $dati_staff->is_referente) { ?>
+		<?php if ($dati_staff->is_in("Tornei") || User::$Current->is_admin || $dati_staff->is_referente) { ?>
 
 			<div class="column col-33 flex vertical">
 				<div class="admin-card flex vertical top">

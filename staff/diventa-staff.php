@@ -5,7 +5,7 @@
         exit;
     }
     include "../check_login.php";
-    if ($anagrafica->staff_id != 0 && !isset($_GET["cambia-parrocchia"]) && !isset($_POST["cambia"]))
+    if (User::$Current->staff_id != 0 && !isset($_GET["cambia-parrocchia"]) && !isset($_POST["cambia"]))
     {
         header("Location: index.php");
         exit;
@@ -22,7 +22,7 @@
         }
         if (isset($_POST["cambia"]))
         {
-            if (Staff::ChangeParrocchia($connection, $anagrafica->staff_id, $parrocchia))
+            if (Staff::ChangeParrocchia($connection, User::$Current->staff_id, $parrocchia))
             {
                 Cookie::Set("esit", "Parrocchia cambiata correttamente", 3600);
             }
@@ -93,7 +93,7 @@
                         <?php
                             foreach ($lista_parrocchie as $parr)
                             {
-                                $label = acc($parr->nome);
+                                $label = htmlspecialchars($parr->nome);
                                 $id = $parr->id;
                                 if ($id == $parrocchia)
                                 {

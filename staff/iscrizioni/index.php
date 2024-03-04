@@ -1,9 +1,9 @@
 <?php
 
     include "../../check_login.php";
-    $dati_staff = Staff::Get($connection, $anagrafica->staff_id);
+    $dati_staff = Staff::Get($connection, User::$Current->staff_id);
 
-    $add_link = ($dati_staff->is_subscribed() && $dati_staff->is_referente) || $anagrafica->is_admin;
+    $add_link = ($dati_staff->is_subscribed() && $dati_staff->is_referente) || User::$Current->is_admin;
     $year = null;
     $include_all = 1;
     if (isset($_GET["year"]))

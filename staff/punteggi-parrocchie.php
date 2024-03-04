@@ -1,21 +1,20 @@
 <?php
     include "../check_login.php";
-    if (!$anagrafica->is_admin)
+    if (!User::$Current->is_admin)
     {
         header("Location: index.php");
         exit;
     }
     if (
         isset($_POST["punti"]) && 
-        isset($_POST["parrocchia"]))
+        isset($_POST["parrocchia"]) && 
+        isset($_POST["edizione"]))
     {
         header("Content-Type: application/json");
-        $punti = sql_sanitize($_POST["punti"]);
-        $parrocchia = (int)$_POST["parrocchia"];
-        $edizione = (int)$_POST["edizione"];
-        $query = "REPLACE INTO punteggio_parrocchia (parrocchia, edizione, punteggio) VALUES ($parrocchia, $edizione, '$punti')";
-        $res = mysqli_query($connection, $query);
-        if ($res)
+        $punti = $_POST["punti"];
+        $parrocchia = $_POST["parrocchia"];
+        $edizione = $_POST["edizione"];
+        if (PunteggioParrocchia::Insert($connection, $edizione, $parrocchia, $punti))
         {
             echo "{ \"res\": 1 }";
         } else {
@@ -64,35 +63,23 @@
             </thead>
             <tbody>
             <?php 
-                $query = "SELECT l.id, l.nome, IF(p.punteggio IS NULL, '?', p.punteggio) AS \"punti\" 
-                FROM lista_parrocchie_partecipanti l
-                    LEFT OUTER JOIN punteggio_parrocchia p ON l.id = p.parrocchia
-                WHERE p.edizione = $edizione->id
-                ORDER BY nome ASC";
-                $res = mysqli_query($connection, $query);
-                if ($res)
+                $punteggi = PunteggioParrocchia::All($connection, $edizione->id);
+                foreach ($punteggi as $punteggio)
                 {
-                    while ($row = $res->fetch_assoc())
-                    {
-                        $id = (int)$row["id"];
-                        $nome = acc($row["nome"]);
-                        $punti = $row["punti"];
-                        ?>
-                        <tr>
-                            <td style="padding: .2em .5em .2em 1.3em;">
-                                <?= $nome ?>
-                            </td>
-                            <td>
-                                <input type="text" style="width:100%; text-align: center;"
-                                    onchange="AggiornaPunteggioParrocchia(<?= $id ?>)" 
-                                    value="<?= $punti ?>"
-                                    id="parrocchia-<?= $id ?>">
-                            </td>
-                        </tr>
-                        <?php
-                    }
+                    ?>
+                    <tr>
+                        <td style="padding: .2em .5em .2em 1.3em;">
+                            <?= $punteggio->nome ?>
+                        </td>
+                        <td>
+                            <input type="text" style="width:100%; text-align: center;"
+                                onchange="AggiornaPunteggioParrocchia(<?= $punteggio->id_parrocchia ?>)" 
+                                value="<?= htmlspecialchars($punteggio->punteggio) ?>"
+                                id="parrocchia-<?= $punteggio->id_parrocchia ?>">
+                        </td>
+                    </tr>
+                    <?php
                 }
-
             ?>
             </tbody>
         </table>
@@ -112,7 +99,7 @@
             'punti': p.value,
             'edizione': <?= $edizione->id ?>,
             'parrocchia': parr
-        })
+        });
         return console.log(parr, o);
     }
 </script>

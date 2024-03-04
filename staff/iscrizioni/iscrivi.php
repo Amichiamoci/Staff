@@ -27,12 +27,14 @@
     }
     
     include "../../check_login.php";
-    if ($anagrafica->staff_id === 0 && !$anagrafica->is_admin) {
+
+    
+    if (User::$Current->staff_id === 0 && !User::$Current->is_admin) {
         header("Location: ../../index.php");
         exit;
     }
-    $dati_staff = Staff::Get($connection, $anagrafica->staff_id);
-    if ((!$dati_staff->is_subscribed() || !$dati_staff->is_referente) && !$anagrafica->is_admin)
+    $dati_staff = Staff::Get($connection, User::$Current->staff_id);
+    if ((!$dati_staff->is_subscribed() || !$dati_staff->is_referente) && !User::$Current->is_admin)
     {
         header("Location: ../index.php");
         exit;
@@ -50,8 +52,6 @@
         "doc",        "docx",       "ppt",
         "pptx");
     $file_accept = join(", ", array_map("addDot", $allowed_ext));
-    $iscrizione = new raw_iscrizione();
-    $iscrizione->nome =  Anagrafica::NomeDaId($connection, $id_anagrafica);
     $errore = "";
     if ($cod_iscrizione !== 0)
     {

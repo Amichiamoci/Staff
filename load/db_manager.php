@@ -10,6 +10,7 @@ include_once __DIR__ . "/models/squadra.php";
 include_once __DIR__ . "/models/staff.php";
 include_once __DIR__ . "/models/torneo.php";
 require_once __DIR__ . "/models/user.php";
+require_once __DIR__ . "/models/punteggio_parrocchia.php";
 
 $connection = new mysqli(MYSQL_HOST, MYSQL_USER, empty(MYSQL_PASSWORD) ? null : MYSQL_PASSWORD, MYSQL_DB);
 $connection->set_charset("utf8");

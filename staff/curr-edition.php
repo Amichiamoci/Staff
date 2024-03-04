@@ -4,7 +4,7 @@
 		<h3>Amichiamoci <?= $edizione->year ?></h3>
 		<div class="grid">
 			<div class="column col-10 flex center">
-				<img src="/<?=$edizione->imgpath?>"
+				<img src="<?= ADMIN_URL ?>/<?= isset($edizione->imgpath) ? $edizione->imgpath : "" ?>"
 					title="Logo attuale"
 					alt="Logo Amichiamoci <?= $edizione->year ?>"
 					class="logo-edizione">
@@ -13,7 +13,7 @@
 				<p class="text center">
 					<em style="user-select: none;">
 						&quot;
-						<?= acc($edizione->motto) ?>
+						<?= htmlspecialchars($edizione->motto) ?>
 						&quot;
 					</em>
 					<br>
@@ -21,7 +21,7 @@
 					<br>
 					&rarr;
 					<a 
-						href="<?= $DOMAIN ?>/admin/form-iscrizione.php"
+						href="<?= ADMIN_URL ?>/form-iscrizione.php"
 						data-share-title="Iscriviti ad Amichiamoci <?= $edizione->year ?>"
 						data-share-text="Form di upload dati Amichiamoci"
 						target="_blank"

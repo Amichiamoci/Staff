@@ -6,7 +6,7 @@
     $maglia = "L";
     $tutte_commissioni = Commissione::All($connection);
     $commissioni_scelte = array();
-    $dati_staff = Staff::Get($connection, $anagrafica->staff_id);
+    $dati_staff = Staff::Get($connection, User::$Current->staff_id);
     if (isset($_POST["partecipa_submit"]))
     {
         if (isset($_POST["edizione"]))
@@ -25,7 +25,7 @@
             }
         }
         $is_referente = isset($_POST["referente"]);
-        if (Staff::Partecipa($connection, $anagrafica->staff_id, $def_edizione, $maglia, $commissioni_scelte, $is_referente))
+        if (Staff::Partecipa($connection, User::$Current->staff_id, $def_edizione, $maglia, $commissioni_scelte, $is_referente))
         {
             header("Location: index.php");
             exit;
@@ -100,7 +100,7 @@
                     </select>
 
                     <label for="referente">
-                        Referente di <?= acc($dati_staff->parrocchia) ?>
+                        Referente di <?= htmlspecialchars($dati_staff->parrocchia) ?>
                     </label>
                     <div class="checkbox">
                         <input type="checkbox" name="referente" id="referente">
