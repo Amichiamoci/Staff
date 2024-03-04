@@ -13,5 +13,9 @@ function getUserIP() : string
         $ipaddress = $_SERVER['REMOTE_ADDR'];
     elseif(isset($_SERVER['HTTP_X_FORWARDED_FOR']))
         $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    if ($ipaddress == "::1" || $ipaddress == "localhost")
+    {
+        return "127.0.0.1";
+    }
     return $ipaddress;
 }

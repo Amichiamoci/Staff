@@ -178,12 +178,16 @@ async function share_link(elem)
 	evt.preventDefault();
 	share_link(elem);
 });
-[...document.querySelectorAll('[data-load-url]')].forEach(elem => {
+[...document.querySelectorAll('[data-load-url]')].forEach(async elem => {
 	const url = elem.getAttribute('data-load-url');
-	fetch(url).then(
-		response => response.text().then(
-			text => elem.innerText = text).catch(err => elem.innerText = String(err))
-			).catch(err => elem.innerText = String(err));
+	if (!url) return;
+	const resp = await fetch(url);
+	if (!resp.ok)
+	{
+		elem.innerText = `${resp.status}: ${resp.statusText}`;
+		return;
+	}
+	elem.innerText = await resp.text();
 });
 
 

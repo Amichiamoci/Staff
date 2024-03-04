@@ -13,6 +13,10 @@ require_once __DIR__ . "/models/user.php";
 
 $connection = new mysqli(MYSQL_HOST, MYSQL_USER, empty(MYSQL_PASSWORD) ? null : MYSQL_PASSWORD, MYSQL_DB);
 $connection->set_charset("utf8");
+if (!$connection)
+{
+    die(500);
+}
 
 function listaMaglie(
     mysqli $connection, 
@@ -195,3 +199,4 @@ function listaIscrizioni(mysqli $connection, string $table) : string
 include_once __DIR__ . "/sport-functions.php";
 include_once __DIR__ . "/system-functions.php";
 include_once __DIR__ . "/user-functions.php";
+include_once __DIR__ . "/staff-functions.php";

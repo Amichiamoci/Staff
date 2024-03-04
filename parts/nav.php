@@ -23,7 +23,7 @@ if ($is_extern)
 <header class="flex center">
 	<?php if (isset(User::$Current) && !$is_extern) { ?>
 		<span style="user-select: none">
-			Ciao, <?= htmlspecialchars($anagrafica->label()) ?>
+			Ciao, <?= htmlspecialchars(User::$Current->label()) ?>
 			&nbsp;
 		</span>
 	<?php } ?>

@@ -31,8 +31,7 @@ class Cookie
     }
     public static function Exists(string $name) : bool
     {
-        $cookie = Cookie::Get($name);
-        return isset($cookie);
+        return isset($name) && !empty($name) && isset($_COOKIE[$name]);
     }
     public static function DeleteIfExists(string $name) : bool
     {

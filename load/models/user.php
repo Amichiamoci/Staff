@@ -45,12 +45,12 @@ class User
     {
         session_unset();
         session_destroy();
-        return Cookie::DeleteIfItIs(User::$COOKIE_NAME, (string)$this->id);
+        return Cookie::DeleteIfItIs(self::$COOKIE_NAME, (string)$this->id);
     }
     private static function SessionStart() : bool
     {
         return session_start([
-            'name' => User::$COOKIE_NAME,
+            'name' => self::$COOKIE_NAME,
             'cookie_lifetime' => '172800', // 48h
             'cookie_domain' => DOMAIN,
             'cookie_path' => ADMIN_PATH,
@@ -68,6 +68,7 @@ class User
         if (!$result)
         {
             $connection->next_result();
+            //echo "Bad session query";
             return 0;
         }
         $ret = 0;
@@ -88,7 +89,7 @@ class User
     {
         if (!$connection || 
             !isset($username) || empty($username) || 
-            !isset($password) || empty($passwod))
+            !isset($password) || empty($password))
             return false;
         if (!isset($user_agent)) $user_agent = "";
         if (!isset($user_ip)) $user_ip = "";
@@ -98,6 +99,7 @@ class User
         if (!$result)
         {
             $connection->next_result();
+            //echo "Bad result";
             return false;
         }
         $passed = false;
@@ -108,63 +110,74 @@ class User
             $id = (int)$row["id"];
             $hash = $row["password"];
             $admin = isset($row["is_admin"]) && (int)$row["is_admin"] === 1;
-            $passed = $id != 0 && Security::TestPassword($password, $hash);
+            $passed = $id !== 0 && Security::TestPassword($password, $hash);
         }
         $result->close();
         $connection->next_result();
         if (!$passed)
         {
+            echo "Password verify";
             return false;
         }
         if (session_status() !== PHP_SESSION_ACTIVE)
         {
-            if (!User::SessionStart())
+            if (!self::SessionStart())
+            {
+                //echo "Could not start session";
                 return false;
+            }
+            //echo "Session was not active but is now";
         }
         $flag = sha1($user_agent . $user_ip);
-        $_SESSION[User::$USER_ID] = $id;
-        $_SESSION[User::$USER_NAME] = $username;
-        $_SESSION[User::$LOGIN_TIME] = time();
-        $_SESSION[User::$USER_IS_ADMIN] = $admin;
-        $_SESSION[User::$SESSION_FLAG] = $flag;
-        $_SESSION[User::$SESSION_DB_ID] = User::LogSessionStart($connection, $id, $flag, $user_ip);
-        return $_SESSION[User::$SESSION_DB_ID] !== 0;
+        $_SESSION[self::$USER_ID] = $id;
+        $_SESSION[self::$USER_NAME] = $username;
+        $_SESSION[self::$LOGIN_TIME] = time();
+        $_SESSION[self::$USER_IS_ADMIN] = $admin;
+        $_SESSION[self::$SESSION_FLAG] = $flag;
+        $_SESSION[self::$SESSION_DB_ID] = self::LogSessionStart($connection, $id, $flag, $user_ip);
+        /*
+        if ($_SESSION[self::$SESSION_DB_ID] === 0)
+        {
+            echo "Session id appears to be 0";
+        }
+        */
+        return $_SESSION[self::$SESSION_DB_ID] !== 0;
     }
 
     public static function LoadFromSession() : User|null
     {
-        if (session_status() !== PHP_SESSION_ACTIVE)
+        if (session_status() !== PHP_SESSION_ACTIVE && !self::SessionStart())
         {
             return null;
         }
-        if (!isset($_SESSION[User::$USER_ID]) || empty($_SESSION[User::$USER_ID]) ||
-            !isset($_SESSION[User::$USER_NAME]) || empty($_SESSION[User::$USER_NAME]) ||
-            !isset($_SESSION[User::$SESSION_FLAG]) || empty($_SESSION[User::$SESSION_FLAG]) ||
-            !isset($_SESSION[User::$SESSION_DB_ID]) || $_SESSION[User::$SESSION_DB_ID] == 0 ||
-            !isset($_SESSION[User::$LOGIN_TIME]))
+        if (!isset($_SESSION[self::$USER_ID]) || empty($_SESSION[self::$USER_ID]) ||
+            !isset($_SESSION[self::$USER_NAME]) || empty($_SESSION[self::$USER_NAME]) ||
+            !isset($_SESSION[self::$SESSION_FLAG]) || empty($_SESSION[self::$SESSION_FLAG]) ||
+            !isset($_SESSION[self::$SESSION_DB_ID]) || $_SESSION[self::$SESSION_DB_ID] == 0 ||
+            !isset($_SESSION[self::$LOGIN_TIME]))
         {
             return null;
         }
         $user = new User(
-            $_SESSION[User::$USER_ID], 
-            $_SESSION[User::$USER_NAME], 
-            $_SESSION[User::$LOGIN_TIME], 
-            isset($_SESSION[User::$USER_IS_ADMIN]) && (bool)$_SESSION[User::$USER_IS_ADMIN]);
-        $user->session_db_id = (int)$_SESSION[User::$SESSION_DB_ID];
-        $user->session_flag = $_SESSION[User::$SESSION_FLAG];
+            $_SESSION[self::$USER_ID], 
+            $_SESSION[self::$USER_NAME], 
+            $_SESSION[self::$LOGIN_TIME], 
+            isset($_SESSION[self::$USER_IS_ADMIN]) && (bool)$_SESSION[self::$USER_IS_ADMIN]);
+        $user->session_db_id = (int)$_SESSION[self::$SESSION_DB_ID];
+        $user->session_flag = $_SESSION[self::$SESSION_FLAG];
 
         // Load optional paramters from db, if present
-        if (isset($_SESSION[User::$ID_ANAGRAFICA]) && $_SESSION[User::$ID_ANAGRAFICA] != 0)
+        if (isset($_SESSION[self::$ID_ANAGRAFICA]) && $_SESSION[self::$ID_ANAGRAFICA] != 0)
         {
-            $user->anagrafica_id = (int)$_SESSION[User::$ID_ANAGRAFICA];
+            $user->anagrafica_id = (int)$_SESSION[self::$ID_ANAGRAFICA];
         }
-        if (isset($_SESSION[User::$ID_STAFF]) && $_SESSION[User::$ID_STAFF] != 0)
+        if (isset($_SESSION[self::$ID_STAFF]) && $_SESSION[self::$ID_STAFF] != 0)
         {
-            $user->staff_id = (int)$_SESSION[User::$ID_STAFF];
+            $user->staff_id = (int)$_SESSION[self::$ID_STAFF];
         }
-        if (isset($_SESSION[User::$GIVEN_NAME]) && !empty($_SESSION[User::$GIVEN_NAME]))
+        if (isset($_SESSION[self::$GIVEN_NAME]) && !empty($_SESSION[self::$GIVEN_NAME]))
         {
-            $user->nome_vero = $_SESSION[User::$GIVEN_NAME];
+            $user->nome_vero = $_SESSION[self::$GIVEN_NAME];
         }
 
         return $user;
@@ -198,9 +211,9 @@ class User
     {
         if (session_status() !== PHP_SESSION_ACTIVE || !$this->HasAdditionalData())
             return false;
-        $_SESSION[User::$ID_ANAGRAFICA] = $this->anagrafica_id;
-        $_SESSION[User::$ID_STAFF] = $this->staff_id;
-        $_SESSION[User::$GIVEN_NAME] = $this->nome_vero;
+        $_SESSION[self::$ID_ANAGRAFICA] = $this->anagrafica_id;
+        $_SESSION[self::$ID_STAFF] = $this->staff_id;
+        $_SESSION[self::$GIVEN_NAME] = $this->nome_vero;
         return true;
     }
     public function TimeLogged() : int
@@ -215,7 +228,7 @@ class User
     {
         if (session_status() !== PHP_SESSION_ACTIVE)
             return false;
-        $_SESSION[User::$LOGIN_TIME] = $this->login_time;
+        $_SESSION[self::$LOGIN_TIME] = $this->login_time;
         return $this->login_time !== 0;
     }
     public function UploadDbLog(mysqli $connection) : bool

@@ -79,7 +79,7 @@ if (isset($_POST["create_user_submit"]) && isset($_POST["email"]))
                 <div class="input-box flex v-center wrap">
                     <label for="email">Email</label>
                     <input type="email" name="email" required>
-                    <?php if ($anagrafica->is_admin) { ?>
+                    <?php if (User::$Current->is_admin) { ?>
                         <label for='is_admin'>Admin</label>
                         <div class="checkbox">
                             <input type='checkbox' name='is_admin' id="is_admin">
