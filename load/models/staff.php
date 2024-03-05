@@ -103,7 +103,7 @@ class Staff extends StaffBase
         {
             if ($row = $result->fetch_assoc())
             {
-                $data = new Staff($id, $row["nome"]);
+                $data = new Staff($id, null);
                 $data->commissioni = $row["commissioni"];
                 $data->parrocchia = $row["parrocchia"];
                 $data->id_parrocchia = (int)$row["id_parrocchia"];

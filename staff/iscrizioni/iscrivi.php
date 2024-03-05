@@ -209,7 +209,7 @@
                     <label for="maglia">Taglia maglietta</label>
                     <select name="maglia" id="maglia" required>
                         <?php
-                            $taglie = array("XS", "S", "M", "L", "XL", "XXL", "3XL");
+                            $taglie = Maglie::All();
                             foreach ($taglie as $taglia)
                             {
                                 if ($taglia == $iscrizione->taglia)

@@ -182,3 +182,18 @@ class Iscrizione
         return $stmt->affected_rows === 1;
     }
 }
+
+class Maglie
+{
+    public static function All(): array
+    {
+        return array('XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL');
+    }
+    public static function IsValid(string|null $taglia) : bool
+    {
+        if (!isset($taglia))
+            return false;
+        $all = self::All();
+        return in_array($taglia, $all);
+    }
+}
