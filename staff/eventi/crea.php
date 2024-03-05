@@ -19,16 +19,16 @@ $file_accept = join(", ", array_map("addDot", $allowed_ext));
 $errore = "";
 if (isset($_POST["titolo"]))
 {
-    $titolo = sql_sanitize($_POST["titolo"]);
-    $testo = sql_sanitize($_POST["testo"]);
+    $titolo = $connection->real_escape_string($_POST["titolo"]);
+    $testo = $connection->real_escape_string($_POST["testo"]);
     if (strlen($testo) == 0)
     {
         $testo = "NULL";
     } else {
         $testo = "'$testo'";
     }
-    $inizio = sql_sanitize($_POST["inizio"]);
-    $fine = sql_sanitize($_POST["fine"]);
+    $inizio = $connection->real_escape_string($_POST["inizio"]);
+    $fine = $connection->real_escape_string($_POST["fine"]);
     if (strlen($fine) == 0)
     {
         $fine = "NULL";
@@ -54,8 +54,6 @@ if (isset($_POST["titolo"]))
         $errore = "Nessun file";
         $nome_file = "NULL";
     }
-//$query = "REPLACE INTO eventi (titolo, edizione, descrizione, locandina, inizio, fine) " .
-//"VALUES ('$titolo', $edizione->id, $testo, $nome_file, '$inizio', $fine); CALL LastLogEdit('Eventi');";
     $query = "REPLACE INTO eventi (titolo, edizione, descrizione, locandina, inizio, fine) " .
         "VALUES ('$titolo', $edizione->id, $testo, $nome_file, '$inizio', $fine)";
     if ($testo == "NULL")
