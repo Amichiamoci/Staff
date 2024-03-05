@@ -68,7 +68,7 @@
 
         if (Iscrizione::Exists($connection, $id_anagrafica, $edizione->id) && $cod_iscrizione === 0)
         {
-            $errore = acc($iscrizione->nome). " &egrave; gi&agrave; iscritto ad Amichiamoci per questa edizione!";
+            $errore = htmlspecialchars($iscrizione->nome). " &egrave; gi&agrave; iscritto ad Amichiamoci per questa edizione!";
             return;
         }
         
@@ -130,7 +130,7 @@
             $errore = "Impossibile inserire iscrizione nel DB!";
             //Riempire la form per far ritentare piu facilemnte l'utente
         } else {
-            $nome_iscrizione = acc($iscrizione->nome);
+            $nome_iscrizione = htmlspecialchars($iscrizione->nome);
             if (strlen($nome_file) > 0)
             {
                 Cookie::Set("esit", "$nome_iscrizione iscritto correttamente ad Amichiamoci " . $edizione->year . ".", 10);
@@ -182,7 +182,7 @@
             <form action="iscrivi.php" method="post" class="login-form" enctype="multipart/form-data">
                 <?php if ($cod_iscrizione === 0) { ?>
                     <h3>
-                        Stai iscrivendo <?= acc($iscrizione->nome) ?> ad Amichiamoci <?= $edizione->year ?>
+                        Stai iscrivendo <?= htmlspecialchars($iscrizione->nome) ?> ad Amichiamoci <?= $edizione->year ?>
                     </h3>
                     <p class="text">
                         Se vuoi iscrivere un'altra persona (la cui anagrafica &egrave; da creare)
@@ -192,7 +192,7 @@
                     </p>
                 <?php } else { ?>
                     <h3>
-                        Stai modificando l'iscrizione di <?= acc($iscrizione->nome) ?> per il <?= $edizione->year ?>
+                        Stai modificando l'iscrizione di <?= htmlspecialchars($iscrizione->nome) ?> per il <?= $edizione->year ?>
                     </h3>
                 <?php } ?>
 

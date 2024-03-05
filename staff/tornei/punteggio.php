@@ -1,7 +1,7 @@
 <?php
 include "../../check_login.php";
 
-$dati_staff = Staff::Get($connection, $anagrafica->staff_id);
+$dati_staff = Staff::Get($connection, User::$Current->staff_id);
 
 header("Content-Type: application/json");
 
@@ -13,10 +13,10 @@ if (!isset($_POST["id"]))
 $id = (int)$_POST["id"];
 if (isset($_POST["add_score"]))
 {
-    $query = "CALL CreaPunteggio($id);";
+    $query = "CALL `CreaPunteggio`($id);";
     try {
-        $result = mysqli_query($connection, $query);
-        mysqli_next_result($connection);
+        $result = $connection->query($query);
+        $connection->next_result();
     } catch (Exception $ex)
     {
         $result = false;
@@ -37,7 +37,7 @@ if (isset($_POST["add_score"]))
 }
 if (isset($_POST["update_score"]))
 {
-    $nuovo_punteggio = sql_sanitize($_POST["update_score"]);
+    $nuovo_punteggio = $connection->real_escape_string($_POST["update_score"]);
     $punteggi = explode("-", $nuovo_punteggio);
     if (count($punteggi) !== 2)
     {
@@ -46,11 +46,11 @@ if (isset($_POST["update_score"]))
     }
     $casa = $punteggi[0];
     $ospiti = $punteggi[1];
-    $query = "UPDATE punteggi SET home = TRIM('$casa'), guest = TRIM('$ospiti') WHERE id = $id";
+    $query = "UPDATE `punteggi` SET `home` = TRIM('$casa'), `guest` = TRIM('$ospiti') WHERE `id` = $id";
 }
 if (isset($_POST["remove_score"]))
 {
-    $query = "DELETE FROM punteggi WHERE id = $id";
+    $query = "DELETE FROM `punteggi` WHERE `id` = $id";
 }
 if (!isset($query))
 {
@@ -58,7 +58,7 @@ if (!isset($query))
     exit;
 }
 try {
-    $result = mysqli_query($connection, $query);
+    $result = $connection->query($query);
 } catch (Exception $ex)
 {
     $result = false;
@@ -68,7 +68,7 @@ if (!$result)
     echo "{\"message\": \"Errore: Impossibile raggiungere il DB\"}";
     exit;
 }
-if (mysqli_affected_rows($connection) !== 1)
+if ($connection->affected_rows !== 1)
 {
     echo "{\"message\": \"Errore: righe modificate non uguali ad 1\"}";
     exit;

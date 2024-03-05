@@ -2,7 +2,7 @@
 
 include "../../check_login.php";
 $dati_staff = Staff::Get($connection, User::$Current->staff_id);
-$squadra = new Squadra();
+$squadra = new Squadra(null, null, null, null, null, null, null, null);
 //Imposto valori di default
 $squadra->id_parrocchia = $dati_staff->id_parrocchia;
 $squadra->parrocchia = $dati_staff->parrocchia;

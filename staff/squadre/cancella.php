@@ -2,7 +2,7 @@
 
 include "../../check_login.php";
 
-$dati_staff = Staff::Get($connection, $anagrafica->staff_id);
+$dati_staff = Staff::Get($connection, User::$Current->staff_id);
 
 $nome_squadra = "";
 $id_squadra = 0;
@@ -12,7 +12,7 @@ if ( !isset($_GET["id"]) && !isset($_POST["id_squadra"]) )
     header("Location: ../index.php");
     exit;
 }
-if ( !($dati_staff->is_referente || $anagrafica->is_admin) )
+if ( !($dati_staff->is_referente || User::$Current->is_admin) )
 {
     //Autorizazione mancante
     header("Location: ../index.php");

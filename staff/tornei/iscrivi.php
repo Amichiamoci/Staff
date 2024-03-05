@@ -1,9 +1,9 @@
 <?php
 include "../../check_login.php";
 
-$dati_staff = Staff::Get($connection, $anagrafica->staff_id);
+$dati_staff = Staff::Get($connection, User::$Current->staff_id);
 
-if (!$dati_staff->is_in("Tornei") && !$anagrafica->is_admin && !$dati_staff->is_referente) {
+if (!$dati_staff->is_in("Tornei") && !User::$Current->is_admin && !$dati_staff->is_referente) {
     header("Location: ../index.php");
     exit;
 }
@@ -58,7 +58,7 @@ if (
                     $tornei = Torneo::GetAll($connection);
                     foreach ($tornei as $t)
                     {
-                        $label = acc($t->nome . " | " . $t->sport . ": " . $t->tipo . ", " . $t->numero_squadre . " squadre");
+                        $label = htmlspecialchars($t->nome . " | " . $t->sport . ": " . $t->tipo . ", " . $t->numero_squadre . " squadre");
                         $id = $t->id;
                         if ($id == $torneo)
                         {
@@ -78,7 +78,7 @@ if (
                     $squadre = Squadra::List($connection, date("Y"));
                     foreach ($squadre as $s)
                     {
-                        $label = acc($s->nome . " | " . $s->sport);
+                        $label = htmlspecialchars($s->nome . " | " . $s->sport);
                         $id = $s->id;
                         if ($id == $squadra)
                         {

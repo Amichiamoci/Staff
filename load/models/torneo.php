@@ -97,4 +97,40 @@ class Torneo
         $connection->next_result();
         return (bool)$result;   
     }
+    public static function LoadIfToGenerate(mysqli $connection, int $id) : Torneo|null
+    {
+        if (!$connection)
+            return null;
+        $query = "SELECT `nome`, `tipo`, `sport` FROM `tornei_attivi` WHERE `id` = $id AND `partite` = 0";
+        $result = $connection->query($query);
+        if (!$result || $result->num_rows === 0)
+            return null;
+        if ($row = $result->fetch_assoc())
+        {
+            return new Torneo(
+                $id, $row["nome"], 
+                $row["tipo"], $row["id_tipo"], 
+                $row["sport"], $row["codice_sport"], 
+                $row["numero_squadre"]);
+        }
+        return null;
+    }
+    public static function LoadIfGenerated(mysqli $connection, int $id) : Torneo|null
+    {
+        if (!$connection)
+            return null;
+        $query = "SELECT `nome`, `tipo`, `sport` FROM `tornei_attivi` WHERE `id` = $id AND `partite` <> 0";
+        $result = $connection->query($query);
+        if (!$result || $result->num_rows === 0)
+            return null;
+        if ($row = $result->fetch_assoc())
+        {
+            return new Torneo(
+                $id, $row["nome"], 
+                $row["tipo"], $row["id_tipo"], 
+                $row["sport"], $row["codice_sport"], 
+                $row["numero_squadre"]);
+        }
+        return null;
+    }
 }
