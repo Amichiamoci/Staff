@@ -268,10 +268,6 @@ $dati_staff = Staff::Get($connection, User::$Current->staff_id);
 				<a class="button" href="./eventi/crea.php">
                     Crea
                 </a>
-				<br>
-				<a class="button" href="./eventi">
-                    Vedi
-                </a>
 
 			</div>
         </div>

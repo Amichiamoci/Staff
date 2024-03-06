@@ -101,7 +101,7 @@ class AnagraficaBase
 class Anagrafica extends AnagraficaBase
 {
     public string $compleanno;
-    public string $provenineza;
+    public string $proveninenza;
     public string $telefono;
     public string $email;
     public string $cf;
@@ -150,5 +150,22 @@ class Anagrafica extends AnagraficaBase
         }
         $connection->next_result();
         return $id;
+    }
+    public static function Load(mysqli $connection, int $id) : Anagrafica|null
+    {
+        if (!$connection || $id === 0)
+            return null;
+        $query = "SELECT * FROM `anagrafica_espansa` WHERE `id` = $id";
+        $result = $connection->query($query);
+        if (!$result)
+        {
+            return null;
+        }
+        if ($row = $result->fetch_assoc())
+        {
+            $a = new Anagrafica($id, $row["nome"], $row["cognome"], $row["eta"]);
+            // Todo: get other params
+        }
+        return null;
     }
 }

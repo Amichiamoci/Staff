@@ -40,7 +40,7 @@ if (isset($_POST["titolo"]))
     if (isset($_FILES["locandina"]) && !empty($_FILES["locandina"]) &&
             is_uploaded_file($_FILES["locandina"]['tmp_name']))
     {
-        if (!upload_file($_FILES["locandina"], $allowed_ext, $nome_file, $errore))
+        if (!upload_file($_FILES["locandina"], $nome_file, $errore))
         {
             //Abbiamo il file ma non riusciamo a salvarlo
             $errore = "Impossibile uploadare la locandina. Riprova pi&ugrave; tardi.<br>$errore"; 

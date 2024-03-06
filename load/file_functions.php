@@ -19,7 +19,7 @@ function getMimeType(string $filename) : string
     }
 }
 
-function upload_file($file, array $allowed_ext, string &$future_file_name, string &$error): bool
+function upload_file($file, string &$future_file_name, string &$error): bool
 {
     if ($file == null)
         return false;
@@ -29,7 +29,7 @@ function upload_file($file, array $allowed_ext, string &$future_file_name, strin
     // Verify file extension
     $ext = pathinfo($file_name, PATHINFO_EXTENSION);
 
-    if (!in_array($ext, $allowed_ext)) {
+    if (!in_array($ext, ALLOWED_EXT)) {
         $error = "Tipo di file non valido!";
         return false;
     }    
@@ -81,4 +81,36 @@ function we_have_file(string $path):bool
 function get_file_export_url(string $path)
 {
     return ADMIN_PATH . "/get_file.php?target=$path";
+}
+define("ALLOWED_EXT", array(
+    "jpg",        "jpeg",        "gif",
+    "png",        "bmp",        "avif",
+    "tif",        "tiff",        "webp",
+    "heic",        "heif",        "pdf",        
+    "doc",        "docx",         "ppt",
+    "pptx"));
+define("ALLOWED_EXT_DOTS", array_map(function(string $s) { return ".$s"; }, ALLOWED_EXT));
+define("FILE_NAME_CHAR_WHITELIST", array_merge(range('A', 'Z'), range('a', 'z'), range('0', '9'), array(' ')));
+
+function file_remove_characters(string $str) : string
+{
+    $exploded = explode("", $str);
+    $regex = join("|", FILE_NAME_CHAR_WHITELIST);
+    return join("", preg_grep($regex, $exploded));
+}
+function file_spaces_to_underscores(string $str) : string
+{
+    return preg_replace("/\s+/", "_", $str);
+}
+
+function string_capitalize_words(string $str) : string
+{
+    $parts = explode(" ", $str);
+    $parts = array_filter($parts, function (string $s){
+        return strlen($s) > 0;
+    });
+    $parts = array_map(function (string $str) {
+        return strtoupper(substr($str, 0, 1)) . strtolower(substr($str, 1));
+    }, $parts);
+    return join(" ", $parts);
 }

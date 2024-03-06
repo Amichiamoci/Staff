@@ -79,7 +79,7 @@
         if (isset($_FILES["certificato"]) && !empty($_FILES["certificato"]) &&
             is_uploaded_file($_FILES["certificato"]['tmp_name']))
         {
-            if (!upload_file($_FILES["certificato"], $allowed_ext, $nome_file, $errore))
+            if (!upload_file($_FILES["certificato"], $nome_file, $errore))
             {
                 //Abbiamo il file ma non riusciamo a salvarlo
                 $errore = "Impossibile uploadare il file certificato. Riprova pi&ugrave; tardi.<br>$errore"; 

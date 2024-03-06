@@ -21,6 +21,8 @@ if (isset($_ENV["WEBSITE_DOMAIN"]))
     define("DOMAIN", $_ENV("WEBSITE_DOMAIN"));
 if (isset($_ENV["EMAIL_SOURCE"]))
     define("EMAIL_SOURCE", $_ENV("EMAIL_SOURCE"));
+if (isset($_ENV["CONTACT_EMAIL"]))
+    define("CONTACT_EMAIL", $_ENV("CONTACT_EMAIL"));
 unset($dotenv);
 
 
@@ -49,6 +51,8 @@ define("UPLOAD_PATH", ADMIN_PATH . "/uploads");
 
 if (!defined("EMAIL_SOURCE"))
     define("EMAIL_SOURCE", "dev@" . DOMAIN);
+if (!defined("CONTACT_EMAIL"))
+    define("CONTACT_EMAIL", "info@" . DOMAIN);
 
 if (!defined("MYSQL_HOST"))
     define("MYSQL_HOST", "localhost");
