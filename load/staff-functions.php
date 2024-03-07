@@ -36,13 +36,8 @@ function getStaffList(mysqli $connection, int $year = 0, bool $include_all = fal
             $referente        = isset($row["referente"]) && (bool)$row["referente"];
             $parrocchia       = htmlspecialchars($row["parrocchia"]);
 
-            $birth_date 	  = new DateTime($data_nascita);
-            $current_date     = new DateTime(date("Y-m-d"));
-
             $data             = strtotime($data_nascita);
             $data_nascita     = date("d/m/Y", $data);
-
-            $eta              = date_diff($current_date, $birth_date)->y;
 
             $commissioni = null;
             if (isset($row["lista_commissioni"]))
@@ -56,7 +51,11 @@ function getStaffList(mysqli $connection, int $year = 0, bool $include_all = fal
             $staff_list .= "</thead>";
             $staff_list .= "<tbody>";
             $staff_list .= "<tr>";
-            $staff_list .= "<td data-label='Et&agrave;'>$eta</td>";
+            if (isset($row["eta"]))
+            {
+                $eta = (int)$row["eta"];
+                $staff_list .= "<td data-label='Et&agrave;'>$eta</td>";
+            }
             if (isset($row["telefono"]))
             {
                 $telefono = $row["telefono"];

@@ -1,31 +1,5 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS StaffList //
-CREATE PROCEDURE StaffList(IN anno YEAR)
-BEGIN
-    DECLARE query_anno YEAR DEFAULT YEAR(CURRENT_DATE);
-    IF anno IS NOT NULL THEN
-        SET query_anno = anno;
-    ELSE
-        SET query_anno = YEAR(CURRENT_DATE);
-    END IF;
-
-    SELECT a.*, parrocchie.nome AS parrocchia, 
-        s.id AS id_staffista, 
-        s.is_referente AS referente, 
-        GROUP_CONCAT(c.nome
-            SEPARATOR ', ') AS lista_commissioni
-    FROM staffisti AS s
-    INNER JOIN (partecipaz_staff_ediz AS p) ON p.staff = s.id
-    INNER JOIN (edizioni AS e) ON p.edizione = e.id
-    LEFT JOIN (anagrafiche AS a) ON s.dati_anagrafici=a.id
-    LEFT JOIN parrocchie ON s.parrocchia=parrocchie.id
-    LEFT JOIN (ruoli_staff AS r) ON s.id = r.staffista
-    LEFT JOIN (commissioni AS c) ON r.commissione = c.id
-    WHERE e.anno = query_anno AND r.edizione = e.id
-    GROUP BY a.id, parrocchie.nome
-    ORDER BY parrocchie.nome, a.cognome, a.nome;
-END; //
 
 DROP PROCEDURE IF EXISTS RawStaffList //
 CREATE PROCEDURE RawStaffList()
