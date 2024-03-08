@@ -1,6 +1,9 @@
 <?php
 setlocale(LC_ALL, 'ita', 'it_IT.utf8');
 
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+
 //
 // Load from .env in root
 //
@@ -26,9 +29,6 @@ if (isset($_ENV["CONTACT_EMAIL"]))
     define("CONTACT_EMAIL", $_ENV("CONTACT_EMAIL"));
 unset($dotenv);
 
-
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
 
 if (!defined("DOMAIN"))
