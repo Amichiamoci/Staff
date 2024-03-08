@@ -67,9 +67,9 @@ jobs:
       run: |
           if [$REF == 'main']
           then
-              echo "path=admin_test/" >> "$GITHUB_ENV"
+              echo "path=admin/" >> "$GITHUB_ENV"
           else
-              echo "path=admin_test2/" >> "$GITHUB_ENV"
+              echo "path=admin_test/" >> "$GITHUB_ENV"
           fi
       env:
         REF: ${{ github.ref_name }}
