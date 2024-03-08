@@ -1,0 +1,42 @@
+on: 
+    push:
+       branches:
+         - master
+         - test
+name: 🚀 FTP deploy on push
+jobs:
+  
+  ftp-deploy:
+    name: ⬆️👷 FTP deploy test version
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v4
+    
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+        tools: composer:v2
+        coverage: none
+      env:
+        update: true
+
+    - name: Install Dependencies
+      uses: nick-invision/retry@v2
+      with:
+        timeout_minutes: 5
+        max_attempts: 5
+        command: composer update --no-interaction --no-progress
+    
+    - name: Load DB credentials
+      run: echo "DB_HOST=\"${{ secrets.DB_ADDRESS }}\"\n" >> ".env"
+    
+    - name: 📂 Sync files
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ secrets.FTP_ENDPOINT }}
+        username: ${{ secrets.FTP_USER }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        server-dir: ${{ secrets.FTP_FOLDER_BASE }}admin_test/
