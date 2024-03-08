@@ -9,9 +9,9 @@ ini_set('display_startup_errors', '1');
 //
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . "/..");
+$dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
 $dotenv->ifPresent(array("DB_HOST", "DB_USER", "DB_NAME"))->notEmpty();
-$dotenv->load();
+$dotenv->safeLoad();
 if (isset($_ENV["DB_HOST"]))
     define("MYSQL_HOST", $_ENV("DB_HOST"));
 if (isset($_ENV["DB_USER"]))
