@@ -180,12 +180,14 @@ function getAnagraficheList(mysqli $connection, $year = null, int $id_parrocchia
         }
         if (isset($row["documento"]) && strlen($row["documento"]) > 1)
         {
-            if (we_have_file($row["documento"]))
+            $doc_path = $row["documento"];
+            if (we_have_file($doc_path))
             {
-                $doc_url = get_file_export_url($row["documento"]);
+                $doc_url = get_file_export_url($doc_path);
                 $str .= "<td data-label=\"$label\"><a href='$doc_url' download class=\"link\">$doc_code</a></td>\n";
             } else {
-                $str .= "<td data-label=\"$label\"><a href=\"javascript:alert('File mancante!')\" class=\"link\">$doc_code</a></td>\n";
+                $doc_path = server_file_path($doc_path);
+                $str .= "<td data-label=\"$label\"><a href=\"javascript:alert('File mancante!')\" class=\"link\">$doc_code<!-- $doc_path --></a></td>\n";
             }
         } else {
             $str .= "<td data-label=\"$label\"><strong>Mancante</strong>: <a href=\"./crea-anagrafica.php?cf=$cf\" class=\"link\">Inserisci</a></td>\n";

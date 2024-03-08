@@ -100,15 +100,15 @@ class AnagraficaBase
 
 class Anagrafica extends AnagraficaBase
 {
-    public string $compleanno;
-    public string $proveninenza;
-    public string $telefono;
-    public string $email;
-    public string $cf;
-    public int $doc_type;
-    public string $doc_code;
-    public string $doc_expires;
-    public string $nome_file;
+    public string $compleanno = "";
+    public string $proveninenza = "";
+    public string $telefono = "";
+    public string $email = "";
+    public string $cf = "";
+    public int $doc_type = 1;
+    public string $doc_code = "";
+    public string $doc_expires = "";
+    public string $nome_file = "";
     
     public static function Create(
         mysqli $connection, 
@@ -164,7 +164,15 @@ class Anagrafica extends AnagraficaBase
         if ($row = $result->fetch_assoc())
         {
             $a = new Anagrafica($id, $row["nome"], $row["cognome"], $row["eta"]);
-            // Todo: get other params
+            $a->cf = $row["cf"];
+            $a->compleanno = $row["data_nascita_italiana"];
+            $a->doc_code = $row["codice_documento"];
+            $a->doc_type = (int)$row["tipo_documento"];
+            $a->email = $row["email"];
+            $a->doc_expires = isset($row["scadenza"]) ? $row["scadenza"] : "";
+            $a->nome_file = isset($row["documento"]) ? $row["documento"] : "";
+            $a->proveninenza = $row["provenienza"];
+            $a->telefono = isset($row["telefono"]) ? $row["telefono"] : "";
         }
         return null;
     }

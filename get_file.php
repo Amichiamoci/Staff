@@ -1,21 +1,21 @@
 <?php
 include "./check_login.php";
 error_reporting(0);
-if (!isset($_GET["target"]) || is_array($_GET["target"]))
+if (!isset($_GET["target"]) || !is_string($_GET["target"]))
 {
     http_response_code(404);
-    header("Location: $DOMAIN/not-found.php");
+    header("Location: ./not-found.php");
     //echo "target invalid!";
     die();
 }
 if (!we_have_file($_GET["target"]))
 {
     http_response_code(404);
-    header("Location: $DOMAIN/not-found.php");
+    header("Location: ./not-found.php");
     die();
 }
 $file_path = server_file_path($_GET["target"]);
-$name_parts = explode("/", $file_path);
+$name_parts = explode("/", str_replace("\\", "/", $file_path));
 $actual_file_name = basename(urlencode( end($name_parts) ));
 $mime = getMimeType($file_path);
 header('Content-Description: File Transfer');

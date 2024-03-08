@@ -47,7 +47,8 @@ define("ADMIN_PATH", '/' . join('/', $DOCUMENT_PATH));
 unset($DOCUMENT_PATH);
 
 define("ADMIN_URL", DOMAIN_URL . ADMIN_PATH);
-define("UPLOAD_PATH", ADMIN_PATH . "/uploads");
+define("UPLOAD_PATH", ADMIN_PATH . "/upload");
+define("SERVER_UPLOAD_PATH", $_SERVER["DOCUMENT_ROOT"] . UPLOAD_PATH);
 
 if (!defined("EMAIL_SOURCE"))
     define("EMAIL_SOURCE", "dev@" . DOMAIN);

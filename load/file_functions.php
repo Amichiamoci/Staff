@@ -42,8 +42,8 @@ function upload_file($file, string &$future_file_name, string &$error): bool
     }            
     
     
-    $actual_path = $_SERVER["DOCUMENT_ROOT"] . "$future_file_name.$ext";
-    //$actual_path = "/$future_file_name.$ext";
+    $actual_path = SERVER_UPLOAD_PATH . "$future_file_name.$ext";
+    
     // Check whether file exists before uploading it
     while (file_exists($actual_path))
     {
@@ -52,35 +52,34 @@ function upload_file($file, string &$future_file_name, string &$error): bool
     }        
     if (move_uploaded_file($file["tmp_name"], $actual_path))
     {
-        $future_file_name = substr($actual_path, strlen($_SERVER["DOCUMENT_ROOT"]));
+        $future_file_name = substr($actual_path, strlen(SERVER_UPLOAD_PATH));
         return true;
     } 
     $error = "Impossibile uploadare il file!<!--Path: $actual_path -->";
     return false;
 }
-function server_file_path(string $db_path) : string
+function server_file_path(string $db_path) : string|false
 {
     if (!isset($db_path)) //.. characters colud be used to steal files
         return "";
     
-    if (str_starts_with($db_path, "/"))
+    if (!str_starts_with($db_path, "/"))
     {
-        $db_path = substr($db_path, 1);
+        $db_path = "/$db_path";
     }
 
-    if (!str_starts_with($db_path, "upload/"))
-    {
-        $db_path = "upload/$db_path";
-    } 
-    return realpath($_SERVER["DOCUMENT_ROOT"] . $db_path);
+    return realpath(SERVER_UPLOAD_PATH . $db_path);
 }
-function we_have_file(string $path):bool
+function we_have_file(string $path) : bool
 {
-    return file_exists(server_file_path($path));
+    $res = server_file_path($path);
+    if (!$res) 
+        return false;
+    return is_file($res);
 }
-function get_file_export_url(string $path)
+function get_file_export_url(string $path) : string
 {
-    return ADMIN_PATH . "/get_file.php?target=$path";
+    return ADMIN_URL . "/get_file.php?target=$path";
 }
 define("ALLOWED_EXT", array(
     "jpg",        "jpeg",        "gif",

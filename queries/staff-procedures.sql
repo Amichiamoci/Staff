@@ -9,8 +9,8 @@ BEGIN
 END; //
 
 
-DROP PROCEDURE IF EXISTS StaffByParrocchia //
-CREATE PROCEDURE StaffByParrocchia(IN parrocchia_id INT, IN anno YEAR)
+DROP PROCEDURE IF EXISTS `StaffByParrocchia` //
+CREATE PROCEDURE `StaffByParrocchia`(IN parrocchia_id INT, IN anno YEAR)
 BEGIN
     IF anno IS NULL THEN
         SELECT 

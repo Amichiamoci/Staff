@@ -3,3 +3,5 @@ cron/*.txt
 vendor
 composer.lock
 .vscode/**
+upload/*
+!upload/.htaccess

@@ -248,5 +248,5 @@
         </form>
     </div>
 </div>
-<script src="<? ADMIN_URL ?>/assets/js/codice.fiscale.var.js" type="text/javascript" defer></script>
-<script src="<? ADMIN_URL ?>/assets/js/anagrafica.js" type="text/javascript" defer></script>
+<script src="<?= ADMIN_URL ?>/assets/js/codice.fiscale.var.js" type="text/javascript" defer></script>
+<script src="<?= ADMIN_URL ?>/assets/js/anagrafica.js" type="text/javascript" defer></script>
