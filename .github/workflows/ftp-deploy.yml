@@ -22,16 +22,37 @@ jobs:
         coverage: none
       env:
         update: true
-
+    
+    - uses: actions/cache@v4
+      id: cache
+      with:
+        path: ./vendor/
+        key: ${{ runner.os }}-php-vendor-${{ hashFiles('./composer.json') }}
+    
     - name: Install Dependencies
+      if: steps.cache.outputs.cache-hit != 'true'
       uses: nick-invision/retry@v2
       with:
         timeout_minutes: 5
         max_attempts: 5
         command: composer update --no-interaction --no-progress
     
-    - name: Load DB credentials
-      run: echo "DB_HOST=\"${{ secrets.DB_ADDRESS }}\"\n" >> ".env"
+    - name: Load DB address in .env
+      run: echo -e "DB_HOST=\"${{ secrets.DB_ADDRESS }}\"" >> ".env"
+    - name: Load DB user in .env
+      run: echo -e "DB_USER=\"${{ secrets.DB_USER }}\"" >> ".env"
+    - name: Load DB password in .env
+      run: echo -e "DB_PASSWORD=\"${{ secrets.DB_PASSWORD }}\"\n" >> ".env"
+    - name: Load DB name in .env
+      run: echo -e "DB_NAME=\"${{ secrets.DB_TEST_DATABASE }}\"" >> ".env"
+
+
+    - name: Load Website domain in .env
+      run: echo -e "WEBSITE_DOMAIN=\"www.${{ vars.DOMAIN }}\"" >> ".env"
+    - name: Load dev mail address in .env
+      run: echo -e "EMAIL_SOURCE=\"${{ secrets.DEV_EMAIL_BASE }}_test@${{ vars.DOMAIN }}\"" >> ".env"
+    - name: Load contact mail address in .env
+      run: echo -e "CONTACT_EMAIL=\"${{ secrets.INFO_EMAIL_BASE }}_test@${{ vars.DOMAIN }}\"" >> ".env"
     
     - name: 📂 Sync files
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4

@@ -17,6 +17,7 @@ if (isset($_ENV["DB_PASSWORD"]))
     define("MYSQL_PASSWORD", $_ENV("DB_PASSWORD"));
 if (isset($_ENV["DB_NAME"]))
     define("MYSQL_USER", $_ENV("DB_NAME"));
+
 if (isset($_ENV["WEBSITE_DOMAIN"]))
     define("DOMAIN", $_ENV("WEBSITE_DOMAIN"));
 if (isset($_ENV["EMAIL_SOURCE"]))
