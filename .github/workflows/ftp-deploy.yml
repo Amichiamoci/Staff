@@ -41,6 +41,7 @@ jobs:
             echo -e "DB_HOST=\"${{ secrets.DB_ADDRESS }}\"" >> ".env"
             echo -e "DB_USER=\"${{ secrets.DB_USER }}\"" >> ".env"
             echo -e "DB_PASSWORD=\"${{ secrets.DB_PASSWORD }}\"" >> ".env"
+            echo -e "DB_RESTART_SECRET=\"${{ secrets.DB_RESTART_SECRET }}\"" >> ".env"
             echo -e "WEBSITE_DOMAIN=\"www.${{ vars.DOMAIN }}\"" >> ".env"
         
         - name: Calculate Deploy Path
@@ -97,6 +98,7 @@ jobs:
             username: ${{ secrets.FTP_USER }}
             password: ${{ secrets.FTP_PASSWORD }}
             server-dir: ${{ secrets.FTP_FOLDER_BASE }}${{ steps.deploy-path.outputs.path }}
+            log-level: minimal
 
         - name: Reload MySQL Views and Procedures
           run: |
