@@ -20,6 +20,8 @@ if (isset($_ENV["DB_PASSWORD"]))
     define("MYSQL_PASSWORD", $_ENV["DB_PASSWORD"]);
 if (isset($_ENV["DB_NAME"]))
     define("MYSQL_DB", $_ENV["DB_NAME"]);
+if (isset($_ENV["DB_RESTART_SECRET"]))
+    define("MYSQL_RESTART_SECRET", $_ENV["DB_RESTART_SECRET"]);
 
 if (isset($_ENV["WEBSITE_DOMAIN"]))
     define("DOMAIN", $_ENV["WEBSITE_DOMAIN"]);
@@ -27,6 +29,7 @@ if (isset($_ENV["EMAIL_SOURCE"]))
     define("EMAIL_SOURCE", $_ENV["EMAIL_SOURCE"]);
 if (isset($_ENV["CONTACT_EMAIL"]))
     define("CONTACT_EMAIL", $_ENV["CONTACT_EMAIL"]);
+
 unset($dotenv);
 
 error_reporting(E_ALL);
