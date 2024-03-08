@@ -42,7 +42,7 @@ jobs:
     - name: Load DB user in .env
       run: echo -e "DB_USER=\"${{ secrets.DB_USER }}\"" >> ".env"
     - name: Load DB password in .env
-      run: echo -e "DB_PASSWORD=\"${{ secrets.DB_PASSWORD }}\"\n" >> ".env"
+      run: echo -e "DB_PASSWORD=\"${{ secrets.DB_PASSWORD }}\"" >> ".env"
     - name: Load DB name in .env
       run: echo -e "DB_NAME=\"${{ secrets.DB_TEST_DATABASE }}\"" >> ".env"
 
