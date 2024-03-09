@@ -60,9 +60,9 @@ jobs:
         
         - name: Calculate Deploy Path
           id: deploy-path-echo
-          run: echo "Path is $PATH"
+          run: echo "Path is $DEPLOY_PATH"
           env:
-            PATH: ${{ steps.deploy-path.outputs.path }}
+            DEPLOY_PATH: ${{ steps.deploy-path.outputs.path }}
 
         - name: Calculate emails to deploy
           id: deploy-email
