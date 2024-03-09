@@ -18,12 +18,7 @@ foreach($files as $file)
     $all .= $content . PHP_EOL . PHP_EOL;
 }
 
-if (strlen($all) > 0)
-{
-    $f = fopen("./db_tools.sql", "w") or die("Impossibile aprire file");
-    if ($f) {
-        fwrite($f, $all);
-        fclose($f);
-    }
-}
+$f = fopen("./db_tools.sql", "w") or die("Impossibile aprire file");
+fwrite($f, $all);
+fclose($f);
 echo $all;
