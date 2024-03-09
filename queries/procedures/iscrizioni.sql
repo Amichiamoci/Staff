@@ -61,7 +61,7 @@ BEGIN
         a.`telefono`, 
         a.`email`, 
         a.`cf`, 
-        a.`sesso`
+        a.`sesso`,
         a.`documento`, 
         a.`codice_documento`, 
         t.`label`, 
