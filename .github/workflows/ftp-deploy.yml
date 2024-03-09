@@ -57,6 +57,9 @@ jobs:
             fi
           env:
             REF: ${{ github.ref_name }}
+        - name: Calculate Deploy Path
+          id: deploy-path-echo
+          run: echo "Path is ${{ steps.deploy-path.outputs.path }}"
 
         - name: Calculate emails to deploy
           id: deploy-email
@@ -104,7 +107,6 @@ jobs:
 
         - name: Genereate MySQL Views and Procedures Reload File
           run: |
-            cat ./sql_autostart.php
             curl -s --request POST \
                 --header 'Content-Type: application/json' \
                 --data '{ "RESTART_SECRET": "${{ secrets.DB_RESTART_SECRET }}" }' \
