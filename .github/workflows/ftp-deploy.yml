@@ -120,4 +120,4 @@ jobs:
                 --data '{ "RESTART_SECRET": "${{ secrets.DB_RESTART_SECRET }}" }' \
                 --url $URL
           env: 
-            URL: http://www.${{ vars.DOMAIN }}/${{ steps.deploy-path.outputs.path }}
+            URL: http://www.${{ vars.DOMAIN }}/${{ steps.deploy-path.outputs.path }}sql_autostart.php
