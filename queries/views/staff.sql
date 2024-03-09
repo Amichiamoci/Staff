@@ -21,35 +21,6 @@ SELECT
 FROM `staffisti` AS s 
     LEFT OUTER JOIN `anagrafiche` a ON s.`dati_anagrafici` = a.`id`;
 
-CREATE OR REPLACE VIEW `staff_data` AS
-SELECT 
-    IFNULL (parr.`nome`, 'Non specificata') AS "parrocchia",
-    IFNULL (parr.`id`, 0) AS "id_parrocchia",
-    IFNULL (r.`comm`, 'Nessuna commissione') AS "commissioni",
-    IFNULL (r.`tot_comm`, 0) AS "totale_commissioni",
-    IFNULL (r.`maglia`, 'Non scelta') AS "maglia",
-    IFNULL (r.`is_referente`, 0) AS "referente",
-    IFNULL (a.`codice_fiscale`, '') AS "cf",
-    CONCAT(a.`nome`, ' ', a.`cognome`) AS "nome"
-FROM `staffisti` AS s
-    INNER JOIN `anagrafiche` a ON a.`id` = s.`dati_anagrafici`
-    LEFT OUTER JOIN `parrocchie` parr ON parr.`id` = s.`parrocchia`
-    LEFT OUTER JOIN (
-        SELECT 
-            p.`maglia`, 
-            p.`staff`, 
-            p.`is_referente`,
-            GROUP_CONCAT(DISTINCT c.`nome` SEPARATOR ', ') AS "comm",
-            COUNT(DISTINCT c.`nome`) AS "tot_comm"
-        FROM `edizioni` AS e
-            LEFT OUTER JOIN `partecipaz_staff_ediz` p ON e.`id` = p.`edizione`
-            LEFT OUTER JOIN `ruoli_staff` r ON r.`staffista` = p.`staff` AND r.`edizione` = e.`id`
-            LEFT OUTER JOIN `commissioni` c ON r.`commissione` = c.`id`
-        WHERE e.`anno` = anno
-        GROUP BY p.`staff`
-    ) r ON r.`staff` = s.`id`
-WHERE s.`id` = staff_id;
-
 CREATE OR REPLACE VIEW `staff_per_edizione` AS
 SELECT 
     a.*, 

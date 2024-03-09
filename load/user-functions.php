@@ -6,7 +6,7 @@ function allUsers(mysqli $connection, bool $admin_priv = false)
     {
         return "";
     }
-    $query = "CALL AllUsers()";
+    $query = "SELECT * FROM `users_extended`";
     $result = mysqli_query($connection, $query);
     $str = "<div class='tables flex wrap'>";
     if ($result)
@@ -69,7 +69,6 @@ function allUsers(mysqli $connection, bool $admin_priv = false)
         $str .= "</script>";
     }
     $str .= "</div>";
-    mysqli_next_result($connection);
     return $str;
 }
 
