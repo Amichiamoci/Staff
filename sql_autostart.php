@@ -18,7 +18,7 @@ foreach($files as $file)
     $all .= $content . PHP_EOL . PHP_EOL;
 }
 
-$f = fopen("./db_tools.sql", "w") or die("Impossibile aprire file");
+$f = fopen("db_tools.sql", "w") or die("Impossibile aprire file");
 if (!fwrite($f, $all))
 {
     die("Error in fwrite");
