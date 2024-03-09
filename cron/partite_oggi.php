@@ -21,7 +21,7 @@ function send_partite_oggi()
     while ($row = $result->fetch_assoc())
     {
         $email = $row["email"];
-        $nome = acc($row["nome"]);
+        $nome = htmlspecialchars($row["nome"]);
         $problema_certificato = isset($row["necessita_certificato"]) && $row["necessita_certificato"] == "1";
 
         $tornei = explode("|", $row["nomi_tornei_sport"]);
@@ -95,10 +95,10 @@ function send_partite_oggi()
 
         for ($i = 0; $i < $numero_partite_oggi; $i++)
         {
-            $torneo = acc($tornei[$i]);
-            $avversari = acc($nomi_avversari[$i]);
-            $orario = acc($orari_partite[$i]);
-            $nome_campo = acc($nomi_campi[$i]);
+            $torneo = htmlspecialchars($tornei[$i]);
+            $avversari = htmlspecialchars($nomi_avversari[$i]);
+            $orario = htmlspecialchars($orari_partite[$i]);
+            $nome_campo = htmlspecialchars($nomi_campi[$i]);
             $lat = $lat_campi[$i];
             $lon = $lon_campi[$i];
             $indirizzo = $indirizzi_campi[$i];

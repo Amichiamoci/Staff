@@ -26,7 +26,7 @@ function send_compleanni()
     
     foreach ($compleanni_oggi as $persona)
     {
-        $nome = acc($persona['nome']);
+        $nome = htmlspecialchars($persona['nome']);
         $email = $persona['email'];
         $mail_text = join("\r\n", array(
             "<h3>Tanti auguri a te</h3>",

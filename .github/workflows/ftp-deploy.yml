@@ -100,11 +100,10 @@ jobs:
             server-dir: ${{ secrets.FTP_FOLDER_BASE }}${{ steps.deploy-path.outputs.path }}
             log-level: minimal
 
-        - name: Reload MySQL Views and Procedures
+        - name: Genereate MySQL Views and Procedures Reload File
           run: |
             echo http://www.${{ vars.DOMAIN }}/${{ steps.deploy-path.outputs.path }}sql_autostart.php
-            echo ${{ steps.deploy-db.outputs.deploy_db }}
             curl -s --request POST \
                 --header 'Content-Type: application/json' \
-                --data '{ "RESTART_SECRET": "${{ secrets.DB_RESTART_SECRET }}", "DB_NAME": "${{ steps.deploy-db.outputs.deploy_db }}" }' \
+                --data '{ "RESTART_SECRET": "${{ secrets.DB_RESTART_SECRET }}" }' \
                 --url http://www.${{ vars.DOMAIN }}/${{ steps.deploy-path.outputs.path }}
