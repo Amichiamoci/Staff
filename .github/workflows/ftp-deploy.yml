@@ -115,9 +115,7 @@ jobs:
 
         - name: Genereate MySQL Views and Procedures Reload File
           run: |
-            curl -s --request POST \
-                --header 'Content-Type: application/json' \
-                --data '{ "RESTART_SECRET": "${{ secrets.DB_RESTART_SECRET }}" }' \
+            curl -s --request GET \
                 --url $URL
           env: 
-            URL: http://www.${{ vars.DOMAIN }}/${{ steps.deploy-path.outputs.path }}sql_autostart.php
+            URL: https://www.${{ vars.DOMAIN }}/${{ steps.deploy-path.outputs.path }}sql_autostart.php

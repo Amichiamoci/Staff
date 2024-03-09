@@ -18,7 +18,7 @@ foreach($files as $file)
     $all .= $content . PHP_EOL . PHP_EOL;
 }
 
-if ($all && strlen($all) > 0)
+if (strlen($all) > 0)
 {
     $f = fopen(__DIR__ . "/db_tools.sql", "w");
     if ($f) {
