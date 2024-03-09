@@ -96,7 +96,7 @@ BEGIN
         a.`id`, 
         a.`cognome`, 
         a.`nome`, 
-        a.`data_nascita_italiana` AS "data_nascita" 
+        a.`data_nascita_italiana` AS "data_nascita",
         a.`eta`, 
         a.`telefono`, 
         a.`email`, 
