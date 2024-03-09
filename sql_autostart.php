@@ -8,7 +8,7 @@ if (!isset($_POST["DB_NAME"]) || !is_string($_POST["DB_NAME"]) ||
     exit;
 }
 
-$dir   = new RecursiveDirectoryIterator(realpath(__DIR__ . "/queries"));
+$dir   = new RecursiveDirectoryIterator(realpath(__DIR__ . "/queries/views/"));
 $flat  = new RecursiveIteratorIterator($dir);
 $files = new RegexIterator($flat, '/\.sql$/i');
 
