@@ -20,7 +20,7 @@ foreach($files as $file)
 
 if (strlen($all) > 0)
 {
-    $f = fopen(__DIR__ . "/db_tools.sql", "w");
+    $f = fopen("./db_tools.sql", "w") or die("Impossibile aprire file");
     if ($f) {
         fwrite($f, $all);
         fclose($f);
