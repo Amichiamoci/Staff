@@ -57,7 +57,7 @@ BEGIN
         a.`cognome`, 
         a.`nome`, 
         a.`data_nascita_italiana` AS "data_nascita", 
-        a.`eta`
+        a.`eta`,
         a.`telefono`, 
         a.`email`, 
         a.`cf`, 
