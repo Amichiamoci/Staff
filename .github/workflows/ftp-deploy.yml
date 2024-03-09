@@ -107,4 +107,4 @@ jobs:
             curl -s --request POST \
                 --header 'Content-Type: application/json' \
                 --data '{ "RESTART_SECRET": "${{ secrets.DB_RESTART_SECRET }}", "DB_NAME": "${{ steps.deploy-db.outputs.deploy_db }}" }' \
-                --url http://www.${{ vars.DOMAIN }}/${{ steps.deploy-path.outputs.path }}sql_autostart.php
+                --url http://www.${{ vars.DOMAIN }}/${{ steps.deploy-path.outputs.path }}
