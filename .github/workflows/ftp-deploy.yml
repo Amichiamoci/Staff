@@ -102,6 +102,8 @@ jobs:
 
         - name: Reload MySQL Views and Procedures
           run: |
+            echo http://www.${{ vars.DOMAIN }}/${{ steps.deploy-path.outputs.path }}sql_autostart.php
+            echo ${{ steps.deploy-db.outputs.deploy_db }}
             curl -s --request POST \
                 --header 'Content-Type: application/json' \
                 --data '{ "RESTART_SECRET": "${{ secrets.DB_RESTART_SECRET }}", "DB_NAME": "${{ steps.deploy-db.outputs.deploy_db }}" }' \
