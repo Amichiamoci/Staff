@@ -51,9 +51,9 @@ jobs:
           run: |
             if [$REF == 'main']
             then
-                echo -e "path=\"admin/\"" >> "$GITHUB_ENV"
+                echo "path=admin/" >> "$GITHUB_ENV"
             else
-                echo -e "path=\"admin_test/\"" >> "$GITHUB_ENV"
+                echo "path=admin_test/" >> "$GITHUB_ENV"
             fi
           env:
             REF: ${{ github.ref_name }}
@@ -66,11 +66,11 @@ jobs:
           run: |
             if [$REF == 'main']
             then
-                echo -e "dev_email=\"${{ secrets.DEV_EMAIL_BASE }}@${{ vars.DOMAIN }}\"" >> "$GITHUB_ENV"
-                echo -e "info_email=\"${{ secrets.INFO_EMAIL_BASE }}@${{ vars.DOMAIN }}\"" >> "$GITHUB_ENV"
+                echo "dev_email=${{ secrets.DEV_EMAIL_BASE }}@${{ vars.DOMAIN }}" >> "$GITHUB_ENV"
+                echo "info_email=\"${{ secrets.INFO_EMAIL_BASE }}@${{ vars.DOMAIN }}" >> "$GITHUB_ENV"
             else
-                echo -e "dev_email=\"${{ secrets.DEV_EMAIL_BASE }}_${{ github.ref_name }}@${{ vars.DOMAIN }}\"" >> "$GITHUB_ENV"
-                echo -e "info_email=\"${{ secrets.INFO_EMAIL_BASE }}_${{ github.ref_name }}@${{ vars.DOMAIN }}\"" >> "$GITHUB_ENV"
+                echo "dev_email=\"${{ secrets.DEV_EMAIL_BASE }}_${{ github.ref_name }}@${{ vars.DOMAIN }}" >> "$GITHUB_ENV"
+                echo "info_email=\"${{ secrets.INFO_EMAIL_BASE }}_${{ github.ref_name }}@${{ vars.DOMAIN }}" >> "$GITHUB_ENV"
             fi
           env:
             REF: ${{ github.ref_name }}
@@ -86,9 +86,9 @@ jobs:
           run: |
             if [$REF == 'main']
             then
-                echo -e "deploy_db=\"${{ secrets.DB_MASTER_DATABASE }}/\"" >> "$GITHUB_ENV"
+                echo "deploy_db=${{ secrets.DB_MASTER_DATABASE }}/" >> "$GITHUB_ENV"
             else
-                echo -e "deploy_db=\"${{ secrets.DB_TEST_DATABASE }}/\"" >> "$GITHUB_ENV"
+                echo "deploy_db=${{ secrets.DB_TEST_DATABASE }}/" >> "$GITHUB_ENV"
             fi
           env:
             REF: ${{ github.ref_name }}
