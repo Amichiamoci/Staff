@@ -92,9 +92,9 @@ jobs:
           run: |
             if [$REF == 'main']
             then
-                echo "deploy_db=${{ secrets.DB_MASTER_DATABASE }}/" >> "$GITHUB_OUTPUT"
+                echo "deploy_db=${{ secrets.DB_MASTER_DATABASE }}" >> "$GITHUB_OUTPUT"
             else
-                echo "deploy_db=${{ secrets.DB_TEST_DATABASE }}/" >> "$GITHUB_OUTPUT"
+                echo "deploy_db=${{ secrets.DB_TEST_DATABASE }}" >> "$GITHUB_OUTPUT"
             fi
           env:
             REF: ${{ github.ref_name }}
