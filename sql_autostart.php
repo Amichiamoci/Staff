@@ -19,6 +19,9 @@ foreach($files as $file)
 }
 
 $f = fopen("./db_tools.sql", "w") or die("Impossibile aprire file");
-fwrite($f, $all);
+if (!fwrite($f, $all))
+{
+    die("Error in fwrite");
+}
 fclose($f);
 echo $all;
