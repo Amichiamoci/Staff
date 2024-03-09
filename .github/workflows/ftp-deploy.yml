@@ -51,26 +51,29 @@ jobs:
           run: |
             if [$REF == 'main']
             then
-                echo "path=admin/" >> $GITHUB_ENV
+                echo "path=admin/" >> "$GITHUB_OUTPUT"
             else
-                echo "path=admin_test/" >> $GITHUB_ENV
+                echo "path=admin_test/" >> "$GITHUB_OUTPUT"
             fi
           env:
             REF: ${{ github.ref_name }}
+        
         - name: Calculate Deploy Path
           id: deploy-path-echo
-          run: echo "Path is ${{ steps.deploy-path.outputs.path }}"
+          run: echo "Path is $PATH"
+          env:
+            PATH: ${{ steps.deploy-path.outputs.path }}
 
         - name: Calculate emails to deploy
           id: deploy-email
           run: |
             if [$REF == 'main']
             then
-                echo "dev_email=${{ secrets.DEV_EMAIL_BASE }}@${{ vars.DOMAIN }}" >> $GITHUB_ENV
-                echo "info_email=\"${{ secrets.INFO_EMAIL_BASE }}@${{ vars.DOMAIN }}" >> $GITHUB_ENV
+                echo "dev_email=${{ secrets.DEV_EMAIL_BASE }}@${{ vars.DOMAIN }}" >> "$GITHUB_OUTPUT"
+                echo "info_email=${{ secrets.INFO_EMAIL_BASE }}@${{ vars.DOMAIN }}" >> "$GITHUB_OUTPUT"
             else
-                echo "dev_email=\"${{ secrets.DEV_EMAIL_BASE }}_${{ github.ref_name }}@${{ vars.DOMAIN }}" >> $GITHUB_ENV
-                echo "info_email=\"${{ secrets.INFO_EMAIL_BASE }}_${{ github.ref_name }}@${{ vars.DOMAIN }}" >> $GITHUB_ENV
+                echo "dev_email=${{ secrets.DEV_EMAIL_BASE }}_${{ github.ref_name }}@${{ vars.DOMAIN }}" >> "$GITHUB_OUTPUT"
+                echo "info_email=${{ secrets.INFO_EMAIL_BASE }}_${{ github.ref_name }}@${{ vars.DOMAIN }}" >> "$GITHUB_OUTPUT"
             fi
           env:
             REF: ${{ github.ref_name }}
@@ -78,23 +81,28 @@ jobs:
         - name: Load Mail addresses in .env
           if: github.ref_name == 'main'
           run: |
-            echo -e "EMAIL_SOURCE=\"${{ steps.deploy-email.outputs.dev_email }}\"" >> ".env"
-            echo -e "CONTACT_EMAIL=\"${{ steps.deploy-email.outputs.info_email }}\"" >> ".env"
+            echo -e "EMAIL_SOURCE=\"$DEV_EMAIL\"" >> ".env"
+            echo -e "CONTACT_EMAIL=\"$INFO_EMAIL\"" >> ".env"
+          env:
+            DEV_EMAIL: ${{ steps.deploy-email.outputs.dev_email }}
+            INFO_EMAIL: ${{ steps.deploy-email.outputs.info_email }}
 
         - name: Calculate which database to connect
           id: deploy-db
           run: |
             if [$REF == 'main']
             then
-                echo "deploy_db=${{ secrets.DB_MASTER_DATABASE }}/" >> $GITHUB_ENV
+                echo "deploy_db=${{ secrets.DB_MASTER_DATABASE }}/" >> "$GITHUB_OUTPUT"
             else
-                echo "deploy_db=${{ secrets.DB_TEST_DATABASE }}/" >> $GITHUB_ENV
+                echo "deploy_db=${{ secrets.DB_TEST_DATABASE }}/" >> "$GITHUB_OUTPUT"
             fi
           env:
             REF: ${{ github.ref_name }}
         
         - name: Load Database name in .env
-          run: echo -e "DB_NAME=\"${{ steps.deploy-db.outputs.deploy_db }}\"" >> ".env"
+          run: echo -e "DB_NAME=\"$DB_NAME\"" >> ".env"
+          env: 
+            DB_NAME: ${{ steps.deploy-db.outputs.deploy_db }}
 
         - name: 📂 Sync files
           uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -110,4 +118,6 @@ jobs:
             curl -s --request POST \
                 --header 'Content-Type: application/json' \
                 --data '{ "RESTART_SECRET": "${{ secrets.DB_RESTART_SECRET }}" }' \
-                --url http://www.${{ vars.DOMAIN }}/${{ steps.deploy-path.outputs.path }}
+                --url $URL
+          env: 
+            URL: http://www.${{ vars.DOMAIN }}/${{ steps.deploy-path.outputs.path }}
