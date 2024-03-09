@@ -20,7 +20,7 @@ foreach($files as $file)
 
 if ($all && strlen($all) > 0)
 {
-    $f = fopen(realpath(__DIR__ . "/db_tools.sql"), "w");
+    $f = fopen(__DIR__ . "/db_tools.sql", "w");
     if ($f) {
         fwrite($f, $all);
         fclose($f);
