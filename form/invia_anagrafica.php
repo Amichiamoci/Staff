@@ -152,7 +152,7 @@
 
     <?php include "../parts/edition.php"; ?>
     <!-- Form ----------------------------------------------------------------- -->
-    <section class="flex center">
+    <section class="flex center" style="margin-block: 0;">
         <?php include "./anagrafica.php"; ?>
     </section>
 </div>
