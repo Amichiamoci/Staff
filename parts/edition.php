@@ -14,7 +14,7 @@ if (!isset($edizione))
 			<div class="column col-10 flex center">
 				<img src="<?= ADMIN_URL ?>/<?= isset($edizione->imgpath) ? $edizione->imgpath : "" ?>"
 					title="Logo attuale"
-					alt="Logo Amichiamoci <?= $edizione->year ?>"
+					alt="Logo <?= $edizione->year ?>"
 					class="logo-edizione">
 			</div>
 			<div class="column col-90">
