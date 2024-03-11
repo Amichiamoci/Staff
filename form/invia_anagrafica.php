@@ -147,7 +147,7 @@
     </title>
 </head>
 <body>
-<?php include "../../parts/nav.php";?>
+<?php include "../parts/nav.php";?>
 <div class="container">
 
     <?php include "../parts/edition.php"; ?>
