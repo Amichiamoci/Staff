@@ -17,6 +17,8 @@ BEGIN
         a.`cf`, 
         a.`documento`, 
         a.`codice_documento`, t.`label`, 
+        a.`eta`,
+        a.`sesso`,
         p.`nome` AS "parrocchia", 
         p.`id` AS "id_parrocchia",
         e.`anno`,
