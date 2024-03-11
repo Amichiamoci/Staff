@@ -25,12 +25,10 @@ BEGIN
         e.`id` AS "id_edizione",
         IF (i.`id` IS NOT NULL, 
             LPAD(HEX(i.`id`), 8, '0'), 
-            CONCAT('Non iscritto per il ', 
-                IF (anno IS NULL, YEAR(CURRENT_DATE), anno))
+            CONCAT('Non iscritto per il ', IFNULL(anno, YEAR(CURRENT_DATE)))
             ) AS "codice_iscrizione",
         IF (i.id IS NULL, 
-            CONCAT('Iscrivi per il ', 
-                IF (anno IS NULL, YEAR(CURRENT_DATE), anno)),
+            CONCAT('Iscrivi per il ', IFNULL (anno, YEAR(CURRENT_DATE))),
             NULL
             ) AS "iscrivi",
         i.`id` AS id_iscrizione,
@@ -47,7 +45,7 @@ BEGIN
         LEFT OUTER JOIN `anagrafiche` a2 ON i.`tutore` = a2.`id`
     WHERE (e.`anno` = anno OR anno IS NULL) AND (id_parrocchia = p.`id` OR id_parrocchia IS NULL)
     GROUP BY a.`id`, i.`id`
-    HAVING e.`anno` = YEAR(CURRENT_DATE) OR e.`anno` IS NULL
+    -- HAVING e.`anno` = YEAR(CURRENT_DATE) OR e.`anno` IS NULL
     ORDER BY parrocchia DESC, YEAR(a.`data_nascita`) ASC, a.`cognome` ASC, a.`nome` ASC;
 END; //
 
