@@ -5,8 +5,9 @@ SELECT
     e.anno,
     t.sport AS "codice_sport",
     sp.nome AS "sport",
+    sp.area,
     tipi_torneo.nome AS "tipo",
-    tipi_torneo.id AS "id_tipo"
+    tipi_torneo.id AS "tipo_id"
 FROM tornei t
     INNER JOIN edizioni e ON e.id = t.edizione
     INNER JOIN sport sp ON sp.id = t.sport
