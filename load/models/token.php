@@ -7,7 +7,8 @@ class Token
     private string $secret = "";
     public int $edition = 0;
     public int $anagrafica = 0;
-    public bool $used = false;
+    public ?DateTime $used_date = null;
+    public function used() : bool { return isset($this->used_date); }
 
     public function __construct(
         string|null $val,
@@ -15,7 +16,7 @@ class Token
         string|null $secret,
         string|int|null $edition,
         string|int|null $anagrafica,
-        string|bool|null $used = false
+        Datetime|string|null $used = null
     ) {
         if (isset($val) && is_string($val))
         {
@@ -48,7 +49,11 @@ class Token
 
         if (isset($used))
         {
-            $this->used = $used == 1 || (bool)$used;
+            if ($used instanceof DateTime) {
+                $this->used_date = $used;
+            } else {
+                $this->used_date = new DateTime($used);
+            }
         }
     }
 
@@ -63,9 +68,9 @@ class Token
         $secret = Totp::GenerateSecret(16);
         $secret_s = Base32::encode($secret);
         $key = (new Totp())->GenerateToken($secret);
-        $query = "REPLACE INTO `token` (val, secret, edizione, anagrafica, expire) VALUES (?, ?, ?, ?, ?)";
+        $query = "REPLACE INTO `token` (`val`, `secret`, `edizione`, `anagrafica`, `expire`) VALUES (?, ?, ?, ?, ?)";
         $stmt = $connection->prepare($query);
-        if (!$stmt || !$stmt->bind_param("ssii", $key, $secret_s, $edizione, $anagrafica, $expire))
+        if (!$stmt || !$stmt->bind_param("ssiis", $key, $secret_s, $edizione, $anagrafica, $expire))
         {
             return null;
         }
@@ -82,7 +87,9 @@ class Token
         {
             return null;
         }
-        $query = "SELECT * FROM token WHERE val = '" . $connection->real_escape_string($val) . "'";
+        $query = "SELECT * 
+        FROM `token` 
+        WHERE `token`.`val` = '" . $connection->real_escape_string($val) . "'";
         $result = $connection->query($query);
         if (!$result || $result->num_rows === 0)
         {
@@ -96,14 +103,14 @@ class Token
                 $row["secret"], 
                 $row["edizione"], 
                 $row["anagrafica"],
-                $row["used"]);
+                $row["used_date"]);
         }
         return null;
     }
     public static function LoadIfNotExpired(mysqli $connection, string $val) : Token|null
     {
         $loaded = self::Load($connection, $val);
-        if (!isset($loaded) || $loaded->used)
+        if (!isset($loaded) || $loaded->used())
             return null;
         if (isset($loaded->expiration) || $loaded->expiration < new DateTime())
         {
@@ -116,7 +123,9 @@ class Token
     {
         if (!$connection)
             return false;
-        $query = "UPDATE `token` SET `token`.`used` = 1 WHERE `token`.`val` = ? AND `token`.`used` = 0";
+        $query = "UPDATE `token` 
+        SET `token`.`used_date` = CURRENT_TIMESTAMP
+        WHERE `token`.`val` = ? AND `token`.`used_date` IS NULL AND (CURRENT_TIMESTAMP < `token`.`expire` OR `token`.`expire` IS NULL)";
         $stmt = $connection->prepare($query);
         if (!$stmt || !$stmt->bind_param("s", $this->val))
         {
@@ -124,7 +133,7 @@ class Token
         }
         if ($stmt->execute() && $stmt->affected_rows === 1)
         {
-            $this->used = true;
+            $this->used_date = new DateTime();
             return true;
         }
         return false;
