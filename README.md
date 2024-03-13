@@ -1,6 +1,6 @@
 # Sezione admin sito
 ## Setup della repo
-Richiede [composer](https://getcomposer.org "Vai al sito"), nella cartalla principale della repo eseguire:
+Richiede [composer](https://getcomposer.org "Vai al sito"), nella cartella principale della repo eseguire:
 ```cmd
 composer update --no-interaction --no-progress
 ```
