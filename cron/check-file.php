@@ -1,6 +1,5 @@
 <?php
-require_once "../load/basic_functions.php";
-require_once "../load/config.php";
+require_once "../load/db_manager";
 
 if (!$connection)
 {

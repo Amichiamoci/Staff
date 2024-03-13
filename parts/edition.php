@@ -3,15 +3,18 @@ if (!isset($edizione))
 {
     ?><!-- Edizione non impostata prima di chiamare edition.php --><?php
 } else {
+	$hide_share_link = isset($hide_share_link) && (bool)$hide_share_link;
     ?>
 <div class="edizione">
 	<?php if ($edizione->ok()) { ?>
-		<h3>Amichiamoci <?= $edizione->year ?></h3>
+		<h3>
+			Amichiamoci <?= $edizione->year ?>
+		</h3>
 		<div class="grid">
 			<div class="column col-10 flex center">
 				<img src="<?= ADMIN_URL ?>/<?= isset($edizione->imgpath) ? $edizione->imgpath : "" ?>"
 					title="Logo attuale"
-					alt="Logo Amichiamoci <?= $edizione->year ?>"
+					alt="Logo <?= $edizione->year ?>"
 					class="logo-edizione">
 			</div>
 			<div class="column col-90">
@@ -21,19 +24,21 @@ if (!isset($edizione))
 						<?= htmlspecialchars($edizione->motto) ?>
 						&quot;
 					</em>
-					<br>
-					Link per upload autonomo dati personali:
-					<br>
-					&rarr;
-					<a 
-						href="<?= ADMIN_URL ?>/form-iscrizione.php"
-						data-share-title="Iscriviti ad Amichiamoci <?= $edizione->year ?>"
-						data-share-text="Form di upload dati Amichiamoci"
-						target="_blank"
-						class="link share">
-						Clicca per condividere
-					</a>
-					&larr;
+					<?php if (!$hide_share_link) { ?>
+						<br>
+						Link per upload autonomo dati personali:
+						<br>
+						&rarr;
+						<a 
+							href="<?= ADMIN_URL ?>/form-iscrizione.php"
+							data-share-title="Iscriviti ad Amichiamoci <?= $edizione->year ?>"
+							data-share-text="Form di upload dati Amichiamoci"
+							target="_blank"
+							class="link share">
+							Clicca per condividere
+						</a>
+						&larr;
+					<?php } ?>
 				</p>
 			</div>
 		</div>

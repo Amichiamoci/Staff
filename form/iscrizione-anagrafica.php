@@ -1,4 +1,6 @@
 <?php
+    $hide_share_link = true;
+    $is_extern = true;
     if (!isset($_GET["year"]) || ctype_digit($_GET["year"]))
     {
         header("Location: index.php");
@@ -153,7 +155,7 @@
                     <select name="parrocchia" id="parrocchia" required>
                         <?php
                             $predefined_parrocchia = $iscrizione->id_parrocchia;
-                            if ($predefined_parrocchia === 0)
+                            if ($predefined_parrocchia === 0 && isset($dati_staff))
                             {
                                 $predefined_parrocchia = $dati_staff->id_parrocchia;
                             }

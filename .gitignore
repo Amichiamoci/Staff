@@ -2,6 +2,6 @@ cron/*.txt
 .env
 vendor
 composer.lock
-.vscode/**
+.vscode
 upload/*
 !upload/.htaccess

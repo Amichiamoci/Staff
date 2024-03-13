@@ -1,5 +1,6 @@
 <?php
     $is_extern = true;
+    $hide_share_link = true;
     if (!(
         (isset($_GET["year"]) && ctype_digit($_GET["year"])) || 
         (isset($_POST["year"]) && ctype_digit($_POST["year"]))
@@ -147,12 +148,12 @@
     </title>
 </head>
 <body>
-<?php include "../../parts/nav.php";?>
+<?php include "../parts/nav.php";?>
 <div class="container">
 
     <?php include "../parts/edition.php"; ?>
     <!-- Form ----------------------------------------------------------------- -->
-    <section class="flex center">
+    <section class="flex center" style="margin-block: 0;">
         <?php include "./anagrafica.php"; ?>
     </section>
 </div>

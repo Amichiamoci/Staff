@@ -1,4 +1,4 @@
 <FilesMatch "\.(save|swp|sql|env|md|bkp)$">
     Require all denied
 </FilesMatch>
-ErrorDocument 404 ./not-found.php
+ErrorDocument 404 /not-found.php

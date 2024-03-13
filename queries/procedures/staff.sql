@@ -85,4 +85,12 @@ BEGIN
     WHERE s.`id` = staff_id;
 END; //
 
+DROP PROCEDURE IF EXISTS `GetStaffFromUserId` //
+CREATE PROCEDURE `GetStaffFromUserId` (IN `id` INT)  BEGIN
+    SELECT CONCAT(a.nome, ' ', a.cognome) AS nome, a.id AS id_anagrafica, s.id AS staffista
+    FROM anagrafiche AS a 
+        INNER JOIN staffisti s ON a.id = s.dati_anagrafici
+    WHERE s.id_utente = id;
+END //
+
 DELIMITER ;

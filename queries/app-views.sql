@@ -1,21 +1,7 @@
-CREATE OR REPLACE VIEW LastLogGet AS
+/*CREATE OR REPLACE VIEW LastLogGet AS
 SELECT DISTINCT area, time_stamp, url 
 FROM last_log 
 ORDER BY time_stamp, area DESC;
-
-CREATE OR REPLACE VIEW eventi_correnti AS 
-SELECT 
-	e.titolo, e.descrizione, 
-    e.locandina, 
-    DATE_FORMAT(e.inizio, '%d/%m/%Y alle %H:%i') AS "inizio",
-    e.inizio AS "ts",
-    DATE_FORMAT(e.fine, '%d/%m/%Y alle %H:%i') AS "fine"
-FROM eventi e
-    INNER JOIN edizioni ed ON ed.id = e.edizione
-WHERE 
-    IF (e.fine IS NULL, TIMESTAMPADD(HOUR, 3, e.inizio), e.fine) >= CURRENT_TIMESTAMP AND 
-    ed.anno = YEAR(CURRENT_DATE)
-ORDER BY e.inizio ASC;
 
 CREATE OR REPLACE VIEW eventi_a_breve AS 
 SELECT e.*
@@ -101,4 +87,4 @@ FROM punteggio_parrocchia r
     INNER JOIN parrocchie p ON p.id = r.parrocchia
 WHERE e.anno = YEAR(CURRENT_DATE)
 GROUP BY r.parrocchia
-ORDER BY r.punteggio DESC;
+ORDER BY r.punteggio DESC;*/

@@ -15,7 +15,7 @@ class StaffBase
     {
         if (!$connection)
             return array();
-        $query  = "CALL RawStaffList();";
+        $query  = "SELECT * FROM `staff_list_raw`";
         $result = $connection->query($query);
         $arr = array();
         if ($result)
@@ -27,7 +27,6 @@ class StaffBase
             }
             $result->close();
         }
-        $connection->next_result();
         return $arr;
     }
 }

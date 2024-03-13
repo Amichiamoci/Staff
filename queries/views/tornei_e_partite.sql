@@ -1,3 +1,41 @@
+CREATE OR REPLACE VIEW tornei_sport AS
+SELECT 
+    t.id,
+	t.nome,
+    e.anno,
+    t.sport AS "codice_sport",
+    sp.nome AS "sport",
+    sp.area,
+    tipi_torneo.nome AS "tipo",
+    tipi_torneo.id AS "tipo_id"
+FROM tornei t
+    INNER JOIN edizioni e ON e.id = t.edizione
+    INNER JOIN sport sp ON sp.id = t.sport
+    INNER JOIN tipi_torneo ON tipi_torneo.id = t.tipo_torneo;
+
+CREATE OR REPLACE VIEW tornei_attivi AS
+SELECT 
+    t.*,
+    IF (
+        COUNT(DISTINCT s.id) = 0, 
+        'Nessuna squadra iscritta', 
+        GROUP_CONCAT(DISTINCT s.nome SEPARATOR ', ')
+    ) AS "squadre",
+    COUNT(DISTINCT s.id) AS "numero_squadre",
+    IF (
+        COUNT(DISTINCT partite.id) > 0,
+        CONCAT('Già creato, ', COUNT(DISTINCT partite.id), ' partite previste'),
+        'Da creare'
+    ) AS "calendario",
+    COUNT(DISTINCT partite.id) AS "partite"
+FROM tornei_sport t
+	LEFT OUTER JOIN partecipaz_squad_torneo p ON t.id = p.torneo
+    LEFT OUTER JOIN squadre s ON p.squadra = s.id
+    LEFT OUTER JOIN partite ON partite.torneo = t.id
+WHERE t.anno = YEAR(CURRENT_DATE)
+GROUP BY t.id;
+
+
 CREATE OR REPLACE VIEW partite_tornei_attivi AS
 SELECT 
 	p.id,
@@ -25,6 +63,28 @@ FROM partite p
     INNER JOIN squadre s1 ON p.squadra_casa = s1.id
     INNER JOIN squadre s2 ON p.squadra_ospite = s2.id
 WHERE t.anno = YEAR(CURRENT_DATE);
+
+CREATE OR REPLACE VIEW partite_settimana AS 
+SELECT 
+	p.*, 
+    IF (p.data IS NULL, 
+        'Data non impostata',
+        CONCAT(
+            DATE_FORMAT(p.data, "%d/%m/%Y"),
+            IF (p.orario IS NULL, '', CONCAT(' alle ', p.orario))
+        )
+    ) AS "data_ora_italiana",
+    GROUP_CONCAT(r.home SEPARATOR '|') AS "punteggi_casa", 
+    GROUP_CONCAT(r.guest SEPARATOR '|') AS "punteggi_ospiti", 
+    GROUP_CONCAT(r.id SEPARATOR '|') AS "id_punteggi",
+    GROUP_CONCAT(CONCAT(r.home, ' - ', r.guest) SEPARATOR ', ') AS "punteggio",
+    COUNT(r.id) AS "punteggi"
+FROM partite_tornei_attivi p
+	LEFT OUTER JOIN punteggi r ON r.partita = p.id
+-- WHERE p.data IS NULL OR p.data BETWEEN DATE_SUB(CURRENT_DATE, INTERVAL 20 DAY) AND CURRENT_DATE
+WHERE p.data IS NULL OR p.data BETWEEN DATE_SUB(CURRENT_DATE, INTERVAL 6 DAY) AND CURRENT_DATE
+GROUP BY p.id
+ORDER BY p.data DESC, p.orario ASC;
 
 CREATE OR REPLACE VIEW partite_da_giocare AS
 SELECT p.* 
@@ -86,24 +146,3 @@ FROM anagrafiche a
     LEFT OUTER JOIN campi c ON p.campo = c.id -- Luogo della partita, se impostato
 GROUP BY a.id;
 
-CREATE OR REPLACE VIEW partite_settimana AS 
-SELECT 
-	p.*, 
-    IF (p.data IS NULL, 
-        'Data non impostata',
-        CONCAT(
-            DATE_FORMAT(p.data, "%d/%m/%Y"),
-            IF (p.orario IS NULL, '', CONCAT(' alle ', p.orario))
-        )
-    ) AS "data_ora_italiana",
-    GROUP_CONCAT(r.home SEPARATOR '|') AS "punteggi_casa", 
-    GROUP_CONCAT(r.guest SEPARATOR '|') AS "punteggi_ospiti", 
-    GROUP_CONCAT(r.id SEPARATOR '|') AS "id_punteggi",
-    GROUP_CONCAT(CONCAT(r.home, ' - ', r.guest) SEPARATOR ', ') AS "punteggio",
-    COUNT(r.id) AS "punteggi"
-FROM partite_tornei_attivi p
-	LEFT OUTER JOIN punteggi r ON r.partita = p.id
--- WHERE p.data IS NULL OR p.data BETWEEN DATE_SUB(CURRENT_DATE, INTERVAL 20 DAY) AND CURRENT_DATE
-WHERE p.data IS NULL OR p.data BETWEEN DATE_SUB(CURRENT_DATE, INTERVAL 6 DAY) AND CURRENT_DATE
-GROUP BY p.id
-ORDER BY p.data DESC, p.orario ASC;

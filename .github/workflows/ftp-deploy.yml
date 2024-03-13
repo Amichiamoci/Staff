@@ -5,80 +5,117 @@ on:
          - test
 name: 🚀 FTP deploy on push
 jobs:
-  
-  ftp-deploy:
-    name: ⬆️👷 FTP deploy test version
-    runs-on: ubuntu-latest
-    steps:
+    ftp-deploy:
+        name: ⬆️👷 FTP deploy
+        runs-on: ubuntu-latest
+        steps:
 
-    - name: 🚚 Get latest code
-      uses: actions/checkout@v4
-    
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '8.3'
-        tools: composer:v2
-        coverage: none
-      env:
-        update: true
-    
-    - uses: actions/cache@v4
-      id: cache
-      with:
-        path: ./vendor/
-        key: ${{ runner.os }}-php-vendor-${{ hashFiles('./composer.json') }}
-    
-    - name: Install Dependencies
-      if: steps.cache.outputs.cache-hit != 'true'
-      uses: nick-invision/retry@v2
-      with:
-        timeout_minutes: 5
-        max_attempts: 5
-        command: composer update --no-interaction --no-progress
-    
-    - name: Load DB data in and website address in .env
-      run: |
-        echo -e "DB_HOST=\"${{ secrets.DB_ADDRESS }}\"" >> ".env"
-        echo -e "DB_USER=\"${{ secrets.DB_USER }}\"" >> ".env"
-        echo -e "DB_PASSWORD=\"${{ secrets.DB_PASSWORD }}\"" >> ".env"
-        echo -e "WEBSITE_DOMAIN=\"www.${{ vars.DOMAIN }}\"" >> ".env"
-    
-    - name: Load Test DB name in .env
-      if: github.ref_name == 'test'
-      run: echo -e "DB_NAME=\"${{ secrets.DB_TEST_DATABASE }}\"" >> ".env"
-    - name: Load Production DB name in .env
-      if: github.ref_name == 'main'
-      run: echo -e "DB_NAME=\"${{ secrets.DB_MASTER_DATABASE }}\"" >> ".env"
-    
-    - name: Load Test mail addresses in .env
-      if: github.ref_name == 'test'
-      run: |
-        echo -e "EMAIL_SOURCE=\"${{ secrets.DEV_EMAIL_BASE }}_${{ github.ref_name }}@${{ vars.DOMAIN }}\"" >> ".env"
-        echo -e "CONTACT_EMAIL=\"${{ secrets.INFO_EMAIL_BASE }}_${{ github.ref_name }}@${{ vars.DOMAIN }}\"" >> ".env"
-    - name: Load Production mail addresses in .env
-      if: github.ref_name == 'main'
-      run: |
-        echo -e "EMAIL_SOURCE=\"${{ secrets.DEV_EMAIL_BASE }}@${{ vars.DOMAIN }}\"" >> ".env"
-        echo -e "CONTACT_EMAIL=\"${{ secrets.INFO_EMAIL_BASE }}@${{ vars.DOMAIN }}\"" >> ".env"
+        - name: 🚚 Get latest code
+          uses: actions/checkout@v4
+          with: 
+            ref: ${{ github.head_ref }}
+        
+        - name: Setup PHP
+          uses: shivammathur/setup-php@v2
+          with:
+              php-version: '8.3'
+              tools: composer:v2
+              coverage: none
+          env:
+              update: true
+        
+        - uses: actions/cache@v4
+          id: cache
+          with:
+            path: ./vendor/
+            key: ${{ runner.os }}-php-vendor-${{ hashFiles('./composer.json') }}
+        
+        - name: Install Dependencies
+          if: steps.cache.outputs.cache-hit != 'true'
+          uses: nick-invision/retry@v2
+          with:
+            timeout_minutes: 5
+            max_attempts: 5
+            command: composer update --no-interaction --no-progress
+        
+        - name: Load DB data in and website address in .env
+          run: |
+            echo -e "DB_HOST=\"${{ secrets.DB_ADDRESS }}\"" >> ".env"
+            echo -e "DB_USER=\"${{ secrets.DB_USER }}\"" >> ".env"
+            echo -e "DB_PASSWORD=\"${{ secrets.DB_PASSWORD }}\"" >> ".env"
+            echo -e "DB_RESTART_SECRET=\"${{ secrets.DB_RESTART_SECRET }}\"" >> ".env"
+            echo -e "WEBSITE_DOMAIN=\"www.${{ vars.DOMAIN }}\"" >> ".env"
+        
+        - name: Calculate Deploy Path
+          id: deploy-path
+          run: |
+            if [$REF == 'main']
+            then
+                echo "path=admin/" >> "$GITHUB_OUTPUT"
+            else
+                echo "path=admin_test/" >> "$GITHUB_OUTPUT"
+            fi
+          env:
+            REF: ${{ github.ref_name }}
+        
+        - name: Calculate Deploy Path
+          id: deploy-path-echo
+          run: echo "Path is $DEPLOY_PATH"
+          env:
+            DEPLOY_PATH: ${{ steps.deploy-path.outputs.path }}
 
-    - name: Calculate Deploy Path
-      id: deploy-path
-      run: |
-          if [$REF == 'main']
-          then
-              echo "path=admin_test/" >> "$GITHUB_ENV"
-          else
-              echo "path=admin_test2/" >> "$GITHUB_ENV"
-          fi
-      env:
-        REF: ${{ github.ref_name }}
+        - name: Calculate emails to deploy
+          id: deploy-email
+          run: |
+            if [$REF == 'main']
+            then
+                echo "dev_email=${{ secrets.DEV_EMAIL_BASE }}@${{ vars.DOMAIN }}" >> "$GITHUB_OUTPUT"
+                echo "info_email=${{ secrets.INFO_EMAIL_BASE }}@${{ vars.DOMAIN }}" >> "$GITHUB_OUTPUT"
+            else
+                echo "dev_email=${{ secrets.DEV_EMAIL_BASE }}_${{ github.ref_name }}@${{ vars.DOMAIN }}" >> "$GITHUB_OUTPUT"
+                echo "info_email=${{ secrets.INFO_EMAIL_BASE }}_${{ github.ref_name }}@${{ vars.DOMAIN }}" >> "$GITHUB_OUTPUT"
+            fi
+          env:
+            REF: ${{ github.ref_name }}
 
+        - name: Load Mail addresses in .env
+          if: github.ref_name == 'main'
+          run: |
+            echo -e "EMAIL_SOURCE=\"$DEV_EMAIL\"" >> ".env"
+            echo -e "CONTACT_EMAIL=\"$INFO_EMAIL\"" >> ".env"
+          env:
+            DEV_EMAIL: ${{ steps.deploy-email.outputs.dev_email }}
+            INFO_EMAIL: ${{ steps.deploy-email.outputs.info_email }}
 
-    - name: 📂 Sync files
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-      with:
-        server: ${{ secrets.FTP_ENDPOINT }}
-        username: ${{ secrets.FTP_USER }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: ${{ secrets.FTP_FOLDER_BASE }}${{ steps.deploy-path.outputs.path }}
+        - name: Calculate which database to connect
+          id: deploy-db
+          run: |
+            if [$REF == 'main']
+            then
+                echo "deploy_db=${{ secrets.DB_MASTER_DATABASE }}" >> "$GITHUB_OUTPUT"
+            else
+                echo "deploy_db=${{ secrets.DB_TEST_DATABASE }}" >> "$GITHUB_OUTPUT"
+            fi
+          env:
+            REF: ${{ github.ref_name }}
+        
+        - name: Load Database name in .env
+          run: echo -e "DB_NAME=\"$DB_NAME\"" >> ".env"
+          env: 
+            DB_NAME: ${{ steps.deploy-db.outputs.deploy_db }}
+
+        - name: 📂 Sync files
+          uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+          with:
+            server: ${{ secrets.FTP_ENDPOINT }}
+            username: ${{ secrets.FTP_USER }}
+            password: ${{ secrets.FTP_PASSWORD }}
+            server-dir: ${{ secrets.FTP_FOLDER_BASE }}${{ steps.deploy-path.outputs.path }}
+            log-level: minimal
+
+        - name: Genereate MySQL Views and Procedures Reload File
+          run: |
+            curl -s --request GET \
+                --url $URL
+          env: 
+            URL: https://www.${{ vars.DOMAIN }}/${{ steps.deploy-path.outputs.path }}sql_autostart.php

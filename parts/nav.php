@@ -29,7 +29,7 @@ if ($is_extern)
 	<?php } ?>
 	<?php if (!Security::IsFromApp()) { ?>
 		<div class="logo">
-			<a href="<?= $__link_href ?>" title="Torna al menù">
+			<a href="<?= $__link_href ?>">
 				<img src="<?= ADMIN_URL . "/assets/logo.png" ?>">
 			</a>
 		</div>

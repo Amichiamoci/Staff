@@ -1,14 +1,5 @@
 DELIMITER //
 
-
-
-
-DROP PROCEDURE IF EXISTS RawStaffList //
-CREATE PROCEDURE RawStaffList()
-BEGIN
-END; //
-
-
 DROP PROCEDURE IF EXISTS `StaffByParrocchia` //
 CREATE PROCEDURE `StaffByParrocchia`(IN parrocchia_id INT, IN anno YEAR)
 BEGIN
