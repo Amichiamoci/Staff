@@ -12,7 +12,7 @@ $do_op = true;
 
 echo "Apro file $file_name<br>";
 $myfile = fopen($file_name, "r");
-if (!$myFile)
+if (!$myfile)
 {
     echo "File mancante<br>\n";
     $myfile = fopen($file_name, "w") or die("Unable to open file!");
