@@ -43,32 +43,27 @@ jobs:
             echo -e "DB_HOST=\"${{ secrets.DB_ADDRESS }}\"" >> ".env"
             echo -e "DB_USER=\"${{ secrets.DB_USER }}\"" >> ".env"
             echo -e "DB_PASSWORD=\"${{ secrets.DB_PASSWORD }}\"" >> ".env"
-            echo -e "DB_RESTART_SECRET=\"${{ secrets.DB_RESTART_SECRET }}\"" >> ".env"
             echo -e "WEBSITE_DOMAIN=\"www.${{ vars.DOMAIN }}\"" >> ".env"
         
         - name: Calculate Deploy Path
           id: deploy-path
           run: |
-            echo "Ref is $REF"
-            if [$REF == 'main']
+            echo "Ref is '$REF'"
+            if [ $REF = 'main' ]
             then
                 echo "path=admin/" >> "$GITHUB_OUTPUT"
+                echo "Path is admin/"
             else
                 echo "path=admin_test/" >> "$GITHUB_OUTPUT"
+                echo "Path is admin_test/"
             fi
           env:
             REF: ${{ github.ref_name }}
-        
-        - name: Show Deploy Path
-          id: deploy-path-echo
-          run: echo "Path is $DEPLOY_PATH"
-          env:
-            DEPLOY_PATH: ${{ steps.deploy-path.outputs.path }}
 
         - name: Calculate emails to deploy
           id: deploy-email
           run: |
-            if [$REF == 'main']
+            if [ $REF = 'main' ]
             then
                 echo "dev_email=${{ secrets.DEV_EMAIL_BASE }}@${{ vars.DOMAIN }}" >> "$GITHUB_OUTPUT"
                 echo "info_email=${{ secrets.INFO_EMAIL_BASE }}@${{ vars.DOMAIN }}" >> "$GITHUB_OUTPUT"
@@ -91,11 +86,13 @@ jobs:
         - name: Calculate which database to connect
           id: deploy-db
           run: |
-            if [$REF == 'main']
+            if [ $REF = 'main' ]
             then
                 echo "deploy_db=${{ secrets.DB_MASTER_DATABASE }}" >> "$GITHUB_OUTPUT"
+                echo "Using PRODUCTION database"
             else
                 echo "deploy_db=${{ secrets.DB_TEST_DATABASE }}" >> "$GITHUB_OUTPUT"
+                echo "Using TEST database"
             fi
           env:
             REF: ${{ github.ref_name }}
