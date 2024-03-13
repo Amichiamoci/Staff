@@ -1,5 +1,6 @@
 <?php
-require_once "../load/db_manager";
+
+require_once dirname(__DIR__) . "/load/db_manager";
 
 if (!$connection)
 {
