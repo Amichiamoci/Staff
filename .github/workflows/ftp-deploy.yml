@@ -49,6 +49,7 @@ jobs:
         - name: Calculate Deploy Path
           id: deploy-path
           run: |
+            echo "Ref is $REF"
             if [$REF == 'main']
             then
                 echo "path=admin/" >> "$GITHUB_OUTPUT"
@@ -58,7 +59,7 @@ jobs:
           env:
             REF: ${{ github.ref_name }}
         
-        - name: Calculate Deploy Path
+        - name: Show Deploy Path
           id: deploy-path-echo
           run: echo "Path is $DEPLOY_PATH"
           env:
@@ -114,6 +115,7 @@ jobs:
             log-level: minimal
 
         - name: Genereate MySQL Views and Procedures Reload File
+          if: false
           run: |
             curl -s --request GET \
                 --url $URL
