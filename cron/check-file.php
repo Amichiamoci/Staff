@@ -10,6 +10,7 @@ if (!$connection)
 $curr_date = date("d-m-Y");
 $do_op = true;
 
+echo "Apro file $file_name<br>";
 $myfile = fopen($file_name, "r");
 if (!$myFile)
 {
