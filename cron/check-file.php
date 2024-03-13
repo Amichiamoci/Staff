@@ -13,9 +13,11 @@ $do_op = true;
 $myfile = fopen($file_name, "r");
 if (!$myFile)
 {
+    echo "File mancante<br>\n";
     $myfile = fopen($file_name, "w") or die("Unable to open file!");
     fwrite($myfile, $curr_date);
     fclose($myfile);
+    echo "File creato<br>\n";
     $myfile = fopen($file_name, "r");
 }
 if ($myfile)
