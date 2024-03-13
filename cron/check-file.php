@@ -4,12 +4,20 @@ require_once dirname(__DIR__) . "/load/db_manager";
 
 if (!$connection)
 {
-    die("Non &egarve; possibile connettersi al DB!");
+    echo "Non &egarve; possibile connettersi al DB!";
+    die();
 }
 $curr_date = date("d-m-Y");
 $do_op = true;
 
 $myfile = fopen($file_name, "r");
+if (!$myFile)
+{
+    $myfile = fopen($file_name, "w") or die("Unable to open file!");
+    fwrite($myfile, $curr_date);
+    fclose($myfile);
+    $myfile = fopen($file_name, "r");
+}
 if ($myfile)
 {
     if ($data = fread($myfile, 10))
