@@ -155,7 +155,7 @@ class Anagrafica extends AnagraficaBase
     {
         if (!$connection || $id === 0)
             return null;
-        $query = "SELECT * FROM `anagrafiche_espansa` WHERE `id` = $id";
+        $query = "SELECT * FROM `anagrafiche_espanse` WHERE `id` = $id";
         $result = $connection->query($query);
         if (!$result)
         {
@@ -181,7 +181,7 @@ class Anagrafica extends AnagraficaBase
         if (!$connection || strlen(trim($cf)) === 0)
             return null;
         $cf = $connection->real_escape_string($cf);
-        $query = "SELECT * FROM `anagrafiche_espansa` WHERE LOWER(`cf`) = LOWER('$cf')";
+        $query = "SELECT * FROM `anagrafiche_espanse` WHERE LOWER(`cf`) = LOWER('$cf')";
         $result = $connection->query($query);
         if (!$result)
         {
