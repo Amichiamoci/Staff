@@ -173,6 +173,7 @@ class Anagrafica extends AnagraficaBase
             $a->nome_file = isset($row["documento"]) ? $row["documento"] : "";
             $a->proveninenza = $row["luogo_nascita"];
             $a->telefono = isset($row["telefono"]) ? $row["telefono"] : "";
+            return $a;
         }
         return null;
     }
@@ -199,6 +200,7 @@ class Anagrafica extends AnagraficaBase
             $a->nome_file = isset($row["documento"]) ? $row["documento"] : "";
             $a->proveninenza = $row["luogo_nascita"];
             $a->telefono = isset($row["telefono"]) ? $row["telefono"] : "";
+            return $a;
         }
         return null;       
     }

@@ -11,6 +11,11 @@ if (isset($_COOKIE["esit"]) && !is_array($_COOKIE["esit"]))
 Cookie::DeleteIfExists("form");
 
 $dati_staff = Staff::Get($connection, User::$Current->staff_id);
+if (!isset($dati_staff))
+{
+	header("Location: ../index.php");
+	exit;
+}
 
 ?>
 <!DOCTYPE html>
