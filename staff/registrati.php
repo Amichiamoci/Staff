@@ -1,6 +1,6 @@
 <?php
 
-include "./check_login.php";
+include "../check_login.php";
 
 $cf = "";
 if (isset($_POST["cf"]) && is_string($_POST["cf"]))
@@ -22,14 +22,14 @@ $cf = htmlspecialchars($cf);
 
 <head>
 
-	<?php include "./parts/head.php";?>
+	<?php include "../parts/head.php";?>
 	<title>Amichiamoci | Area Admin</title>
 
 </head>
 
 <body>
 
-<?php include "./parts/nav.php";?>
+<?php include "../parts/nav.php";?>
 
 <div class="container">
 
