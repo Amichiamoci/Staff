@@ -171,7 +171,7 @@ class Anagrafica extends AnagraficaBase
             $a->email = $row["email"];
             $a->doc_expires = isset($row["scadenza"]) ? $row["scadenza"] : "";
             $a->nome_file = isset($row["documento"]) ? $row["documento"] : "";
-            $a->proveninenza = $row["provenienza"];
+            $a->proveninenza = $row["luogo_nascita"];
             $a->telefono = isset($row["telefono"]) ? $row["telefono"] : "";
         }
         return null;
@@ -197,7 +197,7 @@ class Anagrafica extends AnagraficaBase
             $a->email = $row["email"];
             $a->doc_expires = isset($row["scadenza"]) ? $row["scadenza"] : "";
             $a->nome_file = isset($row["documento"]) ? $row["documento"] : "";
-            $a->proveninenza = $row["provenienza"];
+            $a->proveninenza = $row["luogo_nascita"];
             $a->telefono = isset($row["telefono"]) ? $row["telefono"] : "";
         }
         return null;       
