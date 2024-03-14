@@ -43,13 +43,13 @@ $cf = htmlspecialchars($cf);
 				<h3>
                     Ho gi&agrave; partecipato ad Amichiamoci dal 2023 in poi
                 </h3>
-                <form method="post">
+                <form method="post" style="width: 100%" class="login-form">
                     <label for="cf">
                         Inserisci il tuo codice fiscale
                     </label>
                     <input id="cf" value="<?= $cf ?>" placeholder="Codice fiscale qui" name="cf">
 
-                    <button type="submit">
+                    <button type="submit" class="button rounded" >
                         Invia
                     </button>
                 </form>
