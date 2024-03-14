@@ -33,7 +33,7 @@ Cookie::DeleteIfExists("form");
 						<?= htmlspecialchars(User::$Current->label()) ?>, diventa staffista!
 					</h3>
 
-					<a class="button" href="staff/diventa-staff.php">Vai</a>
+					<a class="button" href="./staff/registrati.php">Vai</a>
 				</div>
 			</div>
 
@@ -43,7 +43,7 @@ Cookie::DeleteIfExists("form");
 				<div class="admin-card flex vertical top">
 					<h3>Men&ugrave; staffista</h3>
 
-					<a class="button" href="staff/index.php">Vai</a>
+					<a class="button" href="./staff/index.php">Vai</a>
 				</div>
 			</div>
 
