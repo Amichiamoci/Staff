@@ -43,7 +43,7 @@ $cf = htmlspecialchars($cf);
 				<h3>
                     Ho gi&agrave; partecipato ad Amichiamoci dal 2023 in poi
                 </h3>
-                <form method="post" style="width: 100%" class="login-form">
+                <form method="post" style="width: 100%; min-width: 90%" class="login-form">
                     <label for="cf">
                         Inserisci il tuo codice fiscale
                     </label>
