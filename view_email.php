@@ -1,5 +1,5 @@
 <?php
-include_once "./load/db-manager.php";
+include_once "./load/db_manager.php";
 if (isset($_GET["id"]))
 {
     $id = (int)$_GET["id"];
