@@ -93,7 +93,7 @@ define("FILE_NAME_CHAR_WHITELIST", array_merge(range('A', 'Z'), range('a', 'z'),
 
 function file_remove_characters(string $str) : string
 {
-    $exploded = str_split("", $str);
+    $exploded = str_split($str);
     $regex = join("|", FILE_NAME_CHAR_WHITELIST);
     return join("", preg_grep($regex, $exploded));
 }
