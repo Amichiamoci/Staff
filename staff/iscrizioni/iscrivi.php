@@ -63,6 +63,7 @@
         global $cod_iscrizione;
         global $iscrizione;
         global $dati_anagrafici;
+        global $errore;
 
         if (Iscrizione::Exists($connection, $id_anagrafica, $edizione->id) && $cod_iscrizione === 0)
         {

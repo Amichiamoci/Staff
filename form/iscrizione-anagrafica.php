@@ -22,6 +22,7 @@
         exit;
     }
     $id_anagrafica = (int)Cookie::Get("id_anagrafica");
+    $errore = "";
 
     $iscrizione = new Iscrizione(null, null, null, null, $edizione->year, $edizione->id, null, null);
     if (isset($_POST["iscrivi_submit"]) &&

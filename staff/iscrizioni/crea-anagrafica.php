@@ -12,7 +12,7 @@
     {
         Cookie::Set("success", $_GET["success"], 3600);
     }
-
+    $errore = "";
     if (isset($_POST["anagrafica_submit"]) &&
         isset($_POST["nome"]) && is_string($_POST["nome"]) &&
         isset($_POST["cognome"]) && is_string($_POST["cognome"]) &&
