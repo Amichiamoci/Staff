@@ -4,7 +4,7 @@
     $dati_staff = Staff::Get($connection, User::$Current->staff_id);
 
     $add_link = ($dati_staff->is_subscribed() && $dati_staff->is_referente) || User::$Current->is_admin;
-    $year = date("Y");
+    $year = null;
     $include_all = 1;
     if (isset($_GET["year"]))
     {

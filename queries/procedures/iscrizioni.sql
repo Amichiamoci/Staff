@@ -39,13 +39,24 @@ BEGIN
         i.`tutore` AS "id_tutore"
     FROM `anagrafiche_espanse` AS a
         INNER JOIN `tipi_documento` t ON a.`tipo_documento` = t.`id`
-        LEFT OUTER JOIN `iscritti` i ON a.`id` = i.`dati_anagrafici`
-        LEFT OUTER JOIN `edizioni` e ON i.`edizione` = e.`id`
+        LEFT OUTER JOIN (
+            SELECT i2.*
+            FROM `iscritti` AS i2
+            WHERE EXISTS(
+                SELECT e3.*
+                FROM `edizioni` AS e3
+                WHERE e3.`anno` = YEAR(CURRENT_DATE) AND i2.`edizione` = e3.`id`
+            )
+        ) i ON a.`id` = i.`dati_anagrafici`
+        LEFT OUTER JOIN (
+            SELECT e2.*
+            FROM `edizioni` AS e2
+            WHERE e2.`anno` = YEAR(CURRENT_DATE)
+        ) e ON i.`edizione` = e.`id`
         LEFT OUTER JOIN `parrocchie` p ON i.`parrocchia` = p.`id`
         LEFT OUTER JOIN `anagrafiche` a2 ON i.`tutore` = a2.`id`
     WHERE (e.`anno` = anno OR anno IS NULL) AND (id_parrocchia = p.`id` OR id_parrocchia IS NULL)
     GROUP BY a.`id`, i.`id`
-    -- HAVING e.`anno` = YEAR(CURRENT_DATE) OR e.`anno` IS NULL
     ORDER BY parrocchia DESC, YEAR(a.`data_nascita`) ASC, a.`cognome` ASC, a.`nome` ASC;
 END; //
 

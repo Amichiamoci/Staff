@@ -178,7 +178,7 @@
 
 <!-- Form ----------------------------------------------------------------- -->
 
-<section class="full-h flex center">
+<section class="full-h flex center" style="margin-top: 0">
     <div class="grid">
         <div class="column col-100">
             <form action="iscrivi.php" method="post" class="login-form" enctype="multipart/form-data">
@@ -229,7 +229,11 @@
                     <label for="parrocchia">Parrocchia</label>
                     <select name="parrocchia" id="parrocchia" required>
                         <?php
-                            $predefined_parrocchia = $iscrizione->id_parrocchia;
+                            $predefined_parrocchia = 0;
+                            if (isset($iscrizione))
+                            {
+                                $predefined_parrocchia = $iscrizione->id_parrocchia;
+                            }
                             if ($predefined_parrocchia === 0)
                             {
                                 $predefined_parrocchia = $dati_staff->id_parrocchia;
@@ -252,7 +256,7 @@
                     <select name="tutore" required>
                         <option value="0">Nessun tutore</option>
                         <?php
-                            $anagrafiche = Anagrafica::GetAll($connection, function (Anagrafica $a){
+                            $anagrafiche = Anagrafica::GetAll($connection, function (AnagraficaBase|Anagrafica $a){
                                 return $a->eta >= 18;
                             });
                             foreach ($anagrafiche as $a)
