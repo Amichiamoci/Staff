@@ -22,8 +22,19 @@
     $cf = "";
     if (isset($_POST["cf"]) && is_string($_POST["cf"]))
     {
-        $cf = $_POST["cf"];
         require_once "../load/models/token.php"; 
+        $cf = $_POST["cf"];
+        $anagrafica = Anagrafica::FromCF($connection, $cf);
+        if (isset($anagrafica))
+        {
+            $expire = date_add(new DateTime(), new DateInterval("P7D"));
+
+            $token = Token::Generate($connection, $edizione->id, $anagrafica->id, $expire->format());
+            if (isset($token))
+            {
+
+            }
+        }
     }
     
 
@@ -66,6 +77,9 @@
                         Codice fiscale
                     </label>
                     <input name="cf" id="cf" value="<?= $cf ?>" title="Il tuo codice fiscale">
+                    <button type="submit">
+                        Inviami il link
+                    </button>
                 </div>
             </form>
         </div>
