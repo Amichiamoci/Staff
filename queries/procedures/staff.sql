@@ -30,7 +30,8 @@ BEGIN
 
     IF gia_partecipa > 0 THEN
         UPDATE `partecipaz_staff_ediz` 
-            SET `maglia` = taglia
+            SET `maglia` = taglia,
+                `is_referente` = referente
         WHERE `id` = gia_partecipa;
 
         DELETE 

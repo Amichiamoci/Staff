@@ -85,7 +85,7 @@
                             $name = "commissione-$commissione->id";
                             $checked = (isset($dati_staff) && $dati_staff->is_in($commissione->nome)) ? "checked" : "";
                             ?>
-                                <label for="<?= $name ?>">
+                                <label for="<?= $name ?>" title="<?= htmlspecialchars($commissione->nome) ?>">
                                     <?= htmlspecialchars($commissione->nome) ?>
                                 </label>
                                 <div class="checkbox">
