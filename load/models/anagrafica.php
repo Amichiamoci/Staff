@@ -168,7 +168,7 @@ class Anagrafica extends AnagraficaBase
             $a->compleanno = $row["data_nascita_italiana"];
             $a->doc_code = $row["codice_documento"];
             $a->doc_type = (int)$row["tipo_documento"];
-            $a->email = $row["email"];
+            $a->email = isset($row["email"]) ? $row["email"] : "";
             $a->doc_expires = isset($row["scadenza"]) ? $row["scadenza"] : "";
             $a->nome_file = isset($row["documento"]) ? $row["documento"] : "";
             $a->proveninenza = $row["luogo_nascita"];
@@ -195,7 +195,7 @@ class Anagrafica extends AnagraficaBase
             $a->compleanno = $row["data_nascita_italiana"];
             $a->doc_code = $row["codice_documento"];
             $a->doc_type = (int)$row["tipo_documento"];
-            $a->email = $row["email"];
+            $a->email = isset($row["email"]) ? $row["email"] : "";
             $a->doc_expires = isset($row["scadenza"]) ? $row["scadenza"] : "";
             $a->nome_file = isset($row["documento"]) ? $row["documento"] : "";
             $a->proveninenza = $row["luogo_nascita"];
