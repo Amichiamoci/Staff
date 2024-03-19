@@ -20,7 +20,7 @@ CREATE PROCEDURE `PartecipaStaff` (
     IN taglia VARCHAR(3), 
     IN commissioni VARCHAR(64), 
     IN referente BOOLEAN)
-proc_body:BEGIN
+BEGIN
     DECLARE gia_partecipa INT DEFAULT 0;
     DECLARE element VARCHAR(128);
 
@@ -32,18 +32,22 @@ proc_body:BEGIN
         UPDATE `partecipaz_staff_ediz` 
             SET `maglia` = taglia
         WHERE `id` = gia_partecipa;
-        LEAVE proc_body;
+
+        DELETE 
+        FROM `ruoli_staff`
+        WHERE `ruoli_staff`.`staffista` = staff_id AND `ruoli_staff`.`edizione` = edizione_id;
+    ELSE 
+        INSERT INTO `partecipaz_staff_ediz` (`staff`, `edizione`, `maglia`, `is_referente`) VALUES 
+            (staff_id, edizione_id, taglia, referente);
     END IF;
 
-    INSERT INTO `partecipaz_staff_ediz` (`staff`, `edizione`, `maglia`, `is_referente`) VALUES 
-        (staff_id, edizione_id, taglia, referente);
     
     SET @arr = commissioni;
     WHILE @arr != '' DO
         SET element = SUBSTRING_INDEX(@arr, ',', 1);      
         
-        INSERT INTO `ruoli_staff` (`commissione`, `staffista`, `edizione`) VALUES
-            (`element`, `staff_id`, `edizione_id`);
+        REPLACE INTO `ruoli_staff` (`commissione`, `staffista`, `edizione`) VALUES
+            (element, staff_id, edizione_id);
         
         IF LOCATE(',', @arr) > 0 THEN
             SET @arr = SUBSTRING(@arr, LOCATE(',', @arr) + 1);
@@ -58,7 +62,7 @@ CREATE PROCEDURE `StaffData` (IN staff_id INT, IN anno YEAR)
 BEGIN
     SELECT 
         IFNULL (parr.`nome`, 'Non specificata') AS "parrocchia",
-        IFNULL (parr.`id`, 0) "AS id_parrocchia",
+        IFNULL (parr.`id`, 0) AS "id_parrocchia",
         IFNULL (r.`comm`, 'Nessuna commissione') AS "commissioni",
         IFNULL (r.`tot_comm`, 0) AS "totale_commissioni",
         IFNULL (r.`maglia`, 'Non scelta') AS "maglia",

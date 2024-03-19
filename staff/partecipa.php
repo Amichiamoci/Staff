@@ -30,6 +30,9 @@
             header("Location: index.php");
             exit;
         }
+    } elseif (isset($dati_staff))
+    {
+        $maglia = $dati_staff->maglia;
     }
 ?>
 <!DOCTYPE html>
@@ -51,7 +54,7 @@
 <section class="flex center">
     <div class="grid">
         <div class="column col-100">
-            <form action="partecipa.php" method="post" class="login-form">
+            <form action="partecipa.php" method="post">
                 <h5>
                     Ti stai iscrivendo come staff ad Amichiamoci 
                     <select name="edizione" required style="display: inline-block;">
@@ -80,7 +83,8 @@
                         foreach ($tutte_commissioni as $commissione)
                         {
                             $name = "commissione-$commissione->id";
-                            echo "<input type='checkbox' name='$name' id='$name'><label for='$name'>$commissione->nome</label>";
+                            $checked = (isset($dati_staff) && $dati_staff->is_in($commissione->nome)) ? "checked" : "";
+                            echo "<input type='checkbox' name='$name' id='$name' $checked><label for='$name'>$commissione->nome</label>";
                         }
                     ?>
                     <label for="maglia">Taglia maglietta</label>
