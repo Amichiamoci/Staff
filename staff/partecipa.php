@@ -111,12 +111,15 @@
                     </select>
 
                     <label for="referente">
-                        Referente di <?= htmlspecialchars($dati_staff->parrocchia) ?>
+                        Referente parrocchiale
                     </label>
                     <div class="checkbox">
                         <input type="checkbox" name="referente" id="referente" <?= (isset($dati_staff) && $dati_staff->is_referente) ? "checked" : "" ?> >
                     </div>
                 </div>
+                <p>
+                    Parrocchia: <?= htmlspecialchars($dati_staff->parrocchia) ?>
+                </p>
                 <input class="button rounded" type="submit" name="partecipa_submit" value="Conferma">
             </form>
         </div>
