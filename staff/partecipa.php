@@ -109,7 +109,9 @@
                             }
                         ?>
                     </select>
-
+                    <br>
+                    <hr>
+                    <br>
                     <label for="referente">
                         Referente parrocchiale
                     </label>
