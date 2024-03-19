@@ -84,7 +84,14 @@
                         {
                             $name = "commissione-$commissione->id";
                             $checked = (isset($dati_staff) && $dati_staff->is_in($commissione->nome)) ? "checked" : "";
-                            echo "<input type='checkbox' name='$name' id='$name' $checked><label for='$name'>$commissione->nome</label>";
+                            ?>
+                                <label for="<?= $name ?>">
+                                    <?= htmlspecialchars($commissione->nome) ?>
+                                </label>
+                                <div class="checkbox">
+                                    <input type="checkbox" name="<?= $name ?>" id="<?= $name ?>" <?= $checked ?>>
+                                </div>
+                            <?php
                         }
                     ?>
                     <label for="maglia">Taglia maglietta</label>
