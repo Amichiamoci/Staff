@@ -107,7 +107,7 @@
                         Referente di <?= htmlspecialchars($dati_staff->parrocchia) ?>
                     </label>
                     <div class="checkbox">
-                        <input type="checkbox" name="referente" id="referente">
+                        <input type="checkbox" name="referente" id="referente" <?= (isset($dati_staff) && $dati_staff->is_referente) ? "checked" : "" ?> >
                     </div>
                 </div>
                 <input class="button rounded" type="submit" name="partecipa_submit" value="Conferma">

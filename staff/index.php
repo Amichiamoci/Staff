@@ -105,7 +105,10 @@ if (!isset($dati_staff))
 					<h3>Sei staff per il <?= $edizione->year ?></h3>
 					<p class="text">
 						Taglia maglia: <?= $dati_staff->maglia ?> <br>
-						Commissioni: <?= htmlspecialchars($dati_staff->commissioni) ?>
+						Commissioni: 
+						<a href="./partecipa.php" title="Cambia commissioni">
+							<?= htmlspecialchars($dati_staff->commissioni) ?>
+						</a>
 					</p>
 				<?php } ?>
 				<br>
