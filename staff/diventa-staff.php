@@ -1,7 +1,7 @@
 <?php
     if (!isset($_COOKIE["id_anagrafica"]) && !isset($_GET["cambia-parrocchia"]) && !isset($_POST["cambia"]))
     {
-        header("Location: iscrizioni/crea-anagrafica.php?success=../diventa-staff");
+        header("Location: iscrizioni/crea-anagrafica.php?success=../diventa-staff.php");
         exit;
     }
     include "../check_login.php";
