@@ -101,7 +101,7 @@ if (isset($_POST["cf"]) && is_string($_POST["cf"]))
                         Codice fiscale
                     </label>
                     <input name="cf" id="cf" value="<?= $cf ?>" title="Il tuo codice fiscale">
-                    <button type="submit" class="">
+                    <button type="submit" class="button rounded">
                         Inviami il link
                     </button>
                 </div>
