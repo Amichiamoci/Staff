@@ -30,6 +30,9 @@
             header("Location: index.php");
             exit;
         }
+    } elseif (isset($dati_staff))
+    {
+        $maglia = $dati_staff->maglia;
     }
 ?>
 <!DOCTYPE html>
@@ -51,7 +54,7 @@
 <section class="flex center">
     <div class="grid">
         <div class="column col-100">
-            <form action="partecipa.php" method="post" class="login-form">
+            <form action="partecipa.php" method="post">
                 <h5>
                     Ti stai iscrivendo come staff ad Amichiamoci 
                     <select name="edizione" required style="display: inline-block;">
@@ -80,7 +83,15 @@
                         foreach ($tutte_commissioni as $commissione)
                         {
                             $name = "commissione-$commissione->id";
-                            echo "<input type='checkbox' name='$name' id='$name'><label for='$name'>$commissione->nome</label>";
+                            $checked = (isset($dati_staff) && $dati_staff->is_in($commissione->nome)) ? "checked" : "";
+                            ?>
+                                <label for="<?= $name ?>" title="<?= htmlspecialchars($commissione->nome) ?>">
+                                    <?= htmlspecialchars($commissione->nome) ?>
+                                </label>
+                                <div class="checkbox">
+                                    <input type="checkbox" name="<?= $name ?>" id="<?= $name ?>" <?= $checked ?>>
+                                </div>
+                            <?php
                         }
                     ?>
                     <label for="maglia">Taglia maglietta</label>
@@ -98,14 +109,19 @@
                             }
                         ?>
                     </select>
-
+                    <br>
+                    <hr>
+                    <br>
                     <label for="referente">
-                        Referente di <?= htmlspecialchars($dati_staff->parrocchia) ?>
+                        Referente parrocchiale
                     </label>
                     <div class="checkbox">
-                        <input type="checkbox" name="referente" id="referente">
+                        <input type="checkbox" name="referente" id="referente" <?= (isset($dati_staff) && $dati_staff->is_referente) ? "checked" : "" ?> >
                     </div>
                 </div>
+                <p>
+                    Parrocchia: <?= htmlspecialchars($dati_staff->parrocchia) ?>
+                </p>
                 <input class="button rounded" type="submit" name="partecipa_submit" value="Conferma">
             </form>
         </div>

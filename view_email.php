@@ -1,6 +1,5 @@
 <?php
-include_once "./load/config.php";
-include "./load/basic_functions.php";
+include_once "./load/db_manager.php";
 if (isset($_GET["id"]))
 {
     $id = (int)$_GET["id"];

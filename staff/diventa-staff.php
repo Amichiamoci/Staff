@@ -1,7 +1,7 @@
 <?php
     if (!isset($_COOKIE["id_anagrafica"]) && !isset($_GET["cambia-parrocchia"]) && !isset($_POST["cambia"]))
     {
-        header("Location: iscrizioni/crea-anagrafica.php?success=../diventa-staff");
+        header("Location: iscrizioni/crea-anagrafica.php?success=../diventa-staff.php");
         exit;
     }
     include "../check_login.php";
@@ -29,7 +29,7 @@
             header("Location: index.php");
             exit;
         } else {
-            if (Staff::Create($connection, $id_anagrafica, $user_id, $parrocchia) != 0)
+            if (Staff::Create($connection, $id_anagrafica, User::$Current->id, $parrocchia) != 0)
             {
                 Cookie::Delete("id_anagrafica");
                 header("Location: partecipa.php");

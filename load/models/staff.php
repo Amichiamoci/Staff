@@ -81,7 +81,7 @@ class Staff extends StaffBase
     {
         if (!$commissione || !$this->commissioni)
             return false;
-        $comm = explode(",", $this->commissioni);
+        $comm = array_map("trim", explode(",", $this->commissioni));
         for ($i = 0; $i < count($comm); $i++)
         {
             if (strtolower($comm[$i]) == strtolower($commissione))

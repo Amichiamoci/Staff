@@ -144,7 +144,10 @@ class Iscrizione
         $stmt = $connection->prepare($query);
         if (!$stmt)
             return false;
-        if (!$stmt->bind_param("iiisis", $id_anagrafica, $edizione, $tutore, $certificato, $parrocchia, $taglia))
+        $tutore_query = $tutore;
+        if ($tutore == 0)
+            $tutore_query = null;
+        if (!$stmt->bind_param("iiisis", $id_anagrafica, $edizione, $tutore_query, $certificato, $parrocchia, $taglia))
         {
             return false;
         }

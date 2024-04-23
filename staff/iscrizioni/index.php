@@ -8,9 +8,11 @@
     $include_all = 1;
     if (isset($_GET["year"]))
     {
-        if ($_GET["year"] !== "all")
+        $year = $_GET["year"];
+        if ($_GET["year"] === "all")
         {
-            $year = $_GET["year"];
+            $year = null;
+        } else {
             $include_all = 2;
         }
     }

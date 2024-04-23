@@ -1,5 +1,8 @@
 <?php 
 
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+
 $file_name = 'last-compleanni-oggi.txt';
 require "./check-file.php";
 function send_compleanni()

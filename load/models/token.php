@@ -112,7 +112,7 @@ class Token
         $loaded = self::Load($connection, $val);
         if (!isset($loaded) || $loaded->used())
             return null;
-        if (isset($loaded->expiration) || $loaded->expiration < new DateTime())
+        if (isset($loaded->expiration) && $loaded->expiration < new DateTime())
         {
             return null;
         }

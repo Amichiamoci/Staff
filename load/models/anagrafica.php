@@ -155,7 +155,7 @@ class Anagrafica extends AnagraficaBase
     {
         if (!$connection || $id === 0)
             return null;
-        $query = "SELECT * FROM `anagrafica_espansa` WHERE `id` = $id";
+        $query = "SELECT * FROM `anagrafiche_espanse` WHERE `id` = $id";
         $result = $connection->query($query);
         if (!$result)
         {
@@ -168,12 +168,40 @@ class Anagrafica extends AnagraficaBase
             $a->compleanno = $row["data_nascita_italiana"];
             $a->doc_code = $row["codice_documento"];
             $a->doc_type = (int)$row["tipo_documento"];
-            $a->email = $row["email"];
+            $a->email = isset($row["email"]) ? $row["email"] : "";
             $a->doc_expires = isset($row["scadenza"]) ? $row["scadenza"] : "";
             $a->nome_file = isset($row["documento"]) ? $row["documento"] : "";
-            $a->proveninenza = $row["provenienza"];
+            $a->proveninenza = $row["luogo_nascita"];
             $a->telefono = isset($row["telefono"]) ? $row["telefono"] : "";
+            return $a;
         }
         return null;
+    }
+    public static function FromCF(mysqli $connection, string $cf) : Anagrafica|null
+    {
+        if (!$connection || strlen(trim($cf)) === 0)
+            return null;
+        $cf = $connection->real_escape_string($cf);
+        $query = "SELECT * FROM `anagrafiche_espanse` WHERE LOWER(`cf`) = LOWER('$cf')";
+        $result = $connection->query($query);
+        if (!$result)
+        {
+            return null;
+        }
+        if ($row = $result->fetch_assoc())
+        {
+            $a = new Anagrafica($row["id"], $row["nome"], $row["cognome"], $row["eta"]);
+            $a->cf = $row["cf"];
+            $a->compleanno = $row["data_nascita_italiana"];
+            $a->doc_code = $row["codice_documento"];
+            $a->doc_type = (int)$row["tipo_documento"];
+            $a->email = isset($row["email"]) ? $row["email"] : "";
+            $a->doc_expires = isset($row["scadenza"]) ? $row["scadenza"] : "";
+            $a->nome_file = isset($row["documento"]) ? $row["documento"] : "";
+            $a->proveninenza = $row["luogo_nascita"];
+            $a->telefono = isset($row["telefono"]) ? $row["telefono"] : "";
+            return $a;
+        }
+        return null;       
     }
 }
