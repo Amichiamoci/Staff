@@ -1,12 +1,7 @@
 <?php
     $hide_share_link = true;
     $is_extern = true;
-    if (!isset($_GET["year"]) || ctype_digit($_GET["year"]))
-    {
-        header("Location: index.php");
-        exit;
-    }
-    $year = (int)$_GET["year"];
+    $year = (int)date("Y");
 
     require_once "../load/db_manager.php";
     
@@ -18,14 +13,15 @@
     }
     if (!Cookie::Exists("id_anagrafica"))
     {
-        header("Location: index.php");
+        header("Location: ./index.php");
         exit;
     }
     $id_anagrafica = (int)Cookie::Get("id_anagrafica");
     $errore = "";
 
     $iscrizione = new Iscrizione(null, null, null, null, $edizione->year, $edizione->id, null, null);
-    if (isset($_POST["iscrivi_submit"]) &&
+    if (
+        isset($_POST["iscrivi_submit"]) &&
         isset($_POST["parrocchia"]) && ctype_digit($_POST["parrocchia"]) &&
         isset($_POST["maglia"]) && is_string($_POST["maglia"]) && strlen($_POST["maglia"]) > 0
     ) {
@@ -51,9 +47,11 @@
             $dati_anagrafici->nome . " " . $dati_anagrafici->cognome;
 
         //Upload file certificato
-        if (isset($_FILES["certificato"]) && !empty($_FILES["certificato"]) &&
-            is_uploaded_file($_FILES["certificato"]['tmp_name']))
-        {
+        if (
+            isset($_FILES["certificato"]) && 
+            !empty($_FILES["certificato"]) &&
+            is_uploaded_file($_FILES["certificato"]['tmp_name'])
+        ) {
             if (!upload_file($_FILES["certificato"], $nome_file, $errore))
             {
                 //Abbiamo il file ma non riusciamo a salvarlo
@@ -80,11 +78,23 @@
         } else {
             if (strlen($nome_file) > 0)
             {
-                Cookie::Set("esit", "$nome $cognome, sei iscritto correttamente ad Amichiamoci $edizione->year", 10);
+                $testo = "$nome $cognome, sei iscritto correttamente ad Amichiamoci $edizione->year";
             } else {
-                Cookie::Set("esit", "$nome $cognome, sei iscritto SENZA CERTIFICATO ad Amichiamoci $edizione->year", 10);
+                $testo = "$nome $cognome, sei iscritto SENZA CERTIFICATO ad Amichiamoci $edizione->year";
             }
-            header("Location: ./end.php");
+            Cookie::Set("esit", $testo, 10);
+            try {
+                $a = Anagrafica::Load($connection, $id_anagrafica);
+                if (isset($a) && !empty($a->email))
+                {
+                    Email::Send(
+                        $a->email, 
+                        "Iscrizione Amichiamoci $edizione->year",
+                        "Ciao " . $testo . 
+                        "<br><br><small>Ti preghiamo di non rispondere a questa email</small>");
+                }
+            } catch (Exception $ex) { }
+            header("Location: ./iscrizione-completata.php");
             exit;
         }
     }
@@ -96,12 +106,12 @@
 
 <head>
     <?php include "../parts/head.php";?>
-    <link rel="canonical" href="./form/index.php">
+    <link rel="canonical" href="./index.php">
 	<meta name="description" content="Form di inserimento dati personali | Amichiamoci">
 
 	<meta property="og:title" content="Inserimento dati personali | Amichiamoci">
 	<meta property="og:type" content="website">
-	<meta property="og:url" content="./form/index.php">
+	<meta property="og:url" content="./index.php">
 	<meta property="og:description" content="Form di inserimento dati personali | Amichiamoci">
 	<meta property="og:image" content="../assets/favicon.png">
 
@@ -125,7 +135,7 @@
 <section class="full-h flex center">
     <div class="grid">
         <div class="column col-100">
-            <form method="post" class="login-form" enctype="multipart/form-data">
+            <form method="post" enctype="multipart/form-data">
                 <input type="hidden" name="id" value="<?= $id_anagrafica ?>">
 
                 <?php if (isset($errore) && strlen($errore) > 0) { ?>
