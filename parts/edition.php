@@ -12,10 +12,14 @@ if (!isset($edizione))
 		</h3>
 		<div class="grid">
 			<div class="column col-10 flex center">
-				<img src="<?= ADMIN_URL ?>/<?= isset($edizione->imgpath) ? $edizione->imgpath : "" ?>"
-					title="Logo attuale"
-					alt="Logo <?= $edizione->year ?>"
-					class="logo-edizione">
+				<?php if (isset($edizione->imgpath) && !empty($edizione->imgpath)) { ?>
+					<img src="<?= ADMIN_URL ?>/<?= isset($edizione->imgpath) ? $edizione->imgpath : "" ?>"
+						title="Logo attuale"
+						alt="Logo <?= $edizione->year ?>"
+						class="logo-edizione">
+				<?php } else { ?>
+					<!-- Immagine da definire -->
+				<?php } ?>
 			</div>
 			<div class="column col-90">
 				<p class="text center">
