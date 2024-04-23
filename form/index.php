@@ -35,7 +35,7 @@ if (!isset($edizione) || !$edizione->ok())
 <?php include "../parts/nav.php";?>
 <div class="container">
 
-<section class="full-h flex center">
+<section class="flex center">
     <div>
         <h1>
             Ciao 
