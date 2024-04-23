@@ -132,7 +132,7 @@
 
 <!-- Form ----------------------------------------------------------------- -->
 
-<section class="full-h flex center">
+<section class="flex center">
     <div class="grid">
         <div class="column col-100">
             <form method="post" enctype="multipart/form-data">
