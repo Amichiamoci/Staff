@@ -1,6 +1,6 @@
 <?php
 
-require_once "../load/basic_functions.php";
+require_once "../load/db_manager.php";
 
 if (!Cookie::Exists("esit")) {
     header("Location: ./index.php");

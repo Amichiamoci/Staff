@@ -76,11 +76,14 @@
             $errore = "Impossibile inserire iscrizione nel DB!";
             //Riempire la form per far ritentare piu facilemnte l'utente
         } else {
+            $nome = $a->nome;
+            $cognome = $a->cognome;
             if (strlen($nome_file) > 0)
             {
                 $testo = "$nome $cognome, sei iscritto correttamente ad Amichiamoci $edizione->year";
             } else {
-                $testo = "$nome $cognome, sei iscritto SENZA CERTIFICATO ad Amichiamoci $edizione->year";
+                $testo = "$nome $cognome, sei iscritto SENZA CERTIFICATO ad Amichiamoci $edizione->year." . 
+                "Quando ne avrai possesso, invialo ad uno staffista di riferimento della tua parrocchia";
             }
             Cookie::Set("esit", $testo, 10);
             try {
