@@ -143,11 +143,11 @@
     }
     if (isset($_POST["iscrivi_submit"]))
     {
-        if (isset($_POST["tutore"]))
+        if (isset($_POST["tutore"]) && ctype_digit($_POST["tutore"]))
         {
             $iscrizione->id_tutore = (int)$_POST["tutore"];
         }
-        if (isset($_POST["parrocchia"]))
+        if (isset($_POST["parrocchia"]) && ctype_digit($_POST["parrocchia"]))
         {
             $iscrizione->id_parrocchia = (int)$_POST["parrocchia"];
         }
@@ -263,7 +263,7 @@
                             {
                                 $label = htmlspecialchars($a->nome . " " . $a->cognome);
                                 $id = $a->id;
-                                if ($id === $iscrizione->id_tutore)
+                                if (isset($iscrizione) && $id === $iscrizione->id_tutore)
                                 {
                                     echo "<option value='$id' selected='selected'>$label</option>\n";
                                 } else {
