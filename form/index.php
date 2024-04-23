@@ -35,7 +35,7 @@ if (!isset($edizione) || !$edizione->ok())
 <?php include "../parts/nav.php";?>
 <div class="container">
 
-<section class="flex center">
+<section class="flex vertical" style="margin-inline: 10px;">
     <h1>
         Ciao 
     </h1>
