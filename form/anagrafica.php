@@ -200,7 +200,7 @@
                     title="Codice fiscale corretto"
                     placeholder="aaaaaa11a11a111a">
 
-                <?php include __DIR__ . "form_documento.php"; ?>
+                <?php include __DIR__ . "/form_documento.php"; ?>
             </div>
                 <?php if ($is_extern) { ?>
                     <input name="extern" type="hidden" value="Esterno">

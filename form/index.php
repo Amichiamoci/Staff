@@ -58,7 +58,7 @@ if (!isset($edizione) || !$edizione->ok())
         <br>
         <a class="button" href="./invia_anagrafica.php?year=<?= $year ?>&success=./iscrizione.php"
             target="_self" title="Vai al prossimo passaggio"
-            style="margin-top: 2em;">
+            style="margin-top: 1em;">
             Non ho partecipato ad Amichiamoci 2023
             <?= (int)date("Y") >= 2025 ? "o successivi" : "" ?>
         </a>
