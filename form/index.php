@@ -57,8 +57,10 @@ if (!isset($edizione) || !$edizione->ok())
                 <?= (int)date("Y") >= 2025 ? "o successivi" : "" ?>
             </a>
             <br>
-            <a class="button" href="./invia_anagrafica.php?year=<?= $year ?>&success=./iscrizione.php" target="_self" title="Vai al prossimo passaggio">
-                <strong>Non</strong> ho (ancora) partecipato ad Amichiamoci 2023
+            <a class="button" href="./invia_anagrafica.php?year=<?= $year ?>&success=./iscrizione.php"
+             target="_self" title="Vai al prossimo passaggio"
+             style="margin-top: 2em;">
+                Non ho partecipato ad Amichiamoci 2023
                 <?= (int)date("Y") >= 2025 ? "o successivi" : "" ?>
             </a>
         <?php } else { ?>
