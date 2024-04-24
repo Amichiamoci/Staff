@@ -90,11 +90,11 @@ if (isset($_POST["cf"]) && is_string($_POST["cf"]))
             <form method="post">
                 <?php if (isset($errore)) { ?>
                     <p class="text">
-                        &darr;
+                        &darr;<br>
                         <strong>
                             <?= htmlspecialchars($errore) ?>
                         </strong>
-                        &uarr;
+                        <br>&uarr;
                     </p>
                 <?php } ?>
 
