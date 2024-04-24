@@ -88,7 +88,7 @@ if (
 
     <div class="grid">
          <div class="column col-100">
-            <form method="post">
+            <form method="post" enctype="multipart/form-data">
                 <?php if (isset($errore)) { ?>
                     <p class="text">
                         &darr;
