@@ -35,7 +35,7 @@ if (!isset($edizione) || !$edizione->ok())
 <?php include "../parts/nav.php";?>
 <div class="container">
 
-<section class="flex vertical" style="margin-inline: 10px;">
+<section class="flex vertical" style="margin-inline: 10px; width: calc(100% - 20px);">
     <h1>
         Ciao 
     </h1>
@@ -46,7 +46,7 @@ if (!isset($edizione) || !$edizione->ok())
         <h4>
             Leggere qui prima di andare avanti!
         </h4>
-        <p class="text">
+        <p class="text" style="text-align: justify">
             Assicurati, prima di procedere con la compilazione, 
             di avere delle scansioni o foto di un tuo documento di identit&agrave;, in un unico file.<br>
             
@@ -64,18 +64,17 @@ if (!isset($edizione) || !$edizione->ok())
         </a>
         <br>
         <a class="button" href="./invia_anagrafica.php?year=<?= $year ?>&success=./iscrizione.php"
-            target="_self" title="Vai al prossimo passaggio"
-            style="margin-top: 1em;">
+            target="_self" title="Vai al prossimo passaggio">
             Non ho partecipato ad Amichiamoci 2023
             <?= (int)date("Y") >= 2025 ? "o successivi" : "" ?>
         </a>
-        
+
         <hr style="margin-block: 7px;">
 
         <h3>
             Per i minorenni
         </h3>
-        <p class="text">
+        <p class="text" style="text-align: justify">
             I minori che hanno partecipato dal 2023 od oltre possono procedere con il link apposito sotto.<br>
 
             I minori che non hanno partecipato dal 2023 od oltre devono, <strong>PRIMA DI PROCEDERE</strong>, 
