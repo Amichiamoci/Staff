@@ -69,7 +69,8 @@ if (!isset($edizione) || !$edizione->ok())
             Non ho partecipato ad Amichiamoci 2023
             <?= (int)date("Y") >= 2025 ? "o successivi" : "" ?>
         </a>
-        <hr>
+        
+        <hr style="margin-block: 7px;">
 
         <h3>
             Per i minorenni
