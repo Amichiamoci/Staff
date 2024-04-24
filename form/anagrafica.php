@@ -83,6 +83,12 @@
                 <label for="cognome">Cognome</label>
                 <input type="text" required name="cognome" id="cognome" value="<?= htmlspecialchars($anagrafica->cognome) ?>" placeholder="Rossi">
 
+                <label for="cf" title="Codice fiscale">Codice Fiscale</label>
+                <input type="text" name="cf" id="cf" required value="<?= htmlspecialchars($anagrafica->cf) ?>" 
+                    pattern="[a-zA-Z]{6}[0-9]{2}[a-zA-Z][0-9]{2}[a-zA-Z][0-9]{3}[a-zA-Z]"
+                    title="Codice fiscale corretto"
+                    placeholder="aaaaaa11a11a111a">
+
                 <label for="compleanno">Data di nascita</label>
                 <input type="date" required name="compleanno" id="compleanno" value="<?= htmlspecialchars($anagrafica->compleanno) ?>">
 
@@ -179,12 +185,6 @@
                     title="Email qui"
                     placeholder="esempio@mail.com"
                     required>
-
-                <label for="cf" title="Codice fiscale">Codice Fiscale</label>
-                <input type="text" name="cf" id="cf" required value="<?= htmlspecialchars($anagrafica->cf) ?>" 
-                    pattern="[a-zA-Z]{6}[0-9]{2}[a-zA-Z][0-9]{2}[a-zA-Z][0-9]{3}[a-zA-Z]"
-                    title="Codice fiscale corretto"
-                    placeholder="aaaaaa11a11a111a">
 
                 <?php include __DIR__ . "/form_documento.php"; ?>
             </div>
