@@ -53,8 +53,8 @@ if (isset($_POST["cf"]) && is_string($_POST["cf"]))
             $errore = "Qualcosa è anadto storto";
         }
     } else {
-        $errore = "Dati non trovati, privi di email o dati di un minore." .
-            "Se hai già compilato il form di iscrizione online in passato senza fornire però un'email o se non hai ancora compiuto 18 anni, " . 
+        $errore = "Dati non trovati o privi di email." .
+            "Se hai già compilato il form di iscrizione online in passato, senza fornire però un'email, " . 
             "contatta uno staffista per iscriverti";
     }
 }
