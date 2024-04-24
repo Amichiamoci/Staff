@@ -1,6 +1,7 @@
 <?php
     $is_extern = true;
     $hide_share_link = true;
+    $anagrafica_form_compact = true;
     if (!(
         (isset($_GET["year"]) && ctype_digit($_GET["year"])) || 
         (isset($_POST["year"]) && ctype_digit($_POST["year"]))

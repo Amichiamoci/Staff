@@ -5,6 +5,7 @@
     }
     $is_editing = isset($is_editing) && $is_editing;
     $is_extern = isset($is_extern) && $is_extern || !isset(User::$Current);
+    $anagrafica_form_compact = isset($anagrafica_form_compact) && $anagrafica_form_compact;
 ?>
 <div class="grid">
     <div class="column col-100">
@@ -221,4 +222,9 @@
     </div>
 </div>
 <script src="<?= ADMIN_URL ?>/assets/js/codice.fiscale.var.js" type="text/javascript" defer></script>
-<script src="<?= ADMIN_URL ?>/assets/js/anagrafica.js" type="text/javascript" defer></script>
+<script src="<?= ADMIN_URL ?>/assets/js/anagrafica.js?date=<?= date("Ymd") ?>" type="text/javascript" defer></script>
+<?php if ($anagrafica_form_compact) { ?>
+    <script>
+        window.hide_cf_fileds = true;
+    </script>
+<?php } ?>
