@@ -38,14 +38,16 @@ if (isset($_POST["cf"]) && is_string($_POST["cf"]))
             "Il link scadr&agrave; in 6 giorni.<br>\n" .
             "Se non sei stato tu ad avviare questa procedura segnalacelo a <a href=\"mailto:" . CONTACT_EMAIL . "\">" . CONTACT_EMAIL . "</a><br>" .
             "<small>Ti preghiamo di non rispondere a questa email</small>";
-            if (!
-                Email::Send(
+            if (
+                !Email::Send(
                     $anagrafica->email,
                     "Conferma iscrizione $year",
                     $testo,
                     $connection
                 )) {
                 $errore = "Impossibile inviare l'email!";
+            } else {
+                $errore = "Email inviata, controlla lo SPAM";
             }
         } else {
             $errore = "Qualcosa è anadto storto";
