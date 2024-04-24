@@ -2,12 +2,12 @@
 $is_extern = true;
 $hide_share_link = true;
 require_once "../load/db_manager.php";
-if (Cookie::Exists("id_anagrafica"))
+
+if (!Cookie::Exists("id_anagrafica"))
 {
     header("Location: ./index.php");
     exit;
 }
-
 
 $edizione = Edizione::Current($connection);
 if (!isset($edizione) || !$edizione->IscrizioniAperte())
