@@ -25,7 +25,7 @@ if (isset($_POST["cf"]) && is_string($_POST["cf"]))
     require_once "../load/models/token.php"; 
     $cf = $_POST["cf"];
     $anagrafica = Anagrafica::FromCF($connection, $cf);
-    if (isset($anagrafica) && !empty($anagrafica->email))
+    if (isset($anagrafica) && !empty($anagrafica->email) /*&& $anagrafica->eta >= 18*/)
     {
         $expire = date_add(new DateTime(), new DateInterval("P7D"));
 
@@ -34,7 +34,7 @@ if (isset($_POST["cf"]) && is_string($_POST["cf"]))
         {
             $url = ADMIN_URL . "/form/token.php?val=" . $token->val;
             $testo = "Ciao $anagrafica->nome,<br>\nClicca questo link per completare l'iscrizione ad Amichiamoci $year:\n<br><br>" . 
-            "<a href=\"" . $url . "\">" . $url . "</a><br>Ti sar&agrave; possibile cliccare su questo link una volta sola.<br>\n" .
+            "<a href=\"" . $url . "\" target=\"_blank\">" . $url . "</a><br>Ti sar&agrave; possibile cliccare su questo link una volta sola.<br>\n" .
             "Il link scadr&agrave; in 6 giorni.<br>\n" .
             "Se non sei stato tu ad avviare questa procedura segnalacelo a <a href=\"mailto:" . CONTACT_EMAIL . "\">" . CONTACT_EMAIL . "</a><br>" .
             "<small>Ti preghiamo di non rispondere a questa email</small>";
@@ -51,12 +51,12 @@ if (isset($_POST["cf"]) && is_string($_POST["cf"]))
             $errore = "Qualcosa è anadto storto";
         }
     } else {
-        $errore = "Dati non trovati o privi di email. Se hai già compilato il form di iscrizione online negli anni passati, senza fornire però un'email, contatta uno staffista";
+        $errore = "Dati non trovati, privi di email o dati di un minore." .
+            "Se hai già compilato il form di iscrizione online in passato senza fornire però un'email o se non hai ancora compiuto 18 anni, " . 
+            "contatta uno staffista per iscriverti";
     }
 }
     
-
-
 ?>
 <!DOCTYPE html>
 <html lang="it-it">
@@ -87,8 +87,12 @@ if (isset($_POST["cf"]) && is_string($_POST["cf"]))
          <div class="column col-100">
             <form method="post">
                 <?php if (isset($errore)) { ?>
-                    <p>
-                        <?= htmlspecialchars($errore) ?>
+                    <p class="text">
+                        &darr;
+                        <strong>
+                            <?= htmlspecialchars($errore) ?>
+                        </strong>
+                        &uarr;
                     </p>
                 <?php } ?>
 

@@ -26,8 +26,8 @@
         isset($_POST["cf"]) && is_string($_POST["cf"]) &&
         isset($_POST["doc_type"]) && ctype_digit($_POST["doc_type"]) &&
         isset($_POST["doc_code"]) && is_string($_POST["doc_code"]) &&
-        isset($_POST["doc_expires"]) && is_string($_POST["doc_expires"]))
-    {
+        isset($_POST["doc_expires"]) && is_string($_POST["doc_expires"])
+    ) {
         //Dati form
         $nome = file_remove_characters($_POST["nome"]);
         $nome = string_capitalize_words($nome);

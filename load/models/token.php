@@ -37,12 +37,12 @@ class Token
             $this->secret = $secret;
         }
 
-        if (isset($edition) && ctype_digit($edition))
+        if (isset($edition))
         {
             $this->edition = (int)$edition;
         }
 
-        if (isset($anagrafica) && ctype_digit($anagrafica))
+        if (isset($anagrafica))
         {
             $this->anagrafica = (int)$anagrafica;
         }
