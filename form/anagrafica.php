@@ -25,23 +25,8 @@
                     Una volta registrato i tuoi dati rimarranno permanentemente nel sistema, 
                     in modo che tu non abbia bisogno di compilare questo form pi&ugrave; volte.<br>
                     In caso tu abbia inserito i tuoi dati in passato non c'&egrave; necessit&agrave;
-                    di compilare questo form: comunica semplicemente agli staffisti di riferimento
-                    la tua volont&agrave; di partecipare a questa edizione, dando loro:
+                    di compilare questo form adesso.
                 </p>
-                <ul>
-                    <li>
-                        Taglia della maglia
-                    </li>
-                    <li>
-                        Soldi dell'iscrizione
-                    </li>
-                    <li>
-                        Certificato medico almeno non agonistico (invia loro foto o pdf)
-                    </li>
-                    <li>
-                        Lista delle attivit&agrave; a cui vuoi partecipare: Tornei, Maratona, etc.
-                    </li>
-                </ul>
             <?php } else { ?>
 
                 <?php if (isset(User::$Current) && User::$Current->staff_id !== 0) { ?>
