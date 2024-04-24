@@ -44,6 +44,7 @@ jobs:
             echo -e "DB_USER=\"${{ secrets.DB_USER }}\"" >> ".env"
             echo -e "DB_PASSWORD=\"${{ secrets.DB_PASSWORD }}\"" >> ".env"
             echo -e "WEBSITE_DOMAIN=\"www.${{ vars.DOMAIN }}\"" >> ".env"
+            echo -e "ISCRIZIONI_URL=\"${{ secrets.ISCRIZIONI_URL }}\"" >> ".env"
         
         - name: Calculate Deploy Path
           id: deploy-path
