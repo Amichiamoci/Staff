@@ -34,7 +34,7 @@ if (!isset($edizione))
 						<br>
 						&rarr;
 						<a 
-							href="<?= ADMIN_URL ?>/form-iscrizione.php"
+							href="<?= ISCRIZIONI_URL ?>"
 							data-share-title="Iscriviti ad Amichiamoci <?= $edizione->year ?>"
 							data-share-text="Form di upload dati Amichiamoci"
 							target="_blank"
