@@ -26,7 +26,7 @@ if (!isset($edizione) || !$edizione->ok())
 }
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="it-it">
 <head>
     <?php include "../parts/head.php";?>
 	<title>Amichiamoci | Iscriviti all'edizione <?= $year ?></title>
