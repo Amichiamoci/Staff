@@ -105,8 +105,8 @@
                 $subject = "Dati anagrafici inseriti correttamente";
                 Email::Send($email, $subject, $text, $connection);
                 Cookie::Set("id_anagrafica", "$id_anagrafica", 3600 * 2);
-                Cookie::Set("esit", "Dati inseriti correttamente.", 3600);
-                $url = "../index.php";
+                Cookie::Set("esit", "Dati inseriti correttamente. Controlla le email per un riepilogo", 3600);
+                $url = "iscrizione-completata.php";
                 if (isset($_COOKIE["success"]))
                 {
                     $url = $_COOKIE["success"];
