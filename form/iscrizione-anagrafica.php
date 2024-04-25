@@ -94,7 +94,8 @@
                         $a->email, 
                         "Iscrizione Amichiamoci $edizione->year",
                         "Ciao " . $testo . 
-                        "<br><br><small>Ti preghiamo di non rispondere a questa email</small>");
+                        "<br><br><small>Ti preghiamo di non rispondere a questa email</small>",
+                    $connection);
                 }
             } catch (Exception $ex) { }
             header("Location: ./iscrizione-completata.php");
