@@ -23,7 +23,7 @@ $cf = "";
 if (isset($_POST["cf"]) && is_string($_POST["cf"]))
 {
     require_once "../load/models/token.php"; 
-    $cf = $_POST["cf"];
+    $cf = trim($_POST["cf"]);
     $anagrafica = Anagrafica::FromCF($connection, $cf);
     if (isset($anagrafica) && !empty($anagrafica->email) /*&& $anagrafica->eta >= 18*/)
     {
