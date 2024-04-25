@@ -261,7 +261,7 @@
                             });
                             foreach ($anagrafiche as $a)
                             {
-                                $label = htmlspecialchars($a->nome . " " . $a->cognome);
+                                $label = htmlspecialchars($a->cognome . " " . $a->nome);
                                 $id = $a->id;
                                 if (isset($iscrizione) && $id === $iscrizione->id_tutore)
                                 {
