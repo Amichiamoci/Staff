@@ -105,7 +105,9 @@ if (
 
                 <?php include __DIR__ . "/form_documento.php"; ?>
 
-                </div>
+                <button type="submit" class="button rounded">
+                    Invia
+                </button>
             </form>
         </div>
     </div>
