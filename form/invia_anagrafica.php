@@ -55,6 +55,8 @@
 
         $doc_expires = $_POST["doc_expires"];
 
+        $errore = "";
+
         if (isset($_FILES["doc_file"]) &&
             upload_file($_FILES["doc_file"], $nome_file, $errore))
         {
