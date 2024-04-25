@@ -90,7 +90,7 @@
                     placeholder="aaaaaa11a11a111a">
 
                 <label for="compleanno">Data di nascita</label>
-                <input type="date" required name="compleanno" id="compleanno" value="<?= htmlspecialchars($anagrafica->compleanno) ?>">
+                <input type="date" required name="compleanno" id="compleanno" value="<?= htmlspecialchars($anagrafica->compleanno) ?>" max="<?= date("Y-m-d") ?>">
 
                 <label for="provenienza">Luogo di nascita</label>
                 <input type="text" required name="provenienza" value="<?= htmlspecialchars($anagrafica->proveninenza) ?>" id="provenienza"

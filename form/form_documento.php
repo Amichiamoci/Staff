@@ -31,7 +31,7 @@ if (!isset($anagrafica)) {
 <input type="text" name="doc_code" id="doc_code" required value="<?= htmlspecialchars($anagrafica->doc_code) ?>">
 
 <label for="doc_expires">Scadenza documento</label>
-<input type="date" name="doc_expires" id="doc_doc_expires" required value="<?= htmlspecialchars($anagrafica->doc_expires) ?>">
+<input type="date" name="doc_expires" id="doc_doc_expires" required value="<?= htmlspecialchars($anagrafica->doc_expires) ?>" min="<?= date("Y-m-d") ?>">
 
 <label for="doc_file">Documento (sia fronte che retro)</label>
 <input type="file" name="doc_file" id="doc_file" required accept="<?= join(", ", ALLOWED_EXT_DOTS) ?>" />
