@@ -22,7 +22,7 @@ if (!isset($anagrafica))
     header("Location: ./index.php");
     exit;
 }
-
+$errore = "";
 if (
     isset($_POST["doc_type"]) && ctype_digit($_POST["doc_type"]) &&
     isset($_POST["doc_code"]) && is_string($_POST["doc_code"]) &&
@@ -89,7 +89,7 @@ if (
     <div class="grid">
          <div class="column col-100">
             <form method="post" enctype="multipart/form-data">
-                <?php if (isset($errore)) { ?>
+                <?php if (isset($errore) && !empty($errore)) { ?>
                     <p class="text">
                         &darr;
                         <strong>
