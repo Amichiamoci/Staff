@@ -19,11 +19,6 @@ const resp = document.getElementById('codice-fiscale-check-result');
  */
 const btn = document.getElementById('submit-btn');
 
-if (window.hide_cf_fileds) {
-    provenienza.disabled = true;
-    compleanno.disabled = true;
-}
-
 function checkCF()
 {
     btn.disabled = false;
