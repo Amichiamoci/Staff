@@ -76,8 +76,8 @@
             $errore = "Impossibile inserire iscrizione nel DB!";
             //Riempire la form per far ritentare piu facilemnte l'utente
         } else {
-            $nome = $a->nome;
-            $cognome = $a->cognome;
+            $nome = $dati_anagrafici->nome;
+            $cognome = $dati_anagrafici->cognome;
             if (strlen($nome_file) > 0)
             {
                 $testo = "$nome $cognome, sei iscritto correttamente ad Amichiamoci $edizione->year";
