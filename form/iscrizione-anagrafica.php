@@ -34,7 +34,7 @@
             exit;
         }
         $dati_anagrafici = Anagrafica::Load($connection, $id_anagrafica);
-        if (!isset($dati_anagrafici) || $dati_anagrafici->eta < 18)
+        if (!isset($dati_anagrafici)/* || $dati_anagrafici->eta < 18*/)
         {
             // id fasullo, non nel db
             header("Location: ./index.php");
