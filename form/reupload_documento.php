@@ -102,12 +102,14 @@ if (
                 <h2>
                     Il tuo documento risulta scaduto, inviane uno valido
                 </h2>
+                <div class="input-box flex v-center wrap">
 
-                <?php include __DIR__ . "/form_documento.php"; ?>
+                    <?php include __DIR__ . "/form_documento.php"; ?>
 
-                <button type="submit" class="button rounded">
-                    Invia
-                </button>
+                    <button type="submit" class="button rounded">
+                        Invia
+                    </button>
+                </div>
             </form>
         </div>
     </div>
