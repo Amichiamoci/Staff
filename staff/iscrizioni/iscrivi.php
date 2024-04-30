@@ -143,6 +143,10 @@
     }
     if (isset($_POST["iscrivi_submit"]))
     {
+        if (!isset($iscrizione))
+        {
+            $iscrizione = new Iscrizione(null, null, null, null, $edizione->year, $edizione->id, null, null);
+        }
         if (isset($_POST["tutore"]) && ctype_digit($_POST["tutore"]))
         {
             $iscrizione->id_tutore = (int)$_POST["tutore"];
