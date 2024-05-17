@@ -19,6 +19,11 @@
         exit;
     }
 
+    if (isset($_GET["success"]) && is_string($_GET["success"]))
+    {
+        Cookie::Set("success", $_GET["success"], 2000);
+    }
+
     if (
         isset($_POST["anagrafica_submit"]) &&
         isset($_POST["nome"]) && is_string($_POST["nome"]) &&
