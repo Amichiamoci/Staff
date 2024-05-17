@@ -90,6 +90,12 @@ if (!isset($edizione) || !$edizione->ok())
         <a class="button" href="./invia_anagrafica.php?year=<?= $year ?>" target="_self" title="Vai al prossimo passaggio">
             Sono un genitore e voglio inviare i dati
         </a>
+        <br>
+        <a class="button" href="./invia_anagrafica.php?year=<?= $year ?>&success=./iscrizione.php"
+            target="_self" title="Vai al prossimo passaggio">
+            Non ho partecipato ad Amichiamoci 2023
+            <?= (int)date("Y") >= 2025 ? "o successivi" : "" ?>
+        </a>
 
     <?php } else { ?>
         <p>
