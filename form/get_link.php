@@ -41,7 +41,7 @@ if (isset($_POST["cf"]) && is_string($_POST["cf"]))
             if (
                 !Email::Send(
                     $anagrafica->email,
-                    "Conferma iscrizione $year",
+                    "Completa iscrizione $year",
                     $testo,
                     $connection
                 )) {
