@@ -110,7 +110,7 @@ class Token
     public static function LoadIfNotExpired(mysqli $connection, string $val) : Token|null
     {
         $loaded = self::Load($connection, $val);
-        if (!isset($loaded) || $loaded->used())
+        if (!isset($loaded)/* || $loaded->used()*/)
             return null;
         if (isset($loaded->expiration) && $loaded->expiration < new DateTime())
         {
