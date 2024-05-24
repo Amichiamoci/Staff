@@ -41,13 +41,13 @@ if (isset($_POST["cf"]) && is_string($_POST["cf"]))
             if (
                 !Email::Send(
                     $anagrafica->email,
-                    "Completa iscrizione $year",
+                    "Clicca per completare l'iscrizione per il $year",
                     $testo,
                     $connection
                 )) {
                 $errore = "Impossibile inviare l'email!";
             } else {
-                $errore = "Email inviata, controlla lo SPAM";
+                $errore = "Email inviata a $anagrafica->email, controlla lo SPAM";
             }
         } else {
             $errore = "Qualcosa è anadto storto";
