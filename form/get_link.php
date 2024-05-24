@@ -99,7 +99,9 @@ if (isset($_POST["cf"]) && is_string($_POST["cf"]))
                 <?php } ?>
 
                 <p class="text">
-                    Compila questo form solo se hai gi&agrave; partecipato ad Amichiamoci dal 2023 od oltre
+                    Compila questo form solo se hai gi&agrave; partecipato ad Amichiamoci dal 2023 od oltre.<br>
+                    Riceverai un'email per assicurarci della tua identità. Una volta ricevuta, <strong>clicca</strong> sul link che troverai
+                    per poter accedere al form di iscrizione, dove indicherai parrocchia, taglia della maglia e certificato medico.
                 </p>
                 <input type="hidden" name="year" value="<? $year ?>">                
                 <div class="input-box flex v-center wrap">
