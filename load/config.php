@@ -33,6 +33,12 @@ if (isset($_ENV["CONTACT_EMAIL"]))
 if (isset($_ENV["ISCRIZIONI_URL"]))
     define("ISCRIZIONI_URL", $_ENV["ISCRIZIONI_URL"]);
 
+if (isset($_ENV["INSTAGRAM_URL"]))
+    define("INSTAGRAM_URL", $_ENV["INSTAGRAM_URL"]);
+
+if (isset($_ENV["WHATSAPP_URL"]))
+    define("WHATSAPP_URL", $_ENV["WHATSAPP_URL"]);
+
 unset($dotenv);
 
 error_reporting(E_ALL);

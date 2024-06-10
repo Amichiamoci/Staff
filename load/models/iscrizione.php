@@ -193,7 +193,10 @@ class Iscrizione
         $result = $connection->execute_query($query, array($year));
         if (!$result)
             return array();
-        return $result->fetch_array();
+        $arr = array();
+        while ($row = $result->fetch_array())
+            $arr[] = $row;
+        return $arr;
     }
 }
 
