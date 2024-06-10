@@ -184,6 +184,17 @@ class Iscrizione
             return false;
         return $stmt->affected_rows === 1;
     }
+
+    public static function EmailNonSubscribed(mysqli $connection, int $year): ?array
+    {
+        if (!$connection) 
+            return null;
+        $query = "SELECT nome, sesso, email FROM non_iscritti WHERE anno = ? AND email IS NOT NULL";
+        $result = $connection->execute_query($query, array($year));
+        if (!$result)
+            return array();
+        return $result->fetch_array();
+    }
 }
 
 class Maglie
