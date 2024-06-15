@@ -52,6 +52,8 @@
     <form method="post">
         <button type="submit" class="button rounded">Invia Email</button>
     </form>
+    <a href="<?= WHATSAPP_URL ?>">Whatsapp</a> - <a href="<?= INSTAGRAM_URL ?>">Instagram</a>
+    <br>
     Errori nell'invio:<br>
     <ul>
         <?php foreach ($errors as $error) { ?>
