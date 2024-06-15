@@ -45,8 +45,8 @@ jobs:
             echo -e "DB_PASSWORD=\"${{ secrets.DB_PASSWORD }}\"" >> ".env"
             echo -e "WEBSITE_DOMAIN=\"www.${{ vars.DOMAIN }}\"" >> ".env"
             echo -e "ISCRIZIONI_URL=\"${{ secrets.ISCRIZIONI_URL }}\"" >> ".env"
-            echo -e "INSTAGRAM_URL=\"www.${{ vars.INSTAGRAM_URL }}\"" >> ".env"
-            echo -e "WHATSAPP_URL=\"www.${{ vars.WHATSAPP_URL }}\"" >> ".env"
+            echo -e "INSTAGRAM_URL=\"${{ vars.INSTAGRAM_URL }}\"" >> ".env"
+            echo -e "WHATSAPP_URL=\"${{ vars.WHATSAPP_URL }}\"" >> ".env"
         
         - name: Calculate Deploy Path
           id: deploy-path
