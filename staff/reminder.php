@@ -14,14 +14,20 @@
     {
         foreach ($emails as $row)
         {
-            $testo = "Ciao " . htmlspecialchars($row["nome"]) . ",<br />";
+            $testo = "";
+            if ($row["sesso"] === "M") {
+                $testo .= "Caro ";
+            } else {
+                $testo .= "Cara ";
+            }
+            $testo .= htmlspecialchars($row["nome"]) . ",<br />";
             $testo .= "<p>";
             $testo .= "Ti scriviamo per farti sapere che <strong>sono aperte le iscrizioni</strong> ad Amichiamoci $year!<br />";
             $testo .= "Come fare a iscriversi? Clicca su queto link o copialo sul browser, facendo attenzione a copiare per bene tutti i caratteri:";
             $testo .= "</p>";
             $testo .= "<a style=\"font-size: larger\" href=\"" . ISCRIZIONI_URL . "\">" . ISCRIZIONI_URL . "</a>";
             $testo .= "<p>";
-            $testo .= "Come puoi rimanere aggiornato? Seguendo la nostra pagina Instagram o il nostro canale WhatApp:";
+            $testo .= "Come puoi rimanere aggiornato? Seguendo la nostra pagina Instagram o il nostro canale WhatsApp:";
             $testo .= "</p>";
             $testo .= "<a href=\"" . INSTAGRAM_URL . "\">" . INSTAGRAM_URL . "</a><br />";
             $testo .= "<a href=\"" . WHATSAPP_URL . "\">" . WHATSAPP_URL . "</a><br />";
