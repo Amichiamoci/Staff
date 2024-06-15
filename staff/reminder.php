@@ -23,7 +23,7 @@
             $testo .= htmlspecialchars($row["nome"]) . ",<br />";
             $testo .= "<p>";
             $testo .= "Ti scriviamo per farti sapere che <strong>sono aperte le iscrizioni</strong> ad Amichiamoci $year!<br />";
-            $testo .= "Come fare a iscriversi? Clicca su queto link o copialo sul browser, facendo attenzione a copiare per bene tutti i caratteri:";
+            $testo .= "Come fare a iscriversi? Clicca su questo link o copialo sul browser, facendo attenzione a copiare per bene tutti i caratteri:";
             $testo .= "</p>";
             $testo .= "<a style=\"font-size: larger\" href=\"" . ISCRIZIONI_URL . "\">" . ISCRIZIONI_URL . "</a>";
             $testo .= "<p>";
