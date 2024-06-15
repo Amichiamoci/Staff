@@ -8,7 +8,7 @@
     }
     $year = (int)date("Y");
     $emails = Iscrizione::EmailNonSubscribed($connection, $year);
-    $errors = array();
+    $sent = array();
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST')
     {
@@ -27,9 +27,9 @@
             $testo .= "<a href=\"" . WHATSAPP_URL . "\">" . WHATSAPP_URL . "</a><br />";
             $testo .= "<p>Ti aspettiamo!</p><br /><br />";
             $testo .= "<small>Ti preghiamo di non rispondere a quest'email</small>";
-            if (!Email::Send($row["email"], "Iscrizione Amichiamoci $year", $testo))
+            if (Email::Send($row["email"], "Iscrizione Amichiamoci $year", $testo))
             {
-                $errors[] = $row["email"];
+                $sent[] = $row["email"];
             }
         }
     }
@@ -58,14 +58,16 @@
         <a href="<?= INSTAGRAM_URL ?>">Instagram</a>
     </div>
     <div>
-    Errori nell'invio:<br>
-    <ul>
-        <?php foreach ($errors as $error) { ?>
-            <li>
-                <a href="mailto:<?= $error ?>" class="link"><?= $error ?></a>
-            </li>
-        <?php } ?>
-    </ul>
+        Email inviate:<br>
+        <ul>
+            <?php foreach ($sent as $email) { ?>
+                <li>
+                    <a href="mailto:<?= $email ?>" class="link"><?= $email ?></a>
+                </li>
+            <?php } ?>
+        </ul>
+        <br>
+        Totale:<?= count($sent) ?>/<?= count($emails) ?>
     </div>
 </section>
 
