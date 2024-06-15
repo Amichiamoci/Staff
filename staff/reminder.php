@@ -27,10 +27,11 @@
             $testo .= "<a href=\"" . WHATSAPP_URL . "\">" . WHATSAPP_URL . "</a><br />";
             $testo .= "<p>Ti aspettiamo!</p><br /><br />";
             $testo .= "<small>Ti preghiamo di non rispondere a quest'email</small>";
-            if (!Email::Send($row["email"], "Iscrizione Amichiamoci $year", $testo))
-            {
-                $errors[] = $row["email"];
-            }
+            //if (!Email::Send($row["email"], "Iscrizione Amichiamoci $year", $testo))
+            //{
+            //    $errors[] = $row["email"];
+            //}
+            echo $testo;
         }
     }
 ?>
