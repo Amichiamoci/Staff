@@ -54,27 +54,27 @@
 
 <div class="container">
 
-<section class="flex center">
-    <form method="post">
-        <button type="submit" class="button rounded">Invia Email</button>
-    </form>
+<section class="flex vertical">
     <div>
         <a href="<?= ISCRIZIONI_URL ?>">Iscrizioni</a> - 
         <a href="<?= WHATSAPP_URL ?>">Whatsapp</a> - 
         <a href="<?= INSTAGRAM_URL ?>">Instagram</a>
     </div>
-    <div>
-        Email inviate:<br>
-        <ul>
-            <?php foreach ($sent as $email) { ?>
-                <li>
-                    <a href="mailto:<?= $email ?>" class="link"><?= $email ?></a>
-                </li>
-            <?php } ?>
-        </ul>
-        <br>
-        Totale:<?= count($sent) ?>/<?= count($emails) ?>
-    </div>
+    <form method="post">
+        <button type="submit" class="button rounded">Invia Email</button>
+        <div>
+            Email inviate:<br>
+            <ul>
+                <?php foreach ($sent as $email) { ?>
+                    <li>
+                        <a href="mailto:<?= $email ?>" class="link"><?= $email ?></a>
+                    </li>
+                <?php } ?>
+            </ul>
+            <br>
+            Totale:<?= count($sent) ?>/<?= count($emails) ?>
+        </div>
+    </form>
 </section>
 
 </div>
