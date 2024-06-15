@@ -27,7 +27,12 @@
             $testo .= "</p>";
             $testo .= "<a style=\"font-size: larger\" href=\"" . ISCRIZIONI_URL . "\">" . ISCRIZIONI_URL . "</a>";
             $testo .= "<p>";
-            $testo .= "Come puoi rimanere aggiornato? Seguendo la nostra pagina Instagram o il nostro canale WhatsApp:";
+            if ($row["sesso"] === "M") {
+                $testo .= "Come puoi rimanere aggiornato?";
+            } else {
+                $testo .= "Come puoi rimanere aggiornata?";
+            }
+            $testo .= "Seguendo la nostra pagina Instagram o il nostro canale WhatsApp:";
             $testo .= "</p>";
             $testo .= "<a href=\"" . INSTAGRAM_URL . "\">" . INSTAGRAM_URL . "</a><br />";
             $testo .= "<a href=\"" . WHATSAPP_URL . "\">" . WHATSAPP_URL . "</a><br />";
