@@ -65,14 +65,15 @@
                     consigliamo di fare una foto/scansione a entrambe le facce e di concatenarle in un unico WORD/PDF
                 </li>
                 <li>
-                    <strong>
-                        La tessera sanitaria non &egrave; un documento di riconoscimento!
-                    </strong>
+                    La tessera sanitaria non &egrave; un documento di riconoscimento!
                 </li>
             </ul>
             <?php if (isset($errore) && !empty($errore)) { ?>
                 <p class="error">
-                    <strong><?= $errore ?></strong>
+                    &darr;
+                    <strong>È AVVENUTO UN ERRORE<br>
+                    <?= $errore ?></strong>
+                    &uarr;
                 </p>
             <?php } ?>
             <div class="input-box flex v-center wrap">
