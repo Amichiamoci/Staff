@@ -129,6 +129,17 @@ class Iscrizione
         return $result->num_rows > 0;
     }
 
+    public static function IdAnagrafica(mysqli $connection, int $id) : ?int
+    {
+        if (!$connection || $id === 0)
+            return null;
+        $query = "SELECT dati_anagrafici FROM iscritti WHERE id = $id";
+        $result = mysqli_query($connection, $query);
+        if (!$result)
+            return null;
+        return (int)$result->fetch_assoc()['dati_anagrafici'];
+    }
+
     public static function Create(
         mysqli $connection,
         int $id_anagrafica, 

@@ -52,9 +52,9 @@
             header("Location: ./index.php");
             exit;
         }
-    } else {
-        $dati_anagrafici = Anagrafica::Load($connection, $id_anagrafica);
-    }
+        $id_anagrafica = Iscrizione::IdAnagrafica($connection, $cod_iscrizione);
+    } 
+    $dati_anagrafici = Anagrafica::Load($connection, $id_anagrafica);
     function form()
     {
         global $connection;
