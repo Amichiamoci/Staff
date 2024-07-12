@@ -54,8 +54,8 @@ class Squadra
     {
         if (!$connection)
             return array();
-        $y = (!isset($year) || (int)$year === 0) ? null : (int)$year;
-        $s = (!isset($sport) || (int)$sport === 0) ? null : (int)$sport;
+        $y = (!isset($year) || (int)$year === 0) ? "NULL" : (int)$year;
+        $s = (!isset($sport) || (int)$sport === 0) ? "NULL" : (int)$sport;
         $query = "CALL SquadreList($y, $s);";
         $result = $connection->query($query);
         if (!$result)
