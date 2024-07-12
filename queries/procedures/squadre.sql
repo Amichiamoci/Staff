@@ -93,7 +93,9 @@ BEGIN
         s.`id` AS "id_squadra", 
         s.`nome`, 
         parrocchie.`nome` AS "parrocchia", 
+        parrocchie.`id` AS "id_parrocchia",
         sp.`nome` AS "nome_sport",
+        sp.`id` AS "id_sport",
         GROUP_CONCAT(CONCAT(a.`nome`, ' ', a.`cognome`) SEPARATOR ', ') AS "lista_membri"
     FROM `squadre` AS s
         LEFT OUTER JOIN `squadre_iscritti` si ON si.`squadra` = s.`id`
