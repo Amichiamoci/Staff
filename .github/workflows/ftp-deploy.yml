@@ -113,11 +113,3 @@ jobs:
             password: ${{ secrets.FTP_PASSWORD }}
             server-dir: ${{ secrets.FTP_FOLDER_BASE }}${{ steps.deploy-path.outputs.path }}
             log-level: minimal
-
-        - name: Genereate MySQL Views and Procedures Reload File
-          if: false
-          run: |
-            curl -s --request GET \
-                --url $URL
-          env: 
-            URL: https://www.${{ vars.DOMAIN }}/${{ steps.deploy-path.outputs.path }}sql_autostart.php

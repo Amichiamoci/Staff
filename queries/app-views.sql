@@ -1,7 +1,9 @@
-/*CREATE OR REPLACE VIEW LastLogGet AS
+/*
+CREATE OR REPLACE VIEW LastLogGet AS
 SELECT DISTINCT area, time_stamp, url 
 FROM last_log 
 ORDER BY time_stamp, area DESC;
+*/
 
 CREATE OR REPLACE VIEW eventi_a_breve AS 
 SELECT e.*
@@ -62,6 +64,7 @@ WHERE e.anno = YEAR(CURRENT_DATE)
 GROUP BY s.id
 ORDER BY sp.id, membri DESC;
 
+/*
 CREATE OR REPLACE VIEW partite_recenti AS
 SELECT 
     p.*,
@@ -70,6 +73,7 @@ SELECT
 FROM partite_settimana p
 WHERE p.punteggi > 0
 ORDER BY p.sport ASC, p.torneo DESC, p.data DESC, p.orario DESC;
+*/
 
 CREATE OR REPLACE VIEW campi_attuali AS
 SELECT c.*, ST_X(c.posizione) AS "lon", ST_Y(c.posizione) AS "lat"
@@ -87,4 +91,4 @@ FROM punteggio_parrocchia r
     INNER JOIN parrocchie p ON p.id = r.parrocchia
 WHERE e.anno = YEAR(CURRENT_DATE)
 GROUP BY r.parrocchia
-ORDER BY r.punteggio DESC;*/
+ORDER BY r.punteggio DESC;
