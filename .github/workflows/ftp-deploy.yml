@@ -38,29 +38,26 @@ jobs:
             max_attempts: 5
             command: composer update --no-interaction --no-progress
         
-        - name: Load DB data in and website address in .env
+        - name: Load DB data and website address in .env
           run: |
-            echo -e "DB_HOST=\"${{ secrets.DB_ADDRESS }}\"" > ".env"
-            echo -e "DB_USER=\"${{ secrets.DB_USER }}\"" >> ".env"
-            echo -e "DB_PASSWORD=\"${{ secrets.DB_PASSWORD }}\"" >> ".env"
-            echo -e "WEBSITE_DOMAIN=\"www.${{ vars.DOMAIN }}\"" >> ".env"
-            echo -e "ISCRIZIONI_URL=\"${{ secrets.ISCRIZIONI_URL }}\"" >> ".env"
-            echo -e "INSTAGRAM_URL=\"${{ vars.INSTAGRAM_URL }}\"" >> ".env"
-            echo -e "WHATSAPP_URL=\"${{ vars.WHATSAPP_URL }}\"" >> ".env"
-            echo -e "FACEBOOK_URL=\"${{ vars.FACEBOOK_URL }}\" >> ".env"
-            echo -e "APP_SECRET=\"${{ secrets.APP_SECRET }}\"" >> ".env"
+            echo -e "DB_HOST=${{ secrets.DB_ADDRESS }}" > ".env"
+            echo -e "DB_USER=${{ secrets.DB_USER }}" >> ".env"
+            echo -e "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> ".env"
+            echo -e "WEBSITE_DOMAIN=www.${{ vars.DOMAIN }}" >> ".env"
+            echo -e "ISCRIZIONI_URL=${{ secrets.ISCRIZIONI_URL }}" >> ".env"
+            echo -e "INSTAGRAM_URL=${{ vars.INSTAGRAM_URL }}" >> ".env"
+            echo -e "WHATSAPP_URL=${{ vars.WHATSAPP_URL }}" >> ".env"
+            echo -e "FACEBOOK_URL=${{ vars.FACEBOOK_URL }} >> ".env"
+            echo -e "APP_SECRET=${{ secrets.APP_SECRET }}" >> ".env"
         
         - name: Calculate Deploy Path
           id: deploy-path
           run: |
-            echo "Ref is '$REF'"
             if [ $REF = 'main' ]
             then
                 echo "path=admin/" >> "$GITHUB_OUTPUT"
-                echo "Path is admin/"
             else
                 echo "path=admin_test/" >> "$GITHUB_OUTPUT"
-                echo "Path is admin_test/"
             fi
           env:
             REF: ${{ github.ref_name }}
