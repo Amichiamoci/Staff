@@ -40,7 +40,7 @@ jobs:
         
         - name: Load DB data in and website address in .env
           run: |
-            echo -e "DB_HOST=\"${{ secrets.DB_ADDRESS }}\"" >> ".env"
+            echo -e "DB_HOST=\"${{ secrets.DB_ADDRESS }}\"" > ".env"
             echo -e "DB_USER=\"${{ secrets.DB_USER }}\"" >> ".env"
             echo -e "DB_PASSWORD=\"${{ secrets.DB_PASSWORD }}\"" >> ".env"
             echo -e "WEBSITE_DOMAIN=\"www.${{ vars.DOMAIN }}\"" >> ".env"
@@ -48,7 +48,7 @@ jobs:
             echo -e "INSTAGRAM_URL=\"${{ vars.INSTAGRAM_URL }}\"" >> ".env"
             echo -e "WHATSAPP_URL=\"${{ vars.WHATSAPP_URL }}\"" >> ".env"
             echo -e "FACEBOOK_URL=\"${{ vars.FACEBOOK_URL }}\" >> ".env"
-            echo -e "APP_SECRET=\"${{ secrets.APP_SECRET }}\""
+            echo -e "APP_SECRET=\"${{ secrets.APP_SECRET }}\"" >> ".env"
         
         - name: Calculate Deploy Path
           id: deploy-path
