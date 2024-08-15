@@ -47,7 +47,7 @@ jobs:
             echo -e "ISCRIZIONI_URL=${{ secrets.ISCRIZIONI_URL }}" >> ".env"
             echo -e "INSTAGRAM_URL=${{ vars.INSTAGRAM_URL }}" >> ".env"
             echo -e "WHATSAPP_URL=${{ vars.WHATSAPP_URL }}" >> ".env"
-            echo -e "FACEBOOK_URL=${{ vars.FACEBOOK_URL }} >> ".env"
+            echo -e "FACEBOOK_URL=${{ vars.FACEBOOK_URL }}" >> ".env"
             echo -e "APP_SECRET=${{ secrets.APP_SECRET }}" >> ".env"
         
         - name: Calculate Deploy Path
@@ -79,8 +79,8 @@ jobs:
         - name: Load Mail addresses in .env
           if: github.ref_name == 'main'
           run: |
-            echo -e "EMAIL_SOURCE=\"$DEV_EMAIL\"" >> ".env"
-            echo -e "CONTACT_EMAIL=\"$INFO_EMAIL\"" >> ".env"
+            echo -e "EMAIL_SOURCE=$DEV_EMAIL" >> ".env"
+            echo -e "CONTACT_EMAIL=$INFO_EMAIL" >> ".env"
           env:
             DEV_EMAIL: ${{ steps.deploy-email.outputs.dev_email }}
             INFO_EMAIL: ${{ steps.deploy-email.outputs.info_email }}
@@ -100,7 +100,7 @@ jobs:
             REF: ${{ github.ref_name }}
         
         - name: Load Database name in .env
-          run: echo -e "DB_NAME=\"$DB_NAME\"" >> ".env"
+          run: echo -e "DB_NAME=$DB_NAME" >> ".env"
           env: 
             DB_NAME: ${{ steps.deploy-db.outputs.deploy_db }}
 
