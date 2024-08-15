@@ -47,6 +47,8 @@ jobs:
             echo -e "ISCRIZIONI_URL=\"${{ secrets.ISCRIZIONI_URL }}\"" >> ".env"
             echo -e "INSTAGRAM_URL=\"${{ vars.INSTAGRAM_URL }}\"" >> ".env"
             echo -e "WHATSAPP_URL=\"${{ vars.WHATSAPP_URL }}\"" >> ".env"
+            echo -e "FACEBOOK_URL=\"${{ vars.FACEBOOK_URL }}\" >> ".env"
+            echo -e "APP_SECRET=\"${{ secrets.APP_SECRET }}\""
         
         - name: Calculate Deploy Path
           id: deploy-path
