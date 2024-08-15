@@ -23,19 +23,32 @@ if (!is_string($_GET["resource"]))
 }
 $resource = $_GET["resource"];
 $result = [];
-
 switch ($resource)
 {
     case "events":
-        $result = null;
+        $query = 'SELECT * FROM `eventi_a_breve`';
         break;
     case "matches":
-
+        $query = 'SELECT * FROM `partite_settimana`';
         break;
     default: {
         http_response_code(404);
         exit;
     }
 }
+
+$response = $connection->execute_query($query);
+if (!$response)
+{
+    http_response_code(500);
+    exit;
+}
+
+$result = $response->fetch_array();
+if (!isset($result) || !$result)
+{
+    $result = [];
+}
+
 header("Content-Type: application/json");
 echo json_encode($result); exit;
