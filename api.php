@@ -47,25 +47,25 @@ switch ($resource)
             // Other problems
             if (is_string($row['tutore_problem']))
             {
-                $semi_parsed['problems']['tutor'] = $row['tutore_problem'];
+                $semi_parsed['problems'][] = $row['tutore_problem'];
             }
             if (is_string($row['certificato_problem']))
             {
-                $semi_parsed['problems']['medical'] = $row['certificato_problem'];
+                $semi_parsed['problems'][] = $row['certificato_problem'];
             }
 
             // Document related problems
             if (is_string($row['doc_problem']))
             {
-                $semi_parsed['problems']['document'] = $row['doc_problem'];
+                $semi_parsed['problems'][] = $row['doc_problem'];
             }
             //if (is_string($row['doc_code_problem']))
             //{
-            //    $semi_parsed['problems']['document_code'] = $row['doc_code_problem'];
+            //    $semi_parsed['problems'][] = $row['doc_code_problem'];
             //}
             if (is_string($row['scadenza_problem']))
             {
-                $semi_parsed['problems']['document_expiration'] = $row['scadenza_problem'];
+                $semi_parsed['problems'][] = $row['scadenza_problem'];
             }
             return $semi_parsed;
         };
