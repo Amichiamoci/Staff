@@ -22,3 +22,25 @@ WHERE NOT EXISTS (
     FROM `iscritti` i 
     WHERE i.`dati_anagrafici` = a.`id` AND i.`edizione` = e.`id`)
 ORDER BY e.`id` ASC, a.`eta` DESC, a.`cognome` ASC;
+
+CREATE OR REPLACE VIEW `distinte` AS 
+SELECT 
+    -- Filtering fields
+    s.`squadra` AS "squadra_id",
+    -- Fields
+    a.`id`,
+    i.`id` AS "iscrizione",
+    UPPER(a.`codice_fiscale`) AS "cf",
+    CONCAT(a.`nome`, ' ', a.`cognome`) AS "chi",
+    `SessoDaCF`(a.`codice_fiscale`) AS "sesso",
+    -- Problems
+    `CodiceDocumentOk`(a.`codice_documento`, a.`tipo_documento`) AS "doc_code_problem",
+    IF (a.`documento` IS NOT NULL, NULL, 'Mancante') AS "doc_problem",
+    `ScadeInGiorni`(a.scadenza, 62) AS "scadenza_problem",
+    IF (i.`certificato_medico` IS NOT NULL, NULL, 'Mancante') AS "certificato_problem",
+    `ProblemaTutore` (a.`data_nascita`, i.`tutore`) AS "tutore_problem"
+FROM `iscritti` i
+    INNER JOIN `anagrafiche` a ON i.`dati_anagrafici` = a.`id`
+    INNER JOIN `edizioni` e ON i.`edizione` = e.`id`
+    INNER JOIN `squadre_iscritti` s ON s.`iscritto` = i.`id`
+WHERE e.`anno` = YEAR(CURRENT_DATE);
