@@ -77,7 +77,7 @@ if (!$response)
     exit;
 }
 
-$result = $response->fetch_array();
+$result = $response->fetch_all();
 if (!isset($result) || !$result)
 {
     $result = [];
