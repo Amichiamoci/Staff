@@ -77,7 +77,7 @@ if (!$response)
     exit;
 }
 
-$result = $response->fetch_all(MYSQL_ASSOC);
+$result = $response->fetch_all(MYSQLI_ASSOC);
 if (!isset($result) || !$result)
 {
     $result = [];
