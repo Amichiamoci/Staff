@@ -32,7 +32,7 @@ switch ($resource)
             $semi_parsed =  [
                 'id' => (int)$row['id'],
                 'teamId' => (int)$row['squadra_id'],
-                'subscriptionId' => (int)$row['iscritto_id'],
+                'subscriptionId' => (int)$row['iscrizione'],
                 'fullName' => $row['chi'],
                 'sex' => is_string($row['sesso']) ? $row['sesso'] : '?',
                 'problems' => array()
