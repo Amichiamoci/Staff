@@ -35,9 +35,9 @@ SELECT
     `SessoDaCF`(a.`codice_fiscale`) AS "sesso",
     -- Problems
     `CodiceDocumentOk`(a.`codice_documento`, a.`tipo_documento`) AS "doc_code_problem",
-    IF (a.`documento` IS NOT NULL, NULL, 'Mancante') AS "doc_problem",
-    `ScadeInGiorni`(a.scadenza, 62) AS "scadenza_problem",
-    IF (i.`certificato_medico` IS NOT NULL, NULL, 'Mancante') AS "certificato_problem",
+    IF (a.`documento` IS NOT NULL, NULL, 'Documento mancante') AS "doc_problem",
+    `ScadeInGiorni`(a.scadenza, 1) AS "scadenza_problem",
+    IF (i.`certificato_medico` IS NOT NULL, NULL, 'Certificato medico mancante') AS "certificato_problem",
     `ProblemaTutore` (a.`data_nascita`, i.`tutore`) AS "tutore_problem"
 FROM `iscritti` i
     INNER JOIN `anagrafiche` a ON i.`dati_anagrafici` = a.`id`
