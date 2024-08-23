@@ -50,7 +50,7 @@ WHERE e.anno = YEAR(CURRENT_DATE);
 
 CREATE OR REPLACE VIEW squadre_attuali AS
 SELECT 
-	s.nome, 
+	s.nome, s.id,
 	p.nome AS "parrocchia", s.parrocchia AS "id_parrocchia",  
     e.anno AS "edizione", e.id AS "id_edizione",
     sp.nome AS "sport", s.sport AS "id_sport",

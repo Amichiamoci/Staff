@@ -26,7 +26,7 @@ switch ($resource)
     case "matches":
         $query = 'SELECT * FROM `partite_settimana`';
         break;
-    case "distinte":
+    case "teams-members":
         $query = 'SELECT * FROM `distinte`';
         $row_parser = function ($row) {
             $semi_parsed =  [
@@ -62,6 +62,23 @@ switch ($resource)
                 $semi_parsed['problems'][] = $row['scadenza_problem'];
             }
             return $semi_parsed;
+        };
+        break;
+    case "teams-info":
+        $query = 'SELECT * FROM `squadre_attuali`';
+        $row_parser = function ($row) {
+            return [
+                'Name' => (int)$row['nome'],
+                'Id' => (int)$row['id'],
+                
+                'Church' => $row['parrocchia'],
+                'ChurchId' => (int)$row['id_parrocchia'],
+
+                'Sport' => $row['sport'],
+                'SportId' => (int)$row['id_sport'],
+
+                'MemberCount' => (int)$row['membri']
+            ];
         };
         break;
     default: {
