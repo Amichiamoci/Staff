@@ -3,11 +3,11 @@
 require_once __DIR__ . "/load/db_manager.php";
 
 $_HEADERS = getallheaders();
-//if (!array_key_exists('App-Bearer', $_HEADERS) || $_HEADERS['App-Bearer'] !== $_ENV['APP_SECRET'])
-//{
-//    http_response_code(401);
-//    exit;
-//}
+if (!array_key_exists('App-Bearer', $_HEADERS) || $_HEADERS['App-Bearer'] !== $_ENV['APP_SECRET'])
+{
+    http_response_code(401);
+    exit;
+}
 
 
 if (!is_string($_GET["resource"]))
