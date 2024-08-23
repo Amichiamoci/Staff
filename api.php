@@ -30,12 +30,12 @@ switch ($resource)
         $query = 'SELECT * FROM `distinte`';
         $row_parser = function ($row) {
             $semi_parsed =  [
-                'id' => (int)$row['id'],
-                'teamId' => (int)$row['squadra_id'],
-                'subscriptionId' => (int)$row['iscrizione'],
-                'fullName' => $row['chi'],
-                'sex' => is_string($row['sesso']) ? $row['sesso'] : '?',
-                'problems' => array()
+                'Id' => (int)$row['id'],
+                'TeamId' => (int)$row['squadra_id'],
+                'SubscriptionId' => (int)$row['iscrizione'],
+                'FullName' => $row['chi'],
+                'Sex' => is_string($row['sesso']) ? $row['sesso'] : '?',
+                'Problems' => array()
             ];
 
             // Other problems
@@ -68,7 +68,7 @@ switch ($resource)
         $query = 'SELECT * FROM `squadre_attuali`';
         $row_parser = function ($row) {
             return [
-                'Name' => (int)$row['nome'],
+                'Name' => $row['nome'],
                 'Id' => (int)$row['id'],
                 
                 'Church' => $row['parrocchia'],
