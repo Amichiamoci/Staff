@@ -17,9 +17,10 @@ if (!is_string($_GET["resource"]))
 }
 function get_additional_param(string $name): string {
     global $_HEADERS;
+    print_r($_HEADERS);
     if (!array_key_exists('Data-Param-' . $name, $_HEADERS))
     {
-        if (!is_string($_GET[$name]))
+        if (!array_key_exists($name, $_GET) || !is_string($_GET[$name]))
         {
             http_response_code(400);
             exit;
@@ -121,6 +122,7 @@ switch ($resource)
                 'MedicalCertificate' => $r['stato_certificato'],
             ];
         };
+        break;
     default: {
         http_response_code(404);
         exit;
