@@ -44,3 +44,37 @@ FROM `iscritti` i
     INNER JOIN `edizioni` e ON i.`edizione` = e.`id`
     INNER JOIN `squadre_iscritti` s ON s.`iscritto` = i.`id`
 WHERE e.`anno` = YEAR(CURRENT_DATE);
+
+
+CREATE OR REPLACE VIEW `anagrafiche_con_iscrizioni_correnti` AS 
+SELECT 
+    a.*,
+    t.`label` AS "nome_tipo_documento",
+    `ScadeInGiorni`(a.`scadenza`, 62) AS "scadenza_problem",
+
+    -- Parrocchia
+    p.`nome` AS "parrocchia", 
+    p.`id` AS "id_parrocchia",
+    
+    -- Iscrizione
+    IF (i.`id` IS NOT NULL, 
+        LPAD(HEX(i.`id`), 8, '0'), 
+        CONCAT('Non iscritto per il ', IFNULL(anno, YEAR(CURRENT_DATE)))
+        ) AS "codice_iscrizione",
+    IF (i.id IS NULL, 
+        CONCAT('Iscrivi per il ', IFNULL (anno, YEAR(CURRENT_DATE))),
+        NULL
+        ) AS "iscrivi",
+    i.`id` AS "id_iscrizione",
+    IF (i.`certificato_medico` IS NULL OR TRIM(i.`certificato_medico`) = '',
+        'Presente', 'Mancante') AS "stato_certificato",
+    i.`taglia_maglietta` AS "maglia"
+
+FROM `anagrafiche_espanse` AS a
+    INNER JOIN `tipi_documento` t ON a.`tipo_documento` = t.`id`
+    CROSS JOIN `edizioni` e ON e.`anno` = YEAR(CURRENT_DATE)
+    LEFT OUTER JOIN `iscritti` i ON i.`edizione` = e.`id` AND i.`dati_anagrafici` = a.`id`
+    LEFT OUTER JOIN `parrocchie` p ON i.`parrocchia` = p.`id`
+    LEFT OUTER JOIN `anagrafiche` a2 ON i.`tutore` = a2.`id`
+GROUP BY a.`id`, i.`id`
+ORDER BY YEAR(a.`data_nascita`) ASC, a.`cognome` ASC, a.`nome` ASC;
