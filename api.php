@@ -16,12 +16,13 @@ if (!is_string($_GET["resource"]))
     exit;
 }
 function get_additional_param(string $name): string {
-    if (!is_string($_GET[$name]))
+    global $_HEADERS;
+    if (!array_key_exists('Data-Param-' . $name, $_HEADERS))
     {
         http_response_code(400);
         exit;
     }
-    return $_GET[$name];
+    return $_HEADERS[$name];
 }
 
 $resource = $_GET["resource"];
