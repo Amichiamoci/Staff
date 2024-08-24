@@ -91,7 +91,7 @@ switch ($resource)
             ];
         };
         break;
-    case "managed-anagraphicals":
+    case "managed_anagraphicals":
         $email_ref = get_additional_param('email');
         $query = 'SELECT * FROM `anagrafiche_con_iscrizioni_correnti` WHERE LOWER(TRIM(`email`)) = LOWER(TRIM(\'' . 
             $connection->real_escape_string($email_ref) . '\'))';
