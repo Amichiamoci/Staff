@@ -19,8 +19,12 @@ function get_additional_param(string $name): string {
     global $_HEADERS;
     if (!array_key_exists('Data-Param-' . $name, $_HEADERS))
     {
-        http_response_code(400);
-        exit;
+        if (!is_string($_GET[$name]))
+        {
+            http_response_code(400);
+            exit;
+        }
+        return $_GET[$name];
     }
     return $_HEADERS['Data-Param-' . $name];
 }
@@ -91,7 +95,7 @@ switch ($resource)
             ];
         };
         break;
-    case "managed_anagraphicals":
+    case "managed-anagraphicals":
         $email_ref = get_additional_param('email');
         $query = 'SELECT * FROM `anagrafiche_con_iscrizioni_correnti` WHERE LOWER(TRIM(`email`)) = LOWER(TRIM(\'' . 
             $connection->real_escape_string($email_ref) . '\'))';
