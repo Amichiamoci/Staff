@@ -127,6 +127,31 @@ switch ($resource)
             ];
         };
         break;
+    case "church":
+        $id = (int)get_additional_param('Id');
+        $query = "SELECT * FROM `parrocchie` WHERE `id` = $id";
+        $row_parser = function($r) {
+            return [
+                'Id' => (int)$r['id'],
+                'Name' => $r['nome'],
+
+                'Address' => is_string($r['indirizzo']) && strlen($r['indirizzo']) > 0 ? $r['indirizzo'] : null,
+                'Website' => is_string($r['website']) && strlen($r['website']) > 0 ? $r['website'] : null,
+            ];
+        };
+        break;
+    case "staff-list":
+        $query = "SELECT * FROM `staffisti_attuali`";
+        $row_parser = function($r){
+            return [
+                'Name' => $r['chi'],
+                'ChurchId' => (int)$r['id_parrocchia'],
+                
+                'Phone' => is_string($r['telefono']) && strlen($r['telefono']) > 0 ? $r['telefono'] : null,
+                'Email' => is_string($r['email']) && strlen($r['email']) > 0 ? $r['email'] : null,
+            ];
+        };
+        break;
     default: {
         http_response_code(404);
         exit;
