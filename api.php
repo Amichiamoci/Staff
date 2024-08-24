@@ -17,7 +17,6 @@ if (!is_string($_GET["resource"]))
 }
 function get_additional_param(string $name): string {
     global $_HEADERS;
-    print_r($_HEADERS);
     if (!array_key_exists('Data-Param-' . $name, $_HEADERS))
     {
         if (!array_key_exists($name, $_GET) || !is_string($_GET[$name]))
