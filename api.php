@@ -119,6 +119,11 @@ switch ($resource)
                 ],
 
                 'MedicalCertificate' => $r['stato_certificato'],
+                'SubscriptionStatus' => $r['codice_iscrizione'],
+                'ShirtSize' => $r['maglia'],
+
+                'Church' => $r['parrocchia'],
+                'ChurchId' => (int)$r['id_parrocchia'],
             ];
         };
         break;

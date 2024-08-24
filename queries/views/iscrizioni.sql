@@ -58,16 +58,11 @@ SELECT
     
     -- Iscrizione
     IF (i.`id` IS NOT NULL, 
-        LPAD(HEX(i.`id`), 8, '0'), 
-        CONCAT('Non iscritto per il ', IFNULL(anno, YEAR(CURRENT_DATE)))
-        ) AS "codice_iscrizione",
-    IF (i.id IS NULL, 
-        CONCAT('Iscrivi per il ', IFNULL (anno, YEAR(CURRENT_DATE))),
-        NULL
-        ) AS "iscrivi",
+        CONCAT('Codice iscrizione ', e.`anno`, ': ', LPAD(HEX(i.`id`), 8, '0')), 
+        CONCAT('Non iscritto per il ', e.`anno`) ) AS "codice_iscrizione",
     i.`id` AS "id_iscrizione",
     IF (i.`certificato_medico` IS NULL OR TRIM(i.`certificato_medico`) = '',
-        'Presente', 'Mancante') AS "stato_certificato",
+        'Mancante', 'Presente') AS "stato_certificato",
     i.`taglia_maglietta` AS "maglia"
 
 FROM `anagrafiche_espanse` AS a
