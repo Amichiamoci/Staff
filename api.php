@@ -22,7 +22,7 @@ function get_additional_param(string $name): string {
         http_response_code(400);
         exit;
     }
-    return $_HEADERS[$name];
+    return $_HEADERS['Data-Param-' . $name];
 }
 
 $resource = $_GET["resource"];
