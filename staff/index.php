@@ -156,7 +156,7 @@ if (!isset($dati_staff))
 						Iscrivi persone gi&agrave; registrate
 					</a>
 					<br>
-					<a class="button" href="./iscrizioni/crea-anagrafica.php?success=iscrivi">
+					<a class="button" href="./iscrizioni/crea-anagrafica.php?success=iscrivi.php">
 						Registra e iscrivi direttamente persona
 					</a>
 					<br>
