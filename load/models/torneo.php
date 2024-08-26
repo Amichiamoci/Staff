@@ -101,7 +101,7 @@ class Torneo
     {
         if (!$connection)
             return null;
-        $query = "SELECT `nome`, `tipo`, `sport` FROM `tornei_attivi` WHERE `id` = $id AND `partite` = 0";
+        $query = "SELECT * FROM `tornei_attivi` WHERE `id` = $id AND `partite` = 0";
         $result = $connection->query($query);
         if (!$result || $result->num_rows === 0)
             return null;
@@ -119,7 +119,7 @@ class Torneo
     {
         if (!$connection)
             return null;
-        $query = "SELECT `nome`, `tipo`, `sport` FROM `tornei_attivi` WHERE `id` = $id AND `partite` <> 0";
+        $query = "SELECT * FROM `tornei_attivi` WHERE `id` = $id AND `partite` <> 0";
         $result = $connection->query($query);
         if (!$result || $result->num_rows === 0)
             return null;
