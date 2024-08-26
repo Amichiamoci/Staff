@@ -54,7 +54,7 @@ class Torneo
                 $row["codice_sport"],
                 $row["sport"],
                 
-                $row["tipo_id"],
+                $row["id_tipo"],
                 $row["tipo"],
 
                 $row["numero_squadre"]
