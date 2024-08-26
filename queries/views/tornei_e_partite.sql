@@ -124,6 +124,7 @@ SELECT
 
     -- Orari partite
     p.`orario`,
+    p.`data`,
 
     -- Torneo partite
     p.`sport`,

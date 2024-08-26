@@ -166,6 +166,9 @@ switch ($resource)
                 'Tourney' => $r['torneo'],
                 'TourneyId' => (int)$r['codice_torneo'],
 
+                'Date' => $r['data'],
+                'Time' => $r['orario'],
+
                 'HomeTeam' => [
                     'Name' => $r['squadra_casa'],
                     'Id' => (int)$r['squadra_casa_id'],
