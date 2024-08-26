@@ -43,6 +43,7 @@ function upload_file($file, string &$future_file_name, string &$error): bool
     
     
     $actual_path = SERVER_UPLOAD_PATH . "$future_file_name.$ext";
+    $actual_path = str_replace(' ', '_', $actual_path);
     
     // Check whether file exists before uploading it
     while (file_exists($actual_path))

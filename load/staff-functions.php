@@ -202,7 +202,7 @@ function getAnagraficheList(mysqli $connection, $year = null, int $id_parrocchia
             $str .= "<td data-label='Parrocchia'>" . $row["anno"]. ": Iscritto per " . htmlspecialchars($row["parrocchia"]) ."</td>\n";
             
             $inserisci_certificato = "<a href=\"./iscrivi.php?iscrizione=$iscrizione&id=$id\" class=\"link\">Inserisci/Modifica</a>";
-            if (isset($row["certificato_medico"]))
+            if (isset($row["certificato_medico"]) && !empty($row["certificato_medico"]))
             {
                 if (we_have_file($row["certificato_medico"]))
                 {
