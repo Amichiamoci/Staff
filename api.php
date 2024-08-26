@@ -96,9 +96,8 @@ switch ($resource)
         };
         break;
     case "managed-anagraphicals":
-        $email_ref = get_additional_param('Email');
-        $query = 'SELECT * FROM `anagrafiche_con_iscrizioni_correnti` WHERE LOWER(TRIM(`email`)) = LOWER(TRIM(\'' . 
-            $connection->real_escape_string($email_ref) . '\'))';
+        $email = $connection->real_escape_string(get_additional_param('Email'));
+        $query = "SELECT * FROM `anagrafiche_con_iscrizioni_correnti` WHERE LOWER(TRIM(`email`)) = LOWER(TRIM('$email'))";
         $row_parser = function($r) {
             return [
                 'Id' => (int)$r['id'],
@@ -150,6 +149,65 @@ switch ($resource)
                 'Phone' => is_string($r['telefono']) && strlen($r['telefono']) > 0 ? $r['telefono'] : null,
                 'Email' => is_string($r['email']) && strlen($r['email']) > 0 ? $r['email'] : null,
             ];
+        };
+        break;
+    case "today-matches-of":
+        $email = $connection->real_escape_string(get_additional_param('Email'));
+        $query = "SELECT * FROM `partite_oggi_persona` WHERE TRIM(LOWER(`email`)) = TRIM(LOWER('$email'))";
+        $row_parser = function($r) {
+            $arr = [
+                'WhoPlays' => $r['nome'] . ' ' . $r['cognome'],
+                'Email' => $r['email'],
+                'PlayerId' => (int)$r['id'],
+                'NeedsMedicalCertificate' => (bool)($r['necessita_certificato'] == 1),
+
+                'Id' => (int)$r['id_partita'],
+
+                'Tourney' => $r['torneo'],
+                'TourneyId' => (int)$r['codice_torneo'],
+
+                'HomeTeam' => [
+                    'Name' => $r['squadra_casa'],
+                    'Id' => (int)$r['squadra_casa_id'],
+                    
+                    'Sport' => $r['sport'],
+                    'SportId' => (int)$r['codice_sport'],
+
+                    'Church' => $r['nome_parrocchia_casa'],
+                    'ChurchId' => (int)$r['id_parrocchia_casa'],
+                ],
+                'HomeTeamScore' => null,
+                'GuestTeam' => [
+                    'Name' => $r['squadra_ospite'],
+                    'Id' => (int)$r['squadra_ospite_id'],
+                    
+                    'Sport' => $r['sport'],
+                    'SportId' => (int)$r['codice_sport'],
+
+                    'Church' => $r['nome_parrocchia_ospite'],
+                    'ChurchId' => (int)$r['id_parrocchia_ospite'],
+                ],
+                'GuestTeamScore' => null
+            ];
+
+            if (is_string($r['nome_campo']) && isset($r['id_campo']))
+            {
+                $arr['Field'] = [
+                    'Name' => $r['nome_campo'],
+                    'Id' => (int)$r['id_campo'],
+                    'Address' => $r['indirizzo_campo'],
+                    'Latitude' => isset($r['latitudine_campo']) ? (float)$r['latitudine_campo'] : null,
+                    'Longitude' => isset($r['longitudine_campo']) ? (float)$r['longitudine_campo'] : null,
+                ];
+            }
+
+            return $arr;
+        };
+        break;
+    case "today-yeasterday-matches":
+        $query = "SELECT * FROM ???";
+        $row_parser = function($r) {
+
         };
         break;
     default: {
