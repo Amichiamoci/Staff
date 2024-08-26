@@ -163,7 +163,7 @@ switch ($resource)
 
                 'Id' => (int)$r['id_partita'],
 
-                'Tourney' => $r['torneo'],
+                'TourneyName' => $r['torneo'],
                 'TourneyId' => (int)$r['codice_torneo'],
 
                 'Date' => $r['data'],
