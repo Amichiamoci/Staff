@@ -166,6 +166,9 @@ switch ($resource)
                 'TourneyName' => $r['torneo'],
                 'TourneyId' => (int)$r['codice_torneo'],
 
+                'SportName' => $r['sport'],
+                'SportId' => (int)$r['codice_sport'],
+
                 'Date' => $r['data'],
                 'Time' => $r['orario'],
 
