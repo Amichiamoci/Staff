@@ -21,19 +21,19 @@ class Torneo
     )
     {
         if (isset($id))
-            $id = (int)$id;
+            $this->id = (int)$id;
         if (isset($nome) && is_string($nome))
-            $this->$nome = $nome;
+            $this->nome = $nome;
         if (isset($tipo) && is_string($tipo))
-            $this->$tipo = $tipo;
+            $this->tipo = $tipo;
         if (isset($id_tipo))
-            $id_tipo = (int)$id_tipo;
+            $this->id_tipo = (int)$id_tipo;
         if (isset($sport) && is_string($sport))
-            $this->$sport = $sport;
+            $this->sport = $sport;
         if (isset($id_sport))
-            $id_sport = (int)$id_sport;
+            $this->id_sport = (int)$id_sport;
         if (isset($numero_squadre))
-            $numero_squadre = (int)$numero_squadre;
+            $this->numero_squadre = (int)$numero_squadre;
     }
 
     public static function GetAll(mysqli $connection) : array
