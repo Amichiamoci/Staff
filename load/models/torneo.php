@@ -51,12 +51,12 @@ class Torneo
                 $row["id"],
                 $row["nome"],
 
-                $row["codice_sport"],
-                $row["sport"],
-                
-                $row["id_tipo"],
                 $row["tipo"],
+                $row["id_tipo"],
 
+                $row["sport"],
+                $row["codice_sport"],
+                
                 $row["numero_squadre"]
             );
 

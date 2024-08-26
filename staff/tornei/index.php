@@ -3,7 +3,7 @@ include "../../check_login.php";
 
 $dati_staff = Staff::Get($connection, User::$Current->staff_id);
 
-if (!$dati_staff->is_in("Tornei") || User::$Current->is_admin || !$dati_staff->is_referente) {
+if (!$dati_staff->is_in("Tornei") && !User::$Current->is_admin && !$dati_staff->is_referente) {
     header("Location: ..");
     exit;
 }
