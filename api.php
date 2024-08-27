@@ -275,7 +275,7 @@ switch ($resource)
                 'Sport' => $r['sport'],
                 'SportId' => (int)$r['codice_sport'],
 
-                'Type' => $r['tipologia'],
+                'Type' => $r['tipo'],
 
                 'Teams' => array_map(function($s): string {
                     return trim($s);
