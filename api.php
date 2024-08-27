@@ -292,7 +292,7 @@ switch ($resource)
                     'SportId' => (int)$r['codice_sport'],
 
                     'Church' => $r['nome_parrocchia_ospite'],
-                    'ChurchId' => (int)$r['id_parrocchia_ospite'],
+                    'ChurchId' => (int)$r['id_parrocchia_ospiti'],
                 ],
                 'GuestTeamScore' => null
             ];
