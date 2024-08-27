@@ -212,7 +212,7 @@ switch ($resource)
         break;
     case "today-matches-sport":
         $sport = $connection->real_escape_string(get_additional_param('Sport'));
-        $query = "SELECT * FROM `partite_da_giocare_oggi_completo` WHERE UPPER(`SportName`) = UPPER('$sport')";
+        $query = "SELECT * FROM `partite_da_giocare_oggi_completo` WHERE UPPER(`sport`) = UPPER('$sport')";
         $row_parser = function($r) {
             $arr = [
                 'Id' => (int)$r['id'],
