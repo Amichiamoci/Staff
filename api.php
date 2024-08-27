@@ -210,9 +210,9 @@ switch ($resource)
             return $arr;
         };
         break;
-    case "matches-sport":
+    case "today-matches-sport":
         $sport = $connection->real_escape_string(get_additional_param('Sport'));
-        $query = "SELECT * FROM `partite_da_giocare_oggi_con_campi` WHERE UPPER(`SportName`) = UPPER('$sport')";
+        $query = "SELECT * FROM `partite_da_giocare_oggi_completo` WHERE UPPER(`SportName`) = UPPER('$sport')";
         $row_parser = function($r) {
             $arr = [
                 'Id' => (int)$r['id'],
@@ -227,8 +227,8 @@ switch ($resource)
                 'Time' => $r['orario'],
 
                 'HomeTeam' => [
-                    'Name' => $r['casa'],
-                    'Id' => (int)$r['id_casa'],
+                    'Name' => $r['squadra_casa'],
+                    'Id' => (int)$r['squadra_casa_id'],
                     
                     'Sport' => $r['sport'],
                     'SportId' => (int)$r['codice_sport'],
@@ -238,8 +238,8 @@ switch ($resource)
                 ],
                 'HomeTeamScore' => null,
                 'GuestTeam' => [
-                    'Name' => $r['ospite'],
-                    'Id' => (int)$r['id_ospite'],
+                    'Name' => $r['squadra_ospite'],
+                    'Id' => (int)$r['squadra_ospite_id'],
                     
                     'Sport' => $r['sport'],
                     'SportId' => (int)$r['codice_sport'],

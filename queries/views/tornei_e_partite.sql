@@ -105,21 +105,25 @@ SELECT p.*,
     ST_X(c.`posizione`) AS "longitudine_campo"
 FROM `partite_da_giocare_oggi` p
     LEFT OUTER JOIN `campi` c ON p.`campo` = c.`id`
-
-    INNER JOIN `squadre` s1 ON s1.`id` = p.`id_casa`
-    INNER JOIN `squadre` s2 ON s2.`id` = p.`id_ospite`
-
-    INNER JOIN `parrocchie` p1 ON p1.`id` = s1.`parrocchia`
-    INNER JOIN `parrocchie` p2 ON p2.`id` = s2.`parrocchia`
 ;
 
 CREATE OR REPLACE VIEW `partite_da_giocare_oggi_completo` AS 
 SELECT p.*, 
     
+    s1.`nome` AS "squadra_casa",
+    s1.`id` AS "squadra_casa_id",
+    s2.`nome` AS "squadra_ospite",
+    s2.`id` AS "squadra_ospite_id",
+
+    p1.`nome` AS "nome_parrocchia_casa",
+    p1.`id` AS "id_parrocchia_casa",
+    p2.`nome` AS "nome_parrocchia_ospite",
+    p2.`id` AS "id_parrocchia_ospite"
+
 FROM `partite_da_giocare_oggi_con_campi` p
 
     INNER JOIN `squadre` s1 ON s1.`id` = p.`id_casa`
-    INNER JOIN `squadre` s2 ON s2.`id` = p.`id_ospite`
+    INNER JOIN `squadre` s2 ON s2.`id` = p.`id_ospiti`
 
     INNER JOIN `parrocchie` p1 ON p1.`id` = s1.`parrocchia`
     INNER JOIN `parrocchie` p2 ON p2.`id` = s2.`parrocchia`
