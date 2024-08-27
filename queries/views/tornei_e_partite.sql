@@ -102,9 +102,11 @@ SELECT p.*,
     c.`indirizzo` AS "indirizzo_campo",
     c.`id` AS "id_campo",
     ST_Y(c.`posizione`) AS "latitudine_campo",
-    ST_X(c.`posizione`) AS "longitudine_campo"
+    ST_X(c.`posizione`) AS "longitudine_campo",
+    UPPER(s.`area`) AS "area_sport"
 FROM `partite_da_giocare_oggi` p
     LEFT OUTER JOIN `campi` c ON p.`campo` = c.`id`
+    INNER JOIN `sport` s ON s.`id` = p.`codice_sport`
 ;
 
 CREATE OR REPLACE VIEW `partite_da_giocare_oggi_completo` AS 
