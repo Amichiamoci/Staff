@@ -210,10 +210,58 @@ switch ($resource)
             return $arr;
         };
         break;
-    case "today-yeasterday-matches":
-        $query = "SELECT * FROM ???";
+    case "matches-sport":
+        $sport = $connection->real_escape_string(get_additional_param('Sport'));
+        $query = "SELECT * FROM `partite_da_giocare_oggi_con_campi` WHERE UPPER(`SportName`) = UPPER('$sport')";
         $row_parser = function($r) {
+            $arr = [
+                'Id' => (int)$r['id'],
 
+                'TourneyName' => $r['nome_torneo'],
+                'TourneyId' => (int)$r['torneo'],
+
+                'SportName' => $r['sport'],
+                'SportId' => (int)$r['codice_sport'],
+
+                'Date' => $r['data'],
+                'Time' => $r['orario'],
+
+                'HomeTeam' => [
+                    'Name' => $r['casa'],
+                    'Id' => (int)$r['id_casa'],
+                    
+                    'Sport' => $r['sport'],
+                    'SportId' => (int)$r['codice_sport'],
+
+                    'Church' => $r['nome_parrocchia_casa'],
+                    'ChurchId' => (int)$r['id_parrocchia_casa'],
+                ],
+                'HomeTeamScore' => null,
+                'GuestTeam' => [
+                    'Name' => $r['ospite'],
+                    'Id' => (int)$r['id_ospite'],
+                    
+                    'Sport' => $r['sport'],
+                    'SportId' => (int)$r['codice_sport'],
+
+                    'Church' => $r['nome_parrocchia_ospite'],
+                    'ChurchId' => (int)$r['id_parrocchia_ospite'],
+                ],
+                'GuestTeamScore' => null
+            ];
+
+            if (is_string($r['nome_campo']) && isset($r['id_campo']))
+            {
+                $arr['Field'] = [
+                    'Name' => $r['nome_campo'],
+                    'Id' => (int)$r['id_campo'],
+                    'Address' => $r['indirizzo_campo'],
+                    'Latitude' => isset($r['latitudine_campo']) ? (float)$r['latitudine_campo'] : null,
+                    'Longitude' => isset($r['longitudine_campo']) ? (float)$r['longitudine_campo'] : null,
+                ];
+            }
+
+            return $arr;
         };
         break;
     default: {

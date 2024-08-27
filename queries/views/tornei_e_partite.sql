@@ -96,11 +96,34 @@ SELECT p.*
 FROM partite_da_giocare p
 WHERE p.data = CURRENT_DATE;
 
-CREATE OR REPLACE VIEW partite_da_giocare_oggi_con_campi AS 
+CREATE OR REPLACE VIEW `partite_da_giocare_oggi_con_campi` AS 
 SELECT p.*, 
-    IF (c.nome IS NULL, 'Non impostato', c.nome) AS "nome_campo"
-FROM partite_da_giocare_oggi p
-LEFT OUTER JOIN campi c ON p.campo = c.id;
+    c.`nome` AS "nome_campo",
+    c.`indirizzo` AS "indirizzo_campo",
+    c.`id` AS "id_campo",
+    ST_Y(c.`posizione`) AS "latitudine_campo",
+    ST_X(c.`posizione`) AS "longitudine_campo"
+FROM `partite_da_giocare_oggi` p
+    LEFT OUTER JOIN `campi` c ON p.`campo` = c.`id`
+
+    INNER JOIN `squadre` s1 ON s1.`id` = p.`id_casa`
+    INNER JOIN `squadre` s2 ON s2.`id` = p.`id_ospite`
+
+    INNER JOIN `parrocchie` p1 ON p1.`id` = s1.`parrocchia`
+    INNER JOIN `parrocchie` p2 ON p2.`id` = s2.`parrocchia`
+;
+
+CREATE OR REPLACE VIEW `partite_da_giocare_oggi_completo` AS 
+SELECT p.*, 
+    
+FROM `partite_da_giocare_oggi_con_campi` p
+
+    INNER JOIN `squadre` s1 ON s1.`id` = p.`id_casa`
+    INNER JOIN `squadre` s2 ON s2.`id` = p.`id_ospite`
+
+    INNER JOIN `parrocchie` p1 ON p1.`id` = s1.`parrocchia`
+    INNER JOIN `parrocchie` p2 ON p2.`id` = s2.`parrocchia`
+;
 
 CREATE OR REPLACE VIEW `partite_oggi_persona` AS
 SELECT 
@@ -133,11 +156,11 @@ SELECT
     p.`torneo` AS "codice_torneo",
 
     -- Molte informazioni sul luogo delle partite
-    c.`nome` AS "nome_campo",
-    c.`indirizzo` AS "indirizzo_campo",
-    c.`id` AS "id_campo",
-    ST_Y(c.`posizione`) AS "latatitudine_campo",
-    ST_X(c.`posizione`) AS "longitudine_campo",
+    p.`nome_campo`,
+    p.`indirizzo_campo`,
+    p.`id_campo`,
+    p.`latitudine_campo`,
+    p.`longitudine_campo`,
 
     -- Se ha il certificato medico
     IF (i.certificato_medico IS NULL, 1, 0) AS "necessita_certificato"
@@ -145,11 +168,10 @@ FROM `anagrafiche` a
 	INNER JOIN `iscritti` i ON i.`dati_anagrafici` = a.`id` -- Iscrizione
     INNER JOIN `squadre_iscritti` si ON si.`iscritto` = i.`id` -- Partecipazione in squadra
     INNER JOIN `squadre` s ON s.`id` = si.`squadra` -- Squadra dove si partecipa
-    INNER JOIN `partite_da_giocare_oggi` p ON p.`id_casa` = s.`id` OR p.`id_ospiti` = s.`id` -- Partita da fare
+    INNER JOIN `partite_da_giocare_oggi_con_campi` p ON p.`id_casa` = s.`id` OR p.`id_ospiti` = s.`id` -- Partita da fare
     INNER JOIN `squadre` s2 ON (p.`id_casa` = s2.`id` OR p.`id_ospiti` = s2.`id`) AND s2.`id` <> s.`id` -- Squadra avversaria
     INNER JOIN `parrocchie` p1 ON p1.`id` = s.`parrocchia`
     INNER JOIN `parrocchie` p2 ON p2.`id` = s2.`parrocchia`
-    LEFT OUTER JOIN `campi` c ON p.`campo` = c.`id` -- Luogo della partita, se impostato
 ;
 
 CREATE OR REPLACE VIEW chi_gioca_oggi AS

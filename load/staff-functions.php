@@ -329,6 +329,10 @@ function getNonPartecipantiList(mysqli $connection, $year = null)
         } else {
             $str .= "<td data-label=\"$label\"><strong>Mancante</strong>: <a href=\"./crea-anagrafica.php?cf=$cf\" class=\"link\">Inserisci</a></td>\n";
         }
+        if (isset($row["iscrivi"]))
+        {
+            $str .= "<td data-label='Iscrivi'><a href=\"iscrivi.php?id=$id\" class=\"link\"><strong>&rarr; " . $row["iscrivi"] ." &larr;</strong></a></td>\n";
+        }
         if (isset($row["creatore_dati"]))
         {
             $str .= "<td data-label='Dati inseriti da'>" . $row["creatore_dati"] . "</td>\n";
