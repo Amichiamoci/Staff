@@ -264,6 +264,29 @@ switch ($resource)
             return $arr;
         };
         break;
+    case "tourney":
+        $id = (int)get_additional_param('Id');
+        $query = "SELECT * FROM `tornei_attivi` WHERE `id` = $id";
+        $row_parser = function($r) {
+            return [
+                'Id' => (int)$r['id'],
+                'Name' => $r['nome'],
+
+                'Sport' => $r['sport'],
+                'SportId' => (int)$r['codice_sport'],
+
+                'Type' => $r['tipologia'],
+
+                'Teams' => array_map(function($s): string {
+                    return trim($s);
+                }, explode(',', $r['squadre'])),
+            ];
+        };
+        break;
+    case "tourney-matches":
+        $id = (int)get_additional_param('Id');
+
+        break;
     default: {
         http_response_code(404);
         exit;
