@@ -34,12 +34,6 @@ $result = [];
 $row_parser = function($r){ return $r; };
 switch ($resource)
 {
-    case "events":
-        $query = 'SELECT * FROM `eventi_a_breve`';
-        break;
-    case "matches":
-        $query = 'SELECT * FROM `partite_settimana`';
-        break;
     case "teams-members":
         $query = 'SELECT * FROM `distinte`';
         $row_parser = function ($row) {
@@ -212,7 +206,60 @@ switch ($resource)
         break;
     case "today-matches-sport":
         $sport = $connection->real_escape_string(get_additional_param('Sport'));
-        $query = "SELECT * FROM `partite_da_giocare_oggi_completo` WHERE `area_sport` = UPPER('$sport')";
+        $query = "SELECT * FROM `partite_oggi_completo` WHERE `area_sport` = UPPER('$sport')";
+        $row_parser = function($r) {
+            $arr = [
+                'Id' => (int)$r['id'],
+
+                'TourneyName' => $r['nome_torneo'],
+                'TourneyId' => (int)$r['torneo'],
+
+                'SportName' => $r['sport'],
+                'SportId' => (int)$r['codice_sport'],
+
+                'Date' => $r['data'],
+                'Time' => $r['orario'],
+
+                'HomeTeam' => [
+                    'Name' => $r['squadra_casa'],
+                    'Id' => (int)$r['squadra_casa_id'],
+                    
+                    'Sport' => $r['sport'],
+                    'SportId' => (int)$r['codice_sport'],
+
+                    'Church' => $r['nome_parrocchia_casa'],
+                    'ChurchId' => (int)$r['id_parrocchia_casa'],
+                ],
+                'HomeTeamScore' => null,
+                'GuestTeam' => [
+                    'Name' => $r['squadra_ospite'],
+                    'Id' => (int)$r['squadra_ospite_id'],
+                    
+                    'Sport' => $r['sport'],
+                    'SportId' => (int)$r['codice_sport'],
+
+                    'Church' => $r['nome_parrocchia_ospite'],
+                    'ChurchId' => (int)$r['id_parrocchia_ospite'],
+                ],
+                'GuestTeamScore' => null
+            ];
+
+            if (is_string($r['nome_campo']) && isset($r['id_campo']))
+            {
+                $arr['Field'] = [
+                    'Name' => $r['nome_campo'],
+                    'Id' => (int)$r['id_campo'],
+                    'Address' => $r['indirizzo_campo'],
+                    'Latitude' => isset($r['latitudine_campo']) ? (float)$r['latitudine_campo'] : null,
+                    'Longitude' => isset($r['longitudine_campo']) ? (float)$r['longitudine_campo'] : null,
+                ];
+            }
+
+            return $arr;
+        };
+        break;
+    case "today-yesterday-matches":
+        $query = "SELECT * FROM `partite_oggi_ieri_completo`";
         $row_parser = function($r) {
             $arr = [
                 'Id' => (int)$r['id'],

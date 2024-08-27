@@ -86,15 +86,19 @@ WHERE p.data IS NULL OR p.data BETWEEN DATE_SUB(CURRENT_DATE, INTERVAL 6 DAY) AN
 GROUP BY p.id
 ORDER BY p.data DESC, p.orario ASC;
 
-CREATE OR REPLACE VIEW partite_da_giocare AS
-SELECT p.* 
-FROM partite_tornei_attivi p
-WHERE NOT EXISTS(SELECT * FROM punteggi r WHERE r.partita = p.id);
+--
+-- Matches to play
+-- 
 
-CREATE OR REPLACE VIEW partite_da_giocare_oggi AS 
+CREATE OR REPLACE VIEW `partite_da_giocare` AS
+SELECT p.* 
+FROM `partite_tornei_attivi` p
+WHERE NOT EXISTS(SELECT * FROM `punteggi` r WHERE r.`partita` = p.`id`);
+
+CREATE OR REPLACE VIEW `partite_da_giocare_oggi` AS 
 SELECT p.*
-FROM partite_da_giocare p
-WHERE p.data = CURRENT_DATE;
+FROM `partite_da_giocare` p
+WHERE p.`data` = CURRENT_DATE;
 
 CREATE OR REPLACE VIEW `partite_da_giocare_oggi_con_campi` AS 
 SELECT p.*, 
@@ -118,9 +122,7 @@ SELECT p.*,
     s2.`id` AS "squadra_ospite_id",
 
     p1.`nome` AS "nome_parrocchia_casa",
-    p1.`id` AS "id_parrocchia_casa",
-    p2.`nome` AS "nome_parrocchia_ospite",
-    p2.`id` AS "id_parrocchia_ospite"
+    p2.`nome` AS "nome_parrocchia_ospite"
 
 FROM `partite_da_giocare_oggi_con_campi` p
 
@@ -130,6 +132,95 @@ FROM `partite_da_giocare_oggi_con_campi` p
     INNER JOIN `parrocchie` p1 ON p1.`id` = s1.`parrocchia`
     INNER JOIN `parrocchie` p2 ON p2.`id` = s2.`parrocchia`
 ;
+
+--
+-- Matches of today and yeasterday
+--
+
+CREATE OR REPLACE VIEW `partite_oggi_ieri` AS 
+SELECT p.*
+FROM `partite_settimana` p
+WHERE p.`data` = CURRENT_DATE OR p.`data` = subdate(CURRENT_DATE, 1)
+ORDER BY p.`data` DESC;
+
+CREATE OR REPLACE VIEW `partite_oggi_ieri_con_campi` AS 
+SELECT p.*, 
+    c.`nome` AS "nome_campo",
+    c.`indirizzo` AS "indirizzo_campo",
+    c.`id` AS "id_campo",
+    ST_Y(c.`posizione`) AS "latitudine_campo",
+    ST_X(c.`posizione`) AS "longitudine_campo",
+    UPPER(s.`area`) AS "area_sport"
+FROM `partite_oggi_ieri` p
+    LEFT OUTER JOIN `campi` c ON p.`campo` = c.`id`
+    INNER JOIN `sport` s ON s.`id` = p.`codice_sport`
+;
+
+CREATE OR REPLACE VIEW `partite_oggi_ieri_completo` AS 
+SELECT p.*, 
+    
+    s1.`nome` AS "squadra_casa",
+    s1.`id` AS "squadra_casa_id",
+    s2.`nome` AS "squadra_ospite",
+    s2.`id` AS "squadra_ospite_id",
+
+    p1.`nome` AS "nome_parrocchia_casa",
+    p2.`nome` AS "nome_parrocchia_ospite"
+
+FROM `partite_oggi_ieri_con_campi` p
+
+    INNER JOIN `squadre` s1 ON s1.`id` = p.`id_casa`
+    INNER JOIN `squadre` s2 ON s2.`id` = p.`id_ospiti`
+
+    INNER JOIN `parrocchie` p1 ON p1.`id` = s1.`parrocchia`
+    INNER JOIN `parrocchie` p2 ON p2.`id` = s2.`parrocchia`
+;
+
+--
+-- Matches of today
+--
+
+CREATE OR REPLACE VIEW `partite_oggi` AS 
+SELECT p.*
+FROM `partite_settimana` p
+WHERE p.`data` = CURRENT_DATE;
+
+CREATE OR REPLACE VIEW `partite_oggi_con_campi` AS 
+SELECT p.*, 
+    c.`nome` AS "nome_campo",
+    c.`indirizzo` AS "indirizzo_campo",
+    c.`id` AS "id_campo",
+    ST_Y(c.`posizione`) AS "latitudine_campo",
+    ST_X(c.`posizione`) AS "longitudine_campo",
+    UPPER(s.`area`) AS "area_sport"
+FROM `partite_oggi` p
+    LEFT OUTER JOIN `campi` c ON p.`campo` = c.`id`
+    INNER JOIN `sport` s ON s.`id` = p.`codice_sport`
+;
+
+CREATE OR REPLACE VIEW `partite_oggi_completo` AS 
+SELECT p.*, 
+    
+    s1.`nome` AS "squadra_casa",
+    s1.`id` AS "squadra_casa_id",
+    s2.`nome` AS "squadra_ospite",
+    s2.`id` AS "squadra_ospite_id",
+
+    p1.`nome` AS "nome_parrocchia_casa",
+    p2.`nome` AS "nome_parrocchia_ospite"
+
+FROM `partite_oggi_con_campi` p
+
+    INNER JOIN `squadre` s1 ON s1.`id` = p.`id_casa`
+    INNER JOIN `squadre` s2 ON s2.`id` = p.`id_ospiti`
+
+    INNER JOIN `parrocchie` p1 ON p1.`id` = s1.`parrocchia`
+    INNER JOIN `parrocchie` p2 ON p2.`id` = s2.`parrocchia`
+;
+
+--
+-- User based queries
+--
 
 CREATE OR REPLACE VIEW `partite_oggi_persona` AS
 SELECT 
