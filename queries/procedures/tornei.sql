@@ -83,4 +83,14 @@ elenco_body:BEGIN
     WHERE t.`id` = torneo;
 END; //
 
+DROP PROCEDURE IF EXISTS `CreaPunteggio` //
+CREATE PROCEDURE `CreaPunteggio`(IN partita INT)
+BEGIN
+    
+    INSERT INTO `punteggi` (`partita`, `home`, `guest`) VALUES 
+        (partita, '', '');
+    
+    SELECT LAST_INSERT_ID() AS "id";
+END; //
+
 DELIMITER ;

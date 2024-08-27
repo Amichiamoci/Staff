@@ -30,8 +30,12 @@ function get_additional_param(string $name): string {
 }
 
 $resource = $_GET["resource"];
+
+// Defaults
 $result = [];
-$row_parser = function($r){ return $r; };
+$row_parser = function($r) { return $r; };
+$next_result = false;
+
 switch ($resource)
 {
     case "teams-members":
@@ -334,6 +338,31 @@ switch ($resource)
         $id = (int)get_additional_param('Id');
 
         break;
+
+        
+    case "new-match-result":
+        $match = (int)get_additional_param('Id');
+        $query = "CALL `CreaPunteggio`($match);";
+        $next_result = true;
+        $row_parser = function($r) {
+            return [ 'Id' => $r['id'] ];
+        };
+        break;
+    case "set-match-result":
+        $id = (int)get_additional_param('Id');
+        $home = $connection->real_escape_string( get_additional_param('Home') );
+        $guest = $connection->real_escape_string( get_additional_param('Guest') );
+        
+        $query = "UPDATE `punteggi` SET `home` = '$home', `guest` = '$guest' WHERE `id` = $id;";
+        
+        $row_parser = function($r) {
+            return [ 'Id' => $r['id'] ];
+        };
+        break;
+    case "delete-match-result":
+        $id = (int)get_additional_param('Id');
+        $query = "DELETE FROM `punteggi` WHERE `id` = $id";
+        break;
     default: {
         http_response_code(404);
         exit;
@@ -351,6 +380,9 @@ $result = $response->fetch_all(MYSQLI_ASSOC);
 if (!isset($result) || !$result)
 {
     $result = [];
+}
+if ($next_result) {
+    $connection->next_result();
 }
 
 header("Content-Type: application/json");
