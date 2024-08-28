@@ -374,19 +374,18 @@ switch ($resource)
         $query = "CALL `CreaPunteggio`($match);";
         $next_result = true;
         $row_parser = function($r) {
-            return [ 'Id' => $r['id'] ];
+            return [ 
+                'Id' => (int)$r['id'],
+                'Home' => '',
+                'Guest' => '',
+            ];
         };
         break;
     case "set-match-result":
         $id = (int)get_additional_param('Id');
         $home = $connection->real_escape_string( get_additional_param('Home') );
         $guest = $connection->real_escape_string( get_additional_param('Guest') );
-        
         $query = "UPDATE `punteggi` SET `home` = '$home', `guest` = '$guest' WHERE `id` = $id;";
-        
-        $row_parser = function($r) {
-            return [ 'Id' => $r['id'] ];
-        };
         break;
     case "delete-match-result":
         $id = (int)get_additional_param('Id');
