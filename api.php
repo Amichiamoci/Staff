@@ -190,7 +190,13 @@ switch ($resource)
                     'Church' => $r['nome_parrocchia_ospite'],
                     'ChurchId' => (int)$r['id_parrocchia_ospite'],
                 ],
-                'Scores' => []
+                'HomeScore' => null,
+                'GuestScore' => null,
+                'Scores' => [
+                    'Id' => [],
+                    'Home' => [],
+                    'Guest' => [],
+                ],
             ];
 
             if (is_string($r['nome_campo']) && isset($r['id_campo']))
@@ -244,7 +250,17 @@ switch ($resource)
                     'ChurchId' => (int)$r['id_parrocchia_ospiti'],
                 ],
 
-                'Scores' => []
+                'HomeScore' => null,
+                'GuestScore' => null,
+                'Scores' => [
+                    'Id' => array_map(
+                        function (string $s) { return (int)$s; },
+                        explode('|', 
+                            is_string($r['id_punteggi']) ? $r['id_punteggi'] : '')
+                        ),
+                    'Home' => explode('|', is_string($r['punteggi_casa']) ? $r['punteggi_casa'] : ''),
+                    'Guest' => explode('|', is_string($r['punteggi_ospiti']) ? $r['punteggi_ospiti'] : ''),
+                ],
             ];
 
             if (is_string($r['nome_campo']) && isset($r['id_campo']))
@@ -297,7 +313,17 @@ switch ($resource)
                     'ChurchId' => (int)$r['id_parrocchia_ospiti'],
                 ],
 
-                'Scores' => []
+                'HomeScore' => null,
+                'GuestScore' => null,
+                'Scores' => [
+                    'Id' => array_map(
+                        function (string $s) { return (int)$s; },
+                        explode('|', 
+                            is_string($r['id_punteggi']) ? $r['id_punteggi'] : '')
+                        ),
+                    'Home' => explode('|', is_string($r['punteggi_casa']) ? $r['punteggi_casa'] : ''),
+                    'Guest' => explode('|', is_string($r['punteggi_ospiti']) ? $r['punteggi_ospiti'] : ''),
+                ],
             ];
 
             if (is_string($r['nome_campo']) && isset($r['id_campo']))
