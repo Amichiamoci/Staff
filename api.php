@@ -253,13 +253,15 @@ switch ($resource)
                 'HomeScore' => null,
                 'GuestScore' => null,
                 'Scores' => [
-                    'Id' => array_map(
-                        function (string $s) { return (int)$s; },
-                        explode('|', 
-                            is_string($r['id_punteggi']) ? $r['id_punteggi'] : '')
-                        ),
-                    'Home' => explode('|', is_string($r['punteggi_casa']) ? $r['punteggi_casa'] : ''),
-                    'Guest' => explode('|', is_string($r['punteggi_ospiti']) ? $r['punteggi_ospiti'] : ''),
+                    'Id' => is_string($r['id_punteggi']) ? 
+                        array_map(
+                            function (string $s) { return (int)$s; },
+                            explode('|', $r['id_punteggi'])
+                        ) : [],
+                    'Home' => is_string($r['punteggi_casa']) ? 
+                        explode('|', $r['punteggi_casa']) : [],
+                    'Guest' => is_string($r['punteggi_ospiti']) ?
+                        explode('|', $r['punteggi_ospiti']) : [],
                 ],
             ];
 
@@ -316,13 +318,15 @@ switch ($resource)
                 'HomeScore' => null,
                 'GuestScore' => null,
                 'Scores' => [
-                    'Id' => array_map(
-                        function (string $s) { return (int)$s; },
-                        explode('|', 
-                            is_string($r['id_punteggi']) ? $r['id_punteggi'] : '')
-                        ),
-                    'Home' => explode('|', is_string($r['punteggi_casa']) ? $r['punteggi_casa'] : ''),
-                    'Guest' => explode('|', is_string($r['punteggi_ospiti']) ? $r['punteggi_ospiti'] : ''),
+                    'Id' => is_string($r['id_punteggi']) ? 
+                        array_map(
+                            function (string $s) { return (int)$s; },
+                            explode('|', $r['id_punteggi'])
+                        ) : [],
+                    'Home' => is_string($r['punteggi_casa']) ? 
+                        explode('|', $r['punteggi_casa']) : [],
+                    'Guest' => is_string($r['punteggi_ospiti']) ?
+                        explode('|', $r['punteggi_ospiti']) : [],
                 ],
             ];
 
