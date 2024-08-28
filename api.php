@@ -374,6 +374,7 @@ switch ($resource)
         $query = "CALL `CreaPunteggio`($match);";
         $next_result = true;
         $row_parser = function($r) {
+            var_dump($r);
             return [ 
                 'Id' => (int)$r['id'],
                 'Home' => '',
@@ -391,6 +392,8 @@ switch ($resource)
         $id = (int)get_additional_param('Id');
         $query = "DELETE FROM `punteggi` WHERE `id` = $id";
         break;
+
+
     default: {
         http_response_code(404);
         exit;
