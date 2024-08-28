@@ -404,7 +404,7 @@ if (!$response)
     exit;
 }
 
-$result = $response->fetch_all(MYSQLI_ASSOC);
+$result = ($response === true) ? [] : $response->fetch_all(MYSQLI_ASSOC);
 if (!isset($result) || !$result)
 {
     $result = [];
