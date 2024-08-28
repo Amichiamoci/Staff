@@ -180,7 +180,6 @@ switch ($resource)
                     'Church' => $r['nome_parrocchia_casa'],
                     'ChurchId' => (int)$r['id_parrocchia_casa'],
                 ],
-                'HomeTeamScore' => null,
                 'GuestTeam' => [
                     'Name' => $r['squadra_ospite'],
                     'Id' => (int)$r['squadra_ospite_id'],
@@ -191,7 +190,7 @@ switch ($resource)
                     'Church' => $r['nome_parrocchia_ospite'],
                     'ChurchId' => (int)$r['id_parrocchia_ospite'],
                 ],
-                'GuestTeamScore' => null
+                'Scores' => []
             ];
 
             if (is_string($r['nome_campo']) && isset($r['id_campo']))
@@ -234,7 +233,6 @@ switch ($resource)
                     'Church' => $r['nome_parrocchia_casa'],
                     'ChurchId' => (int)$r['id_parrocchia_casa'],
                 ],
-                'HomeTeamScore' => null,
                 'GuestTeam' => [
                     'Name' => $r['squadra_ospite'],
                     'Id' => (int)$r['squadra_ospite_id'],
@@ -245,7 +243,8 @@ switch ($resource)
                     'Church' => $r['nome_parrocchia_ospite'],
                     'ChurchId' => (int)$r['id_parrocchia_ospiti'],
                 ],
-                'GuestTeamScore' => null
+
+                'Scores' => []
             ];
 
             if (is_string($r['nome_campo']) && isset($r['id_campo']))
@@ -287,7 +286,6 @@ switch ($resource)
                     'Church' => $r['nome_parrocchia_casa'],
                     'ChurchId' => (int)$r['id_parrocchia_casa'],
                 ],
-                'HomeTeamScore' => null,
                 'GuestTeam' => [
                     'Name' => $r['squadra_ospite'],
                     'Id' => (int)$r['squadra_ospite_id'],
@@ -298,7 +296,8 @@ switch ($resource)
                     'Church' => $r['nome_parrocchia_ospite'],
                     'ChurchId' => (int)$r['id_parrocchia_ospiti'],
                 ],
-                'GuestTeamScore' => null
+
+                'Scores' => []
             ];
 
             if (is_string($r['nome_campo']) && isset($r['id_campo']))
@@ -339,7 +338,7 @@ switch ($resource)
 
         break;
 
-        
+
     case "new-match-result":
         $match = (int)get_additional_param('Id');
         $query = "CALL `CreaPunteggio`($match);";
