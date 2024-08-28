@@ -370,23 +370,17 @@ switch ($resource)
 
 
     case "new-match-result":
-        $match = (int)get_additional_param('Id');
-        $query = "CALL `CreaPunteggio`($match);";
-        $next_result = true;
-        $row_parser = function($r) {
-            var_dump($r);
-            return [ 
+        $id = (int)get_additional_param('Id');
+        $home = trim($connection->real_escape_string( get_additional_param('Home') ));
+        $guest = trim($connection->real_escape_string( get_additional_param('Guest') ));
+        $query = "INSERT INTO `punteggi`(`partita`, `home`, `guest`) VALUES ($id, '$home', '$guest'); SELECT LAST_INSERT_ID() AS \"id\";";
+        $row_parser = function($r) use($home, $guest) {
+            return [
                 'Id' => (int)$r['id'],
-                'Home' => '',
-                'Guest' => '',
+                'Home' => $home,
+                'Guest' => $guest,
             ];
         };
-        break;
-    case "set-match-result":
-        $id = (int)get_additional_param('Id');
-        $home = $connection->real_escape_string( get_additional_param('Home') );
-        $guest = $connection->real_escape_string( get_additional_param('Guest') );
-        $query = "UPDATE `punteggi` SET `home` = '$home', `guest` = '$guest' WHERE `id` = $id;";
         break;
     case "delete-match-result":
         $id = (int)get_additional_param('Id');
