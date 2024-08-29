@@ -429,6 +429,30 @@ switch ($resource)
             return $arr;
         };
         break;
+    case "tourney-leaderboard":
+        $id = (int)get_additional_param('Id');
+        $query = "SELECT * FROM `classifica_torneo` WHERE `id_torneo` = $id ORDER BY `punteggio` DESC";
+        $row_parser = function($r) {
+            return [
+                'Name' => $r['nome_squadra'],
+                'Id' => (int)$r['id_squadra'],
+                
+                'Church' => $r['nome_parrocchia'],
+                'ChurchId' => (int)$r['id_parrocchia'],
+
+                'Sport' => $r['nome_sport'],
+                'SportId' => (int)$r['id_sport'],
+
+                'ToruneyName' => $r['nome_torneo'],
+                'TourneyId' => (int)$r['id_torneo'],
+
+                'Points' => isset($r['punteggio']) ? (int)$r['punteggio'] : null,
+                'MatchesToPlay' => isset($r['partite_da_giocare']) ? (int)$r['partite_da_giocare'] : null,
+                'MatchesPlanned' => isset($r['partite_previste']) ? (int)$r['partite_previste'] : null,
+            ];
+        };
+        break;
+
 
     case "new-match-result":
         $id = (int)get_additional_param('Id');

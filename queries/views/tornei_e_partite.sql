@@ -112,7 +112,13 @@ SELECT p.*,
     s2.`id` AS "squadra_ospite_id",
 
     p1.`nome` AS "nome_parrocchia_casa",
-    p2.`nome` AS "nome_parrocchia_ospite"
+    p2.`nome` AS "nome_parrocchia_ospite",
+    
+    GROUP_CONCAT(r.home SEPARATOR '|') AS "punteggi_casa", 
+    GROUP_CONCAT(r.guest SEPARATOR '|') AS "punteggi_ospiti", 
+    GROUP_CONCAT(r.id SEPARATOR '|') AS "id_punteggi",
+    GROUP_CONCAT(CONCAT(r.home, ' - ', r.guest) SEPARATOR ', ') AS "punteggio",
+    COUNT(r.id) AS "punteggi"
 
 FROM `partite_con_campi` p
 
@@ -121,6 +127,11 @@ FROM `partite_con_campi` p
 
     INNER JOIN `parrocchie` p1 ON p1.`id` = s1.`parrocchia`
     INNER JOIN `parrocchie` p2 ON p2.`id` = s2.`parrocchia`
+
+    
+	LEFT OUTER JOIN `punteggi` r ON r.`partita` = p.`id`
+GROUP BY p.`id`
+ORDER BY p.`data` DESC, p.`orario` ASC
 ;
 
 
@@ -353,3 +364,38 @@ FROM anagrafiche a
     LEFT OUTER JOIN campi c ON p.campo = c.id -- Luogo della partita, se impostato
 GROUP BY a.id;
 
+--
+-- Classifica torneo
+--
+
+CREATE OR REPLACE VIEW `classifica_torneo` AS
+SELECT 
+    s.`nome` AS "nome_squadra",
+    s.`id` AS "id_squadra",
+
+    s.`sport` AS "id_sport",
+    sp.`nome` AS "nome_sport",
+
+    s.`parrocchia` AS "id_parrocchia",
+    p.`nome` AS "nome_parrocchia",
+
+    t.`nome` AS "nome_torneo",
+    t.`id` AS "id_torneo",
+
+    SPLIT_STR(
+        `PunteggioInTorneo`(t.`id`, t.`tipo_torneo`, s.`id`), 
+        ' ', 1) AS "partite_previste",
+    SPLIT_STR(
+        `PunteggioInTorneo`(t.`id`, t.`tipo_torneo`, s.`id`), 
+        ' ', 2) AS "partite_da_giocare",
+    SPLIT_STR(
+        `PunteggioInTorneo`(t.`id`, t.`tipo_torneo`, s.`id`), 
+        ' ', 3) AS "punteggio"
+FROM `squadre` s
+    
+    INNER JOIN `sport` sp ON sp.`id` = s.`sport`
+    INNER JOIN `parrocchie` p ON p.`id` = s.`parrocchia`
+
+    INNER JOIN `partecipaz_squad_torneo` pt ON pt.`squadra` = s.`id`
+    INNER JOIN `tornei` t ON t.`id` = pt.`torneo`
+ORDER BY "punteggio" DESC;
