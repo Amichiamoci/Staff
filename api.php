@@ -365,9 +365,70 @@ switch ($resource)
         break;
     case "tourney-matches":
         $id = (int)get_additional_param('Id');
+        $query = "SELECT * FROM `partite_completo` WHERE `torneo` = $id";
+        $row_parser = function($r) {
+            $arr = [
+                'Id' => (int)$r['id'],
 
+                'TourneyName' => $r['nome_torneo'],
+                'TourneyId' => (int)$r['torneo'],
+
+                'SportName' => $r['sport'],
+                'SportId' => (int)$r['codice_sport'],
+
+                'Date' => $r['data'],
+                'Time' => $r['orario'],
+
+                'HomeTeam' => [
+                    'Name' => $r['squadra_casa'],
+                    'Id' => (int)$r['squadra_casa_id'],
+                    
+                    'Sport' => $r['sport'],
+                    'SportId' => (int)$r['codice_sport'],
+
+                    'Church' => $r['nome_parrocchia_casa'],
+                    'ChurchId' => (int)$r['id_parrocchia_casa'],
+                ],
+                'GuestTeam' => [
+                    'Name' => $r['squadra_ospite'],
+                    'Id' => (int)$r['squadra_ospite_id'],
+                    
+                    'Sport' => $r['sport'],
+                    'SportId' => (int)$r['codice_sport'],
+
+                    'Church' => $r['nome_parrocchia_ospite'],
+                    'ChurchId' => (int)$r['id_parrocchia_ospiti'],
+                ],
+
+                'HomeScore' => null,
+                'GuestScore' => null,
+                'Scores' => [
+                    'Id' => is_string($r['id_punteggi']) ? 
+                        array_map(
+                            function (string $s) { return (int)$s; },
+                            explode('|', $r['id_punteggi'])
+                        ) : [],
+                    'Home' => is_string($r['punteggi_casa']) ? 
+                        explode('|', $r['punteggi_casa']) : [],
+                    'Guest' => is_string($r['punteggi_ospiti']) ?
+                        explode('|', $r['punteggi_ospiti']) : [],
+                ],
+            ];
+
+            if (is_string($r['nome_campo']) && isset($r['id_campo']))
+            {
+                $arr['Field'] = [
+                    'Name' => $r['nome_campo'],
+                    'Id' => (int)$r['id_campo'],
+                    'Address' => $r['indirizzo_campo'],
+                    'Latitude' => isset($r['latitudine_campo']) ? (float)$r['latitudine_campo'] : null,
+                    'Longitude' => isset($r['longitudine_campo']) ? (float)$r['longitudine_campo'] : null,
+                ];
+            }
+
+            return $arr;
+        };
         break;
-
 
     case "new-match-result":
         $id = (int)get_additional_param('Id');

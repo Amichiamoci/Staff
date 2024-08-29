@@ -87,6 +87,44 @@ GROUP BY p.id
 ORDER BY p.data DESC, p.orario ASC;
 
 --
+-- Matches complete
+--
+
+CREATE OR REPLACE VIEW `partite_con_campi` AS 
+SELECT p.*, 
+    c.`nome` AS "nome_campo",
+    c.`indirizzo` AS "indirizzo_campo",
+    c.`id` AS "id_campo",
+    ST_Y(c.`posizione`) AS "latitudine_campo",
+    ST_X(c.`posizione`) AS "longitudine_campo",
+    UPPER(s.`area`) AS "area_sport"
+FROM `partite_tornei_attivi` p
+    LEFT OUTER JOIN `campi` c ON p.`campo` = c.`id`
+    INNER JOIN `sport` s ON s.`id` = p.`codice_sport`
+;
+
+CREATE OR REPLACE VIEW `partite_completo` AS 
+SELECT p.*, 
+    
+    s1.`nome` AS "squadra_casa",
+    s1.`id` AS "squadra_casa_id",
+    s2.`nome` AS "squadra_ospite",
+    s2.`id` AS "squadra_ospite_id",
+
+    p1.`nome` AS "nome_parrocchia_casa",
+    p2.`nome` AS "nome_parrocchia_ospite"
+
+FROM `partite_con_campi` p
+
+    INNER JOIN `squadre` s1 ON s1.`id` = p.`id_casa`
+    INNER JOIN `squadre` s2 ON s2.`id` = p.`id_ospiti`
+
+    INNER JOIN `parrocchie` p1 ON p1.`id` = s1.`parrocchia`
+    INNER JOIN `parrocchie` p2 ON p2.`id` = s2.`parrocchia`
+;
+
+
+--
 -- Matches to play
 -- 
 
