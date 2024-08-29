@@ -448,7 +448,7 @@ switch ($resource)
 
                 'Points' => isset($r['punteggio']) ? (int)$r['punteggio'] : null,
                 'MatchesToPlay' => isset($r['partite_da_giocare']) ? (int)$r['partite_da_giocare'] : null,
-                'MatchesPlanned' => isset($r['partite_previste']) ? (int)$r['partite_previste'] : null,
+                'PlannedMatches' => isset($r['partite_previste']) ? (int)$r['partite_previste'] : null,
             ];
         };
         break;
