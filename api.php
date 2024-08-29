@@ -401,6 +401,7 @@ switch ($resource)
                 'Position' => (int)$r['posizione'],
             ];
         };
+        break;
 
     default: {
         http_response_code(404);
