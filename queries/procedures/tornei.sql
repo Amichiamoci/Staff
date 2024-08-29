@@ -93,4 +93,14 @@ BEGIN
     SELECT LAST_INSERT_ID() AS "id";
 END; //
 
+DROP PROCEDURE IF EXISTS `CreaPunteggioCompleto` //
+CREATE PROCEDURE `CreaPunteggioCompleto`(IN partita INT, IN home VARCHAR(8), IN guest VARCHAR(8))
+BEGIN
+    
+    INSERT INTO `punteggi` (`partita`, `home`, `guest`) VALUES 
+        (partita, home, guest);
+    
+    SELECT LAST_INSERT_ID() AS "id";
+END; //
+
 DELIMITER ;

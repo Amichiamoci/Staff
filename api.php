@@ -373,7 +373,8 @@ switch ($resource)
         $id = (int)get_additional_param('Id');
         $home = trim($connection->real_escape_string( get_additional_param('Home') ));
         $guest = trim($connection->real_escape_string( get_additional_param('Guest') ));
-        $query = "INSERT INTO `punteggi`(`partita`, `home`, `guest`) VALUES ($id, '$home', '$guest'); SELECT LAST_INSERT_ID() AS \"id\";";
+        $query = "CALL `CreaPunteggioCompleto`($id, '$home', '$guest');";
+        $next_result = true;
         $row_parser = function($r) use($home, $guest) {
             return [
                 'Id' => (int)$r['id'],
