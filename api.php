@@ -388,6 +388,19 @@ switch ($resource)
         $query = "DELETE FROM `punteggi` WHERE `id` = $id";
         break;
 
+    case "leaderboard":
+        $query = "SELECT * FROM `classifica_parrocchie`";
+        $row_parser = function($r) {
+            return [
+                'Id' => (int)$r['id'],
+                'Name' => $r['nome'],
+                'Address' => is_string($r['indirizzo']) && strlen($r['indirizzo']) > 0 ? $r['indirizzo'] : null,
+                'Website' => is_string($r['website']) && strlen($r['website']) > 0 ? $r['website'] : null,
+           
+                'Score' => (int)$r['punteggio'],
+                'Position' => (int)$r['posizione'],
+            ];
+        };
 
     default: {
         http_response_code(404);

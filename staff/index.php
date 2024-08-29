@@ -118,7 +118,7 @@ if (!isset($dati_staff))
 			</div>
 		</div>
 
-		<!-- 
+		
 		<div class="column col-33 flex vertical">
 			<div class="admin-card flex vertical top">
 
@@ -129,7 +129,7 @@ if (!isset($dati_staff))
 
 			</div>
         </div>
-		-->
+		
 		<?php if (User::$Current->is_admin) { ?>
 
 			<div class="column col-33 flex vertical">
