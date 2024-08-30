@@ -69,10 +69,10 @@ switch ($resource)
             //{
             //    $semi_parsed['Problems'][] = $row['doc_code_problem'];
             //}
-            if (is_string($row['scadenza_problem']))
-            {
-                $semi_parsed['Problems'][] = $row['scadenza_problem'];
-            }
+            //if (is_string($row['scadenza_problem']))
+            //{
+            //    $semi_parsed['Problems'][] = $row['scadenza_problem'];
+            //}
             return $semi_parsed;
         };
         break;
