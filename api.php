@@ -53,7 +53,7 @@ switch ($resource)
             // Other problems
             if (is_string($row['tutore_problem']))
             {
-                $semi_parsed['Problems'][] = $row['tutore_problem'];
+                $semi_parsed['Problems'][] = 'Tutore ' . $row['tutore_problem'];
             }
             if (is_string($row['certificato_problem']))
             {
