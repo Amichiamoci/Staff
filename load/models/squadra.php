@@ -86,7 +86,7 @@ class Squadra
     {
         if (!$connection || $id === 0)
             return "";
-        $query = "CALL GetNomeSquadra($id)";
+        $query = "SELECT nome FROM squadre WHERE id = $id";
         $result = $connection->query($query);
         $ret = "";
         if ($result)
@@ -100,7 +100,6 @@ class Squadra
             }
             $result->close();
         }
-        $connection->next_result();
         return $ret;
     }
     public static function Delete(mysqli $connection, int $id) : bool
