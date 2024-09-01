@@ -79,7 +79,7 @@ if (
                     $prev_group = null;
                     foreach ($squadre as $s)
                     {
-                        $label = htmlspecialchars($s->nome . " | " . $s->sport);
+                        $label = htmlspecialchars($s->nome . " | " . $s->parrocchia);
                         $id = $s->id;
                         if (!isset($prev_group)) {
                             $prev_group = $s->sport;
