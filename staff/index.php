@@ -155,10 +155,12 @@ if (!isset($dati_staff))
 					<a class="button" href="./iscrizioni">
 						Iscrivi persone gi&agrave; registrate
 					</a>
+					<!--
 					<br>
 					<a class="button" href="./iscrizioni/crea-anagrafica.php?success=iscrivi.php">
 						Registra e iscrivi direttamente persona
 					</a>
+					-->
 					<br>
 					<a class="button" href="./maglie.php">
 						Vedi o esporta lista maglie
