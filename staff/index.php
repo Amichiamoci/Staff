@@ -270,34 +270,6 @@ if (!isset($dati_staff))
 			</div>
         </div>
 
-		<!-- Eventi -->
-		<div class="column col-33 flex vertical">
-			<div class="admin-card flex vertical top">
-
-				<h3>Eventi</h3>
-				<a class="button" href="./eventi/crea.php">
-                    Crea
-                </a>
-
-			</div>
-        </div>
-
-		<!-- APP -->
-        <div class="column col-33 flex vertical">
-			<div class="admin-card flex vertical top">
-
-				<h3>App</h3>
-				<a class="button" href="./crea-messaggio.php">
-                    Invia messaggio
-                </a>
-				<br>
-				<a class="button" href="../../app/" target="_blank">
-                    Visualizza Homepage dal Browser
-                </a>
-
-			</div>
-        </div>
-
     </div>
 
 </section>
