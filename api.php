@@ -452,7 +452,25 @@ switch ($resource)
             ];
         };
         break;
+    case "toruney-sport":
+        $sport = $connection->real_escape_string(get_additional_param('Sport'));
+        $query = "SELECT * FROM `tornei_attivi` WHERE UPPER(`area`) = UPPER('$sport')";
+        $row_parser = function($r) {
+            return [
+                'Id' => (int)$r['id'],
+                'Name' => $r['nome'],
 
+                'Sport' => $r['sport'],
+                'SportId' => (int)$r['codice_sport'],
+
+                'Type' => $r['tipo'],
+
+                'Teams' => array_map(function($s): string {
+                    return trim($s);
+                }, explode(',', $r['squadre'])),
+            ];
+        };
+        break;
 
     case "new-match-result":
         $id = (int)get_additional_param('Id');
