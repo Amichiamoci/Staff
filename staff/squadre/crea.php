@@ -109,7 +109,7 @@ $lista_sport = Sport::GetAll($connection);
                 <label for="parrocchia">
                     Parrocchia
                 </label>
-                <select name="parrocchia" required>
+                <select name="parrocchia" required id="parrocchia">
                     <?php
                         foreach ($lista_parrocchie as $parr)
                         {
@@ -128,7 +128,7 @@ $lista_sport = Sport::GetAll($connection);
                 <label for="sport">
                     Sport
                 </label>
-                <select name="sport" required>
+                <select name="sport" id="sport" required>
                     <?php
                         foreach ($lista_sport as $sport)
                         {
@@ -173,9 +173,10 @@ $lista_sport = Sport::GetAll($connection);
                             if (!isset($last_p) || $last_p !== $iscritto->parrocchia)
                             {
                                 $last_p = $iscritto->parrocchia;
-                                echo "<li><h3>$last_p</h3></li>\n";
+                                $p_id = $iscritto->id_parrocchia;
+                                echo "<li><h3 data-group='$p_id'>$last_p</h3></li>\n";
                             }
-                            
+
                             $label = htmlspecialchars($iscritto->nome);
                             $id = $iscritto->id;
                             echo "<li>\n<label for='member-$id'>$label</label>";
@@ -220,6 +221,17 @@ $lista_sport = Sport::GetAll($connection);
                             UpdateList();
                         });
                     });
+                    const select = document.getElementById('parrocchia');
+                    if (select) {
+                        select.addEventListener('input', () => {
+                            const headers = [... document.querySelectorAll('[data-group="' + select.value + '"]')];
+                            if (headers.length === 0) return;
+                            headers[0].scrollIntoView({
+                                behavior:"smooth",
+                                block:"start",
+                            });
+                        });
+                    }
                 </script>
             </div>
             <input class="button rounded" type="submit" value="Conferma" onclick="UpdateList()">
