@@ -167,8 +167,15 @@ $lista_sport = Sport::GetAll($connection);
                     <?php
                         $iscritti = Iscrizione::GetAll($connection);
                         $lista_membri = explode(",", $squadra->id_iscr_membri);
+                        $last_p = null;
                         foreach ($iscritti as $iscritto)
                         {
+                            if (!isset($last_p) || $last_p !== $iscritto->parrocchia)
+                            {
+                                $last_p = $iscritto->parrocchia;
+                                echo "<li><h3>$last_p</h3></li>\n";
+                            }
+                            
                             $label = htmlspecialchars($iscritto->nome);
                             $id = $iscritto->id;
                             echo "<li>\n<label for='member-$id'>$label</label>";

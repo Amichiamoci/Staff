@@ -5,10 +5,10 @@ CREATE PROCEDURE `CreaSquadra`(
     IN nome VARCHAR(128), 
     IN parrocchia INT, 
     IN sport INT, 
-    IN membri VARCHAR(64), 
+    IN membri VARCHAR(2048), 
     IN edizione INT)
 BEGIN
-    DECLARE element VARCHAR(128);
+    DECLARE element VARCHAR(512);
     DECLARE id INT DEFAULT 0;
     
     INSERT INTO `squadre` (`nome`, `parrocchia`, `sport`, `edizione`) VALUES 
@@ -40,10 +40,10 @@ CREATE PROCEDURE `ModificaSquadra`(
     IN nome VARCHAR(128), 
     IN parrocchia INT, 
     IN sport INT, 
-    IN membri VARCHAR(128))
+    IN membri VARCHAR(2048))
 proc_body:BEGIN
 
-    DECLARE element VARCHAR(128) DEFAULT NULL;
+    DECLARE element VARCHAR(512) DEFAULT NULL;
     
     IF NOT EXISTS (SELECT * FROM `squadre` WHERE `squadre`.`id` = id) THEN
         SELECT 0 AS "Result";
