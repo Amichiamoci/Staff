@@ -452,7 +452,7 @@ switch ($resource)
             ];
         };
         break;
-    case "toruney-sport":
+    case "tourney-sport":
         $sport = $connection->real_escape_string(get_additional_param('Sport'));
         $query = "SELECT * FROM `tornei_attivi` WHERE UPPER(`area`) = UPPER('$sport')";
         $row_parser = function($r) {
