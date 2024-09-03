@@ -52,9 +52,9 @@
             header("Location: ./index.php");
             exit;
         }
-    } else {
-        $dati_anagrafici = Anagrafica::Load($connection, $id_anagrafica);
-    }
+        $id_anagrafica = Iscrizione::IdAnagrafica($connection, $cod_iscrizione);
+    } 
+    $dati_anagrafici = Anagrafica::Load($connection, $id_anagrafica);
     function form()
     {
         global $connection;
@@ -143,6 +143,10 @@
     }
     if (isset($_POST["iscrivi_submit"]))
     {
+        if (!isset($iscrizione))
+        {
+            $iscrizione = new Iscrizione(null, null, null, null, $edizione->year, $edizione->id, null, null);
+        }
         if (isset($_POST["tutore"]) && ctype_digit($_POST["tutore"]))
         {
             $iscrizione->id_tutore = (int)$_POST["tutore"];
@@ -261,7 +265,7 @@
                             });
                             foreach ($anagrafiche as $a)
                             {
-                                $label = htmlspecialchars($a->nome . " " . $a->cognome);
+                                $label = htmlspecialchars($a->cognome . " " . $a->nome);
                                 $id = $a->id;
                                 if (isset($iscrizione) && $id === $iscrizione->id_tutore)
                                 {

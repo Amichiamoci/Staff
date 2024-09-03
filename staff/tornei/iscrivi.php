@@ -76,16 +76,29 @@ if (
             <select name="squadra" id="squadra" required>
                 <?php
                     $squadre = Squadra::List($connection, date("Y"));
+                    $prev_group = null;
                     foreach ($squadre as $s)
                     {
-                        $label = htmlspecialchars($s->nome . " | " . $s->sport);
+                        $label = htmlspecialchars($s->nome . " | " . $s->parrocchia);
                         $id = $s->id;
+                        if (!isset($prev_group)) {
+                            $prev_group = $s->sport;
+                            echo "<optgroup label='" . $s->sport . "'>\n";
+                        } elseif ($prev_group !== $s->sport) {
+                            $prev_group = $s->sport;
+                            echo "</optgroup>\n";
+                            echo "<optgroup label='" . $s->sport . "'>\n";
+                        }
                         if ($id == $squadra)
                         {
                             echo "<option value='$id' selected='selected'>$label</option>\n";
                         } else {
                             echo "<option value='$id'>$label</option>\n";
                         }
+                    }
+                    if (count($squadre) > 0)
+                    {
+                        echo "</optgroup>\n";
                     }
                 ?>
             </select>

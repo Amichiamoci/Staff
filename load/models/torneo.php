@@ -21,19 +21,19 @@ class Torneo
     )
     {
         if (isset($id))
-            $id = (int)$id;
+            $this->id = (int)$id;
         if (isset($nome) && is_string($nome))
-            $this->$nome = $nome;
+            $this->nome = $nome;
         if (isset($tipo) && is_string($tipo))
-            $this->$tipo = $tipo;
+            $this->tipo = $tipo;
         if (isset($id_tipo))
-            $id_tipo = (int)$id_tipo;
+            $this->id_tipo = (int)$id_tipo;
         if (isset($sport) && is_string($sport))
-            $this->$sport = $sport;
+            $this->sport = $sport;
         if (isset($id_sport))
-            $id_sport = (int)$id_sport;
+            $this->id_sport = (int)$id_sport;
         if (isset($numero_squadre))
-            $numero_squadre = (int)$numero_squadre;
+            $this->numero_squadre = (int)$numero_squadre;
     }
 
     public static function GetAll(mysqli $connection) : array
@@ -51,12 +51,12 @@ class Torneo
                 $row["id"],
                 $row["nome"],
 
-                $row["codice_sport"],
-                $row["sport"],
-                
-                $row["tipo_id"],
                 $row["tipo"],
+                $row["id_tipo"],
 
+                $row["sport"],
+                $row["codice_sport"],
+                
                 $row["numero_squadre"]
             );
 
@@ -101,7 +101,7 @@ class Torneo
     {
         if (!$connection)
             return null;
-        $query = "SELECT `nome`, `tipo`, `sport` FROM `tornei_attivi` WHERE `id` = $id AND `partite` = 0";
+        $query = "SELECT * FROM `tornei_attivi` WHERE `id` = $id AND `partite` = 0";
         $result = $connection->query($query);
         if (!$result || $result->num_rows === 0)
             return null;
@@ -119,7 +119,7 @@ class Torneo
     {
         if (!$connection)
             return null;
-        $query = "SELECT `nome`, `tipo`, `sport` FROM `tornei_attivi` WHERE `id` = $id AND `partite` <> 0";
+        $query = "SELECT * FROM `tornei_attivi` WHERE `id` = $id AND `partite` <> 0";
         $result = $connection->query($query);
         if (!$result || $result->num_rows === 0)
             return null;

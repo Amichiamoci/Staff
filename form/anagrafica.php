@@ -5,6 +5,7 @@
     }
     $is_editing = isset($is_editing) && $is_editing;
     $is_extern = isset($is_extern) && $is_extern || !isset(User::$Current);
+    $anagrafica_form_compact = isset($anagrafica_form_compact) && $anagrafica_form_compact;
 ?>
 <div class="grid">
     <div class="column col-100">
@@ -24,23 +25,8 @@
                     Una volta registrato i tuoi dati rimarranno permanentemente nel sistema, 
                     in modo che tu non abbia bisogno di compilare questo form pi&ugrave; volte.<br>
                     In caso tu abbia inserito i tuoi dati in passato non c'&egrave; necessit&agrave;
-                    di compilare questo form: comunica semplicemente agli staffisti di riferimento
-                    la tua volont&agrave; di partecipare a questa edizione, dando loro:
+                    di compilare questo form adesso.
                 </p>
-                <ul>
-                    <li>
-                        Taglia della maglia
-                    </li>
-                    <li>
-                        Soldi dell'iscrizione
-                    </li>
-                    <li>
-                        Certificato medico almeno non agonistico (invia loro foto o pdf)
-                    </li>
-                    <li>
-                        Lista delle attivit&agrave; a cui vuoi partecipare: Tornei, Maratona, etc.
-                    </li>
-                </ul>
             <?php } else { ?>
 
                 <?php if (isset(User::$Current) && User::$Current->staff_id !== 0) { ?>
@@ -79,14 +65,15 @@
                     consigliamo di fare una foto/scansione a entrambe le facce e di concatenarle in un unico WORD/PDF
                 </li>
                 <li>
-                    <strong>
-                        La tessera sanitaria non &egrave; un documento di riconoscimento!
-                    </strong>
+                    La tessera sanitaria non &egrave; un documento di riconoscimento!
                 </li>
             </ul>
             <?php if (isset($errore) && !empty($errore)) { ?>
                 <p class="error">
-                    <strong><?= $errore ?></strong>
+                    &darr;
+                    <strong>È AVVENUTO UN ERRORE<br>
+                    <?= $errore ?></strong>
+                    &uarr;
                 </p>
             <?php } ?>
             <div class="input-box flex v-center wrap">
@@ -97,8 +84,14 @@
                 <label for="cognome">Cognome</label>
                 <input type="text" required name="cognome" id="cognome" value="<?= htmlspecialchars($anagrafica->cognome) ?>" placeholder="Rossi">
 
+                <label for="cf" title="Codice fiscale">Codice Fiscale</label>
+                <input type="text" name="cf" id="cf" required value="<?= htmlspecialchars($anagrafica->cf) ?>" 
+                    pattern="[a-zA-Z]{6}[0-9]{2}[a-zA-Z][0-9]{2}[a-zA-Z][0-9]{3}[a-zA-Z]"
+                    title="Codice fiscale corretto"
+                    placeholder="aaaaaa11a11a111a">
+
                 <label for="compleanno">Data di nascita</label>
-                <input type="date" required name="compleanno" id="compleanno" value="<?= htmlspecialchars($anagrafica->compleanno) ?>">
+                <input type="date" required name="compleanno" id="compleanno" value="<?= htmlspecialchars($anagrafica->compleanno) ?>" max="<?= date("Y-m-d") ?>">
 
                 <label for="provenienza">Luogo di nascita</label>
                 <input type="text" required name="provenienza" value="<?= htmlspecialchars($anagrafica->proveninenza) ?>" id="provenienza"
@@ -194,12 +187,6 @@
                     placeholder="esempio@mail.com"
                     required>
 
-                <label for="cf" title="Codice fiscale">Codice Fiscale</label>
-                <input type="text" name="cf" id="cf" required value="<?= htmlspecialchars($anagrafica->cf) ?>" 
-                    pattern="[a-zA-Z]{6}[0-9]{2}[a-zA-Z][0-9]{2}[a-zA-Z][0-9]{3}[a-zA-Z]"
-                    title="Codice fiscale corretto"
-                    placeholder="aaaaaa11a11a111a">
-
                 <?php include __DIR__ . "/form_documento.php"; ?>
             </div>
                 <?php if ($is_extern) { ?>
@@ -221,4 +208,9 @@
     </div>
 </div>
 <script src="<?= ADMIN_URL ?>/assets/js/codice.fiscale.var.js" type="text/javascript" defer></script>
-<script src="<?= ADMIN_URL ?>/assets/js/anagrafica.js" type="text/javascript" defer></script>
+<script src="<?= ADMIN_URL ?>/assets/js/anagrafica.js?date=<?= date("Ymd") ?>" type="text/javascript" defer></script>
+<?php if ($anagrafica_form_compact) { ?>
+    <script>
+        window.hide_cf_fileds = true;
+    </script>
+<?php } ?>

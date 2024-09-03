@@ -54,8 +54,8 @@ class Squadra
     {
         if (!$connection)
             return array();
-        $y = (!isset($year) || (int)$year === 0) ? null : (int)$year;
-        $s = (!isset($sport) || (int)$sport === 0) ? null : (int)$sport;
+        $y = (!isset($year) || (int)$year === 0) ? "NULL" : (int)$year;
+        $s = (!isset($sport) || (int)$sport === 0) ? "NULL" : (int)$sport;
         $query = "CALL SquadreList($y, $s);";
         $result = $connection->query($query);
         if (!$result)
@@ -86,7 +86,7 @@ class Squadra
     {
         if (!$connection || $id === 0)
             return "";
-        $query = "CALL GetNomeSquadra($id)";
+        $query = "SELECT nome FROM squadre WHERE id = $id";
         $result = $connection->query($query);
         $ret = "";
         if ($result)
@@ -100,7 +100,6 @@ class Squadra
             }
             $result->close();
         }
-        $connection->next_result();
         return $ret;
     }
     public static function Delete(mysqli $connection, int $id) : bool

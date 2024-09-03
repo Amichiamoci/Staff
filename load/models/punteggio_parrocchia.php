@@ -35,7 +35,7 @@ class PunteggioParrocchia
         if ($p->parrocchia === 0 || $p->edizione === 0)
             return false;
         $p->punteggio = $connection->real_escape_string($p->punteggio);
-        $query = "REPLACE INTO `punteggio_parrocchia` (`parrocchia`, `edizione`, `punteggio`) VALUES ($p->parrocchia, $p->edizione, '$p->punteggio')";
+        $query = "REPLACE INTO `punteggio_parrocchia` (`parrocchia`, `edizione`, `punteggio`) VALUES ($p->id_parrocchia, $p->edizione, '$p->punteggio')";
         return (bool)$connection->query($query);
     }
     public static function All(

@@ -118,7 +118,7 @@ if (!isset($dati_staff))
 			</div>
 		</div>
 
-		<!-- 
+		
 		<div class="column col-33 flex vertical">
 			<div class="admin-card flex vertical top">
 
@@ -129,7 +129,7 @@ if (!isset($dati_staff))
 
 			</div>
         </div>
-		-->
+		
 		<?php if (User::$Current->is_admin) { ?>
 
 			<div class="column col-33 flex vertical">
@@ -155,10 +155,12 @@ if (!isset($dati_staff))
 					<a class="button" href="./iscrizioni">
 						Iscrivi persone gi&agrave; registrate
 					</a>
+					<!--
 					<br>
-					<a class="button" href="./iscrizioni/crea-anagrafica.php?success=iscrivi">
+					<a class="button" href="./iscrizioni/crea-anagrafica.php?success=iscrivi.php">
 						Registra e iscrivi direttamente persona
 					</a>
+					-->
 					<br>
 					<a class="button" href="./maglie.php">
 						Vedi o esporta lista maglie
@@ -264,34 +266,6 @@ if (!isset($dati_staff))
 					</a>
 
 			<?php } ?>
-
-			</div>
-        </div>
-
-		<!-- Eventi -->
-		<div class="column col-33 flex vertical">
-			<div class="admin-card flex vertical top">
-
-				<h3>Eventi</h3>
-				<a class="button" href="./eventi/crea.php">
-                    Crea
-                </a>
-
-			</div>
-        </div>
-
-		<!-- APP -->
-        <div class="column col-33 flex vertical">
-			<div class="admin-card flex vertical top">
-
-				<h3>App</h3>
-				<a class="button" href="./crea-messaggio.php">
-                    Invia messaggio
-                </a>
-				<br>
-				<a class="button" href="../../app/" target="_blank">
-                    Visualizza Homepage dal Browser
-                </a>
 
 			</div>
         </div>

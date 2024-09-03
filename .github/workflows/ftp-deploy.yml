@@ -38,24 +38,26 @@ jobs:
             max_attempts: 5
             command: composer update --no-interaction --no-progress
         
-        - name: Load DB data in and website address in .env
+        - name: Load DB data and website address in .env
           run: |
-            echo -e "DB_HOST=\"${{ secrets.DB_ADDRESS }}\"" >> ".env"
-            echo -e "DB_USER=\"${{ secrets.DB_USER }}\"" >> ".env"
-            echo -e "DB_PASSWORD=\"${{ secrets.DB_PASSWORD }}\"" >> ".env"
-            echo -e "WEBSITE_DOMAIN=\"www.${{ vars.DOMAIN }}\"" >> ".env"
+            echo -e "DB_HOST=${{ secrets.DB_ADDRESS }}" > ".env"
+            echo -e "DB_USER=${{ secrets.DB_USER }}" >> ".env"
+            echo -e "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> ".env"
+            echo -e "WEBSITE_DOMAIN=www.${{ vars.DOMAIN }}" >> ".env"
+            echo -e "ISCRIZIONI_URL=${{ secrets.ISCRIZIONI_URL }}" >> ".env"
+            echo -e "INSTAGRAM_URL=${{ vars.INSTAGRAM_URL }}" >> ".env"
+            echo -e "WHATSAPP_URL=${{ vars.WHATSAPP_URL }}" >> ".env"
+            echo -e "FACEBOOK_URL=${{ vars.FACEBOOK_URL }}" >> ".env"
+            echo -e "APP_SECRET=${{ secrets.APP_SECRET }}" >> ".env"
         
         - name: Calculate Deploy Path
           id: deploy-path
           run: |
-            echo "Ref is '$REF'"
             if [ $REF = 'main' ]
             then
                 echo "path=admin/" >> "$GITHUB_OUTPUT"
-                echo "Path is admin/"
             else
                 echo "path=admin_test/" >> "$GITHUB_OUTPUT"
-                echo "Path is admin_test/"
             fi
           env:
             REF: ${{ github.ref_name }}
@@ -77,8 +79,8 @@ jobs:
         - name: Load Mail addresses in .env
           if: github.ref_name == 'main'
           run: |
-            echo -e "EMAIL_SOURCE=\"$DEV_EMAIL\"" >> ".env"
-            echo -e "CONTACT_EMAIL=\"$INFO_EMAIL\"" >> ".env"
+            echo -e "EMAIL_SOURCE=$DEV_EMAIL" >> ".env"
+            echo -e "CONTACT_EMAIL=$INFO_EMAIL" >> ".env"
           env:
             DEV_EMAIL: ${{ steps.deploy-email.outputs.dev_email }}
             INFO_EMAIL: ${{ steps.deploy-email.outputs.info_email }}
@@ -98,7 +100,7 @@ jobs:
             REF: ${{ github.ref_name }}
         
         - name: Load Database name in .env
-          run: echo -e "DB_NAME=\"$DB_NAME\"" >> ".env"
+          run: echo -e "DB_NAME=$DB_NAME" >> ".env"
           env: 
             DB_NAME: ${{ steps.deploy-db.outputs.deploy_db }}
 
@@ -110,11 +112,3 @@ jobs:
             password: ${{ secrets.FTP_PASSWORD }}
             server-dir: ${{ secrets.FTP_FOLDER_BASE }}${{ steps.deploy-path.outputs.path }}
             log-level: minimal
-
-        - name: Genereate MySQL Views and Procedures Reload File
-          if: false
-          run: |
-            curl -s --request GET \
-                --url $URL
-          env: 
-            URL: https://www.${{ vars.DOMAIN }}/${{ steps.deploy-path.outputs.path }}sql_autostart.php

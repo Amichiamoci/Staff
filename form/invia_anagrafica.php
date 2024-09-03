@@ -1,6 +1,7 @@
 <?php
     $is_extern = true;
     $hide_share_link = true;
+    $anagrafica_form_compact = true;
     if (!(
         (isset($_GET["year"]) && ctype_digit($_GET["year"])) || 
         (isset($_POST["year"]) && ctype_digit($_POST["year"]))
@@ -18,6 +19,11 @@
         exit;
     }
 
+    if (isset($_GET["success"]) && is_string($_GET["success"]))
+    {
+        Cookie::Set("success", $_GET["success"], 2000);
+    }
+
     if (
         isset($_POST["anagrafica_submit"]) &&
         isset($_POST["nome"]) && is_string($_POST["nome"]) &&
@@ -26,8 +32,8 @@
         isset($_POST["cf"]) && is_string($_POST["cf"]) &&
         isset($_POST["doc_type"]) && ctype_digit($_POST["doc_type"]) &&
         isset($_POST["doc_code"]) && is_string($_POST["doc_code"]) &&
-        isset($_POST["doc_expires"]) && is_string($_POST["doc_expires"]))
-    {
+        isset($_POST["doc_expires"]) && is_string($_POST["doc_expires"])
+    ) {
         //Dati form
         $nome = file_remove_characters($_POST["nome"]);
         $nome = string_capitalize_words($nome);
@@ -53,6 +59,8 @@
         $doc_code = $_POST["doc_code"];
 
         $doc_expires = $_POST["doc_expires"];
+
+        $errore = "";
 
         if (isset($_FILES["doc_file"]) &&
             upload_file($_FILES["doc_file"], $nome_file, $errore))
@@ -102,8 +110,8 @@
                 $subject = "Dati anagrafici inseriti correttamente";
                 Email::Send($email, $subject, $text, $connection);
                 Cookie::Set("id_anagrafica", "$id_anagrafica", 3600 * 2);
-                Cookie::Set("esit", "Dati inseriti correttamente.", 3600);
-                $url = "../index.php";
+                Cookie::Set("esit", "Dati inseriti correttamente. Controlla le email per un riepilogo", 3600);
+                $url = "iscrizione-completata.php";
                 if (isset($_COOKIE["success"]))
                 {
                     $url = $_COOKIE["success"];

@@ -30,6 +30,15 @@ if (isset($_ENV["EMAIL_SOURCE"]))
 if (isset($_ENV["CONTACT_EMAIL"]))
     define("CONTACT_EMAIL", $_ENV["CONTACT_EMAIL"]);
 
+if (isset($_ENV["ISCRIZIONI_URL"]))
+    define("ISCRIZIONI_URL", $_ENV["ISCRIZIONI_URL"]);
+
+if (isset($_ENV["INSTAGRAM_URL"]))
+    define("INSTAGRAM_URL", $_ENV["INSTAGRAM_URL"]);
+
+if (isset($_ENV["WHATSAPP_URL"]))
+    define("WHATSAPP_URL", $_ENV["WHATSAPP_URL"]);
+
 unset($dotenv);
 
 error_reporting(E_ALL);
@@ -58,6 +67,9 @@ if (!defined("EMAIL_SOURCE"))
     define("EMAIL_SOURCE", "dev@" . DOMAIN);
 if (!defined("CONTACT_EMAIL"))
     define("CONTACT_EMAIL", "info@" . DOMAIN);
+if (!defined("ISCRIZIONI_URL"))
+    define("ISCRIZIONI_URL", ADMIN_URL . "/form-iscrizione.php");
+
 
 if (!defined("MYSQL_HOST"))
     define("MYSQL_HOST", "localhost");

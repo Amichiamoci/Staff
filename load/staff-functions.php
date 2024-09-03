@@ -202,7 +202,7 @@ function getAnagraficheList(mysqli $connection, $year = null, int $id_parrocchia
             $str .= "<td data-label='Parrocchia'>" . $row["anno"]. ": Iscritto per " . htmlspecialchars($row["parrocchia"]) ."</td>\n";
             
             $inserisci_certificato = "<a href=\"./iscrivi.php?iscrizione=$iscrizione&id=$id\" class=\"link\">Inserisci/Modifica</a>";
-            if (isset($row["certificato_medico"]))
+            if (isset($row["certificato_medico"]) && !empty($row["certificato_medico"]))
             {
                 if (we_have_file($row["certificato_medico"]))
                 {
@@ -328,6 +328,10 @@ function getNonPartecipantiList(mysqli $connection, $year = null)
             }
         } else {
             $str .= "<td data-label=\"$label\"><strong>Mancante</strong>: <a href=\"./crea-anagrafica.php?cf=$cf\" class=\"link\">Inserisci</a></td>\n";
+        }
+        if (isset($row["iscrivi"]))
+        {
+            $str .= "<td data-label='Iscrivi'><a href=\"iscrivi.php?id=$id\" class=\"link\"><strong>&rarr; " . $row["iscrivi"] ." &larr;</strong></a></td>\n";
         }
         if (isset($row["creatore_dati"]))
         {

@@ -129,6 +129,17 @@ class Iscrizione
         return $result->num_rows > 0;
     }
 
+    public static function IdAnagrafica(mysqli $connection, int $id) : ?int
+    {
+        if (!$connection || $id === 0)
+            return null;
+        $query = "SELECT dati_anagrafici FROM iscritti WHERE id = $id";
+        $result = mysqli_query($connection, $query);
+        if (!$result)
+            return null;
+        return (int)$result->fetch_assoc()['dati_anagrafici'];
+    }
+
     public static function Create(
         mysqli $connection,
         int $id_anagrafica, 
@@ -183,6 +194,20 @@ class Iscrizione
         if (!$stmt->execute())
             return false;
         return $stmt->affected_rows === 1;
+    }
+
+    public static function EmailNonSubscribed(mysqli $connection, int $year): ?array
+    {
+        if (!$connection) 
+            return null;
+        $query = "SELECT nome, sesso, email FROM non_iscritti WHERE anno = ? AND email IS NOT NULL";
+        $result = $connection->execute_query($query, array($year));
+        if (!$result)
+            return array();
+        $arr = array();
+        while ($row = $result->fetch_array())
+            $arr[] = $row;
+        return $arr;
     }
 }
 

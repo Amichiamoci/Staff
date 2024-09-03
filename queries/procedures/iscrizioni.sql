@@ -116,7 +116,8 @@ BEGIN
         a.`codice_documento`, 
         t.`label`, 
         a.`sesso`,
-        a.`creatore_dati`
+        a.`creatore_dati`,
+        CONCAT('Iscrivi per il ', IFNULL (anno, YEAR(CURRENT_DATE))) AS "iscrivi"
     FROM `anagrafiche_espanse` AS a
         INNER JOIN `tipi_documento` t ON a.`tipo_documento` = t.id
     WHERE 

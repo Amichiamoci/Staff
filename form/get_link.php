@@ -23,9 +23,9 @@ $cf = "";
 if (isset($_POST["cf"]) && is_string($_POST["cf"]))
 {
     require_once "../load/models/token.php"; 
-    $cf = $_POST["cf"];
+    $cf = trim($_POST["cf"]);
     $anagrafica = Anagrafica::FromCF($connection, $cf);
-    if (isset($anagrafica) && !empty($anagrafica->email))
+    if (isset($anagrafica) && !empty($anagrafica->email) /*&& $anagrafica->eta >= 18*/)
     {
         $expire = date_add(new DateTime(), new DateInterval("P7D"));
 
@@ -34,29 +34,31 @@ if (isset($_POST["cf"]) && is_string($_POST["cf"]))
         {
             $url = ADMIN_URL . "/form/token.php?val=" . $token->val;
             $testo = "Ciao $anagrafica->nome,<br>\nClicca questo link per completare l'iscrizione ad Amichiamoci $year:\n<br><br>" . 
-            "<a href=\"" . $url . "\">" . $url . "</a><br>Ti sar&agrave; possibile cliccare su questo link una volta sola.<br>\n" .
+            "<a href=\"" . $url . "\" target=\"_blank\">" . $url . "</a><br>Ti sar&agrave; possibile cliccare su questo link una volta sola.<br>\n" .
             "Il link scadr&agrave; in 6 giorni.<br>\n" .
             "Se non sei stato tu ad avviare questa procedura segnalacelo a <a href=\"mailto:" . CONTACT_EMAIL . "\">" . CONTACT_EMAIL . "</a><br>" .
             "<small>Ti preghiamo di non rispondere a questa email</small>";
-            if (!
-                Email::Send(
+            if (
+                !Email::Send(
                     $anagrafica->email,
-                    "Conferma iscrizione $year",
+                    "Clicca per completare l'iscrizione per il $year",
                     $testo,
                     $connection
                 )) {
                 $errore = "Impossibile inviare l'email!";
+            } else {
+                $errore = "Email inviata a $anagrafica->email, controlla lo SPAM";
             }
         } else {
             $errore = "Qualcosa è anadto storto";
         }
     } else {
-        $errore = "Dati non trovati o privi di email. Se hai già compilato il form di iscrizione online negli anni passati, senza fornire però un'email, contatta uno staffista";
+        $errore = "Dati non trovati o privi di email." .
+            "Se hai già compilato il form di iscrizione online in passato, senza fornire però un'email, " . 
+            "contatta uno staffista per iscriverti";
     }
 }
     
-
-
 ?>
 <!DOCTYPE html>
 <html lang="it-it">
@@ -87,20 +89,28 @@ if (isset($_POST["cf"]) && is_string($_POST["cf"]))
          <div class="column col-100">
             <form method="post">
                 <?php if (isset($errore)) { ?>
-                    <p>
-                        <?= htmlspecialchars($errore) ?>
+                    <p class="text">
+                        &nbsp;&darr;<br>
+                        <strong>
+                            <?= htmlspecialchars($errore) ?>
+                        </strong>
+                        <br>&nbsp;&uarr;
                     </p>
                 <?php } ?>
 
                 <p class="text">
-                    Compila questo form solo se hai gi&agrave; partecipato ad Amichiamoci dal 2023 od oltre
+                    Compila questo form solo se hai gi&agrave; partecipato ad Amichiamoci dal 2023 od oltre.<br>
+                    Riceverai un'email per assicurarci della tua identità. Una volta ricevuta, <strong>clicca</strong> sul link che troverai
+                    per poter accedere al form di iscrizione, dove indicherai parrocchia, taglia della maglia e certificato medico.
                 </p>
                 <input type="hidden" name="year" value="<? $year ?>">                
                 <div class="input-box flex v-center wrap">
                     <label for="cf">
                         Codice fiscale
                     </label>
-                    <input name="cf" id="cf" value="<?= $cf ?>" title="Il tuo codice fiscale">
+                    <input name="cf" id="cf" value="<?= $cf ?>" 
+                        title="Il tuo codice fiscale" 
+                        pattern="[A-Za-z]{6}[0-9]{2}[ABCDEHLMPRSTabcdehlmprst]{1}[0-9]{2}[A-Za-z]{1}[0-9LMNPQRSTUVlmnpqrstuv]{3}[A-Za-z]{1}">
                     <button type="submit" class="button rounded">
                         Inviami il link
                     </button>

@@ -37,12 +37,12 @@ class Token
             $this->secret = $secret;
         }
 
-        if (isset($edition) && ctype_digit($edition))
+        if (isset($edition))
         {
             $this->edition = (int)$edition;
         }
 
-        if (isset($anagrafica) && ctype_digit($anagrafica))
+        if (isset($anagrafica))
         {
             $this->anagrafica = (int)$anagrafica;
         }
@@ -110,7 +110,7 @@ class Token
     public static function LoadIfNotExpired(mysqli $connection, string $val) : Token|null
     {
         $loaded = self::Load($connection, $val);
-        if (!isset($loaded) || $loaded->used())
+        if (!isset($loaded)/* || $loaded->used()*/)
             return null;
         if (isset($loaded->expiration) && $loaded->expiration < new DateTime())
         {

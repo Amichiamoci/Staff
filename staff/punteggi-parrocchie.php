@@ -69,7 +69,7 @@
                     ?>
                     <tr>
                         <td style="padding: .2em .5em .2em 1.3em;">
-                            <?= $punteggio->nome ?>
+                            <?= $punteggio->parrocchia ?>
                         </td>
                         <td>
                             <input type="text" style="width:100%; text-align: center;"

@@ -7,5 +7,3 @@ if (isset($_GET["id"]))
 }
 header("Location: iscrivi.php");
 exit;
-
-?>

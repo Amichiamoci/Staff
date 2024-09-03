@@ -18,7 +18,7 @@ const resp = document.getElementById('codice-fiscale-check-result');
  * @type {HTMLInputElement}
  */
 const btn = document.getElementById('submit-btn');
-//CodiceFiscale.utils.birthplaceFields("#birthplace_province", "#birthplace");
+
 function checkCF()
 {
     btn.disabled = false;
@@ -35,6 +35,10 @@ function checkCF()
     }
     
     const inverse = CodiceFiscale.computeInverse(code);
+    if (window.hide_cf_fileds) {
+        compleanno.value = inverse.birthday;
+        provenienza.value = inverse.birthplace + ', ' + inverse.birthplaceProvincia;
+    }
     let message = [];
     if (compleanno.value != '' && compleanno.value !== inverse.birthday) {
         btn.disabled = true;

@@ -34,7 +34,7 @@
             exit;
         }
         $dati_anagrafici = Anagrafica::Load($connection, $id_anagrafica);
-        if (!isset($dati_anagrafici) || $dati_anagrafici->eta < 18)
+        if (!isset($dati_anagrafici)/* || $dati_anagrafici->eta < 18*/)
         {
             // id fasullo, non nel db
             header("Location: ./index.php");
@@ -76,8 +76,8 @@
             $errore = "Impossibile inserire iscrizione nel DB!";
             //Riempire la form per far ritentare piu facilemnte l'utente
         } else {
-            $nome = $a->nome;
-            $cognome = $a->cognome;
+            $nome = $dati_anagrafici->nome;
+            $cognome = $dati_anagrafici->cognome;
             if (strlen($nome_file) > 0)
             {
                 $testo = "$nome $cognome, sei iscritto correttamente ad Amichiamoci $edizione->year";
@@ -94,7 +94,8 @@
                         $a->email, 
                         "Iscrizione Amichiamoci $edizione->year",
                         "Ciao " . $testo . 
-                        "<br><br><small>Ti preghiamo di non rispondere a questa email</small>");
+                        "<br><br><small>Ti preghiamo di non rispondere a questa email</small>",
+                    $connection);
                 }
             } catch (Exception $ex) { }
             header("Location: ./iscrizione-completata.php");
