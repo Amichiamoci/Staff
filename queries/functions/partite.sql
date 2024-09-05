@@ -23,9 +23,20 @@ NOT DETERMINISTIC
 READS SQL DATA
 BEGIN
     DECLARE risultato INT DEFAULT NULL;
+    DECLARE tavolino INT DEFAULT NULL;
 
     IF id IS NULL OR team IS NULL THEN
         RETURN 0;
+    END IF;
+
+    SELECT p.`a_tavolino` INTO tavolino
+    FROM `partite` p
+    WHERE p.`id` = id;
+
+    IF tavolino IS NOT NULL THEN
+        RETURN CASE 
+            WHEN tavolino = team THEN 3
+            ELSE 0 END; 
     END IF;
     
     SELECT SUM(`Punteggio`(r.`home`, r.`guest`)) INTO risultato

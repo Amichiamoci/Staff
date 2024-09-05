@@ -63,7 +63,11 @@ SELECT
     i.`id` AS "id_iscrizione",
     IF (i.`certificato_medico` IS NULL OR TRIM(i.`certificato_medico`) = '',
         'Mancante', 'Presente') AS "stato_certificato",
-    i.`taglia_maglietta` AS "maglia"
+    i.`taglia_maglietta` AS "maglia",
+
+    -- Tutore
+    CONCAT(a2.`nome`, ' ', a2.`cognome`) AS "nome_tutore",
+    a2.`email` AS "email_tutore" 
 
 FROM `anagrafiche_espanse` AS a
     INNER JOIN `tipi_documento` t ON a.`tipo_documento` = t.`id`
