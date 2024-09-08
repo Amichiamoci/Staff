@@ -5,11 +5,11 @@ FROM `punteggio_parrocchia` r
     LEFT OUTER JOIN `punteggio_parrocchia` r2 ON 
         r2.`edizione` = r.`edizione` AND 
         r2.`parrocchia` <> r.`parrocchia` AND 
-        r2.`punteggio` > r.`punteggio`
+        CAST(r2.`punteggio` AS UNSIGNED) > CAST(r.`punteggio` AS UNSIGNED)
     INNER JOIN `parrocchie` p ON p.`id` = r.`parrocchia`
 WHERE e.`anno` = YEAR(CURRENT_DATE)
 GROUP BY r.`parrocchia`
-ORDER BY r.`punteggio` DESC;
+ORDER BY CAST(r.`punteggio` AS UNSIGNED) DESC;
 
 
 CREATE OR REPLACE VIEW `lista_parrocchie_partecipanti` AS
