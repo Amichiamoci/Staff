@@ -431,7 +431,7 @@ switch ($resource)
         break;
     case "tourney-leaderboard":
         $id = (int)get_additional_param('Id');
-        $query = "SELECT * FROM `classifica_torneo` WHERE `id_torneo` = $id ORDER BY `punteggio` DESC";
+        $query = "SELECT * FROM `classifica_torneo` WHERE `id_torneo` = $id ORDER BY CAST(`punteggio` AS UNSIGNED) DESC";
         $row_parser = function($r) {
             return [
                 'Name' => $r['nome_squadra'],

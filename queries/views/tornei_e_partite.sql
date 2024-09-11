@@ -83,7 +83,7 @@ SELECT
 FROM partite_tornei_attivi p
 	LEFT OUTER JOIN punteggi r ON r.partita = p.id
 -- WHERE p.data IS NULL OR p.data BETWEEN DATE_SUB(CURRENT_DATE, INTERVAL 20 DAY) AND CURRENT_DATE
-WHERE p.data IS NULL OR p.data BETWEEN DATE_SUB(CURRENT_DATE, INTERVAL 6 DAY) AND CURRENT_DATE
+WHERE p.data IS NULL OR p.data BETWEEN DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY) AND CURRENT_DATE
 GROUP BY p.id
 ORDER BY p.data DESC, p.orario ASC;
 
@@ -399,4 +399,4 @@ FROM `squadre` s
 
     INNER JOIN `partecipaz_squad_torneo` pt ON pt.`squadra` = s.`id`
     INNER JOIN `tornei` t ON t.`id` = pt.`torneo`
-ORDER BY "punteggio" DESC;
+ORDER BY CAST("punteggio" AS UNSIGNED) DESC;
