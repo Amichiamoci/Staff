@@ -61,7 +61,7 @@ include "./check_login.php";
                 wch: 6 //Sesso
             },
             {
-                wch: 10 //Nato il
+                wch: 15 //Nato il
             },
             {
                 wch: 20 //Luogo nascita

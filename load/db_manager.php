@@ -173,12 +173,12 @@ function listaIscrizioni(mysqli $connection, string $table) : string
             $tel = $row["telefono"];
             if (strlen($tel) > 0)
             {
-                $tel = "<a href= \"tel:$tel\">$tel</a>";
+                $tel = "<a href=\"tel:$tel\">$tel</a>";
             }
             $email = $row["email"];
             if (strlen($email) > 0)
             {
-                $email = "<a href= \"mailto:$email\">$email</a>";
+                $email = "<a href=\"mailto:$email\">$email</a>";
             }
 
             $str .= "<tr><td>$i</td><td>$cognome</td><td>$nome</td><td>$sesso</td>";
