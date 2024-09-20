@@ -169,7 +169,7 @@ function listaIscrizioni(mysqli $connection, string $table) : string
             $nome = htmlspecialchars($row["nome"]);
             $sesso = $row["sesso"];
             $luogo = htmlspecialchars($row["luogo_nascita"]);
-            $data = htmlspecialchars($row["data_nascita"]);
+            $data = htmlspecialchars($row["data_nascita_americana"]);
             $tel = $row["telefono"];
             if (strlen($tel) > 0)
             {

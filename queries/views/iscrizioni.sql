@@ -5,6 +5,7 @@ SELECT
     a.`sesso`, 
     a.`luogo_nascita`, 
     a.`data_nascita_italiana` AS "data_nascita",
+    a.`data_nascita` AS "data_nascita_americana",
     IFNULL (a.`telefono`, '') AS "telefono",
     IFNULL (a.`email`, '') AS "email"
 FROM `iscritti` i

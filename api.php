@@ -40,7 +40,7 @@ switch ($resource)
 {
     case "teams-members":
         $query = 'SELECT * FROM `distinte`';
-        $row_parser = function ($row) {
+        $row_parser = function ($row): array {
             $semi_parsed =  [
                 'Id' => (int)$row['id'],
                 'TeamId' => (int)$row['squadra_id'],
@@ -78,7 +78,7 @@ switch ($resource)
         break;
     case "teams-info":
         $query = 'SELECT * FROM `squadre_attuali`';
-        $row_parser = function ($row) {
+        $row_parser = function ($row): array {
             return [
                 'Name' => $row['nome'],
                 'Id' => (int)$row['id'],
@@ -96,7 +96,7 @@ switch ($resource)
     case "managed-anagraphicals":
         $email = strtolower(trim($connection->real_escape_string(get_additional_param('Email'))));
         $query = "SELECT * FROM `anagrafiche_con_iscrizioni_correnti` WHERE LOWER(TRIM(`email`)) = '$email' OR LOWER(TRIM(`email_tutore`)) = '$email'";
-        $row_parser = function($r) {
+        $row_parser = function($r): array {
             return [
                 'Id' => (int)$r['id'],
                 'Name' => $r['nome'],
@@ -127,7 +127,7 @@ switch ($resource)
     case "church":
         $id = (int)get_additional_param('Id');
         $query = "SELECT * FROM `parrocchie` WHERE `id` = $id";
-        $row_parser = function($r) {
+        $row_parser = function($r): array {
             return [
                 'Id' => (int)$r['id'],
                 'Name' => $r['nome'],
@@ -139,7 +139,7 @@ switch ($resource)
         break;
     case "staff-list":
         $query = "SELECT * FROM `staffisti_attuali`";
-        $row_parser = function($r){
+        $row_parser = function($r): array {
             return [
                 'Name' => $r['chi'],
                 'ChurchId' => (int)$r['id_parrocchia'],
@@ -152,7 +152,7 @@ switch ($resource)
     case "today-matches-of":
         $email = $connection->real_escape_string(get_additional_param('Email'));
         $query = "SELECT * FROM `partite_oggi_persona` WHERE TRIM(LOWER(`email`)) = TRIM(LOWER('$email'))";
-        $row_parser = function($r) {
+        $row_parser = function($r): array {
             $arr = [
                 'WhoPlays' => $r['nome'] . ' ' . $r['cognome'],
                 'Email' => $r['email'],
@@ -216,7 +216,7 @@ switch ($resource)
     case "today-matches-sport":
         $sport = $connection->real_escape_string(get_additional_param('Sport'));
         $query = "SELECT * FROM `partite_oggi_completo` WHERE `area_sport` = UPPER('$sport')";
-        $row_parser = function($r) {
+        $row_parser = function($r): array {
             $arr = [
                 'Id' => (int)$r['id'],
 
@@ -281,7 +281,7 @@ switch ($resource)
         break;
     case "today-yesterday-matches":
         $query = "SELECT * FROM `partite_oggi_ieri_completo`";
-        $row_parser = function($r) {
+        $row_parser = function($r): array {
             $arr = [
                 'Id' => (int)$r['id'],
 
@@ -347,7 +347,7 @@ switch ($resource)
     case "tourney":
         $id = (int)get_additional_param('Id');
         $query = "SELECT * FROM `tornei_attivi` WHERE `id` = $id";
-        $row_parser = function($r) {
+        $row_parser = function($r): array {
             return [
                 'Id' => (int)$r['id'],
                 'Name' => $r['nome'],
@@ -366,7 +366,7 @@ switch ($resource)
     case "tourney-matches":
         $id = (int)get_additional_param('Id');
         $query = "SELECT * FROM `partite_completo` WHERE `torneo` = $id";
-        $row_parser = function($r) {
+        $row_parser = function($r): array {
             $arr = [
                 'Id' => (int)$r['id'],
 
@@ -432,7 +432,7 @@ switch ($resource)
     case "tourney-leaderboard":
         $id = (int)get_additional_param('Id');
         $query = "SELECT * FROM `classifica_torneo` WHERE `id_torneo` = $id ORDER BY CAST(`punteggio` AS UNSIGNED) DESC";
-        $row_parser = function($r) {
+        $row_parser = function($r): array {
             return [
                 'Name' => $r['nome_squadra'],
                 'Id' => (int)$r['id_squadra'],
@@ -455,7 +455,7 @@ switch ($resource)
     case "tourney-sport":
         $sport = $connection->real_escape_string(get_additional_param('Sport'));
         $query = "SELECT * FROM `tornei_attivi` WHERE UPPER(`area`) = UPPER('$sport')";
-        $row_parser = function($r) {
+        $row_parser = function($r): array {
             return [
                 'Id' => (int)$r['id'],
                 'Name' => $r['nome'],
@@ -478,7 +478,7 @@ switch ($resource)
         $guest = trim($connection->real_escape_string( get_additional_param('Guest') ));
         $query = "CALL `CreaPunteggioCompleto`($id, '$home', '$guest');";
         $next_result = true;
-        $row_parser = function($r) use($home, $guest) {
+        $row_parser = function($r) use($home, $guest): array {
             return [
                 'Id' => (int)$r['id'],
                 'Home' => $home,
@@ -493,7 +493,7 @@ switch ($resource)
 
     case "leaderboard":
         $query = "SELECT * FROM `classifica_parrocchie`";
-        $row_parser = function($r) {
+        $row_parser = function($r): array {
             return [
                 'Id' => (int)$r['id'],
                 'Name' => $r['nome'],
