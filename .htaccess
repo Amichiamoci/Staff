@@ -1,4 +1,10 @@
 <FilesMatch "\.(save|swp|sql|env|md|bkp)$">
     Require all denied
 </FilesMatch>
-ErrorDocument 404 /not-found.php
+
+#
+# Rewrite everythign that is not a file towards index.php
+#
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ index.php [QSA,L]

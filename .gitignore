@@ -5,3 +5,5 @@ composer.lock
 .vscode
 upload/*
 !upload/.htaccess
+db
+uploads

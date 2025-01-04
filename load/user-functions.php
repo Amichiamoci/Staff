@@ -228,13 +228,3 @@ function singleEmail(mysqli $connection, int $id)
     mysqli_next_result($connection);
     return $str;
 }
-function creaMessaggio(mysqli $connection, string $testo, int $user_id)
-{
-    if (!$testo || $user_id === 0)
-        return false;
-    $testo_sano = $connection->real_escape_string($testo);
-    $query = "CALL CreaMessaggio($user_id, '$testo_sano')";
-    $result = (bool)mysqli_query($connection, $query);
-    mysqli_next_result($connection);
-    return $result;
-}
