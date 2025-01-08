@@ -10,6 +10,12 @@ services:
       - MYSQL_PASSWORD=root
       - MYSQL_DB=amichiamoci
       - MYSQL_HOST=mysql
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=changeme
+      # - SITE_NAME=Amichiamoci
+      # - DOMAIN=localhost
+      # - ADMIN_PATH=/
+      # - CF_TURNSTILE_TOKEN=
     volumes:
       - ./uploads:/uploads:rw
     depends_on:

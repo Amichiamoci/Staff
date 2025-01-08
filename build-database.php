@@ -7,6 +7,9 @@ require_once __DIR__ . '/vendor/autoload.php';
 $_SERVER['HTTP_HOST'] = 'localhost';
 require_once __DIR__ . '/config.php';
 
+use Amichiamoci\Utils\Security;
+use Amichiamoci\Models\User;
+
 echo "Testing db connection...\n";
 $connection = new \mysqli(
     hostname: $MYSQL_HOST, 
@@ -47,7 +50,34 @@ function rebuild_db(): void {
 
     if ($result === false) {
         echo "Rebuild process failed!\n";
+        return;
     }
+
+    add_first_user();
+}
+
+function add_first_user(): void {
+    global $connection;
+    $admin = Security::LoadEnvironmentOfFromFile(var: 'ADMIN_USERNAME');
+    $admin_password = Security::LoadEnvironmentOfFromFile(var: 'ADMIN_PASSWORD');
+    
+    if (empty($admin) || empty($admin_password)) {
+        return;
+    }
+
+    echo "Adding admin with username '$admin'";
+    $user = User::Create(
+        connection: $connection, 
+        username: $admin, 
+        password: $admin_password, 
+        is_admin: true
+    );
+    if (!isset($user)) {
+        echo "Creation of user account failed.";
+        return;
+    }
+    $id = $user->Id;
+    echo "User created with id $id";
 }
 
 try {

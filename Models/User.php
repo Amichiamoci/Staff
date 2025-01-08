@@ -319,10 +319,11 @@ class User implements DbEntity
             return null;
         $query = "INSERT INTO `utenti` (`user_name`, `password`, `is_admin`) VALUES (?, ?, ?)";
         $admin = $is_admin ? 1 : 0;
+        $hash = Security::Hash(str: $password);
         $stmt = $connection->prepare(query: $query);
         if (!$stmt)
             return null;
-        if (!$stmt->bind_param("ssi", $username, $password, $admin))
+        if (!$stmt->bind_param("ssi", $username, $hash, $admin))
             return null;
         if (!$stmt->execute() || $stmt->affected_rows !== 1)
             return null;
