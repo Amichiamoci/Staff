@@ -1,6 +1,8 @@
 <?php
 namespace Amichiamoci\Controllers;
 
+use Amichiamoci\Models\Message;
+use Amichiamoci\Models\MessageType;
 use Amichiamoci\Models\StaffBase;
 use Amichiamoci\Models\User;
 use Amichiamoci\Utils\Cookie;
@@ -10,6 +12,7 @@ class Controller {
     private ?User $User;
     private ?StaffBase $Staff;
     private string $Path;
+    private array $AlertsToDisplay = [];
 
     public function __construct(
         ?\mysqli $connection,
@@ -67,6 +70,16 @@ class Controller {
         return $this->Staff;
     }
 
+    protected function Message(Message|string|null $message): void {
+        if (!isset($message)) {
+            return;
+        }
+        if (is_string(value: $message)) {
+            $message = new Message(type: MessageType::Info, content: $message);
+        }
+        $this->AlertsToDisplay[] = $message;
+    }
+
     protected function Render(
         string $view, 
         array $data = [], 
@@ -77,7 +90,8 @@ class Controller {
             'title' => $title,
             'view_file' => dirname(path: __DIR__) . "/Views/$view.php",
             'user' => $this->User,
-            'staff' => $this->Staff
+            'staff' => $this->Staff,
+            'alerts' => $this->AlertsToDisplay,
         ]));
 
         if (!file_exists(filename: $view_file)) {

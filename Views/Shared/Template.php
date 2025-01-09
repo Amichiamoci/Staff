@@ -38,6 +38,9 @@
         crossorigin="anonymous"></script>
 
     <div class="container">
+        <?php foreach ($alerts as $message) { ?>
+            <?php require __DIR__ . '/Message.php'; ?>
+        <?php } ?>
         <main role="main" class="pb-3">
             <?php include_once $view_file; ?>
         </main>

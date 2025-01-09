@@ -2,6 +2,8 @@
 
 namespace Amichiamoci\Controllers;
 
+use Amichiamoci\Models\Message;
+use Amichiamoci\Models\MessageType;
 use Amichiamoci\Models\User;
 use Amichiamoci\Utils\Cookie;
 
@@ -24,8 +26,13 @@ class UserController extends Controller {
         if (!isset($user)) {
             return $this->NotFound();
         }
-        
-        // User::Delete(connection: $this->DB, target: $target_id);
+
+        if (User::Delete(connection: $this->DB, target: $target_id)) {
+            $this->Message(message: new Message(type: MessageType::Success, content: 'Utente cancellato'));
+            return $this->all();
+        }
+        $this->Message(message: new Message(type: MessageType::Error, content: 'Qualcosa è andato storto'));
+        return $this->view(id: $target_id);
     }
 
     public function reset(?int $target_id) {
@@ -34,16 +41,26 @@ class UserController extends Controller {
         // User::ResetPassword(connection: $this->DB, target: $target_id);
     }
 
-    public function ban(?int $target_id) {
+    public function ban(?int $target_id): int {
         $this->RequireLogin(require_admin: true);
         
-        // User::Ban(connection: $this->DB, target: $target_id);
+        if (User::Ban(connection: $this->DB, id: $target_id)) {
+            $this->Message(message: new Message(type: MessageType::Success, content: 'Utente bloccato'));
+        } else {
+            $this->Message(message: new Message(type: MessageType::Error, content: 'Qualcosa è andato storto'));
+        }
+        return $this->view(id: $target_id);
     }
 
-    public function restore(?int $target_id) {
+    public function restore(?int $target_id): int {
         $this->RequireLogin(require_admin: true);
         
-        // User::Restore(connection: $this->DB, target: $target_id);
+        if (User::Restore(connection: $this->DB, id: $target_id)) {
+            $this->Message(message: new Message(type: MessageType::Success, content: 'Utente sbloccato'));
+        } else {
+            $this->Message(message: new Message(type: MessageType::Error, content: 'Qualcosa è andato storto'));
+        }
+        return $this->view(id: $target_id);
     }
 
     public function password_recover(?string $username) {
