@@ -67,5 +67,4 @@ BEGIN
     WHERE utenti.id = user_id;
 END; //
 
-
 DELIMITER ;

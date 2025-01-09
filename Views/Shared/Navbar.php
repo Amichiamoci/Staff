@@ -1,7 +1,3 @@
-<?php
-use Models\User;
-?>
-
 <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3">
     <div class="container-fluid">
         <a class="navbar-brand" href="/">
@@ -25,7 +21,66 @@ use Models\User;
         <div id="navbar-collapse"
             class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
             <ul class="navbar-nav flex-grow-1">
-                
+                <?php if (isset($user)) { ?>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link text-reset dropdown-toggle"
+                            href="#" 
+                            id="subscriptionDropdownMenuLink" 
+                            role="button" 
+                            data-bs-toggle="dropdown" 
+                            aria-expanded="false">
+                            Iscrizioni
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="subscriptionDropdownMenuLink">
+                            <li>
+                                <a class="dropdown-item" href="">
+                                    La mia parrocchia
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="">
+                                    Tutti gli iscritti
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link text-reset dropdown-toggle"
+                            href="#" 
+                            id="userDropdownMenuLink" 
+                            role="button" 
+                            data-bs-toggle="dropdown" 
+                            aria-expanded="false">
+                            Utente
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="userDropdownMenuLink">
+                            <li>
+                                <a class="dropdown-item" 
+                                    href="/user/me">
+                                    Menù Utente
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" 
+                                    href="/staff">
+                                    Menù Staff
+                                </a>
+                            </li>
+                            <?php if ($user->IsAdmin) { ?>
+                                <li>
+                                    <a class="dropdown-item" href="/user/all">
+                                        Tutti gli utenti
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="/user/all">
+                                        Accessi
+                                    </a>
+                                </li>
+                            <?php } ?>
+                        </ul>
+                    </li>
+                <?php } ?>
                 
                 <li class="nav-item dropdown">
                     <a class="nav-link text-reset dropdown-toggle"

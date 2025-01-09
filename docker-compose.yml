@@ -20,7 +20,7 @@ services:
       - ./uploads:/uploads:rw
     depends_on:
       mysql:
-        condition: service_healthy
+        condition: service_started
   
   mysql:
     image: mysql:latest
@@ -33,10 +33,6 @@ services:
       - ./db:/var/lib/mysql
     expose:
       - 3306
-    healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
-      timeout: 5s
-      retries: 5
 
   phpmyadmin:
     image: phpmyadmin:latest

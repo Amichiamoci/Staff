@@ -50,12 +50,33 @@ class UserController extends Controller {
         
     }
 
+    public function view(?int $id): int {
+        if (!isset($id)) {
+            return $this->BadRequest();
+        }
+        
+        $user = $this->RequireLogin();
+        $target = User::ById(connection: $this->DB, id: $id);
+        if (!isset($target)) {
+            return $this->NotFound();
+        }
+
+        if ($target->Id !== $user->Id && !$user->IsAdmin) { 
+            // Admins can view personal pages of others
+            return $this->NotAuthorized();
+        }
+        return $this->Render(
+            view: 'User/view',
+            title: $target->Name,
+            data: [
+                'target' => $target,
+            ],
+        );
+    }
+
     public function me(): int {
         $user = $this->RequireLogin();
-        return $this->Render(
-            view: 'User/me', 
-            title: $user->Name,
-        );
+        return $this->view(id: $user->Id);
     }
 
     public function all(): int {

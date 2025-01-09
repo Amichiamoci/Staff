@@ -125,7 +125,7 @@ class User implements DbEntity
         $connection->next_result();
         if (!$passed)
         {
-            echo "Password verify";
+            //echo "Password verify";
             return false;
         }
         if (session_status() !== PHP_SESSION_ACTIVE)
@@ -459,6 +459,29 @@ class User implements DbEntity
             $result->close();
         }
         $connection->next_result();
+        return $arr;
+    }
+    public function LoginList(\mysqli $connection) : array 
+    {
+        if (!$connection)
+            return [];
+
+        $result = $connection->query(query: "SELECT * FROM `sessioni` WHERE `user_id` = $this->Id");
+        if (!$result) {
+            return [];
+        }
+        
+        $arr = [];
+        while ($row = $result->fetch_assoc())
+        {
+            $arr[] = new UserActivity(
+                user_name: $this->Name,
+                time_start: $row['time_start'],
+                time_log: $row['time_log'],
+                flag: $row['user_flag'],
+                ip: $row['device_ip']
+            );
+        }
         return $arr;
     }
 }

@@ -82,7 +82,7 @@ function add_first_user(): void {
 
 try {
     $res = $connection->query(query: "SELECT * FROM `utenti` LIMIT 1");
-    if (!$res) {
+    if (!$res || $res->num_rows === 0) {
         throw new \Error(message: 'Exit the block');
     }
 } catch (\Throwable) {
