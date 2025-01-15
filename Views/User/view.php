@@ -1,56 +1,45 @@
-<div class="row">
-    <div class="col">
-        <h2>
-            Nome utente
-        </h2>
-        <p class="font-monospace user-select-none">
-    	    <?= htmlspecialchars(string: $target->Name) ?>
-        </p>
+<div class="card">
+    <div class="card-header font-monospace user-select-none">
+        #<?= $target->Id ?>
     </div>
-    <div class="col">
-        <h4>
-            ID utente
-        </h4>
-        <p class="font-monospace">
-    	    <?= $target->Id ?>
-        </p>
-    </div>
-</div>
-<?php if ($target->IsAdmin) { ?>
-    <div class="row">
-        <div class="col">
-            Riconosciuto come amministratore di sistema
+    <div class="card-body">
+        <div class="card-title font-monospace user-select-none">
+            <?= htmlspecialchars(string: $target->Name) ?>
         </div>
-    </div>
-<?php } ?>
-<div class="row">
-    <div class="col">
+        <?php if ($target->IsAdmin) { ?>
+            <h6 class="card-subtitle mb-2 user-select-none text-body-secondary">
+                Amministratore
+            </h6>
+        <?php } ?>
+        <?php if ($target->IsBanned) { ?>
+            <h6 class="card-subtitle mb-2 user-select-none text-body-secondary">
+                Bloccato
+            </h6>
+        <?php } ?>
+
         <button class="btn btn-primary">
             Cambia password
         </button>
-    </div>
-    <?php if ($user->Id === $target->Id) { ?>
-        <div class="col">
+
+        <?php if ($user->Id === $target->Id) { ?>
             <a href="/user/logout" class="btn btn-primary" role="button">
                 Esci
             </a>
-        </div>
-    <?php } ?>
-    <?php if ($user->IsAdmin) { ?>
-        <div class="col">
-            <a href="/user/ban?target_id=<?= $target->Id ?>" class="btn btn-secondary" role="button">
-                Blocca
-            </a>
-        </div>
-        <div class="col">
-            <a href="/user/restore?target_id=<?= $target->Id ?>" class="btn btn-secondary" role="button">
-                Riabilita
-            </a>
-        </div>
-        <div class="col">
-            <button class="btn btn-secondary">
-                Cancella
-            </button>
-        </div>
-    <?php } ?>
+        <?php } ?>
+
+
+        <?php if ($user->IsAdmin) { ?>
+            <div class="input-group">
+                <a href="/user/ban?target_id=<?= $target->Id ?>" class="btn btn-outline-secondary" role="button">
+                    Blocca
+                </a>
+                <a href="/user/restore?target_id=<?= $target->Id ?>" class="btn btn-outline-secondary" role="button">
+                    Riabilita
+                </a>
+                <button class="btn btn-outline-secondary">
+                    Cancella
+                </button>
+            </div>
+        <?php } ?>
+    </div>
 </div>

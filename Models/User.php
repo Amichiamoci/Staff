@@ -25,6 +25,7 @@ class User implements DbEntity
     public string $SessionFlag = "";
     public int $SessionDbId = 0;
     public bool $IsAdmin = false;
+    public bool $IsBanned = false;
 
     // Additional data
     public ?string $RealName = null;
@@ -36,16 +37,20 @@ class User implements DbEntity
         string|int $id, 
         string $name, 
         string|int|\DateTime $login_time, 
-        bool $admin = false)
-    {
+        bool $admin = false,
+        bool $is_blocked = false
+    ) {
         $this->Id = (int)$id;
         $this->Name = $name;
         if ($login_time instanceof \DateTime) {
             $this->LoginTime = $login_time->getTimestamp();
+        } elseif (is_string(value: $login_time)) {
+            $this->LoginTime = (new \DateTime(datetime: $login_time))->getTimestamp();
         } else {
-            $this->LoginTime = (int)$login_time;
+            $this->LoginTime = $login_time;
         }
         $this->IsAdmin = $admin;
+        $this->IsBanned = $is_blocked;
     }
     public function Logout() : bool
     {
@@ -167,7 +172,7 @@ class User implements DbEntity
         {
             return null;
         }
-        $user = new User(
+        $user = new self(
             id: $_SESSION[self::$USER_ID], 
             name: $_SESSION[self::$USER_NAME], 
             login_time: $_SESSION[self::$LOGIN_TIME], 
@@ -228,6 +233,25 @@ class User implements DbEntity
     public function TimeLogged() : int
     {
         return time() - $this->LoginTime;
+    }
+    public function TimeLoggedMessage(): string
+    {
+        $diff = $this->TimeLogged() / 60;
+        if ($diff < 3) {
+            return "adesso";
+        }
+        if ($diff < 120) {
+            return "$diff minuti fa";
+        }
+        $diff = $diff / 60;
+        if ($diff < 24) {
+            return "$diff ore fa";
+        }
+        $diff = $diff / 24;
+        if ($diff === 1) {
+            return "ieri";
+        }
+        return "$diff giorni fa";
     }
     public function UpdateLogTs(): void
     {
@@ -434,7 +458,37 @@ class User implements DbEntity
 
     public static function All(\mysqli $connection) : array
     {
-        return [];
+        if (!$connection)
+            return [];
+
+        $query = "SELECT * FROM users_extended";
+        $result = $connection->query($query);
+        if (!$result)
+            return [];
+
+        $arr = [];
+        while ($row = $result->fetch_assoc())
+        {
+            $user = new self(
+                id: $row["id"],
+                name: $row["user_name"],
+                login_time: $row["last_seen_time"],
+                admin: $row["is_admin"],
+                is_blocked: $row["is_blocked"],
+            );
+            if (!empty($row["staff_id"])) {
+                $user->IdStaff = (int)$row["staff_id"];
+            }
+            if (!empty($row["anagrafica_id"])) {
+                $user->IdAnagrafica = (int)$row["anagrafica_id"];
+            }
+            if (!empty($row["full_name"])) {
+                $user->RealName = $row["full_name"];
+            }
+            $arr[] = $user;
+        }
+
+        return $arr;
     }
 
     public static function Activity(\mysqli $connection) : array

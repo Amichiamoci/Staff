@@ -1,5 +1,12 @@
 <?php
 namespace Amichiamoci\Utils;
+use PHPMailer\PHPMailer\PHPMailer;
+
+/*
+if (!defined(constant_name: 'SITE_NAME')) {
+    throw new \Exception(message: 'SITE_NAME was not defined!');
+}
+*/
 
 class Email
 {
@@ -54,21 +61,49 @@ class Email
         $connection->next_result();
         return $return;
     }
-    public static function Send(string $to, 
+    public static function Send(
+        string $to, 
         string $subject, 
         string $body, 
-        \mysqli $connection = null, 
-        bool $hide_output = false) : bool
-    {
-        $headers_array = array(
-            'From: Amichiamoci <' . EMAIL_SOURCE . '>',
-            'X-Mailer: PHP/' . phpversion(),
-            'Content-Type: text/html; charset=UTF-8'
-        );
-        $add = "";
-        $id = 0;
-        $headers = join(separator: "\r\n", array: $headers_array);
+        ?\mysqli $connection = null, 
+        bool $hide_output = false
+    ): bool {
         $sanitized_email = filter_var(value: $to, filter: FILTER_SANITIZE_EMAIL);
+        $mail = new PHPMailer();
+        $mail->addAddress($sanitized_email);
+
+        $from_addr = Security::LoadEnvironmentOfFromFile(var: 'MAIL_OUTPUT_ADDRESS');
+        if (empty($from_addr)) {
+            throw new \Exception(
+                message: 'The address to use for outgoing emails is null. Set the MAIL_OUTPUT_ADDRESS environment variable.');
+        }
+
+        $smtp_host = Security::LoadEnvironmentOfFromFile(var: 'SMTP_HOST');
+        $smtp_port = Security::LoadEnvironmentOfFromFile(var: 'SMTP_PORT', default: '25');
+        if (!empty($smtp_host)) {
+            $mail->Host = $smtp_host;
+            $mail->Port = (int)$smtp_port;
+            
+            $username = Security::LoadEnvironmentOfFromFile(var: 'SMTP_USER');
+            $password = Security::LoadEnvironmentOfFromFile(var: 'SMTP_PASSWORD');
+            if (!empty($username)) {
+                $mail->Username = $username;
+                $mail->SMTPAuth = true;
+            }
+            if (isset($password)) {
+                $mail->Password = $password;
+            }
+        }
+
+        $mail->setFrom($from_addr, SITE_NAME);
+        $mail->clearReplyTos(); // Disable reply-to
+        $mail->Subject = $subject;
+        $mail->isSMTP();
+        
+        $mail->CharSet = 'UTF-8';
+        $mail->isHTML();
+
+        $id = null;
         if ($connection)
         {
             $sanitized_body = $body;
@@ -80,38 +115,56 @@ class Email
                 $code_regex = '/>[-!$@£%^&*()_+|~={}\[\]:;?,.\/A-Za-z0-9]+<\/code>/i';
                 $sanitized_body = preg_replace(pattern: $code_regex, replacement: "> ????<!--RIMOSSO--> </code>", subject: $sanitized_body);
             }
-            $query = "CALL CreateEmail('$sanitized_email', '" . 
+            $query = "CALL CreateEmail('" . 
+                $connection->real_escape_string(string: $sanitized_email) . "', '" . 
                 $connection->real_escape_string(string: $subject) . "', '" .
                 $connection->real_escape_string(string: $sanitized_body) ."')";
             try {
                 $result = $connection->query(query: $query);
-                if ($result) {
-                    if ($row = $result->fetch_assoc())
+                if ($result && $result->num_rows > 0) {
+                    if (($row = $result->fetch_assoc()) && array_key_exists(key: 'id', array: $row))
                     {
-                        if (isset($row["id"]))
-                        {
-                            $id = (int)$row["id"];
-                            $add = "\r\n<img src=\"" . ADMIN_URL . "/view_email.php?id=$id\" 
-                                width=\"1\" height=\"1\" style=\"width:1px;height:1px;\" loading=\"eager\" />";
-                        }
+                        $id = (int)$row["id"];
                     }
                     $result->close();
                 }
                 $connection->next_result();
-            } catch(\Exception $ex) {
-                echo htmlspecialchars(string: $ex->getMessage());
+            } catch (\Exception $ex) {
+                // echo htmlspecialchars(string: $ex->getMessage());
             }
         }
 
-        $ret = mail(to: $sanitized_email, subject: $subject, message: $body . $add, additional_headers: $headers);
+        $mail->Body = self::Render(
+            title: $subject, 
+            content: $body, 
+            id: $id
+        );
+        $email_sent = $mail->send();
         
-        if (!$ret && $connection)
+        if (!$email_sent && $connection)
         {
-            $query = "UPDATE email
-            SET email.ricevuta = FALSE
-            WHERE email.id = $id";
+            $query = "UPDATE `email` SET `email`.`ricevuta` = FALSE WHERE `email`.`id` = $id";
             $connection->query(query: $query);
         }
-        return $ret;
+        return $email_sent;
+    }
+
+    public static function Render(
+        string $title,
+        string $content,
+        ?int $id = null,
+    ): string {
+        extract(array: [
+            'title' => $title,
+            'content' => $content,
+            'email_id' => $id,
+            'site_name' => SITE_NAME,
+            'site_url' => MAIN_SITE_URL
+        ]);
+        ob_start();
+        require dirname(path: __DIR__) . "/Views/Shared/Email.php";
+        $rendered_content = ob_get_contents();
+        ob_end_clean();
+        return $rendered_content;
     }
 }

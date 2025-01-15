@@ -1,6 +1,6 @@
 FROM php:8.4-apache AS base
 RUN docker-php-ext-install mysqli
-RUN apt update && apt install -y default-mysql-client
+RUN apt update && apt install -y default-mysql-client cron
 
 WORKDIR /var/www/html
 COPY . .
@@ -17,7 +17,12 @@ COPY --from=deps /app/vendor /var/www/html/vendor
 
 RUN a2enmod rewrite
 
-EXPOSE 80
+# Setup CRON
+RUN touch /var/log/schedule.log
+RUN chmod 0777 /var/log/schedule.log
+RUN echo "0 * * * * 'php /var/www/html/cron.php >> /var/log/schedule.log 2>&1'" > /etc/cron.d/scheduler
+RUN crontab /etc/cron.d/scheduler
 
+EXPOSE 80
 RUN chmod +x ./entrypoint.sh
 CMD [ "./entrypoint.sh" ]

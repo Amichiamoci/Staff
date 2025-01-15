@@ -24,3 +24,7 @@ define(constant_name: 'POWERED_BY', value: 'https://github.com/Amichiamoci/Staff
 define(
     constant_name: "CF_TURNSTILE_TOKEN", 
     value: Security::LoadEnvironmentOfFromFile(var: "CF_TURNSTILE_TOKEN", default: ""));
+
+define(
+    constant_name: 'MAIN_SITE_URL',
+    value: Security::LoadEnvironmentOfFromFile(var: 'MAIN_SITE_URL', default: 'https://www.amichiamoci.it'));

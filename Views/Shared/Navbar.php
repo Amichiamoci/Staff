@@ -73,6 +73,11 @@
                                     </a>
                                 </li>
                                 <li>
+                                    <a class="dropdown-item" href="/user/new">
+                                        Nuovo utente
+                                    </a>
+                                </li>
+                                <li>
                                     <a class="dropdown-item" href="/user/all">
                                         Accessi
                                     </a>

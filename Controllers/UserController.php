@@ -6,6 +6,8 @@ use Amichiamoci\Models\Message;
 use Amichiamoci\Models\MessageType;
 use Amichiamoci\Models\User;
 use Amichiamoci\Utils\Cookie;
+use Amichiamoci\Utils\Email;
+use Amichiamoci\Utils\Security;
 
 class UserController extends Controller {
     public function logout(): int
@@ -111,6 +113,59 @@ class UserController extends Controller {
             view: 'User/activity',
             title: 'Attività utenti',
             data: ['activity' => User::Activity(connection: $this->DB)]
+        );
+    }
+
+    public function new(?string $email = null, bool $admin = false): int {
+        $this->RequireLogin(require_admin: true);
+        if ($this->IsPost() && !empty($email)) {
+            $password = Security::RandomPassword();
+            $hashed_password = Security::Hash(str: $password);
+            $user_name = explode(separator: '@', string: $email)[0];
+
+            $created_user = User::Create(connection: $this->DB, username: $user_name, password: $hashed_password, is_admin: $admin);
+            if (!isset($created_user) || $created_user->Id == 0) {
+                return $this->InternalError();
+            }
+            $generated_id = $created_user->Id;
+
+            $mail_text = join(separator: "\r\n", array: array(
+                "<h3>Benvenuto/a</h3>",
+                "<p>&Egrave; appena stato creato un utente sul sito con questa email.",
+                "Ti chiediamo di loggarti sul sito nella sezione <a href=\"https://www.amichiamoci.it/admin\">admin</a>,\r\n" .
+                    "utilizzando come <strong style=\"user-select: none;\">nome utente: </strong><code style=\"font-family: monospace;\">$user_name</code>\r\n" .
+                    "<span style=\"user-select: none;\"> e come </span><strong style=\"user-select: none;\">password: </strong><code style='font-family: monospace;'>$password</code><br>",
+                "Una volta loggato potrai cambiare sia nome utente che password.</p>",
+                "<p>Nel caso tu non riesca a loggarti con le credenziali appena fornite prova a cancellare i cookie e riprovare dopo qualche minuto.</p>",
+                "<hr>",
+                "<p>Dal portale ti sar&agrave; possibile inserire i tuoi dati anagrafici, scegliendo la mail con cui gestire l'account\r\n" .
+                "(puoi quindi non scegliere questa) e anno per anno registrarti come staffista all'edizione corrente.</p>",
+                "<hr>",
+                "<p>In caso di problemi scrivi tempestivamente a <a href=\"mailto:info@amichiamoci.it\">info@amichiamoci.it</a></p>",
+                "Ecco una serie di informazioni che non ti interessaranno, ma io le metto ugualmente:<br>",
+                "Hash della password: <output style=\"user-select:none;\">$hashed_password</output><br>",
+                "User id: <output style=\"user-select:none;\">$generated_id</output>"));
+            $subject = "Creazione utente";
+            
+            if (!Email::Send(
+                to: $email, 
+                subject: $subject, 
+                body: $mail_text, 
+                connection: $this->DB, 
+                hide_output: true,
+            )) {
+                $this->Message(message: new Message(type: MessageType::Error, content: 'Errore durante l\'invio dell\'email'));
+            }
+            return $this->view(id: $generated_id);
+        }
+
+        return $this->Render(
+            view: 'User/new', 
+            title: 'Crea nuovo utente',
+            data: [
+                'email' => $email,
+                'admin' => $admin,
+            ],
         );
     }
 }
