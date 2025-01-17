@@ -10,6 +10,7 @@ class Iscrizione extends NomeIdSemplice
     public int $Edizione;
     public Taglia $Taglia;
     public ?int $IdTutore = null;
+    public ?string $Certificato = null;
 
     public static function Table(): string { return 'iscritti'; }
 
@@ -20,7 +21,8 @@ class Iscrizione extends NomeIdSemplice
         string|int $id_parrocchia,
         string|int $anno_edizione,
         string|Taglia $taglia,
-        string|int|null $id_tutore
+        string|int|null $id_tutore = null,
+        ?string $certificato = null,
     ) {
         parent::__construct(id: $id, nome: $nome);
         
@@ -40,6 +42,10 @@ class Iscrizione extends NomeIdSemplice
         if (isset($id_tutore))
         {
             $this->IdTutore = (int)$id_tutore;
+        }
+        if (isset($certificato) && !empty($certificato))
+        {
+            $this->Certificato = $certificato;
         }
     }
 
@@ -66,6 +72,7 @@ class Iscrizione extends NomeIdSemplice
                 anno_edizione: $row["anno"],
                 taglia: $row["maglia"], 
                 id_tutore: $row["id_tutore"],
+                certificato: $row["certificato_medico"],
             );
         }
         $result->close();
@@ -95,7 +102,8 @@ class Iscrizione extends NomeIdSemplice
                 id_parrocchia: $row["id_parrocchia"],
                 anno_edizione: $row["anno"],
                 taglia: $row["maglia"],
-                id_tutore: $row["id_tutore"]
+                id_tutore: $row["id_tutore"],
+                certificato: $row["certificato_medico"],
             );
         }
         $result->close();
@@ -145,7 +153,7 @@ class Iscrizione extends NomeIdSemplice
             return false;
 
         $query = "INSERT INTO iscritti (dati_anagrafici, edizione, tutore, certificato_medico, parrocchia, taglia_maglietta) VALUES (?, ?, ?, ?, ?, ?)";
-        $stmt = $connection->prepare($query);
+        $stmt = $connection->prepare(query: $query);
         if (!$stmt)
             return false;
         if ($tutore == 0)
@@ -166,7 +174,7 @@ class Iscrizione extends NomeIdSemplice
         if (!$connection)
             return false;
         $query = "UPDATE `iscritti` SET `certificato_medico` = ? WHERE `id` = ?";
-        $stmt = $connection->prepare($query);
+        $stmt = $connection->prepare(query: $query);
         if (!$stmt) 
             return false;
         if (!$stmt->bind_param("si", $certificato, $id))
@@ -183,7 +191,7 @@ class Iscrizione extends NomeIdSemplice
         $query = "UPDATE `iscritti`
         SET `taglia_maglietta` = ?, `tutore` = ?, `parrocchia` = ? 
         WHERE `id` = ?";
-        $stmt = $connection->prepare($query);
+        $stmt = $connection->prepare(query: $query);
         if (!$stmt)
             return false;
         if ($this->IdTutore == 0)

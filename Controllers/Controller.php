@@ -54,6 +54,7 @@ class Controller {
         }
 
         // Load staff on the fly if we can
+        /*
         if ($this->DB && (
                 $this->User->HasAdditionalData() || 
                 $this->User->LoadAdditionalData(connection: $this->DB)
@@ -61,6 +62,7 @@ class Controller {
         ) {
             $this->Staff = StaffBase::ById(connection: $this->DB, id: $this->User->IdStaff);
         }
+        */
 
         if (!isset($this->Staff) && !$this->User->IsAdmin) {
             $this->NotAuthorized();

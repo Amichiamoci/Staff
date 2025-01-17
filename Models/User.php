@@ -36,18 +36,20 @@ class User implements DbEntity
     public function __construct(
         string|int $id, 
         string $name, 
-        string|int|\DateTime $login_time, 
+        string|int|\DateTime|null $login_time, 
         bool $admin = false,
         bool $is_blocked = false
     ) {
         $this->Id = (int)$id;
         $this->Name = $name;
-        if ($login_time instanceof \DateTime) {
-            $this->LoginTime = $login_time->getTimestamp();
-        } elseif (is_string(value: $login_time)) {
-            $this->LoginTime = (new \DateTime(datetime: $login_time))->getTimestamp();
-        } else {
-            $this->LoginTime = $login_time;
+        if (isset($login_time)) {
+            if ($login_time instanceof \DateTime) {
+                $this->LoginTime = $login_time->getTimestamp();
+            } elseif (is_string(value: $login_time)) {
+                $this->LoginTime = (new \DateTime(datetime: $login_time))->getTimestamp();
+            } else {
+                $this->LoginTime = $login_time;
+            }
         }
         $this->IsAdmin = $admin;
         $this->IsBanned = $is_blocked;
@@ -196,12 +198,12 @@ class User implements DbEntity
 
         return $user;
     }
-    public function LoadAdditionalData(\mysqli $connection) : bool
+    public function LoadAdditionalData(\mysqli $connection): bool
     {
         if (!$connection || $this->Id === 0)
             return false;
         $get_anagrafica_query = "CALL GetStaffFromUserId($this->Id)";
-        $result = $connection->query($get_anagrafica_query);
+        $result = $connection->query(query: $get_anagrafica_query);
         if (!$result)
         {
             $connection->next_result();
@@ -236,18 +238,18 @@ class User implements DbEntity
     }
     public function TimeLoggedMessage(): string
     {
-        $diff = $this->TimeLogged() / 60;
+        $diff = (int)($this->TimeLogged() / 60);
         if ($diff < 3) {
             return "adesso";
         }
         if ($diff < 120) {
             return "$diff minuti fa";
         }
-        $diff = $diff / 60;
+        $diff = (int)($diff / 60);
         if ($diff < 24) {
             return "$diff ore fa";
         }
-        $diff = $diff / 24;
+        $diff = (int)($diff / 24);
         if ($diff === 1) {
             return "ieri";
         }
@@ -456,6 +458,20 @@ class User implements DbEntity
         return new self(id: $id, name: $row["user_name"], login_time: 0, admin: $row["is_admin"] == 1);
     }
 
+    public static function ByName(\mysqli $connection, string $username): ?self
+    {
+        if (!$connection)
+            return null;
+        $result = $connection->query(query: 
+            "SELECT * FROM `utenti` WHERE `user_name` = '" . $connection->real_escape_string(string: $username) . "'");
+        if (!$result || $result->num_rows === 0)
+        {
+            return null;
+        }
+        $row = $result->fetch_assoc();
+        return new self(id: (int)$row['id'], name: $row["user_name"], login_time: 0, admin: $row["is_admin"] == 1);
+    }
+
     public static function All(\mysqli $connection) : array
     {
         if (!$connection)
@@ -495,7 +511,7 @@ class User implements DbEntity
     {
         if (!$connection)
             return [];
-        $result = $connection->query("CALL UsersActivity(NULL);");
+        $result = $connection->query(query: "SELECT * FROM `users_activity` LIMIT 2000");
         
         $arr = [];
         if ($result) {
@@ -512,7 +528,6 @@ class User implements DbEntity
 
             $result->close();
         }
-        $connection->next_result();
         return $arr;
     }
     public function LoginList(\mysqli $connection) : array 

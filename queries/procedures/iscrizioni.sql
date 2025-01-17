@@ -11,12 +11,15 @@ BEGIN
         a.`id`, 
         a.`cognome`, 
         a.`nome`, 
+        a.`luogo_nascita`,
         a.`data_nascita_italiana` AS "data_nascita", 
         a.`telefono`, 
         a.`email`, 
         a.`cf`, 
         a.`documento`, 
-        a.`codice_documento`, t.`label`, 
+        a.`tipo_documento`,
+        a.`tipo_documento_nome`,
+        a.`codice_documento`, 
         a.`eta`,
         a.`sesso`,
         p.`nome` AS "parrocchia", 
@@ -38,7 +41,6 @@ BEGIN
         CONCAT (a2.`cognome`, ' ', a2.`nome`) AS "tutore",
         i.`tutore` AS "id_tutore"
     FROM `anagrafiche_espanse` AS a
-        INNER JOIN `tipi_documento` t ON a.`tipo_documento` = t.`id`
         LEFT OUTER JOIN (
             SELECT i2.*
             FROM `iscritti` AS i2

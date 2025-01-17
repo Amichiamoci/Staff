@@ -1,14 +1,14 @@
 <h1>
     Lista utenti
 </h1>
-<div class="container">
+<div class="row">
     <?php foreach($users as $user_info) { ?>
-        <div class="col col-4" id="user-<?= $user_info->Id ?>">
-            <div class="card" style="width: 18rem;">
+        <div class="col col-xs-12 col-sm-6 col-md-4 col-xl-3" id="user-<?= $user_info->Id ?>">
+            <div class="card m-1">
                 <div class="card-header">
                     <?= htmlspecialchars(string: $user_info->Name) ?>
                     &nbsp;
-                    <span class="user-select-none text-body-secondary">
+                    <span class="user-select-none text-secondary">
                         #<?= $user_info->Id ?>
                     </span>
                 </div>
@@ -24,12 +24,12 @@
                         </h5>
                     <?php } ?>
                     <?php if ($user_info->IsAdmin) { ?>
-                        <h6 class="card-subtitle mb-2 user-select-none text-body-secondary">
+                        <h6 class="card-subtitle mb-2 user-select-none text-secondary">
                             Amministratore
                         </h6>
                     <?php } ?>
                     <?php if ($user_info->IsBanned) { ?>
-                        <h6 class="card-subtitle mb-2 user-select-none text-body-secondary">
+                        <h6 class="card-subtitle mb-2 user-select-none text-secondary">
                             Bloccato
                         </h6>
                     <?php } ?>

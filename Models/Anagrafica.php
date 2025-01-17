@@ -5,15 +5,17 @@ use Amichiamoci\Models\Templates\Anagrafica as AnagraficaBase;
 
 class Anagrafica extends AnagraficaBase
 {
-    public string $compleanno = "";
-    public string $proveninenza = "";
-    public ?string $telefono;
-    public ?string $email;
-    public string $cf = "";
-    public int $doc_type = 1;
-    public string $doc_code = "";
-    public string $doc_expires = "";
-    public string $nome_file = "";
+    public string $BirthDay = "";
+    public string $From = "";
+    public ?string $Phone;
+    public ?string $Email;
+    public string $FiscalCode = "";
+    public string $Sex = "?";
+
+    public TipoDocumento $DocumentType;
+    public string $DocumentCode = "";
+    public string $DocumentExpiration = "";
+    public string $DocumentFileName = "";
     
     public static function Create(
         \mysqli $connection, 
@@ -62,7 +64,7 @@ class Anagrafica extends AnagraficaBase
         if (!$connection || $id === 0)
             return null;
         $query = "SELECT * FROM `anagrafiche_espanse` WHERE `id` = $id";
-        $result = $connection->query($query);
+        $result = $connection->query(query: $query);
         if (!$result || $result->num_rows === 0)
         {
             return null;
@@ -98,14 +100,14 @@ class Anagrafica extends AnagraficaBase
         return $arr;
     }
     
-    public static function FromCF(\mysqli $connection, string $cf) : ?self
+    public static function FromFiscalCode(\mysqli $connection, string $cf) : ?self
     {
         if (!$connection || strlen(string: trim(string: $cf)) === 0)
             return null;
 
-        $cf = $connection->real_escape_string($cf);
+        $cf = $connection->real_escape_string(string: $cf);
         $query = "SELECT * FROM `anagrafiche_espanse` WHERE LOWER(`cf`) = LOWER('$cf')";
-        $result = $connection->query($query);
+        $result = $connection->query(query: $query);
         if (!$result || $result->num_rows === 0)
         {
             return null;
@@ -117,7 +119,7 @@ class Anagrafica extends AnagraficaBase
         return null;       
     }
 
-    private static function FromDbRow(array $row): self
+    protected static function FromDbRow(array $row): self
     {
         $a = new self(
             id: $row["id"], 
@@ -125,15 +127,49 @@ class Anagrafica extends AnagraficaBase
             cognome: $row["cognome"], 
             eta: $row["eta"]
         );
-        $a->cf = $row["cf"];
-        $a->compleanno = $row["data_nascita_italiana"];
-        $a->doc_code = $row["codice_documento"];
-        $a->doc_type = (int)$row["tipo_documento"];
-        $a->email = isset($row["email"]) ? $row["email"] : "";
-        $a->doc_expires = isset($row["scadenza"]) ? $row["scadenza"] : "";
-        $a->nome_file = isset($row["documento"]) ? $row["documento"] : "";
-        $a->proveninenza = $row["luogo_nascita"];
-        $a->telefono = isset($row["telefono"]) ? $row["telefono"] : "";
+        $a->FiscalCode = $row["cf"];
+        if (array_key_exists(key: 'data_nascita_italiana', array: $row) && is_string(value: $row['data_nascita_italiana'])) {
+            $a->BirthDay = $row['data_nascita_italiana'];
+        } else {
+            $a->BirthDay = $row['data_nascita'];
+        }
+        $a->From = $row["luogo_nascita"];
+        if (array_key_exists(key: 'sesso', array: $row) && is_string(value: $row['sesso'])) {
+            $a->Sex = $row['sesso'];
+        }
+        if (array_key_exists(key: 'email', array: $row) && is_string(value: $row['email'])) {
+            $a->Email = $row['email'];
+        }
+        if (array_key_exists(key: 'telefono', array: $row) && is_string(value: $row['telefono'])) {
+            $a->Phone = $row['telefono'];
+        }
+
+        $a->DocumentCode = $row["codice_documento"];
+        $a->DocumentType = new TipoDocumento(
+            id: (int)$row["tipo_documento"],
+            nome: array_key_exists(key: 'tipo_documento_nome', array: $row) ? $row['tipo_documento_nome'] : 'Documento' 
+        );
+        if (array_key_exists(key: 'scadenza', array: $row) && is_string(value: $row['scadenza'])) {
+            $a->DocumentExpiration = $row['scadenza'];
+        }
+        if (array_key_exists(key: 'documento', array: $row) && is_string(value: $row['documento'])) {
+            $a->DocumentFileName = $row['documento'];
+        }
         return $a;
+    }
+
+    public function KeyWords(): string {
+        $a = [
+            $this->Nome,
+            $this->Cognome,
+            $this->Nome . " " . $this->Cognome,
+        ];
+        if (isset($this->Email)) {
+            $a[] = $this->Email;
+        }
+        if (isset($this->Phone)) {
+            $a[] = $this->Phone;
+        }
+        return join(separator: ' ', array: $a);
     }
 }

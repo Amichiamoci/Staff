@@ -5,6 +5,7 @@ namespace Amichiamoci\Controllers;
 use Amichiamoci\Models\User;
 use Amichiamoci\Utils\Cookie;
 use Amichiamoci\Utils\Security;
+use Amichiamoci\Models\Parrocchia;
 
 
 class HomeController extends Controller
@@ -69,6 +70,21 @@ class HomeController extends Controller
                 'username' => $username,
                 'password' => $password,
             ]
+        );
+    }
+    
+    public function church(?int $id = null): int {
+        $this->RequireLogin();
+
+        $church = Parrocchia::ById(connection: $this->DB, id: $id);
+        if (!isset($church)) {
+            return $this->NotFound();
+        }
+        
+        return $this->Render(
+            view: 'Home/Churh',
+            title: 'Parrocchia ' . $church->Nome,
+            data: [ 'church'=> $church ]
         );
     }
 }

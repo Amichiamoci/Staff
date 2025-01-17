@@ -28,6 +28,10 @@ class Link
     {
         if (!isset($number) || is_array(value: $number))
             return "";
-        return "<a href=\"https://wa.me/$number\" class=\"link\">$number</a>";
+        $number = (string)$number;
+        if (str_starts_with(haystack: $number, needle: "+39")) {
+            $number = substr(string: $number, offset: 3);
+        }
+        return "https://wa.me/$number";
     }
 }

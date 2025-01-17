@@ -27,7 +27,7 @@ class Staff extends StaffBase
             return null;
         }
         $query = "CALL StaffData($id, YEAR(CURRENT_DATE))";
-        $result = $connection->query($query);
+        $result = $connection->query(query: $query);
         $data = null;
         if ($result)
         {
@@ -59,7 +59,7 @@ class Staff extends StaffBase
         // Insert the new row
         $query = "INSERT INTO `staffisti` (`dati_anagrafici`, `id_utente`, `parrocchia`) VALUES ($id_anagrafica, $user, $parrocchia)";
         if (
-            !$connection->query($query) || 
+            !$connection->query(query: $query) || 
             $connection->affected_rows !== 1 ||
             empty($connection->insert_id)
         ) {
@@ -75,7 +75,7 @@ class Staff extends StaffBase
         if (!$connection || $staff === 0 || $parrocchia === 0)
             return false;
         $query = "UPDATE `staffisti` SET `parrocchia` = $parrocchia WHERE `id` = $staff";
-        return (bool)$connection->query($query) && $connection->affected_rows === 1;
+        return (bool)$connection->query(query: $query) && $connection->affected_rows === 1;
     }
     public static function Partecipa(
         \mysqli $connection, 
@@ -108,5 +108,12 @@ class Staff extends StaffBase
         $result = (bool)$connection->query($query);
         $connection->next_result();
         return $result;
+    }
+
+    public static function All(\mysqli $connection): array {
+        if (!$connection) return [];
+        $query = "SELECT * FROM `staff_attuali`";
+
+        return [];
     }
 }

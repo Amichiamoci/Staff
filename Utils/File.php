@@ -46,13 +46,13 @@ class File
 
     public static function GetExportUrl(string $path): string
     {
-        return ADMIN_URL . "/get_file.php?target=$path";
+        return "/get_file.php?target=$path";
     }
 
     public static function RemoveCharacters(string $str) : string
     {
         $exploded = str_split(string: $str);
-        $regex = "/" . join(separator: "|", array: self::$FILE_NAME_CHAR_WHITELIST) . "/";
+        $regex = "/" . join(separator: "|", array: str_split(string: self::$FILE_NAME_CHAR_WHITELIST)) . "/";
         return join(separator: "", array: preg_grep(pattern: $regex, array: $exploded));
     }
 
@@ -83,17 +83,23 @@ class File
         "doc",        "docx",         "ppt",
         "pptx"
     ];
-    public static array $ALLOWED_EXT_DOTS = array_map(
-        function(string $s): string { return ".$s"; }, 
-        self::$ALLOWED_EXT
-    );
+    public static function ALLOWED_EXT_DOTS(): array {
+        return array_map(
+            callback: function(string $s): string { return ".$s"; }, 
+            array: self::$ALLOWED_EXT
+        );
+    } 
 
-    public static array $FILE_NAME_CHAR_WHITELIST = array_merge(range('A', 'Z'), range('a', 'z'), range('0', '9'), [' ']);
+    public static string $FILE_NAME_CHAR_WHITELIST = 
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZ' . 
+        'abcdefghijklmnopqrstuvwxyz' . 
+        '0123456789 _';
 
-    public static int $MAX_SIZE = 
-        array_key_exists('FILE_MAX_SIZE', $_ENV) ?
+    public static function MAX_SIZE(): int {
+        return array_key_exists('FILE_MAX_SIZE', $_ENV) ?
         $_ENV['FILE_MAX_SIZE'] : 
         10 * 1024 * 1024;
+    }
 
     public static function Upload($file, string &$future_file_name, string &$error): bool
     {
@@ -110,7 +116,7 @@ class File
             return false;
         }    
             
-        if ($file_size > self::$MAX_SIZE) {
+        if ($file_size > self::MAX_SIZE()) {
             $error = "File troppo grande!";
             return false;
         }            

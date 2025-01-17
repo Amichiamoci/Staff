@@ -92,6 +92,19 @@ class UserController extends Controller {
             ],
         );
     }
+    public function username(?string $u): int {
+        if (!isset($u)) {
+            return $this->BadRequest();
+        }
+
+        $target = User::ByName(connection: $this->DB, username: $u);
+        if (!isset($target)) {
+            $id = 0;
+        } else {
+            $id = $target->Id;
+        }
+        return $this->view(id: $id);
+    }
 
     public function me(): int {
         $user = $this->RequireLogin();

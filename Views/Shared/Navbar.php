@@ -38,8 +38,13 @@
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="">
+                                <a class="dropdown-item" href="/staff/anagrafiche?year=<?= date(format: "Y") ?>">
                                     Tutti gli iscritti
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/staff/anagrafiche">
+                                    Tutte le anagrafiche
                                 </a>
                             </li>
                         </ul>
@@ -78,11 +83,41 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="/user/all">
+                                    <a class="dropdown-item" href="/user/activity">
                                         Accessi
                                     </a>
                                 </li>
                             <?php } ?>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link text-reset dropdown-toggle"
+                            href="#" 
+                            id="listsDropdownMenuLink" 
+                            role="button" 
+                            data-bs-toggle="dropdown" 
+                            aria-expanded="false">
+                            Liste
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="listsDropdownMenuLink">
+                            <li>
+                                <a class="dropdown-item" 
+                                    href="/staff/all">
+                                    Tutti gli Staff
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" 
+                                    href="/staff/current">
+                                    Staff per il <?= date(format: "Y") ?>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" 
+                                    href="/staff/csi">
+                                    Tesseramenti per C.S.I.
+                                </a>
+                            </li>
                         </ul>
                     </li>
                 <?php } ?>
@@ -99,15 +134,15 @@
                     <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="themeDropdownMenuLink">
                         <li>
                             <a class="dropdown-item" 
-                                href="javascript:setLightTheme()">
-                                
+                                href="#" data-bs-theme-value="light">
+                                <i class="bi bi-sun"></i>
                                 Chiaro
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item" 
-                                href="javascript:setDarkTheme()">
-                                
+                                href="#" data-bs-theme-value="dark">
+                                <i class="bi bi-moon"></i>
                                 Scuro 
                             </a>
                         </li>

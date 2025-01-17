@@ -15,3 +15,15 @@ FROM `utenti` AS u
     LEFT OUTER JOIN `anagrafiche` a ON a.`id` = staff.`dati_anagrafici`
 GROUP BY u.`id`
 ORDER BY `last_seen_time` DESC, u.`user_name` DESC;
+
+CREATE OR REPLACE VIEW `users_activity` AS
+SELECT DISTINCT 
+    u.`user_name`, 
+    s.`time_log`,
+    s.`time_start`, 
+    s.`user_flag`,
+    s.`device_ip`
+FROM sessioni AS s
+    LEFT OUTER JOIN `utenti` u ON u.`id` = s.`user_id`
+WHERE s.`time_log` > s.`time_start`
+ORDER BY s.`time_start` DESC, s.`time_log` DESC, u.`user_name`;

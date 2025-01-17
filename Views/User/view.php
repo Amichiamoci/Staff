@@ -1,3 +1,9 @@
+<?php 
+if (!isset($target) || !($target instanceof Amichiamoci\Models\User)) {
+    throw new Exception('$target variable not set!');
+}
+?>
+
 <div class="card">
     <div class="card-header font-monospace user-select-none">
         #<?= $target->Id ?>
