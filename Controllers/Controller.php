@@ -122,7 +122,7 @@ class Controller {
         header(header: "Content-Type: $type");
         header(header: "Content-length: " . strlen(string: $content));
         
-        ob_clean();
+        // ob_clean();
         echo $content;
         return 200;
     }

@@ -17,7 +17,7 @@ services:
       # - ADMIN_PATH=/
       # - CF_TURNSTILE_TOKEN=
     volumes:
-      - ./uploads:/uploads:rw
+      - ./Uploads:/var/www/html/Uploads:rw
     depends_on:
       mysql:
         condition: service_started

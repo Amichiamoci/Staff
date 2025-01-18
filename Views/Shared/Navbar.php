@@ -87,6 +87,11 @@
                                         Accessi
                                     </a>
                                 </li>
+                                <li>
+                                    <a class="dropdown-item" href="/file/list">
+                                        Tutti gli uploads
+                                    </a>
+                                </li>
                             <?php } ?>
                         </ul>
                     </li>

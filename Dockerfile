@@ -4,6 +4,7 @@ RUN apt update && apt install -y default-mysql-client cron
 
 WORKDIR /var/www/html
 COPY . .
+VOLUME [ "./Uploads" ]
 RUN ./build-starting-db.sh
 
 # Download dependencies via composer

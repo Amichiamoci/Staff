@@ -25,12 +25,12 @@ class File
 
     public static function ServerPath(string $db_path): string|false
     {
-        if (!isset($db_path)) //.. characters colud be used to steal files
+        if (!isset($db_path))
             return "";
 
-        if (!str_starts_with(haystack: $db_path, needle: "/"))
+        if (!str_starts_with(haystack: $db_path, needle: DIRECTORY_SEPARATOR))
         {
-            $db_path = "/$db_path";
+            $db_path = DIRECTORY_SEPARATOR . $db_path;
         }
 
         return realpath(path: SERVER_UPLOAD_PATH . $db_path);
@@ -44,9 +44,23 @@ class File
         return is_file(filename: $res);
     }
 
+    public static function Size(string $db_path): string
+    {
+        if (!self::Exists(db_path: $db_path)) return '';
+        $size = filesize(filename: self::ServerPath(db_path: $db_path));
+        if (!$size) return '0 B';
+        $units = ['B', 'KB', 'MB', 'GB'];
+        $i = 0;
+        while ($size >= 1024 && $i < count(value: $units) - 1) {
+            $size = (int)($size / 1024);
+            $i++;
+        }
+        return "$size " . $units[$i];
+    }
+
     public static function GetExportUrl(string $path): string
     {
-        return "/get_file.php?target=$path";
+        return "/file?name=$path";
     }
 
     public static function RemoveCharacters(string $str) : string
@@ -138,5 +152,23 @@ class File
         } 
         $error = "Impossibile uploadare il file!<!--Path: $actual_path -->";
         return false;
+    }
+
+    public static function ListDirectory(string $dir): array {
+        $result = [];
+        $files = scandir(directory: $dir);
+    
+        foreach ($files as $file) {
+            if ($file === '.' || $file === '..') continue;
+    
+            $path = $dir . DIRECTORY_SEPARATOR . $file;
+            if (is_dir(filename: $path)) {
+                $result[$file] = self::ListDirectory(dir: $path);
+            } else {
+                $result[$file] = $file;
+            }
+        }
+    
+        return $result;
     }
 }

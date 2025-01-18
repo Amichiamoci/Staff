@@ -28,3 +28,7 @@ define(
 define(
     constant_name: 'MAIN_SITE_URL',
     value: Security::LoadEnvironmentOfFromFile(var: 'MAIN_SITE_URL', default: 'https://www.amichiamoci.it'));
+
+define(
+    constant_name: 'SERVER_UPLOAD_PATH', 
+    value: $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'Uploads');

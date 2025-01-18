@@ -1,5 +1,6 @@
 ./db
-./uploads
+Uploads
+!Uploads/.htaccess
 ./.github
 ./.vscode
 ./composer.lock
