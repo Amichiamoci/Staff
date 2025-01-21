@@ -5,6 +5,7 @@ require_once __DIR__ . '/Routes.php';
 require_once __DIR__ . '/config.php';
 
 use Amichiamoci\Models\User;
+use Amichiamoci\Models\Staff;
 
 $uri = $_SERVER['REQUEST_URI'];
 
@@ -36,23 +37,21 @@ if (isset($user))
 
     if (!$user->HasAdditionalData())
     {
-        if ($user->LoadAdditionalData(connection: $connetion))
+        if ($user->LoadAdditionalData(connection: $connection))
         {
             $user->PutAdditionalInSession();
         }
     }
 
     // Load staff data
-    /*
-    if ($user->HasAdditionalData())
+    if ($user->HasAdditionalData() && isset($user->IdStaff))
     {
-        $staff = StaffBase::ById(connection: $connection, id: $user->IdStaff);
+        $staff = Staff::ById(connection: $connection, id: $user->IdStaff);
         if (isset($staff))
         {
             $router->SetStaff(staff: $staff);
         }
     }
-    */
 }
 
 $router->dispatch(uri: $uri);

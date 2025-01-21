@@ -47,7 +47,7 @@ if (!isset($staff) || !($staff instanceof StaffBase)) {
                         Taglia
                     </dt>
                     <dd class="col-sm-9">
-                        <?= htmlspecialchars(string: (string)$staff->Taglia) ?>
+                        <?= htmlspecialchars(string: $staff->Taglia->value) ?>
                     </dd>
                 <?php } ?>
                 

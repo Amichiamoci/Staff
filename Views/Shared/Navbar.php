@@ -8,12 +8,10 @@
         </a>
         <button class="navbar-toggler" 
                 type="button"
-                role="button"
                 data-toggle="collapse"
                 data-bs-toggle="collapse"
                 data-target="#navbar-collapse"
                 data-bs-target="#navbar-collapse" 
-                aria-controls="navbarSupportedContent"
                 aria-expanded="false" aria-label="Toggle navigation">
 
             

@@ -3,21 +3,21 @@ namespace Amichiamoci\Controllers;
 
 use Amichiamoci\Models\Message;
 use Amichiamoci\Models\MessageType;
-use Amichiamoci\Models\StaffBase;
+use Amichiamoci\Models\Staff;
 use Amichiamoci\Models\User;
 use Amichiamoci\Utils\Cookie;
 use Amichiamoci\Utils\File;
 class Controller {
     protected \mysqli|false $DB = false;
     private ?User $User;
-    private ?StaffBase $Staff;
+    private ?Staff $Staff;
     private string $Path;
     private array $AlertsToDisplay = [];
 
     public function __construct(
         ?\mysqli $connection,
         ?User $user = null,
-        ?StaffBase $staff = null,
+        ?Staff $staff = null,
         string $path = '',
     ) {
         if (isset($connection)) {
@@ -45,7 +45,7 @@ class Controller {
         return isset($this->User);
     }
 
-    protected function RequireStaff(): ?StaffBase {
+    protected function RequireStaff(): ?Staff {
         $this->RequireLogin(require_admin: false);
 
         if (isset($this->Staff))
@@ -53,16 +53,14 @@ class Controller {
             return $this->Staff;
         }
 
-        // Load staff on the fly if we can
-        /*
-        if ($this->DB && (
-                $this->User->HasAdditionalData() || 
-                $this->User->LoadAdditionalData(connection: $this->DB)
-            )
+        if (
+            $this->DB && 
+            $this->User->HasAdditionalData() && 
+            isset($this->User->IdStaff)
         ) {
-            $this->Staff = StaffBase::ById(connection: $this->DB, id: $this->User->IdStaff);
+            // Try to load staff on the fly
+            $this->Staff = Staff::ById(connection: $this->DB, id: $this->User->IdStaff);
         }
-        */
 
         if (!isset($this->Staff) && !$this->User->IsAdmin) {
             $this->NotAuthorized();

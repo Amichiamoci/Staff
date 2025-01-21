@@ -202,7 +202,8 @@ class User implements DbEntity
     {
         if (!$connection || $this->Id === 0)
             return false;
-        $get_anagrafica_query = "CALL GetStaffFromUserId($this->Id)";
+        $id = $this->Id;
+        $get_anagrafica_query = "CALL GetStaffFromUserId($id)";
         $result = $connection->query(query: $get_anagrafica_query);
         if (!$result)
         {
@@ -221,7 +222,7 @@ class User implements DbEntity
     }
     public function HasAdditionalData(): bool
     {
-        return $this->IdAnagrafica !== 0;
+        return !empty($this->IdAnagrafica);
     }
     public function PutAdditionalInSession() : bool
     {

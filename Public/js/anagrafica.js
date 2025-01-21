@@ -13,15 +13,16 @@ const provenienza = document.getElementById('provenienza');
 /**
  * @type {HTMLParagraphElement}
  */
-const resp = document.getElementById('codice-fiscale-check-result');
+const resp = document.getElementById('error-body');
 /**
  * @type {HTMLInputElement}
  */
-const btn = document.getElementById('submit-btn');
+const btn = document.getElementById('submit');
 
 function checkCF()
 {
     btn.disabled = false;
+    resp.parentElement.classList.add('d-none');
     resp.innerHTML = '';
     const code = cf.value.toUpperCase().trim();
     if (code == '')
@@ -30,15 +31,14 @@ function checkCF()
     if (!CodiceFiscale.check(code))
     {
         btn.disabled = true;
+        resp.parentElement.classList.remove('d-none');
         resp.innerHTML = 'Codice fiscale non valido!<br>Controlla di non aver inserito spazi o caratteri non validi';
         return;
     }
     
     const inverse = CodiceFiscale.computeInverse(code);
-    if (window.hide_cf_fileds) {
-        compleanno.value = inverse.birthday;
-        provenienza.value = inverse.birthplace + ', ' + inverse.birthplaceProvincia;
-    }
+    compleanno.value = inverse.birthday;
+    provenienza.value = inverse.birthplace + ', ' + inverse.birthplaceProvincia;
     let message = [];
     if (compleanno.value != '' && compleanno.value !== inverse.birthday) {
         btn.disabled = true;
@@ -78,6 +78,7 @@ function checkCF()
     }
     if (message.length > 0)
     {
+        resp.parentElement.classList.remove('d-none');
         resp.innerHTML = message.join('<br>');
     }
 }

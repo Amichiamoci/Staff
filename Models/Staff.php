@@ -35,7 +35,7 @@ class Staff extends StaffBase
             {
                 $data = new self(
                     id: $id, 
-                    nome: null
+                    nome: $row['nome'],
                 );
                 $data->Commissioni = array_map(callback: "trim", array: explode(separator: ',', string: $row["commissioni"]));
                 $data->Parrocchia = new Parrocchia(

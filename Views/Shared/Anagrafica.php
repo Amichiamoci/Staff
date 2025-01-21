@@ -158,7 +158,7 @@ use Amichiamoci\Utils\File;
                     Taglia
                 </dt>
                 <dd class="col-sm-8">
-                    <?= htmlspecialchars(string: $anagrafica->Iscrizione->Taglia) ?>
+                    <?= htmlspecialchars(string: $anagrafica->Iscrizione->Taglia->value) ?>
                 </dd>
 
                 <dt class="col-sm-4">

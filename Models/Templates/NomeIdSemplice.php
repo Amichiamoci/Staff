@@ -6,7 +6,7 @@ abstract class NomeIdSemplice implements DbEntity
 {
     public int $Id = 0;
     public string $Nome = "";
-    abstract static function Table(): string;
+    abstract protected static function Table(): string;
     public function __construct(
         string|int|null $id,
         string|null $nome
@@ -21,8 +21,8 @@ abstract class NomeIdSemplice implements DbEntity
         if (!$connection)
             return [];
 
-        $table = self::Table();
-        $class_name = self::class;
+        $class_name = get_called_class();
+        $table = $class_name::Table();
         $result = $connection->query(query: "SELECT `id`, `nome` FROM `$table` ORDER BY `nome`");
 
         if (!$result)

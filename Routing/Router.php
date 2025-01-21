@@ -3,13 +3,13 @@ namespace Amichiamoci\Routing;
 
 use Amichiamoci\Controllers\Controller;
 use Amichiamoci\Models\User;
-use Amichiamoci\Models\StaffBase;
+use Amichiamoci\Models\Staff;
 
 class Router {
 
     private ?\mysqli $connection = null;
     private ?User $user = null;
-    private ?StaffBase $staff = null;
+    private ?Staff $staff = null;
     private array $routes = [];
 
     public function AddRouteAction(
@@ -108,7 +108,7 @@ class Router {
         $this->user = $user;
     }
     
-    public function SetStaff(StaffBase $staff): void {
+    public function SetStaff(Staff $staff): void {
         $this->staff = $staff;
     }
    

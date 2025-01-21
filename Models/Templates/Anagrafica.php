@@ -30,7 +30,7 @@ class Anagrafica
         $query = "SELECT `id`, `nome`, `cognome`, Eta(`data_nascita`) AS \"eta\" 
         FROM `anagrafiche`
         ORDER BY `cognome`, `nome` ASC";
-        $result = $connection->query($query);
+        $result = $connection->query(query: $query);
         if (!$result)
             return [];
         
@@ -50,6 +50,8 @@ class Anagrafica
         return $arr;
     }
 
+    public static function Table(): string { return "anagrafiche"; }
+
     public static function ById(\mysqli $connection, int $id): ?self
     {
         if (!$connection)
@@ -59,7 +61,7 @@ class Anagrafica
         FROM `anagrafiche`
         WHERE `id` = $id
         LIMIT 1";
-        $result = $connection->query($query);
+        $result = $connection->query(query: $query);
         if (!$result || $result->num_rows === 0)
             return null;
         
@@ -80,7 +82,7 @@ class Anagrafica
         if (!$connection)
             return "";
         $query = "CALL NomeDaAnagrafica($id)";
-        $result = $connection->query($query);
+        $result = $connection->query(query: $query);
         if (!$result)
         {
             $connection->next_result();

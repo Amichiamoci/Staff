@@ -11,9 +11,11 @@ enum Taglia: string
     case XXL = 'XXL';
     case XXXL = '3XL';
 
-    public function __tostring(): string {
+    /*
+    public function __toString(): string {
         return $this->value;
     }
+    */
 
     public static function All(): array {
         return array_column(array: self::cases(), column_key: 'value');

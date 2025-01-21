@@ -2,10 +2,16 @@
 
 namespace Amichiamoci\Controllers;
 
+use Amichiamoci\Models\Anagrafica;
 use Amichiamoci\Models\AnagraficaConIscrizione;
+use Amichiamoci\Models\Templates\Anagrafica as AnagraficaBase;
+use Amichiamoci\Models\Message;
+use Amichiamoci\Models\MessageType;
+use Amichiamoci\Models\Parrocchia;
 use Amichiamoci\Models\Staff;
 use Amichiamoci\Models\StaffBase;
 use Amichiamoci\Models\TesseramentoCSI;
+use Amichiamoci\Models\TipoDocumento;
 
 class StaffController extends Controller
 {
@@ -57,6 +63,132 @@ class StaffController extends Controller
             view: 'Staff/csi',
             title: 'Tesseramenti CSI',
             data: ['iscrizioni' => TesseramentoCSI::All(connection: $this->DB)]
+        );
+    }
+
+    public function me(
+        ?int $anagrafica = null,
+        ?int $parrocchia = null,
+    ): int {
+        $user = $this->RequireLogin();
+        
+        if ($this->IsPost() && !empty($parrocchia)) {
+            if (isset($user->IdStaff)) {
+                // Update existing record
+
+                $res = Staff::ChangeParrocchia(
+                    connection: $this->DB, 
+                    staff: $user->IdStaff, 
+                    parrocchia: $parrocchia
+                );
+                if ($res) {
+                    $staff = $this->RequireStaff();
+                    $staff->Parrocchia->Id = $parrocchia;
+                }
+            } else {
+                // Create new staff
+
+                $staff_id = Staff::Create(
+                    connection: $this->DB, 
+                    id_anagrafica: $anagrafica, 
+                    user: $user->Id, 
+                    parrocchia: $parrocchia
+                );
+                $res = isset($staff_id);
+                if ($res) {
+                    // Load the new data in the existing session
+                    $user->IdStaff = $staff_id;
+                    $user->IdAnagrafica = $anagrafica;
+                    $user->RealName = Anagrafica::NomeDaId(connection: $this->DB, id: $anagrafica);
+                    $user->PutAdditionalInSession();
+                    $this->RequireStaff();
+                }
+            }
+
+            if ($res) {
+                $this->Message(
+                    message: new Message(
+                        type: MessageType::Success, 
+                        content: 'Dati inseriti/modificati correttamente'));
+            } else {
+                $this->Message(
+                    message: new Message(
+                        type: MessageType::Error, 
+                        content: 'Non è stato possibile inserire o modificare i dati'));
+            }
+        }
+
+        return $this->Render(
+            view: 'Staff/me',
+            title: 'Account STAFF',
+            data: [
+                'anagrafiche' => AnagraficaBase::All(connection: $this->DB),
+                'parrocchie' => Parrocchia::All(connection: $this->DB),
+            ]
+        );
+    }
+
+    public function new_anagrafica(
+        // Required parameters
+        string $nome = '',
+        string $cognome = '',
+        string $cf = '',
+        int $doc_type = 1,
+        string $doc_code = '',
+        string $doc_expires = '',
+        string $email = '',
+        string $compleanno = '',
+        string $provenienza= '',
+
+        // Optional arguements
+        ?string $telefono = null,
+    ): int {
+        $this->RequireLogin();
+
+        $types = TipoDocumento::All(connection: $this->DB);
+        $anagrafica = null;
+
+        if (self::IsPost()) {
+            if (
+                empty($nome) ||
+                empty($cognome) ||
+                empty($cf) ||
+                empty($doc_code) ||
+                empty($doc_expires) ||
+                empty($email) ||
+                empty($provenienza) ||
+                empty($compleanno)
+            ) {
+                return $this->BadRequest();
+            }
+
+            // TODO: Handle file submission
+
+            $id = Anagrafica::Create(
+                connection: $this->DB,
+                nome: $nome,
+                cognome: $cognome,
+                provenienza: $provenienza,
+                compleanno: $compleanno,
+                tel: $telefono,
+                email: $email,
+                cf: $cf,
+
+                doc_type: $doc_type,
+                doc_code: $doc_code,
+                doc_expires: $doc_expires,
+                nome_file: ''
+            );
+        }
+
+
+        return $this->Render(
+            view: 'Staff/new-anagrafica',
+            title: 'Registra persona',
+            data: [
+                'tipi_documento' => $types,
+                'anagrafica' => $anagrafica,
+            ]
         );
     }
 }

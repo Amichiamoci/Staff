@@ -4,7 +4,7 @@ use Amichiamoci\Models\Templates\NomeIdSemplice;
 
 class Parrocchia extends NomeIdSemplice
 {
-    public static function Table(): string { return "parrocchie"; }
+    protected static function Table(): string { return "parrocchie"; }
     public static function ByUserId(\mysqli $connection, int $user) : ?self
     {
         if (!$connection || $user <= 0)
