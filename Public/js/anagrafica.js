@@ -24,6 +24,7 @@ function checkCF()
     btn.disabled = false;
     resp.parentElement.classList.add('d-none');
     resp.innerHTML = '';
+    cf.classList.remove('is-valid', 'is-invalid');
     const code = cf.value.toUpperCase().trim();
     if (code == '')
         return;
@@ -31,10 +32,12 @@ function checkCF()
     if (!CodiceFiscale.check(code))
     {
         btn.disabled = true;
+        cf.classList.add('is-invalid');
         resp.parentElement.classList.remove('d-none');
         resp.innerHTML = 'Codice fiscale non valido!<br>Controlla di non aver inserito spazi o caratteri non validi';
         return;
     }
+    cf.classList.add('is-valid');
     
     const inverse = CodiceFiscale.computeInverse(code);
     compleanno.value = inverse.birthday;

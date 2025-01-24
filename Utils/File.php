@@ -1,6 +1,8 @@
 <?php
 namespace Amichiamoci\Utils;
 
+use Mpdf\Mpdf;
+
 class File
 {
     public static function GetMimeType(string $filename) : string
@@ -90,12 +92,21 @@ class File
     }
 
     public static array $ALLOWED_EXT = [
-        "jpg",        "jpeg",        "gif",
-        "png",        "bmp",        "avif",
-        "tif",        "tiff",        "webp",
-        "heic",        "heif",        "pdf",        
-        "doc",        "docx",         "ppt",
-        "pptx"
+        "jpg", 
+        "jpeg", 
+        "png",
+        //"bmp",
+        //"avif",
+        //"tif", 
+        //"tiff",
+        "webp",
+        "heic",
+        "heif",
+        "pdf",        
+        "doc",
+        "docx",
+        //"ppt",
+        //"pptx"
     ];
     public static function ALLOWED_EXT_DOTS(): array {
         return array_map(
@@ -110,9 +121,10 @@ class File
         '0123456789 _';
 
     public static function MAX_SIZE(): int {
-        return array_key_exists('FILE_MAX_SIZE', $_ENV) ?
-        $_ENV['FILE_MAX_SIZE'] : 
-        10 * 1024 * 1024;
+        return 
+            array_key_exists(key: 'FILE_MAX_SIZE', array: $_ENV) ?
+                $_ENV['FILE_MAX_SIZE'] : 
+                10 * 1024 * 1024;
     }
 
     public static function Upload($file, string &$future_file_name, string &$error): bool
@@ -170,5 +182,90 @@ class File
         }
     
         return $result;
+    }
+
+    public static function UploadingFiles(string $form_name): array{
+        if (array_key_exists(key: $form_name, array: $_FILES)) {
+            return $_FILES[$form_name];
+        }
+        return [];
+    }
+
+    public static function IsUploadError(mixed $file): bool {
+        return 
+            !array_key_exists(key: 'error', array: $file) || 
+            $file['error'] !== UPLOAD_ERR_OK;
+    }
+
+    public static function IsUploadValidFileSize(mixed $file): bool {
+        return
+            !array_key_exists(key: 'size', array: $file) ||
+            (int)$file['size'] > self::MAX_SIZE(); 
+    }
+
+    public static function IsAllowedMimeType(mixed $file): bool {
+        if (!array_key_exists(key: 'tmp_name', array: $file))
+            return false;
+        try {
+            $mime = self::GetMimeType(filename: $file['tmp_name']);
+            $whitelist = [];//self::AllowedMimeTypes();
+            return in_array(needle: $mime, haystack: $whitelist);
+        } catch (\Exception) {
+            return false;
+        }
+    }
+
+    public static function IsUploadOk(mixed $file): bool {
+        return 
+            // !!$file &&
+            !self::IsUploadError(file: $file) &&
+            self::IsUploadValidFileSize(file: $file) &&
+            self::IsAllowedMimeType(file: $file);
+    }
+
+    public static function CombinePdfs(array $file_names, string $final_name): bool {
+        /*
+        $merger = new PDFMerger();
+        foreach ($filenames as $file) {
+            $merger->addPDF($file);
+        }
+        $object = $merger->merge(outputpath: $final_name);
+        */
+        try {
+            $pdf = new Mpdf([
+                'mode' => 'utf-8',
+            ]);
+            $pdf->SetImportUse();
+
+            if (!is_file(filename: $final_name)) {
+                // Create file if not existing yet
+                file_put_contents(filename: $final_name, data: '');
+            }
+
+            // Filter out non-existing files
+            $file_names = array_filter(array: $file_names, callback: function (string $file): bool {
+                return is_file(filename: $file) && str_ends_with(haystack: $file, needle: '.pdf');
+            });
+
+            for ($file_index = 1; $file_index <= count(value: $file_names); $file_index++)
+            {
+                $pages_count = $pdf->SetSourceFile($file_names[$file_index]);
+                for ($page_index = 1; $page_index <= $pages_count; $page_index++)
+                {
+                    $tplId = $pdf->ImportPage($page_index);
+                    $pdf->UseTemplate($tplId);
+                    if (($file_index < count(value: $file_names)) || ($page_index != $pages_count))
+                    {
+                        $pdf->WriteHTML('<pagebreak />');
+                    }
+                }
+            }
+
+            $pdf->Output($final_name, 'F');
+            return true;
+
+        } catch (\Exception) {
+            return false;
+        }
     }
 }

@@ -1,20 +1,30 @@
 FROM php:8.4-apache AS base
-RUN docker-php-ext-install mysqli
-RUN apt update && apt install -y default-mysql-client cron
+RUN apt update && apt install -y \
+        libfreetype6-dev \
+        libjpeg62-turbo-dev \
+        libpng-dev \
+        default-mysql-client \
+        libzip-dev \
+        zip \
+        cron \
+        git \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd mysqli zip
 
 WORKDIR /var/www/html
-COPY . .
-VOLUME [ "./Uploads" ]
-RUN ./build-starting-db.sh
 
 # Download dependencies via composer
-FROM composer:latest AS deps
+FROM base AS deps
+COPY --from=composer /usr/bin/composer /usr/bin/composer
 COPY composer.json .
 RUN composer update --no-interaction --no-dev
 
-# Import the downloaded dependencies
+
 FROM base AS final
-COPY --from=deps /app/vendor /var/www/html/vendor
+COPY --from=deps /var/www/html/vendor ./vendor
+COPY . .
+VOLUME [ "./Uploads" ]
+RUN ./build-starting-db.sh
 
 RUN a2enmod rewrite
 

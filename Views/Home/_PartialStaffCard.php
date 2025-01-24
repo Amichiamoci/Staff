@@ -65,10 +65,8 @@ if (isset($staff) && $staff instanceof Staff) {
                     href=""
                     class="btn btn-primary btn-lg"
                     title="Partecipa">
-                    <i class="bi bi-arrow-right"></i>
                     Partecipa ad
                     <?= SITE_NAME ?> <?= date(format: "Y") ?>
-                    <i class="bi bi-arrow-left"></i>
                 </a>
             <?php } ?>
         </div>

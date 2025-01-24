@@ -17,7 +17,10 @@ if ($is_editing) {
     </h1>
 <?php } ?>
 
-<form method="post" id="anagrafica-form" enctype="multipart/form-data">
+<form 
+    method="post" 
+    id="anagrafica-form" 
+    enctype="multipart/form-data">
     <div class="form-floating mb-3">
         <input 
             required
@@ -182,10 +185,5 @@ if ($is_editing) {
     </div>
 </form>
 
-<script>
-    $().ready(function() {
-        $("#anagrafica-form").validate();
-    });
-</script>
 <script src="/Public/js/codicefiscale.js" defer></script>
 <script src="/Public/js/anagrafica.js" defer></script>

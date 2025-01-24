@@ -102,6 +102,9 @@ class Controller {
             }
         }
 
+        if ($status_code !== 200)
+            http_response_code(response_code: $status_code);
+
         require_once dirname(path: __DIR__) . "/Views/Shared/Template.php";
         
         return $status_code;
@@ -166,7 +169,6 @@ class Controller {
     }
 
     protected function NotFound(): int {
-        http_response_code(response_code: 404);
         return $this->Render(
             view: 'Shared/Error',
             title: 'Errore 404',
@@ -178,7 +180,6 @@ class Controller {
     }
 
     protected function NotAuthorized(): int {
-        http_response_code(response_code: 401);
         return $this->Render(
             view: 'Shared/Error',
             title: 'Errore 401',
@@ -190,16 +191,25 @@ class Controller {
     }
 
     protected function BadRequest(): int {
-        http_response_code(response_code: 400);
-
-        return 400;
+        return $this->Render(
+            view: 'Shared/Error',
+            title: 'Errore 400',
+            data: [
+                'main_banner' => 'Richiesta non valida'
+            ],
+            status_code: 400,
+        );
     }
 
     protected function InternalError(): int {
-        http_response_code(500);
-
-        // TODO: show error page
-        return 500;
+        return $this->Render(
+            view: 'Shared/Error',
+            title: 'Errore 500',
+            data: [
+                'main_banner' => 'Qualcosa non ha funzionato'
+            ],
+            status_code: 500,
+        );
     }
 
     protected static function IsPost(): bool {

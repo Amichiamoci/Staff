@@ -66,5 +66,22 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 
         crossorigin="anonymous"></script>
     <script src="/Public/js/darkmode.js"></script>
+    <script>
+        $.validator.setDefaults({
+            validClass: "d-none",
+            errorClass: "d-none",
+            highlight: function (element, errorClass, validClass) {
+                $(element).addClass("is-invalid").removeClass("is-valid");
+            },
+            unhighlight: function (element, errorClass, validClass) {
+                $(element).addClass("is-valid").removeClass("is-invalid");
+            },
+        });
+        $(document).ready(function() {
+            $("form").each(function() {
+                $(this).validate();
+            });
+        });
+    </script>
 </body>
 </html>
