@@ -50,7 +50,8 @@
             class="btn btn-secondary btn-floating btn-lg d-none position-fixed z-3"
             data-btn-to-top="true"
             style="bottom: 20px; right: 20px;"
-            title="Torna su">
+            title="Torna su"
+            id="scroll-top">
         <i class="bi bi-arrow-up"></i>
     </button>
 
@@ -67,6 +68,7 @@
         crossorigin="anonymous"></script>
     <script src="/Public/js/darkmode.js"></script>
     <script>
+        // Form validation
         $.validator.setDefaults({
             validClass: "d-none",
             errorClass: "d-none",
@@ -81,6 +83,21 @@
             $("form").each(function() {
                 $(this).validate();
             });
+        });
+
+        // Scroll to top
+        $(window).on('scroll', function() {
+            if ($(window).scrollTop() > 300) {
+                $('#scroll-top').removeClass('d-none');
+            } else {
+                $('#scroll-top').addClass('d-none');
+            }
+        });
+        $('#scroll-top').on('click', function(e) {
+            e.preventDefault();
+            $('html, body').animate({
+                scrollTop: 0,
+            }, '300');
         });
     </script>
 </body>
