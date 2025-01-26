@@ -21,3 +21,11 @@ SELECT DISTINCT
     a.`email`
 FROM `anagrafiche_espanse` AS a
 WHERE a.`is_compleanno` = 1;
+
+CREATE OR REPLACE VIEW `statistiche_nascita` AS
+SELECT 
+    UPPER(a.`luogo_nascita`) AS "luogo", 
+    COUNT(a.`id`) AS "nati"
+FROM `anagrafiche` a
+GROUP BY UPPER(a.`luogo_nascita`)
+ORDER BY COUNT(a.`id`) DESC; 

@@ -162,7 +162,7 @@ class Anagrafica extends AnagraficaBase
         $a = [
             $this->Nome,
             $this->Cognome,
-            $this->Nome . " " . $this->Cognome,
+            // $this->Nome . " " . $this->Cognome,
         ];
         if (isset($this->Email)) {
             $a[] = $this->Email;
@@ -171,5 +171,34 @@ class Anagrafica extends AnagraficaBase
             $a[] = $this->Phone;
         }
         return join(separator: ' ', array: $a);
+    }
+
+    public function AmericanBirthDay(): string {
+        $date = \DateTime::createFromFormat(format: 'd/m/Y', datetime: $this->BirthDay);
+        if (!$date) {
+            return $this->BirthDay;
+        }
+        return $date->format(format: 'Y-m-d');
+    }
+
+    public static function GroupFrom(\mysqli $connection): array
+    {
+        if (!$connection) return [];
+        $query = "SELECT * FROM `statistiche_nascita`";
+
+        $result = $connection->query($query);
+        if (!$result) {
+            return [];
+        }
+
+        $arr = [];
+        while ($row = $result->fetch_assoc())
+        {
+            $arr[] = [
+                'where' => $row['luogo'],
+                'count' => (int)$row['nati']
+            ];
+        }
+        return $arr;
     }
 }

@@ -45,6 +45,11 @@
                                     Tutte le anagrafiche
                                 </a>
                             </li>
+                            <li>
+                                <a class="dropdown-item" href="/staff/new_anagrafica">
+                                    Nuova anagrafica
+                                </a>
+                            </li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">

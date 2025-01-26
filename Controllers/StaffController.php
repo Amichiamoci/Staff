@@ -12,6 +12,7 @@ use Amichiamoci\Models\Staff;
 use Amichiamoci\Models\StaffBase;
 use Amichiamoci\Models\TesseramentoCSI;
 use Amichiamoci\Models\TipoDocumento;
+use Amichiamoci\Utils\File;
 
 class StaffController extends Controller
 {
@@ -142,11 +143,13 @@ class StaffController extends Controller
 
         // Optional arguements
         ?string $telefono = null,
+
+        // Is editing?
+        ?int $id = null,
     ): int {
         $this->RequireLogin();
 
         $types = TipoDocumento::All(connection: $this->DB);
-        $anagrafica = null;
 
         if (self::IsPost()) {
             if (
@@ -162,7 +165,35 @@ class StaffController extends Controller
                 return $this->BadRequest();
             }
 
+            if (!empty($id)) {
+                //
+                // Edit an existing record
+                //
+
+                $this->Message(message: Message::Success(content: 'Dati correttamente modificati'));
+                return $this->edit_anagrafica(id: $id);
+            }
+
+            //
+            // Create new record
+            //
+
             // TODO: Handle file submission
+            $files = File::UploadingFiles(form_name: 'doc');
+            $files = array_filter(array: $files, callback: function(array $file): bool {
+                return File::IsUploadOk(file: $file);
+            });
+            if (count(value: $files) === 0) {
+                return $this->BadRequest();
+            }
+            $target_file_name = 
+                "documenti" . DIRECTORY_SEPARATOR . 
+                "documento_" . str_replace(search: '.', replace: '', subject: uniqid(more_entropy: true));
+            $actual_path = File::UploadDocumentsMerge(files: $files, final_name: $target_file_name);
+            if (empty($actual_path)) {
+                // Error
+            }
+
 
             $id = Anagrafica::Create(
                 connection: $this->DB,
@@ -177,8 +208,23 @@ class StaffController extends Controller
                 doc_type: $doc_type,
                 doc_code: $doc_code,
                 doc_expires: $doc_expires,
-                nome_file: ''
+                nome_file: File::AbsoluteToDbPath($actual_path)
             );
+
+            if (isset($id))
+            {
+                // Everything went ok
+                return $this->Render(
+                    view: 'Staff/created-anagrafica',
+                    title: $nome . ' correttamente aggiunto',
+                    data: [
+                        'id' => $id,
+                        'nome' => $nome,
+                    ]
+                );
+            }
+
+            $this->Message(message: Message::Error(content: 'Non è stato possibile registrare i dati!'));
         }
 
 
@@ -187,7 +233,30 @@ class StaffController extends Controller
             title: 'Registra persona',
             data: [
                 'tipi_documento' => $types,
-                'anagrafica' => $anagrafica,
+                'anagrafica' => null,
+            ]
+        );
+    }
+
+    public function edit_anagrafica(
+        ?int $id = null
+    ): int {
+        $this->RequireLogin();
+        if (!isset($id))
+            return $this->BadRequest();
+        
+        $a = Anagrafica::ById(connection: $this->DB, id: $id);
+        if (!isset($a))
+            return $this->NotFound();
+
+        $types = TipoDocumento::All(connection: $this->DB);
+
+        return $this->Render(
+            view: 'Staff/new-anagrafica',
+            title: 'Modifica '. $a->Nome,
+            data: [
+                'tipi_documento' => $types,
+                'anagrafica' => $a,
             ]
         );
     }

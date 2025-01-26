@@ -32,3 +32,6 @@ define(
 define(
     constant_name: 'SERVER_UPLOAD_PATH', 
     value: $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'Uploads');
+define(
+    constant_name: 'SERVER_UPLOAD_TMP', 
+    value: SERVER_UPLOAD_PATH . DIRECTORY_SEPARATOR . 'tmp');

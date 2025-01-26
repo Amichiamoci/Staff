@@ -14,7 +14,7 @@
 
     <datalist id="anagrafiche-data-list">
         <?php foreach ($anagrafiche as $anagrafica) { 
-            $keywords = str_split(string: $anagrafica->KeyWords()); 
+            $keywords = explode(separator: ' ', string: $anagrafica->KeyWords()); 
             foreach ($keywords as $keyword) { ?>
                 <option>
                     <?= htmlspecialchars(string: $keyword)?>

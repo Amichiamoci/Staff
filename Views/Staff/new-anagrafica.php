@@ -20,7 +20,13 @@ if ($is_editing) {
 <form 
     method="post" 
     id="anagrafica-form" 
-    enctype="multipart/form-data">
+    enctype="multipart/form-data"
+    action="/staff/new_anagrafica">
+
+    <?php if ($is_editing) { ?>
+        <input type="hidden" name="id" required value="<?= $anagrafica->Id?> ">
+    <?php } ?>
+
     <div class="form-floating mb-3">
         <input 
             required
@@ -72,7 +78,7 @@ if ($is_editing) {
             type="date" 
             class="form-control" 
             id="compleanno" name="compleanno" 
-            value="<?= $is_editing ? htmlspecialchars(string: $anagrafica->BirthDay) : '' ?>"
+            value="<?= $is_editing ? htmlspecialchars(string: $anagrafica->AmericanBirthDay()) : '' ?>"
             max="<?= date(format: "Y-m-d") ?>">
         <label for="compleanno">Data di nascita</label>
         <div class="invalid-feedback">
@@ -97,7 +103,7 @@ if ($is_editing) {
             type="email" 
             class="form-control" 
             id="email" name="email" 
-            value="<?= $is_editing ? htmlspecialchars(string: $anagrafica->Email) : '' ?>">
+            value="<?= ($is_editing && !empty($anagrafica->Email)) ? htmlspecialchars(string: $anagrafica->Email) : '' ?>">
         <label for="email">Email</label>
         <div class="invalid-feedback">
             Per favore, immetti un'email
@@ -161,7 +167,7 @@ if ($is_editing) {
             required
             type="file" multiple 
             class="form-control" 
-            id="doc" name="doc"
+            id="doc" name="doc[]"
             accept="">
         <label for="doc">Documento</label>
         <div class="invalid-feedback">

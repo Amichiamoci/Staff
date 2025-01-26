@@ -26,6 +26,13 @@ use Amichiamoci\Utils\File;
             <?php } elseif ($anagrafica->Sex === 'F') { ?>
                 <i class="bi bi-gender-female text-end"></i>
             <?php } ?>
+
+            <a 
+                href="/staff/edit_anagrafica?id=<?= $anagrafica->Id ?>"
+                class="link-underline link-underline-opacity-0 link-primary text-end"
+                title="Modifica <?= htmlspecialchars(string: $anagrafica->Nome) ?>">
+                <i class="bi bi-pencil-square"></i>
+            </a>
         </div>
 
         <?php if ($user->IsAdmin) { ?>

@@ -38,12 +38,23 @@ class File
         return realpath(path: SERVER_UPLOAD_PATH . $db_path);
     }
 
+    public static function AbsoluteToDbPath(string $server_path): string {
+        if (!str_starts_with(haystack: $server_path, needle: SERVER_UPLOAD_PATH)) {
+            return $server_path;
+        } 
+        return substr(string: $server_path, offset: strlen(string: SERVER_UPLOAD_PATH));
+    }
+
     public static function Exists(string $db_path): bool
     {
         $res = self::ServerPath(db_path: $db_path);
         if (!$res) 
             return false;
         return is_file(filename: $res);
+    }
+    public static function Delete(string $server_path): bool
+    {
+        return file_exists(filename: $server_path) && unlink(filename: $server_path);
     }
 
     public static function Size(string $db_path): string
@@ -184,43 +195,60 @@ class File
         return $result;
     }
 
-    public static function UploadingFiles(string $form_name): array{
-        if (array_key_exists(key: $form_name, array: $_FILES)) {
-            return $_FILES[$form_name];
+    public static function UploadingFiles(string $form_name): array {
+        if (!array_key_exists(key: $form_name, array: $_FILES)) {
+            return [];
         }
-        return [];
+
+        if (is_array(value: $_FILES[$form_name]['name'])) {
+            // Handling multiple files
+            return self::UploadingFilesParse(files: $_FILES[$form_name]);
+        }
+
+        // Handling only one file
+        return [ $_FILES[$form_name] ];
+    }
+    private static function UploadingFilesParse(array $files): array {
+        $result = [];
+        //print_r($_FILES);
+        $num_files = count(value: $files['name']);
+        $keys = array_keys($files);
+        for ($i = 0; $i < $num_files; $i++)
+        {
+            $file = [];
+            foreach ($keys as $key)
+            {
+                $file[$key] = $files[$key][$i];
+            }
+            $result[] = $file;
+        }
+        return $result;
     }
 
     public static function IsUploadError(mixed $file): bool {
         return 
-            !array_key_exists(key: 'error', array: $file) || 
-            $file['error'] !== UPLOAD_ERR_OK;
+            array_key_exists(key: 'error', array: $file) && 
+            (int)$file['error'] !== UPLOAD_ERR_OK;
     }
 
     public static function IsUploadValidFileSize(mixed $file): bool {
         return
-            !array_key_exists(key: 'size', array: $file) ||
-            (int)$file['size'] > self::MAX_SIZE(); 
+            array_key_exists(key: 'size', array: $file) &&
+            (int)$file['size'] <= self::MAX_SIZE(); 
     }
 
-    public static function IsAllowedMimeType(mixed $file): bool {
-        if (!array_key_exists(key: 'tmp_name', array: $file))
+    public static function IsAllowedExtension(mixed $file): bool {
+        if (!array_key_exists(key: 'name', array: $file))
             return false;
-        try {
-            $mime = self::GetMimeType(filename: $file['tmp_name']);
-            $whitelist = [];//self::AllowedMimeTypes();
-            return in_array(needle: $mime, haystack: $whitelist);
-        } catch (\Exception) {
-            return false;
-        }
+        $ext = pathinfo(path: $file['name'], flags: PATHINFO_EXTENSION);
+        return in_array(needle: $ext, haystack: self::$ALLOWED_EXT);
     }
 
     public static function IsUploadOk(mixed $file): bool {
         return 
-            // !!$file &&
             !self::IsUploadError(file: $file) &&
             self::IsUploadValidFileSize(file: $file) &&
-            self::IsAllowedMimeType(file: $file);
+            self::IsAllowedExtension(file: $file);
     }
 
     public static function CombinePdfs(array $file_names, string $final_name): bool {
@@ -234,8 +262,9 @@ class File
         try {
             $pdf = new Mpdf([
                 'mode' => 'utf-8',
+                'tempDir' => SERVER_UPLOAD_TMP,
             ]);
-            $pdf->SetImportUse();
+            // $pdf->SetImportUse();
 
             if (!is_file(filename: $final_name)) {
                 // Create file if not existing yet
@@ -247,14 +276,14 @@ class File
                 return is_file(filename: $file) && str_ends_with(haystack: $file, needle: '.pdf');
             });
 
-            for ($file_index = 1; $file_index <= count(value: $file_names); $file_index++)
+            for ($file_index = 0; $file_index < count(value: $file_names); $file_index++)
             {
                 $pages_count = $pdf->SetSourceFile($file_names[$file_index]);
                 for ($page_index = 1; $page_index <= $pages_count; $page_index++)
                 {
                     $tplId = $pdf->ImportPage($page_index);
                     $pdf->UseTemplate($tplId);
-                    if (($file_index < count(value: $file_names)) || ($page_index != $pages_count))
+                    if (($file_index < count(value: $file_names) - 1) || ($page_index != $pages_count))
                     {
                         $pdf->WriteHTML('<pagebreak />');
                     }
@@ -264,8 +293,76 @@ class File
             $pdf->Output($final_name, 'F');
             return true;
 
-        } catch (\Exception) {
+        } catch (\Exception $ex) {
+            echo $ex->getMessage();
             return false;
+        }
+    }
+
+    public static function ImageToPdf(string $img): ?string {
+        return null;
+    }
+
+    public static function UploadDocumentsMerge(array $files, string $final_name): ?string
+    {
+        if (empty($final_name)) {
+            $final_name = uniqid(more_entropy: true);
+        }
+        if (!str_starts_with(haystack: $final_name, needle: DIRECTORY_SEPARATOR)) {
+            $final_name = DIRECTORY_SEPARATOR . $final_name;
+        }
+        $final_name = SERVER_UPLOAD_PATH . $final_name;
+
+        if (count(value: $files) === 0) {
+            return null;
+        }
+
+        if (array_any(array: $files, callback: function ($file): bool {
+            $extension = pathinfo(path: $file['name'], flags: PATHINFO_EXTENSION);
+            return $extension === 'docx' && $extension === 'doc';
+        })) {
+            // Upload a single docx/doc file
+        } else {
+            $final_name .= ".pdf";
+            // Merge all files into a pdf
+            $paths = [];
+            foreach ($files as $file)
+            {
+                $extension = pathinfo(path: $file['name'], flags: PATHINFO_EXTENSION);
+                $pre_merge_name = 
+                    SERVER_UPLOAD_TMP . DIRECTORY_SEPARATOR .
+                    uniqid(more_entropy: true) . "." . $extension;
+                
+                if (!move_uploaded_file(from: $file['tmp_name'], to: $pre_merge_name)) {
+                    // Error in saving the file
+                    return null;
+                }
+
+                if ($extension !== 'pdf') {
+                    // Convert image to pdf
+                    $pdf_path = self::ImageToPdf(img: $pre_merge_name);
+                    if (empty($pdf_path)) {
+                        // Could not convert to pdf
+                        return null;
+                    }
+                    $pre_merge_name = $pdf_path;
+                }
+
+                $paths[] = $pre_merge_name;
+            }
+
+            if (!self::CombinePdfs(
+                file_names: $paths, 
+                final_name: $final_name)) {
+                return null;
+            }
+
+            // Delete temporary files
+            foreach ($paths as $tmps) {
+                self::Delete(server_path: $tmps);
+            }
+
+            return $final_name;
         }
     }
 }

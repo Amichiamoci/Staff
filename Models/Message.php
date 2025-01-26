@@ -20,4 +20,21 @@ class Message
     }
 
     public function Icon(): string { return $this->Type->Icon(); }
+
+    public static function Error(string $content): self
+    {
+        return new self(type: MessageType::Error, content: $content);
+    }
+    public static function Warn(string $content): self
+    {
+        return new self(type: MessageType::Warning, content: $content);
+    }
+    public static function Info(string $content): self
+    {
+        return new self(type: MessageType::Info, content: $content);
+    }
+    public static function Success(string $content): self
+    {
+        return new self(type: MessageType::Success, content: $content);
+    }
 }
