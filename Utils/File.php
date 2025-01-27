@@ -259,7 +259,16 @@ class File
         }
         $object = $merger->merge(outputpath: $final_name);
         */
+        if (count(value: $file_names) === 0)
+        {
+            return false;
+        }
         try {
+            if (count(value: $file_names) === 1)
+            {
+                return copy(from: $file_names[0], to: $final_name);
+            }
+
             $pdf = new Mpdf([
                 'mode' => 'utf-8',
                 'tempDir' => SERVER_UPLOAD_TMP,
@@ -293,8 +302,8 @@ class File
             $pdf->Output($final_name, 'F');
             return true;
 
-        } catch (\Exception $ex) {
-            echo $ex->getMessage();
+        } catch (\Exception) {
+            // echo $ex->getMessage();
             return false;
         }
     }

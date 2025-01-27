@@ -192,6 +192,7 @@ class StaffController extends Controller
             $actual_path = File::UploadDocumentsMerge(files: $files, final_name: $target_file_name);
             if (empty($actual_path)) {
                 // Error
+                return $this->InternalError();
             }
 
 
@@ -208,7 +209,7 @@ class StaffController extends Controller
                 doc_type: $doc_type,
                 doc_code: $doc_code,
                 doc_expires: $doc_expires,
-                nome_file: File::AbsoluteToDbPath($actual_path)
+                nome_file: File::AbsoluteToDbPath(server_path: $actual_path)
             );
 
             if (isset($id))
