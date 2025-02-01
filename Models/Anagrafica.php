@@ -2,6 +2,7 @@
 
 namespace Amichiamoci\Models;
 use Amichiamoci\Models\Templates\Anagrafica as AnagraficaBase;
+use Amichiamoci\Utils\File;
 
 class Anagrafica extends AnagraficaBase
 {
@@ -17,7 +18,7 @@ class Anagrafica extends AnagraficaBase
     public string $DocumentExpiration = "";
     public string $DocumentFileName = "";
     
-    public static function Create(
+    public static function CreateOrUpdate(
         \mysqli $connection, 
         string $nome, string $cognome, 
         string $compleanno, 
@@ -25,33 +26,42 @@ class Anagrafica extends AnagraficaBase
         ?string $tel, 
         ?string $email,
         string $cf, 
-        int $doc_type, string $doc_code, 
-        string $doc_expires, string $nome_file, 
-        bool $is_extern = false
+        int $doc_type, 
+        string $doc_code, 
+        string $doc_expires, 
+        string $nome_file, 
+        bool $abort_if_existing = false,
+        ?bool &$already_existing = null,
     ) : int {
         if (!$connection)
             return 0;
-        $nome = $connection->real_escape_string($nome);
-        $cognome = $connection->real_escape_string($cognome);
-        $compleanno = $connection->real_escape_string($compleanno);
-        $provenienza = $connection->real_escape_string($provenienza);
-        $tel = empty($tel) ? "NULL" : "'" . $connection->real_escape_string($tel) . "'";
-        $email = empty($email) ? "NULL" : "'" . $connection->real_escape_string($email) . "'";
-        $cf = $connection->real_escape_string($cf);
-        $doc_code = $connection->real_escape_string($doc_code);
-        $doc_expires = $connection->real_escape_string($doc_expires);
-        $nome_file = $connection->real_escape_string($nome_file);
-        $extern = $is_extern ? "1" : "0";
-
-        $query = "CALL CreaAnagrafica('$nome', '$cognome', '$compleanno', '$provenienza', $tel, $email, '$cf', $doc_type, '$doc_code', '$doc_expires', '$nome_file', $extern);";
+        $result = $connection->execute_query(
+            query: 'CALL `CreaAnagrafica`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
+            params: [
+                $nome,
+                $cognome,
+                $compleanno,
+                $provenienza,
+                $tel,
+                $email,
+                $cf,
+                $doc_type,
+                $doc_code,
+                $doc_expires,
+                $nome_file,
+                $abort_if_existing ? '1' : '0'
+            ]);
         
-        $result = $connection->query($query);
         $id = 0;
         if ($result && $row = $result->fetch_assoc())
         {
-            if (isset($row["id"]))
+            if (array_key_exists(key: 'id', array: $row))
             {
-                $id = (int)$row["id"];
+                $id = (int)$row['id'];
+            }
+            if (array_key_exists(key: 'is_existing', array: $row) && isset($already_existing))
+            {
+                $already_existing = (bool)$row['is_existing'];
             }
             $result->close();
         }
@@ -186,7 +196,7 @@ class Anagrafica extends AnagraficaBase
         if (!$connection) return [];
         $query = "SELECT * FROM `statistiche_nascita`";
 
-        $result = $connection->query($query);
+        $result = $connection->query(query: $query);
         if (!$result) {
             return [];
         }
@@ -200,5 +210,36 @@ class Anagrafica extends AnagraficaBase
             ];
         }
         return $arr;
+    }
+
+    public static function UnreferencedDocuments(\mysqli $connection): array
+    {
+        if (!$connection) return [];
+
+        $query = 'SELECT DISTINCT(a.`documento`) AS "doc" FROM `anagrafiche` a WHERE a.`documento` IS NOT NULL';
+        $result = $connection->query(query: $query);
+        if (!$result) {
+            return [];
+        }
+
+        $arr = [];
+        while ($row = $result->fetch_assoc())
+        {
+            if (!File::Exists(db_path: $row['doc']))
+                continue;
+            $arr[] = $row['doc'];
+        }
+        $result->close();
+
+        $existing_files = array_filter(
+            array: File::ListDirectory(dir: SERVER_UPLOAD_PATH . DIRECTORY_SEPARATOR . 'documenti'),
+            callback: function (string $key, string|array $value): bool {
+                return is_string(value: $value) && $key === $value;
+        }, mode: ARRAY_FILTER_USE_BOTH);
+        $existing_files = array_map(callback: function (string $key): string {
+            return DIRECTORY_SEPARATOR . 'documenti' . DIRECTORY_SEPARATOR . $key;
+        }, array: array_keys($existing_files));
+
+        return array_values(array: array_diff($existing_files, $arr));
     }
 }

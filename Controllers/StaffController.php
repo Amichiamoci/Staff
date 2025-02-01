@@ -195,8 +195,8 @@ class StaffController extends Controller
                 return $this->InternalError();
             }
 
-
-            $id = Anagrafica::Create(
+            $already_existed = false;
+            $id = Anagrafica::CreateOrUpdate(
                 connection: $this->DB,
                 nome: $nome,
                 cognome: $cognome,
@@ -209,7 +209,9 @@ class StaffController extends Controller
                 doc_type: $doc_type,
                 doc_code: $doc_code,
                 doc_expires: $doc_expires,
-                nome_file: File::AbsoluteToDbPath(server_path: $actual_path)
+                nome_file: File::AbsoluteToDbPath(server_path: $actual_path),
+
+                already_existing: $already_existed,
             );
 
             if (isset($id))
@@ -217,10 +219,11 @@ class StaffController extends Controller
                 // Everything went ok
                 return $this->Render(
                     view: 'Staff/created-anagrafica',
-                    title: $nome . ' correttamente aggiunto',
+                    title: $nome . ' correttamente ' . ($already_existed ? 'modificato' : 'aggiunto'),
                     data: [
                         'id' => $id,
                         'nome' => $nome,
+                        'already_existed' => $already_existed,
                     ]
                 );
             }

@@ -3,6 +3,7 @@
 namespace Amichiamoci\Models;
 
 use Amichiamoci\Models\Templates\NomeIdSemplice;
+use Amichiamoci\Utils\File;
 
 class Iscrizione extends NomeIdSemplice
 {
@@ -225,5 +226,36 @@ class Iscrizione extends NomeIdSemplice
             $arr[] = $row;
         
         return $arr;
+    }
+    
+    public static function UnreferencedCertificates(\mysqli $connection): array
+    {
+        if (!$connection) return [];
+
+        $query = 'SELECT DISTINCT(i.`certificato_medico`) AS "cert" FROM `iscritti` i WHERE i.`certificato_medico` IS NOT NULL';
+        $result = $connection->query(query: $query);
+        if (!$result) {
+            return [];
+        }
+
+        $arr = [];
+        while ($row = $result->fetch_assoc())
+        {
+            if (!File::Exists(db_path: $row['cert']))
+                continue;
+            $arr[] = $row['cert'];
+        }
+        $result->close();
+
+        $existing_files = array_filter(
+            array: File::ListDirectory(dir: SERVER_UPLOAD_PATH . DIRECTORY_SEPARATOR . 'certificati'),
+            callback: function (string $key, string|array $value): bool {
+                return is_string(value: $value) && $key === $value;
+        }, mode: ARRAY_FILTER_USE_BOTH);
+        $existing_files = array_map(callback: function (string $key): string {
+            return DIRECTORY_SEPARATOR . 'certificati' . DIRECTORY_SEPARATOR . $key;
+        }, array: array_keys($existing_files));
+
+        return array_values(array: array_diff($existing_files, $arr));
     }
 }

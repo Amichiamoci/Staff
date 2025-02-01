@@ -32,7 +32,7 @@ class Controller {
         if (!isset($this->User)) {
             Cookie::Set(name: 'Redirect', value: $this->Path, exp: 3600);
             $this->Redirect(url: '/login');
-            // flow interrupted by exit;
+            exit;
         }
         if ($require_admin && !$this->User->IsAdmin) {
             $this->NotAuthorized();
@@ -201,12 +201,13 @@ class Controller {
         );
     }
 
-    protected function InternalError(): int {
+    protected function InternalError(?\Throwable $ex = null): int {
         return $this->Render(
             view: 'Shared/Error',
             title: 'Errore 500',
             data: [
-                'main_banner' => 'Qualcosa non ha funzionato'
+                'main_banner' => 'Qualcosa non ha funzionato',
+                'exception' => $ex
             ],
             status_code: 500,
         );

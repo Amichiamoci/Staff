@@ -210,7 +210,6 @@ class File
     }
     private static function UploadingFilesParse(array $files): array {
         $result = [];
-        //print_r($_FILES);
         $num_files = count(value: $files['name']);
         $keys = array_keys($files);
         for ($i = 0; $i < $num_files; $i++)
@@ -273,12 +272,6 @@ class File
                 'mode' => 'utf-8',
                 'tempDir' => SERVER_UPLOAD_TMP,
             ]);
-            // $pdf->SetImportUse();
-
-            if (!is_file(filename: $final_name)) {
-                // Create file if not existing yet
-                file_put_contents(filename: $final_name, data: '');
-            }
 
             // Filter out non-existing files
             $file_names = array_filter(array: $file_names, callback: function (string $file): bool {
@@ -309,7 +302,24 @@ class File
     }
 
     public static function ImageToPdf(string $img): ?string {
-        return null;
+        if (!is_file(filename: $img)) {
+            return null;
+        }
+        try {
+            $pdf = new Mpdf([
+                'mode' => 'utf-8',
+                'tempDir' => SERVER_UPLOAD_TMP,
+            ]);
+            // $pdf->debug = true;
+            // $pdf->showImageErrors = true;
+            $pdf->imageVars['img'] = file_get_contents(filename: $img);
+            $pdf->WriteHtml('<img src="var:img" style="width: 100%;" />');
+
+            $pdf->Output($img . '.pdf', 'F');
+            return $img . '.pdf';
+        } catch (\Exception) {
+            return null;
+        }
     }
 
     public static function UploadDocumentsMerge(array $files, string $final_name): ?string
@@ -354,6 +364,7 @@ class File
                         // Could not convert to pdf
                         return null;
                     }
+                    self::Delete(server_path: $pre_merge_name);
                     $pre_merge_name = $pdf_path;
                 }
 

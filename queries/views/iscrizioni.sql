@@ -76,5 +76,5 @@ FROM `anagrafiche_espanse` AS a
     LEFT OUTER JOIN `iscritti` i ON i.`edizione` = e.`id` AND i.`dati_anagrafici` = a.`id`
     LEFT OUTER JOIN `parrocchie` p ON i.`parrocchia` = p.`id`
     LEFT OUTER JOIN `anagrafiche` a2 ON i.`tutore` = a2.`id`
-GROUP BY a.`id`, i.`id`
+GROUP BY a.`id`, i.`id`, e.`anno`
 ORDER BY YEAR(a.`data_nascita`) ASC, a.`cognome` ASC, a.`nome` ASC;

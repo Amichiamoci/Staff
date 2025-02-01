@@ -29,7 +29,7 @@ class AnagraficaConIscrizione extends Anagrafica
 
     public static function FromChurchId(\mysqli $connection, int $church_id): array {
         if (!$connection) return [];
-        $query = "CALL IscrizioniList(YEAR(CURRENT_DATE), $church_id";
+        $query = "CALL `IscrizioniList`(YEAR(CURRENT_DATE), $church_id";
         
         $result = $connection->query(query: $query);
         if (!$result) {
@@ -47,7 +47,7 @@ class AnagraficaConIscrizione extends Anagrafica
 
     public static function FromYear(\mysqli $connection, int $year): array {
         if (!$connection) return [];
-        $query = "CALL IscrizioniList($year, NULL)";
+        $query = "CALL `IscrizioniList`($year, NULL)";
         
         $result = $connection->query(query: $query);
         if (!$result) {
@@ -105,5 +105,13 @@ class AnagraficaConIscrizione extends Anagrafica
             certificato: $row["certificato_medico"],
         );
         return $ai;
+    }
+
+    public static function UnreferencedFiles(\mysqli $connection): array
+    {
+        return array_merge(
+            self::UnreferencedDocuments(connection: $connection),
+            Iscrizione::UnreferencedCertificates(connection: $connection),
+        );
     }
 }

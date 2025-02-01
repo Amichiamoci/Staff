@@ -20,6 +20,7 @@ BEGIN
         a.`tipo_documento`,
         a.`tipo_documento_nome`,
         a.`codice_documento`, 
+        a.`scadenza`,
         a.`eta`,
         a.`sesso`,
         p.`nome` AS "parrocchia", 

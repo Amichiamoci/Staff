@@ -90,11 +90,6 @@
                                         Accessi
                                     </a>
                                 </li>
-                                <li>
-                                    <a class="dropdown-item" href="/file/list">
-                                        Tutti gli uploads
-                                    </a>
-                                </li>
                             <?php } ?>
                         </ul>
                     </li>
@@ -126,6 +121,18 @@
                                     Tesseramenti per C.S.I.
                                 </a>
                             </li>
+                            <?php if ($user->IsAdmin) { ?>
+                                <li>
+                                    <a class="dropdown-item" href="/file/list">
+                                        Tutti gli uploads
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="/file/unreferenced">
+                                        File non usati
+                                    </a>
+                                </li>
+                            <?php } ?>
                         </ul>
                     </li>
                 <?php } ?>

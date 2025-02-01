@@ -7,11 +7,27 @@ require_once __DIR__ . '/config.php';
 use Amichiamoci\Models\User;
 use Amichiamoci\Models\Staff;
 
+set_error_handler(callback: function(\Throwable|int $ex): void {
+    if ($ex instanceof \Throwable) {
+    ?>
+    <pre><?= htmlspecialchars(string: $ex->getMessage())?></pre>
+    <pre><?= htmlspecialchars(string: $ex->getTraceAsString())?></pre>
+    <?php } else { ?>
+        <strong class="user-select-none font-monospace">Errore <?= $ex ?></strong>
+    <?php }
+});
+set_exception_handler(callback: function(\Throwable $ex): void {
+    ?>
+    <pre><?= htmlspecialchars(string: $ex->getMessage())?></pre>
+    <pre><?= htmlspecialchars(string: $ex->getTraceAsString())?></pre>
+    <?php
+});
+
 $uri = $_SERVER['REQUEST_URI'];
 
 if (!isset($router))
 {
-    throw new Exception(message: 'Could not find the router instance!');
+    throw new \Exception(message: 'Could not find the router instance!');
 }
 
 // Establish db connection

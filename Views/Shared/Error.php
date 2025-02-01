@@ -18,4 +18,8 @@
             <?= htmlspecialchars(string: $_SERVER['REQUEST_URI']) ?>
         </a>
     </code>
+    <?php if (isset($exception) && $exception instanceof \Throwable) { ?>
+        <pre class="mt-2"><?= htmlspecialchars(string: $exception->getMessage()) ?></pre>
+        <pre class="mt-1"><?= htmlspecialchars(string: $exception->getTraceAsString()) ?></pre>
+    <?php } ?>
 </p>

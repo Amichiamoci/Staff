@@ -80,10 +80,8 @@ class Router {
         }
 
         if (!array_key_exists(key: $path, array: $this->routes)) {
-            $controller = NotFoundTempController::class;
+            $controller = ErrorTempController::class;
             $action = 'NotFoundHandler';
-            
-            // throw new \Exception(message: "No route found for path: $path");
         } else {
             $controller = $this->routes[$path]['controller'];
             $action = $this->routes[$path]['action'];
@@ -95,8 +93,22 @@ class Router {
             staff: $this->staff,
             path: $uri,
         );
-        call_user_func_array(callback: [$controller_instance, $action], args: $method_params);
-        // $controller->$action();
+
+        try {
+            call_user_func_array(callback: [$controller_instance, $action], args: $method_params);
+        } catch (\Throwable $ex) {
+            if (headers_sent()) {
+                // Cannot send an other HTTP status code, just print the error
+                // It will be handled by the general handler 
+                throw $ex;
+            }
+            (new ErrorTempController(
+                connection: $this->connection, 
+                user: $this->user,
+                staff: $this->staff,
+                path: $uri,
+            ))->InternalErrorHandler(ex: $ex);
+        }
     }
 
     public function SetDbConnection(\mysqli $connection): bool {

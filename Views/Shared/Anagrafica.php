@@ -136,7 +136,10 @@ use Amichiamoci\Utils\File;
                 Scadenza
             </dt>
             <dd class="col-sm-8">
-                <?= htmlspecialchars(string: $anagrafica->DocumentExpiration) ?>
+                <?= empty($anagrafica->DocumentExpiration) ?
+                    '?' :
+                    htmlspecialchars(string: (new \DateTime(datetime: $anagrafica->DocumentExpiration))->format(format: 'd/m/Y'))
+                     ?>
             </dd>
 
             <?php if ($anagrafica instanceof Amichiamoci\Models\AnagraficaConIscrizione)  { ?>
