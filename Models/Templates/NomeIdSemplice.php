@@ -42,13 +42,14 @@ abstract class NomeIdSemplice implements DbEntity
         return $list;
     }
 
-    public static function ById(\mysqli $connection, int $id) : ?self
+    public static function ById(\mysqli $connection, int $id): ?self
     {
-        if (!$connection || $id <= 0)
+        if (!$connection)
             return null;
         
-        $table = self::Table();
-        $class_name = self::class;
+        $class_name = get_called_class();
+        $table = $class_name::Table();
+        if (empty($table)) { return null; }
         $result = $connection->query(query: "SELECT `nome` FROM `$table` WHERE `id` = $id");
 
         if (!$result || $result->num_rows === 0)

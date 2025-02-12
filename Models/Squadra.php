@@ -77,17 +77,30 @@ class Squadra extends NomeIdSemplice
                 nome: $row["nome"],
                 
                 membri: $row["lista_membri"],
-                iscrizione_membri: null,
+                iscrizione_membri: $row["id_membri"],
                 
                 parrocchia: $row["parrocchia"],
                 id_parrocchia: $row["id_parrocchia"],
                 
                 sport: $row["nome_sport"],
-                id_sport: $row["id_sport"]);
+                id_sport: $row["id_sport"]
+            );
         }
         $result->close();
         $connection->next_result();
         return $arr;
+    }
+
+    public static function FromParrocchia(
+        \mysqli $connection, 
+        int $parrocchia, 
+        ?int $year = null, 
+        ?int $sport = null,
+    ): array {
+        $arr = self::All(connection: $connection, year: $year, sport: $sport);
+        return array_filter(array: $arr, callback: function (self $s) use ($parrocchia): bool {
+            return $s->Parrocchia->Id === $parrocchia;
+        });
     }
 
     public static function NomeFromId(\mysqli $connection, int $id) : ?string
@@ -212,5 +225,15 @@ class Squadra extends NomeIdSemplice
         $result->close();
         $connection->next_result();
         return $ret;
+    }
+
+    public function MembriFull(): array {
+        $a = [];
+        $names = explode(separator: ',', string: $this->Membri);
+        for ($i = 0; $i < count(value: $this->IdIscritti); $i++)
+        {
+            $a[$this->IdIscritti[$i]] = trim(string: $names[$i]);
+        }
+        return $a;
     }
 }

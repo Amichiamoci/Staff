@@ -4,8 +4,8 @@ namespace Amichiamoci\Models;
 
 class Staff extends StaffBase
 {
-    public array $Commissioni;
-    public ?Taglia $Taglia;
+    public array $Commissioni = [];
+    public ?Taglia $Taglia = null;
     public Parrocchia $Parrocchia;
     public bool $Referente = false;
     public ?string $CodiceFiscale = null;
@@ -115,5 +115,52 @@ class Staff extends StaffBase
         $query = "SELECT * FROM `staff_attuali`";
 
         return [];
+    }
+
+    public static function FromParrocchia(\mysqli $connection, int $id): array {
+        if (!$connection) return [];
+        $query = "SELECT p.* FROM `partecipazioni_staff` p WHERE p.`id_parrocchia` = $id";
+        
+        $result = $connection->query(query: $query);
+        if (!$result) {
+            return [];
+        }
+
+        $arr = [];
+        while ($row = $result->fetch_assoc())
+        {
+            $base =  new self(
+                id: (int)$row['id_staffista'],
+                nome: $row['nome'] . ' ' . $row['cognome'],
+            );
+            if (
+                array_key_exists(key: 'lista_commissioni', array: $row) && 
+                isset($row['lista_commissioni'])
+            ) {
+                $base->Commissioni = array_map(
+                    callback: 'trim', 
+                    array: explode(separator: ',', string: $row['lista_commissioni'])
+                );
+            }
+            $base->CodiceFiscale = $row['codice_fiscale'];
+            if (
+                array_key_exists(key: 'referente', array: $row) &&
+                isset($row['referente'])
+            ) {
+                $base->Referente = (bool)$row['referente'];
+            }
+            $base->Parrocchia = new Parrocchia(
+                id: $row['id_parrocchia'],
+                nome: $row['parrocchia'],
+            );
+            $arr[] = $base;
+        }
+        return $arr;
+    }
+
+    public static function MaglieDellaParrocchia(\mysqli $connection, int $parrocchia, int $anno): array
+    {
+        $p = new Parrocchia(id: $parrocchia, nome: 'Dummy');
+        return $p->Maglie(connection: $connection, year: $anno);
     }
 }

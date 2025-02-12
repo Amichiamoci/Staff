@@ -42,7 +42,7 @@ use Amichiamoci\Utils\File;
         <?php } ?>
 
         <dl class="row">
-            <dt class="col-sm-4">
+            <dt class="col-sm-4 text-nowrap">
                 <i class="bi bi-calendar4-week"></i>
                 <?php if ($anagrafica->Sex === 'M') { ?>
                     Nato
@@ -58,7 +58,7 @@ use Amichiamoci\Utils\File;
                 (<?= htmlspecialchars(string: $anagrafica->Eta) ?> anni)
             </dd>
 
-            <dt class="col-sm-4">
+            <dt class="col-sm-4 text-nowrap">
                 <i class="bi bi-geo"></i>
                 <?php if ($anagrafica->Sex === 'M') { ?>
                     Nato
@@ -73,7 +73,7 @@ use Amichiamoci\Utils\File;
                 <?= htmlspecialchars(string: $anagrafica->From) ?>
             </dd>
 
-            <dt class="col-sm-4">
+            <dt class="col-sm-4 text-nowrap">
                 <i class="bi bi-envelope-at"></i>
                 Email
             </dt>
@@ -86,14 +86,14 @@ use Amichiamoci\Utils\File;
                 <?php } else { ?>
                     <a 
                         href="mailto:<?= htmlspecialchars(string: $anagrafica->Email) ?>"
-                        class="link-underline link-underline-opacity-0 text-reset">
+                        class="link-underline link-underline-opacity-0 text-reset text-nowrap overflow-x-auto">
                         <?= htmlspecialchars(string: $anagrafica->Email) ?>
                     </a>
                 <?php } ?>
             </dd>
 
             <?php if (!empty($anagrafica->Phone) && str_starts_with(haystack: $anagrafica->Phone, needle: '0')) { ?>
-                <dt class="col-sm-4">
+                <dt class="col-sm-4 text-nowrap">
                     <i class="bi bi-telephone"></i>
                     Telefono
                 </dt>
@@ -105,7 +105,7 @@ use Amichiamoci\Utils\File;
                     </a>
                 </dd>
             <?php } elseif (!empty($anagrafica->Phone)) { ?>
-                <dt class="col-sm-4">
+                <dt class="col-sm-4 text-nowrap">
                     <i class="bi bi-whatsapp"></i>
                     WhatsApp
                 </dt>
@@ -131,7 +131,7 @@ use Amichiamoci\Utils\File;
                     <?= htmlspecialchars(string: $anagrafica->DocumentCode) ?>
                 </a>
             </dd>
-            <dt class="col-sm-4">
+            <dt class="col-sm-4 text-nowrap">
                 <i class="bi bi-calendar2-x"></i>
                 Scadenza
             </dt>
@@ -152,7 +152,7 @@ use Amichiamoci\Utils\File;
                     </span>
                 </dd>
 
-                <dt class="col-sm-4">
+                <dt class="col-sm-4 text-nowrap">
                     Parrocchia
                 </dt>
                 <dd class="col-sm-8">
@@ -164,7 +164,7 @@ use Amichiamoci\Utils\File;
                     </a>
                 </dd>
 
-                <dt class="col-sm-4">
+                <dt class="col-sm-4 text-nowrap">
                     Taglia
                 </dt>
                 <dd class="col-sm-8">
@@ -191,6 +191,18 @@ use Amichiamoci\Utils\File;
                             Mancante!
                         </strong>
                     <?php } ?>
+                </dd>
+            <?php } else { ?>
+                <dt class="col-sm-4">
+                    Iscrivi
+                </dt>
+                <dd class="col-sm-8">
+                    <a 
+                        href="/staff/iscrivi?id=<?= $anagrafica->Id ?>"
+                        class="btn btn-secondary"
+                        title="Iscrivi alla manifestazione">
+                        Clicca qui
+                    </a>
                 </dd>
             <?php } ?>
         </dl>

@@ -4,23 +4,52 @@ namespace Amichiamoci\Controllers;
 
 use Amichiamoci\Models\Anagrafica;
 use Amichiamoci\Models\AnagraficaConIscrizione;
+use Amichiamoci\Models\Edizione;
+use Amichiamoci\Models\Iscrizione;
 use Amichiamoci\Models\Templates\Anagrafica as AnagraficaBase;
 use Amichiamoci\Models\Message;
 use Amichiamoci\Models\MessageType;
 use Amichiamoci\Models\Parrocchia;
+use Amichiamoci\Models\ProblemaIscrizione;
 use Amichiamoci\Models\Staff;
 use Amichiamoci\Models\StaffBase;
 use Amichiamoci\Models\TesseramentoCSI;
 use Amichiamoci\Models\TipoDocumento;
+use Amichiamoci\Models\Taglia;
 use Amichiamoci\Utils\File;
 
 class StaffController extends Controller
 {
-    public function index(): int {
-        $this->RequireStaff();
+    public function index(
+        ?int $church = null,
+        ?int $year = null,
+    ): int {
+        if (empty($year)) {
+            $year = (int)date(format: "Y");
+        }
+        
+        $staff = $this->RequireStaff();
+        if (!isset($church) && isset($staff)) {
+            $church = $staff->Parrocchia->Id;
+        }
+        if (empty($church)) {
+            return $this->BadRequest();
+        }
+
         return $this->Render(
             view: 'Staff/index',
             title: 'Portale Staff',
+            data: [
+                'iscritti_problemi' => ProblemaIscrizione::Parrocchia(
+                    connection: $this->DB, 
+                    year: $year, 
+                    parrocchia: $church
+                ),
+                'id_parrocchia' => $church,
+                'anno' => $year,
+                'parrocchie' => Parrocchia::All(connection: $this->DB),
+                'edizioni' => Edizione::All(connection: $this->DB),
+            ]
         );
     }
 
@@ -261,6 +290,117 @@ class StaffController extends Controller
             data: [
                 'tipi_documento' => $types,
                 'anagrafica' => $a,
+            ]
+        );
+    }
+
+    public function iscrivi(
+        ?int $id = null,
+
+        ?int $tutore = null,
+        ?int $parrocchia = null,
+        ?string $taglia = null,
+    ): int {
+        $this->RequireLogin();
+        if (empty($id)) {
+            return $this->BadRequest();
+        }
+
+        $a = AnagraficaBase::ById(connection: $this->DB, id: $id);
+        if (!isset($a)) {
+            return $this->NotFound();
+        }
+
+        if (self::IsPost()) {
+            if (empty($parrocchia) || empty($taglia)) {
+                return $this->BadRequest();
+            }
+            $edizione = (int)date(format: "Y");
+
+            $files = File::UploadingFiles(form_name: 'certificato');
+            $files = array_filter(array: $files, callback: function(array $file): bool {
+                return File::IsUploadOk(file: $file);
+            });
+            $actual_path = null;
+            if (count(value: $files) > 0) {
+                $target_file_name = 
+                    "certificati" . DIRECTORY_SEPARATOR . 
+                    $edizione . '_' . str_replace(search: '.', replace: '', subject: uniqid(more_entropy: true));
+                $actual_path = File::UploadDocumentsMerge(files: $files, final_name: $target_file_name);
+            }
+
+            $res = Iscrizione::Create(
+                connection: $this->DB, 
+                id_anagrafica: $id, 
+                tutore: $tutore, 
+                certificato: $actual_path, 
+                parrocchia: $parrocchia, 
+                taglia: Taglia::from(value: $taglia), 
+                edizione: $edizione
+            );
+            if ($res) {
+                if (isset($actual_path)) {
+                    $this->Message(message: Message::Success(
+                        content: $a->Nome . ' correttamente iscritto'));
+                } else {
+                    $this->Message(message: Message::Warn(
+                        content: $a->Nome . ' iscritto con RISERVA: aggiungere il certificato medico per completare l\'scrizione'));
+                }
+                return $this->index();
+            }
+            $this->Message(message: Message::Error(content: 'Errore durante l\'iscrizione'));
+        }
+
+        return $this->Render(
+            view: 'Staff/iscrivi',
+            title: 'Iscrivi '. $a->Nome . ' ' . $a->Cognome,
+            data: [
+                'target' => $a,
+                'taglie' => Taglia::All(),
+                'parrocchie' => Parrocchia::All(connection: $this->DB),
+                'adulti' => AnagraficaBase::All(connection: $this->DB, filter: function (AnagraficaBase $a): bool {
+                    return $a->Eta >= 18;
+                })
+            ]
+        );
+    }
+
+    public function edizione(
+        ?int $anno = null,
+        ?string $motto = null,
+    ): int {
+        $user = $this->RequireLogin();
+        $all = Edizione::All(connection: $this->DB);
+
+        if (self::IsPost() && $user->IsAdmin) {
+            if (empty($anno) || empty($motto)) {
+                return $this->BadRequest();
+            }
+            $anno = (int)$anno;
+
+            $existing = array_filter(array: $all, callback: function (Edizione $e) use($anno): bool {
+                return $e->Year === $anno;
+            });
+            if (count(value: $existing) > 0) {
+                $this->Message(message: Message::Warn(content: "Edizione $anno già esistente: i dati sono stati sovrascritti"));
+                $existing[0]->Motto = $motto;
+                $existing[0]->Update($this->DB);
+            } else {
+                $e = Edizione::New(connection: $this->DB, year: $anno, motto: $motto);
+                if (!isset($e)) {
+                    $this->Message(message: Message::Error(content: 'Impossibile creare edizione ' . $anno));
+                } else { 
+                    $this->Message(message: Message::Success(content: 'Edizione creata correttamente'));
+                    $all[] = $e;
+                }
+            }
+        }
+
+        return $this->Render(
+            view: 'Staff/edizioni',
+            title: 'Edizioni di ' . SITE_NAME,
+            data: [
+                'edizioni' => $all,
             ]
         );
     }

@@ -4,60 +4,32 @@ namespace Amichiamoci\Models;
 class Edizione
 {
     public int $Id = 0;
+    public int $Year = 0;
     public ?string $Motto = null;
     public ?string $ImgPath = null;
-    public ?\DateTime $inizio_iscrizioni = null;
-    public ?\DateTime $fine_iscrizioni = null;
     public function Ok(): bool
     {
-        return $this->Id != 0;
+        return $this->Id !== 0;
     }
 
     public function __construct(
         string|int|null $id, 
+        string|int|null $year,
         string|null $motto, 
         string|null $img,
-        string|\DateTime|null $inizio,
-        string|\DateTime|null $fine)
-    {
+    ) {
         if (isset($id))
             $this->Id = (int)$id;
+        if (isset($year))
+            $this->Year = (int)$year;
         
         if (isset($motto) && is_string(value: $motto))
             $this->Motto = $motto;
         if (isset($img) && is_string(value: $img))
             $this->ImgPath = $img;
-        
-            if (isset($inizio))
-        {
-            if ($inizio instanceof \DateTime)
-            {
-                $this->inizio_iscrizioni = $inizio;
-            } elseif (is_string(value: $inizio)) {
-                try {
-                    $this->inizio_iscrizioni = new \DateTime(datetime: $inizio);
-                } catch (\Exception $ex) {
-                    $this->inizio_iscrizioni = null;
-                }
-            }
-        }
-
-        if (isset($fine))
-        {
-            if ($fine instanceof \DateTime)
-            {
-                $this->fine_iscrizioni = $fine;
-            } elseif (is_string(value: $inizio)) {
-                try {
-                    $this->fine_iscrizioni = new \DateTime(datetime: $fine);
-                } catch (\Exception $ex) {
-                    $this->fine_iscrizioni = null;
-                }
-            }
-        }
     }
 
-    public static function ById(\mysqli $connection, string|int $id) : Edizione|null
+    public static function ById(\mysqli $connection, string|int $id) : ?self
     {
         if (!$connection || !isset($id))
             return null;
@@ -67,12 +39,11 @@ class Edizione
         if (!$result || $result->num_rows === 0) return null;
         if ($row = $result->fetch_assoc())
         {
-            return new Edizione(
+            return new self(
                 id: $row["id"], 
+                year: $row['anno'],
                 motto: $row["motto"], 
                 img: $row["path_immagine"], 
-                inizio: $row["inizio_iscrizioni"], 
-                fine: $row["fine_iscrizioni"]
             );
         }
         return null;
@@ -80,67 +51,71 @@ class Edizione
     public static function All(\mysqli $connection) : array
     {
         if (!$connection) return array();
-        $query = "SELECT * FROM `edizioni` ORDER BY `id` DESC";
+        $query = "SELECT * FROM `edizioni` ORDER BY `anno` DESC";
         $ret = array();
         $result = $connection->query(query: $query);
         if ($result)
         {
             while($row = $result->fetch_assoc())
             {
-                $edizione = new Edizione(
+                $edizione = new self(
                     id: $row["id"], 
+                    year: $row['anno'],
                     motto: $row["motto"], 
                     img: $row["path_immagine"], 
-                    inizio: $row["inizio_iscrizioni"], 
-                    fine: $row["fine_iscrizioni"]
                 );
                 $ret[] = $edizione;
             }
         }
         return $ret;
     }
-    public static function Current(\mysqli $connection) : Edizione|null
+    public static function Current(\mysqli $connection) : ?self
     {
         if (!$connection)
             return null;
-        $query = "SELECT * FROM `edizioni` WHERE `id` = YEAR(CURRENT_DATE)";
+        $query = "SELECT * FROM `edizioni` WHERE `anno` = YEAR(CURRENT_DATE)";
         $result = $connection->query(query: $query);
         if (!$result || $result->num_rows === 0) return null;
         if ($row = $result->fetch_assoc())
         {
-            return new Edizione(
+            return new self(
                 id: $row["id"], 
+                year: $row['anno'],
                 motto: $row["motto"], 
                 img: $row["path_immagine"], 
-                inizio: $row["inizio_iscrizioni"], 
-                fine: $row["fine_iscrizioni"]
             );
         }
         return null;
     }
-    
-    public function CanSubscribe() : bool
+    public static function New(\mysqli $connection, int $year, string $motto): ?self
     {
-        if (!$this->ok())
-            return false;
-
-        if (isset($this->inizio_iscrizioni))
-        {
-            if ($this->inizio_iscrizioni > new \DateTime())
-            {
-                return false;
-            }
-            if (!isset($this->fine_iscrizioni))
-            {
-                return true;
-            }
-            return new \DateTime() <= $this->fine_iscrizioni;
+        if (!$connection) {
+            return null;
+        }
+        $query = "INSERT INTO `edizioni` (`anno`, `motto`) VALUES (?, ?)";
+        $result = $connection->execute_query(query: $query, params: [$year, $motto]);
+        if (!$result) {
+            return null;
         }
 
-        if (!isset($this->fine_iscrizioni))
-        {
-            return true;
+        return new self(
+            id: $connection->insert_id,
+            year: $year,
+            motto: $motto,
+            img: null
+        );
+    }
+    public function Update(\mysqli $connection): ?self
+    {
+        if (!$connection) {
+            return null;
         }
-        return new \DateTime() <= $this->fine_iscrizioni;
+        $query = "UPDATE `edizioni` SET `anno` = ?, `motto` = ?, `path_immagine` = ? WHERE `id` = ?";
+        $result = $connection->execute_query(query: $query, params: [$this->Year, $this->Motto, $this->ImgPath, $this->Id]);
+        if (!$result) {
+            return null;
+        }
+
+        return $this;
     }
 }

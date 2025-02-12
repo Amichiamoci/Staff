@@ -4,9 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light dark">
+    <meta name="robots" content="noindex, nofollow">
     <title>
         <?= SITE_NAME ?> - <?= htmlspecialchars(string: $title) ?>
     </title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net/" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net/">
+    
+    <link rel="icon" href="/Public/images/icon.png" type="image/png">
+    <link rel="shortcut icon" href="/Public/images/icon.png" type="image/png">
+    <link rel="manifest" href="/web_manifest">
 
     <link 
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" 
@@ -17,8 +24,6 @@
         href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
         rel="stylesheet"
         crossorigin="anonymous">
-
-    <link rel="icon" href="/Public/images/icon.png" />
 </head>
 <body class="d-flex flex-column min-vh-100">
     <header>

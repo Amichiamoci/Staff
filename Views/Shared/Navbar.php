@@ -31,8 +31,13 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="subscriptionDropdownMenuLink">
                             <li>
-                                <a class="dropdown-item" href="">
+                                <a class="dropdown-item" href="/staff/index">
                                     La mia parrocchia
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/teams">
+                                    Le squadre
                                 </a>
                             </li>
                             <li>
@@ -119,6 +124,12 @@
                                 <a class="dropdown-item" 
                                     href="/staff/csi">
                                     Tesseramenti per C.S.I.
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" 
+                                    href="/staff/edizione">
+                                    Tutte le edizioni
                                 </a>
                             </li>
                             <?php if ($user->IsAdmin) { ?>

@@ -256,11 +256,9 @@ CREATE TABLE IF NOT EXISTS `token` (
 DROP TABLE IF EXISTS `edizioni`;
 CREATE TABLE IF NOT EXISTS `edizioni` (
   `id` int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `anno` year(4) NOT NULL,
-  `inizio_iscrizioni` date DEFAULT NULL,
-  `fine_iscrizioni` date DEFAULT NULL,
+  `anno` year(4) NOT NULL UNIQUE,
   `motto` varchar(256) DEFAULT NULL,
-  `path_immagine` varchar(256) NOT NULL,
+  `path_immagine` varchar(256) DEFAULT NULL,
   `autore_logo` varchar(256) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

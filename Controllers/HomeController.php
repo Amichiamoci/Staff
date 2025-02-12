@@ -2,19 +2,60 @@
 
 namespace Amichiamoci\Controllers;
 
+use Amichiamoci\Models\Anagrafica;
+use Amichiamoci\Models\Iscrizione;
 use Amichiamoci\Models\User;
 use Amichiamoci\Utils\Cookie;
 use Amichiamoci\Utils\Security;
 use Amichiamoci\Models\Parrocchia;
-
+use Amichiamoci\Models\Staff;
 
 class HomeController extends Controller
 {
+    public function web_manifest(): int {
+        return $this->Json(object: [
+            'name' => SITE_NAME,
+            'short_name' => SITE_NAME,
+            'start_url' => '/',
+            'display' => 'standalone',
+            'background_color' => '#fff',
+            'description' => 'Portale staff',
+            'icons' => [
+                [
+                    'src' => '/Public/images/icon.png',
+                    'type' => 'image/png',
+                    'sizes' => '256x256'
+
+                ]
+            ]
+        ]);
+    }
+
     public function index(): int {
         $this->RequireLogin();
         return $this->Render(
             view: 'Home/index',
-            title: 'Portale'
+            title: 'Portale',
+            data: [
+                'churches' => Parrocchia::All(connection: $this->DB)
+            ]
+        );
+    }
+
+    public function stats(): int {
+        $this->RequireLogin();
+        return $this->Json(
+            object: Anagrafica::GroupFrom(connection: $this->DB)
+        );
+    }
+
+    public function t_shirts(int $church, ?int $year = null): int {
+        $this->RequireLogin();
+        if (!isset($year)) {
+            $year = (int)date(format: "Y");
+        }
+        return $this->Json(
+            object: Staff::MaglieDellaParrocchia(connection: $this->DB, parrocchia: $church, anno: $year)
         );
     }
 
@@ -75,16 +116,25 @@ class HomeController extends Controller
     
     public function church(?int $id = null): int {
         $this->RequireLogin();
+        if (!isset($id)) {
+            return $this->BadRequest();
+        }
 
         $church = Parrocchia::ById(connection: $this->DB, id: $id);
         if (!isset($church)) {
             return $this->NotFound();
         }
+
+        $staffs = Staff::FromParrocchia(connection: $this->DB, id: $id);
+        // $iscritti = Iscrizione::FromParrocchia($this->DB, id: $id);
         
         return $this->Render(
-            view: 'Home/Churh',
+            view: 'Home/church',
             title: 'Parrocchia ' . $church->Nome,
-            data: [ 'church'=> $church ]
+            data: [ 
+                'church' => $church,
+                'staffs' => $staffs,
+            ]
         );
     }
 }

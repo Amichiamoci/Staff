@@ -78,3 +78,10 @@ FROM `anagrafiche_espanse` AS a
     LEFT OUTER JOIN `anagrafiche` a2 ON i.`tutore` = a2.`id`
 GROUP BY a.`id`, i.`id`, e.`anno`
 ORDER BY YEAR(a.`data_nascita`) ASC, a.`cognome` ASC, a.`nome` ASC;
+
+CREATE OR REPLACE VIEW `anni_parrocchie_taglie` AS
+SELECT e.`anno`, i.`taglia_maglietta` AS "taglia", i.`parrocchia`, COUNT(DISTINCT i.`id`) AS "numero"
+FROM `iscritti` i
+	INNER JOIN `edizioni` e ON e.`id` = i.`edizione`
+GROUP BY e.`anno`, i.`parrocchia`, i.`taglia_maglietta`
+ORDER BY e.`anno` DESC, COUNT(DISTINCT i.`id`) DESC;

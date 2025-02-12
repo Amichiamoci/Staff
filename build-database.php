@@ -17,6 +17,7 @@ $connection = new \mysqli(
     password: $MYSQL_PASSWORD, 
     database: $MYSQL_DB,
     port: $MYSQL_PORT,
+    socket: null,
 );
 
 if (!$connection) {
@@ -46,7 +47,7 @@ function rebuild_db(): void {
             return "$k=$v";
         }, array_keys($params), array_values(array: $params))
     );
-    $result = passthru(command: "mysql $joined_params < $init_file");
+    $result = passthru(command: "mysql --skip-ssl $joined_params < $init_file");
 
     if ($result === false) {
         echo "Rebuild process failed!\n";
