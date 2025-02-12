@@ -35,7 +35,7 @@ if (!isset($target) || !($target instanceof Amichiamoci\Models\User)) {
 
 
         <?php if ($user->IsAdmin) { ?>
-            <div class="input-group">
+            <div class="input-group m-1">
                 <a href="/user/ban?target_id=<?= $target->Id ?>" class="btn btn-outline-secondary" role="button">
                     Blocca
                 </a>
