@@ -4,14 +4,14 @@ SELECT
     `email`.`ricevuta`,
     `email`.`dest` AS "destinatario", 
     IFNULL (`email`.`subject`, '') AS "oggetto", 
-    DATE_FORMAT(`email`.`sent`, "Inviata il %d/%m/%Y alle %H:%i") AS "inviata", 
+    DATE_FORMAT(`email`.`sent`, "%d/%m/%Y %H:%i") AS "inviata", 
     IF (
         `email`.`opened` IS NULL, 
-        "Non ancora aperta", 
-        DATE_FORMAT(`email`.`opened`, "Aperta il %d/%m/%Y alle %H:%i")) AS "aperta",
+        "Non ancora", 
+        DATE_FORMAT(`email`.`opened`, "%d/%m/%Y %H:%i")) AS "aperta",
     IFNULL (`email`.`body`, "") AS "testo"
 FROM `email`
-ORDER BY `email`.`sent` DESC;
+ORDER BY `email`.`id` DESC;
 
 CREATE OR REPLACE VIEW `email_extended_no_body` AS
 SELECT 

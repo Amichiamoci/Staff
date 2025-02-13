@@ -133,12 +133,4 @@ BEGIN
     GROUP BY s.`id`;
 END; //
 
-DROP PROCEDURE IF EXISTS `CancellaSquadra` //
-CREATE PROCEDURE `CancellaSquadra`(IN id INT)
-BEGIN
-    DELETE 
-    FROM `squadre` 
-    WHERE `squadre`.`id` = id;
-END; //
-
 DELIMITER ;

@@ -25,7 +25,10 @@ class EmailController extends Controller {
 
         return $this->Render(
             view: 'Email/view',
-            data: ['email' => $email],
+            data: [
+                'email' => $email,
+                'content_escaped' => $this->DB->real_escape_string(string: $email->Content),
+            ],
             title: 'Email #' . $id,
         );
     }

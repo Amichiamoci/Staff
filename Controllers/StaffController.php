@@ -4,6 +4,7 @@ namespace Amichiamoci\Controllers;
 
 use Amichiamoci\Models\Anagrafica;
 use Amichiamoci\Models\AnagraficaConIscrizione;
+use Amichiamoci\Models\Commissione;
 use Amichiamoci\Models\Edizione;
 use Amichiamoci\Models\Iscrizione;
 use Amichiamoci\Models\Templates\Anagrafica as AnagraficaBase;
@@ -154,6 +155,50 @@ class StaffController extends Controller
             data: [
                 'anagrafiche' => AnagraficaBase::All(connection: $this->DB),
                 'parrocchie' => Parrocchia::All(connection: $this->DB),
+            ]
+        );
+    }
+
+    public function get_involved(
+        ?int $edition = null,
+        array $roles = [],
+        bool $church_manager = false,
+        ?string $t_shirt = null,
+    ): int {
+        $user = $this->RequireLogin();
+        $staff = $this->RequireStaff();
+
+        $current_edition = Edizione::Current(connection: $this->DB);
+        if (!isset($current_edition) && !$user->IsAdmin) {
+            return $this->BadRequest();
+        }
+
+        if (self::IsPost()) {
+            if (!isset($staff) || empty($edition) || empty($t_shirt)) {
+                return $this->BadRequest();
+            }
+            $res = Staff::Partecipa(
+                connection: $this->DB, 
+                staff: $staff->Id, 
+                edizione: $edition, 
+                maglia: $t_shirt, 
+                commissioni: $roles, 
+                is_referente: $church_manager
+            );
+            if ($res) {
+                $this->Message(message: Message::Success(content: 'Partecipazione confermata'));
+            } else {
+                $this->Message(message: Message::Error(content: 'Qualcosa non ha funzionato :/'));
+            }
+        }
+        return $this->Render(
+            view: 'Staff/get-involved',
+            title: 'Partecipa all\'edizione corrente',
+            data: [
+                'edizioni' => Edizione::All(connection: $this->DB),
+                'edizione_corrente' => $current_edition,
+                'taglie' => Taglia::All(),
+                'commissioni' => Commissione::All(connection: $this->DB),
             ]
         );
     }

@@ -2,65 +2,6 @@
 
 //
 //
-//  Squadre
-//
-//
-
-function getSquadreList($connection, $year = null, $sport = null, bool $show_inks = true)
-{
-    $arr = Squadra::List($connection, $year, $sport);
-    $str = "<div class=\"tables flex wrap\">\n";
-    if (count($arr) === 0)
-    {
-        $str .= "<h3>Nessuna squadra (ancora) per l'anno corrente</h3>\n";
-    }
-    foreach ($arr as $a)
-    {
-        $nome = htmlentities($a->nome);
-        $parrocchia = htmlentities($a->parrocchia);
-        $sport = htmlentities($a->sport);
-        $id = $a->id;
-
-        $str .= "<table>\n";
-        $str .= "<thead>\n";
-        $str .= "<tr>\n";
-        $str .= "<th data-label='Nome'>$nome</th>\n";
-        $str .= "</tr>\n";
-        $str .= "</thead>\n";
-        $str .= "<tbody>\n";
-        $str .= "<tr>\n";
-        
-        $str .= "<td data-label='Sport'>$sport</td>\n";
-        $str .= "<td data-label='Parrocchia'>$parrocchia</td>\n";
-        if (strlen($a->membri) > 0)
-        {
-            $str .= "<td data-label='Membri'>";
-            $membri = explode(', ', $a->membri);
-            foreach ($membri as $membro)
-            {
-                $str .= htmlspecialchars($membro) . "<br>\n";
-            }
-            $str .= "</td>\n";
-        } else {
-            $str .= "<td data-label='Membri'>Nessuno registrato</td>\n";
-        }
-        if ($show_inks)
-        {
-            $str .= "<td data-label='Gestisci'><a href='cancella.php?id=$id' class='link'>Elimina</a></td>\n";
-            $str .= "<td data-label='Gestisci'><a href='crea.php?id=$id' class='link'>Modifica</a></td>\n";
-        }
-        
-        $str .= "</tr>\n";
-        $str .= "</tbody>\n";
-        $str .= "</table>\n";
-    }
-    $str .= "</div>\n";
-    return $str;
-}
-
-
-//
-//
 //  Tornei
 //
 //

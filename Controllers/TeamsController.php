@@ -7,6 +7,7 @@ use Amichiamoci\Models\Iscrizione;
 use Amichiamoci\Models\Parrocchia;
 use Amichiamoci\Models\Sport;
 use Amichiamoci\Models\Squadra;
+use Amichiamoci\Models\Message;
 
 class TeamsController extends Controller
 {
@@ -87,5 +88,22 @@ class TeamsController extends Controller
                 'iscritti' => Iscrizione::All(connection: $this->DB),
             ],
         );
+    }
+
+    public function delete(?int $id = null, ?int $church = null, ?int $year = null): int
+    {
+        $this->RequireLogin(require_admin: true);
+        if (self::IsPost())
+        {
+            if (empty($id)) {
+                return $this->BadRequest();
+            }
+            if (Squadra::Delete(connection: $this->DB, id: $id)) {
+                $this->Message(message: Message::Success(content: 'Squadra correttamente eliminata'));
+            } else {
+                $this->Message(message: Message::Error(content: 'Impossibile eliminare la squadra'));
+            }
+        }
+        return $this->index(church: $church, year: $year);
     }
 }

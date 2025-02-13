@@ -18,7 +18,7 @@ if (isset($staff) && $staff instanceof Staff) {
     id="iscrivi-form" 
     enctype="multipart/form-data"
     action="/staff/iscrivi">
-    <input type="hidden" name="id" required value="<?= $target->Id?> ">
+    <input type="hidden" name="id" required value="<?= $target->Id?>">
 
     <div class="form-floating mb-3">
         <select
@@ -44,7 +44,7 @@ if (isset($staff) && $staff instanceof Staff) {
             required
             class="form-control"
             id="taglia" name="taglia">
-            <option value="">Scegli una parrocchia</option>
+            <option value="">Scegli una taglia</option>
             <?php foreach ($taglie as $taglia) { ?>
                 <option value="<?= htmlspecialchars(string: $taglia) ?>"
                     <?= ($taglia === 'L') ? 'selected' : '' ?>>

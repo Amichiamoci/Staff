@@ -52,12 +52,6 @@ BEGIN
     WHERE `email`.`id` = id AND `email`.`opened` IS NULL;
 END; //
 
-DROP PROCEDURE IF EXISTS `ListEmail` //
-CREATE PROCEDURE `ListEmail`()
-BEGIN
-    SELECT * FROM email_extended_no_body;
-END; //
-
 DROP PROCEDURE IF EXISTS `ViewEmail` //
 CREATE PROCEDURE `ViewEmail`(IN id INT)
 BEGIN

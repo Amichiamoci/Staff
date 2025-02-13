@@ -19,7 +19,7 @@ use Amichiamoci\Models\Templates\Anagrafica as AnagraficaBase;
             id="anagrafica" name="anagrafica"
             required
             class="form-control"
-            <?= (isset($user->IdAnagrafica) ? "disabled" : "") ?>
+            <?= isset($user->IdAnagrafica) ? "disabled" : "" ?>
             title="Dati anagrafici">
             <option value="">Scegli</option>
             <?php foreach ($anagrafiche as $anagrafica) {
@@ -27,7 +27,7 @@ use Amichiamoci\Models\Templates\Anagrafica as AnagraficaBase;
             ?>
                 <option 
                     value="<?= $anagrafica->Id ?>"
-                    <?= ($anagrafica->Id === $user->IdAnagrafica ? "selected" : "") ?>>
+                    <?= ($anagrafica->Id === $user->IdAnagrafica) ? "selected" : "" ?>>
                     <?= htmlspecialchars(string: $anagrafica->Nome . " " . $anagrafica->Cognome) ?>
                 </option>
             <?php } ?>
@@ -36,11 +36,13 @@ use Amichiamoci\Models\Templates\Anagrafica as AnagraficaBase;
         <div class="invalid-feedback">
             Per favore, seleziona una persona
         </div>
-        <div class="form-text user-select-none ms-2">
-            Non hai mai partecipato come concorrente?
-            Registra prima i tuoi dati
-            <a href="" class="link-underline link-underline-opacity-0">qui</a>
-        </div>
+        <?php if (!isset($staff)) { ?>
+            <div class="form-text user-select-none ms-2">
+                Non hai mai partecipato come concorrente?
+                Registra prima i tuoi dati
+                <a href="/staff/new_anagrafica" class="link-underline link-underline-opacity-0">qui</a>.
+            </div>
+        <?php } ?>
     </div>
     <div class="form-floating mb-3">
         <select 
@@ -54,9 +56,9 @@ use Amichiamoci\Models\Templates\Anagrafica as AnagraficaBase;
             ?>
                 <option 
                     value="<?= $parrocchia->Id ?>"
-                    <?= ((isset($staff) && 
+                    <?= (isset($staff) && 
                         ($staff instanceof Staff) && 
-                        $staff->Parrocchia->Id === $parrocchia->Id) ? "selected" : "") ?>>
+                        $staff->Parrocchia->Id === $parrocchia->Id) ? "selected" : "" ?>>
                     <?= htmlspecialchars(string: $parrocchia->Nome) ?>
                 </option>
             <?php } ?>
@@ -80,9 +82,3 @@ use Amichiamoci\Models\Templates\Anagrafica as AnagraficaBase;
         </button>
     </div>
 </form>
-
-<script>
-    $().ready(function() {
-        $("#staff-form").validate();
-    });
-</script>

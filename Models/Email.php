@@ -49,7 +49,7 @@ class Email implements DbEntity
         if (!$connection)
             return [];
         
-        $result = $connection->query(query: "CALL ListEmail();");
+        $result = $connection->query(query: "SELECT * FROM `email_extended_no_body` LIMIT 2000");
         if (!$result) {
             return [];
         }
@@ -69,7 +69,6 @@ class Email implements DbEntity
             );
         }
         $result->close();
-        $connection->next_result();
         return $arr;
     }
 

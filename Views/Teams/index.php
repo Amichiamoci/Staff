@@ -48,11 +48,15 @@ $squadre_per_sport = array_reduce(
 <?php } ?>
 
 <h1>
-    Lista squadre
+    Lista squadre (<?=count(value: $teams)?>)
 </h1>
+<p>
+    Le squadre sono raggruppate per lo sport per il quale sono registrate
+</p>
 <?php foreach (array_keys($squadre_per_sport) as $sport_id) { ?>
-    <h3>
+    <h3 class="mt-1">
         <?= htmlspecialchars(string: $squadre_per_sport[$sport_id][0]->Sport->Nome) ?>
+        (<?= count(value: $squadre_per_sport[$sport_id]) ?>)
     </h3>
     <div class="row">
         <?php foreach ($squadre_per_sport[$sport_id] as $squadra) { ?>
@@ -68,8 +72,25 @@ $squadre_per_sport = array_reduce(
                             title="Modifica <?= htmlspecialchars(string: $squadra->Nome) ?>">
                             <i class="bi bi-pencil-square"></i>
                         </a>
+                        <?php if ($user->IsAdmin) { ?>
+                            <form action="/teams/delete" method="post" class="d-inline">
+                                <input type="hidden" name="id" value="<?= $squadra->Id ?>" required>
+                                <input type="hidden" name="year" value="<?= $anno ?>">
+                                <input type="hidden" name="church" value="<?= $id_parrocchia ?>">
+                                <button 
+                                    type="submit" 
+                                    class="btn btn-link link-underline link-underline-opacity-0 link-danger p-0" 
+                                    title="Elimina"
+                                    data-confirm="Sicuro di voler cancellare la squadra?"
+                                    data-confirm-btn="Sì, cancella"
+                                    data-cancel-btn="Annulla"
+                                >
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </form>
+                        <?php } ?>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body p-1">
                         <ul class="list-group-flush">
                             <?php foreach ($squadra->MembriFull() as $id_anagrafica => $nome) { ?>
                                 <li class="list-group-item">

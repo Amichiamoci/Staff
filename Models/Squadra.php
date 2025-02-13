@@ -131,7 +131,8 @@ class Squadra extends NomeIdSemplice
         if (!$connection)
             return false;
 
-        $result = $connection->query(query: "CALL CancellaSquadra($id);");
+        $result = $connection->query(
+            query: "DELETE FROM `squadre` WHERE `squadre`.`id` = $id");
         $connection->next_result();
         return (bool)$result && $connection->affected_rows === 1;
     }

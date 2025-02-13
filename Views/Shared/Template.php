@@ -72,8 +72,11 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 
         crossorigin="anonymous"></script>
     <script src="/Public/js/darkmode.js"></script>
+    <script src="/Public/js/jQuery.bsConfirm.js"></script>
     <script>
+        //
         // Form validation
+        //
         $.validator.setDefaults({
             validClass: "d-none",
             errorClass: "d-none",
@@ -90,7 +93,9 @@
             });
         });
 
+        //
         // Scroll to top
+        //
         $(window).on('scroll', function() {
             if ($(window).scrollTop() > 300) {
                 $('#scroll-top').removeClass('d-none');
@@ -103,6 +108,13 @@
             $('html, body').animate({
                 scrollTop: 0,
             }, '300');
+        });
+
+        //
+        // jQuery BootStrap Confirm plugin (https://github.com/tropotek/bsConfirm)
+        //
+        jQuery(function($) {
+            $('[data-confirm]').bsConfirm();
         });
     </script>
 </body>

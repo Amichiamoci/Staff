@@ -143,6 +143,11 @@
                                         File non usati
                                     </a>
                                 </li>
+                                <li>
+                                    <a class="dropdown-item" href="/email">
+                                        Lista email
+                                    </a>
+                                </li>
                             <?php } ?>
                         </ul>
                     </li>

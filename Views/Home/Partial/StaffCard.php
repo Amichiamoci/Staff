@@ -18,14 +18,14 @@ if (isset($staff) && $staff instanceof Staff) {
             </div>
 
             <dl class="row">
-                <dt class="col-sm-3">
+                <dt class="col-sm-4">
                     <?php if ($staff->Referente) { ?>
                         <strong>Referente</strong>
                     <?php } else { ?>
                         Parrocchia
                     <?php } ?>
                 </dt>
-                <dd class="col-sm-9">
+                <dd class="col-sm-8">
                     <a 
                         href="/church?id=<?= $staff->Parrocchia->Id ?>"
                         class="link-underline-opacity-0 link-secondary"
@@ -35,18 +35,18 @@ if (isset($staff) && $staff instanceof Staff) {
                 </dd>
 
                 <?php if (isset($staff->Taglia)) { ?>
-                    <dt class="col-sm-3">
+                    <dt class="col-sm-4">
                         Taglia
                     </dt>
-                    <dd class="col-sm-9">
+                    <dd class="col-sm-8">
                         <?= htmlspecialchars(string: $staff->Taglia->value) ?>
                     </dd>
 
-                    <dt class="col-sm-3">
+                    <dt class="col-sm-4">
                         Commissioni
                     </dt>
-                    <dd class="col-sm-9">
-                        <ul class="list-group-flush">
+                    <dd class="col-sm-8">
+                        <ul class="list-group-flush p-0">
                             <?php foreach ($staff->Commissioni as $commissione) { ?>
                                 <li class="list-group-item">
                                     <?= htmlspecialchars(string: $commissione) ?>
@@ -62,7 +62,7 @@ if (isset($staff) && $staff instanceof Staff) {
                     <?= SITE_NAME ?> <?= date(format: "Y") ?>, fallo subito!
                 </p>
                 <a
-                    href=""
+                    href="/staff/get_involved"
                     class="btn btn-primary btn-lg"
                     title="Partecipa">
                     Partecipa ad
