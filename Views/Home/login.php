@@ -2,7 +2,7 @@
     Effettua il login
 </h1>
 
-<form method="post" id="login-form">
+<form method="post">
     <div class="form-floating mb-3">
         <input 
             required
@@ -50,9 +50,3 @@
         </button>
     </div>
 </form>
-
-<script>
-    $().ready(function() {
-        $("#login-form").validate();
-    });
-</script>

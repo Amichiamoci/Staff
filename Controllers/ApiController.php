@@ -7,7 +7,8 @@ class ApiController extends Controller
     private function handle_query(
         string $query, 
         callable $row_parser,
-        bool $next_result = false): int {
+        bool $next_result = false
+    ): int {
         $response = $this->DB->execute_query(query: $query);
         if (!$response) {
             return $this->InternalError();

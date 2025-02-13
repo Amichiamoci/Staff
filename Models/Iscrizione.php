@@ -79,14 +79,14 @@ class Iscrizione extends NomeIdSemplice
         $result->close();
         $connection->next_result();
         if (!is_null(value: $filter))
-            $iscrizioni = array_filter(array: $arr, callback: $filter);
-        return $iscrizioni;
+            $arr = array_filter(array: $arr, callback: $filter);
+        return $arr;
     }
     
     public static function ById(\mysqli $connection, int $id) : ?self
     {
         $query = "CALL SingolaIscrizione($id);";
-        $result = $connection->query($query);
+        $result = $connection->query(query: $query);
         if (!$result)
         {
             $connection->next_result();

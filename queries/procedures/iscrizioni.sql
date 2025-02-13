@@ -48,13 +48,13 @@ BEGIN
             WHERE EXISTS(
                 SELECT e3.*
                 FROM `edizioni` AS e3
-                WHERE e3.`anno` = YEAR(CURRENT_DATE) AND i2.`edizione` = e3.`id`
+                WHERE e3.`anno` = IFNULL (anno, YEAR(CURRENT_DATE)) AND i2.`edizione` = e3.`id`
             )
         ) i ON a.`id` = i.`dati_anagrafici`
         LEFT OUTER JOIN (
             SELECT e2.*
             FROM `edizioni` AS e2
-            WHERE e2.`anno` = YEAR(CURRENT_DATE)
+            WHERE e2.`anno` = IFNULL (anno, YEAR(CURRENT_DATE))
         ) e ON i.`edizione` = e.`id`
         LEFT OUTER JOIN `parrocchie` p ON i.`parrocchia` = p.`id`
         LEFT OUTER JOIN `anagrafiche` a2 ON i.`tutore` = a2.`id`
