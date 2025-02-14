@@ -3,6 +3,7 @@
 namespace Amichiamoci\Controllers;
 
 use Amichiamoci\Models\Anagrafica;
+use Amichiamoci\Models\Edizione;
 use Amichiamoci\Models\Iscrizione;
 use Amichiamoci\Models\User;
 use Amichiamoci\Utils\Cookie;
@@ -37,7 +38,8 @@ class HomeController extends Controller
             view: 'Home/index',
             title: 'Portale',
             data: [
-                'churches' => Parrocchia::All(connection: $this->DB)
+                'churches' => Parrocchia::All(connection: $this->DB),
+                'editions' => Edizione::All(connection: $this->DB),
             ]
         );
     }

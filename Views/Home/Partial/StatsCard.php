@@ -2,7 +2,7 @@
     <div class="card-body">
         <canvas id="stats-chart" 
             style="max-height: 200px;" 
-            class="margin-block-auto margin-inline-auto"
+            class="m-x-auto m-y-auto"
             oncontextmenu="return false"></canvas>
     </div>
 </div>

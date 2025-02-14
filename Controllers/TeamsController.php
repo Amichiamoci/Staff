@@ -106,4 +106,35 @@ class TeamsController extends Controller
         }
         return $this->index(church: $church, year: $year);
     }
+
+    public function list(?int $church = null, ?int $year = null): int
+    {
+        if (empty($year)) {
+            $year = (int)date(format: "Y");
+        }
+        
+        $staff = $this->RequireStaff();
+        if (!isset($church) && isset($staff)) {
+            $church = $staff->Parrocchia->Id;
+        }
+        if (empty($church)) {
+            return $this->BadRequest();
+        }
+
+        return $this->Json(
+            object: array_values(array: array_map(
+                callback: function (Squadra $s): array {
+                    return [
+                        'id' => $s->Id,
+                        'name' => $s->Nome,
+                        'sport' => $s->Sport->Nome,
+                    ];
+                }, 
+                array: Squadra::FromParrocchia(
+                    connection: $this->DB, 
+                    parrocchia: $church, 
+                    year: $year)
+            ))
+        );
+    }
 }

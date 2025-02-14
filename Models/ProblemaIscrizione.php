@@ -102,4 +102,21 @@ class ProblemaIscrizione
         $connection->next_result();
         return $arr;
     }
+
+    public function ProblemCount(): int
+    {
+        $filtered = array_filter(
+            array: [
+                // $this->CodiceDocumento,
+                $this->Documento,
+                $this->ScadenzaDocumento,
+                $this->Certificato,
+                $this->Tutore,
+                $this->Eta,
+                $this->Email,
+            ], 
+            callback: function (?string $s): bool { return !empty($s); }
+        );
+        return count(value: $filtered);
+    }
 }

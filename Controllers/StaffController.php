@@ -54,6 +54,38 @@ class StaffController extends Controller
         );
     }
 
+    public function problems(?int $church = null, ?int $year = null): int
+    {
+        if (empty($year)) {
+            $year = (int)date(format: "Y");
+        }
+        
+        $staff = $this->RequireStaff();
+        if (!isset($church) && isset($staff)) {
+            $church = $staff->Parrocchia->Id;
+        }
+        if (empty($church)) {
+            return $this->BadRequest();
+        }
+
+        return $this->Json(object: 
+            array_values(array: array_map(
+                callback: function (ProblemaIscrizione $p): array {
+                    return [
+                        'id' => $p->Id,
+                        'name' => $p->Nome,
+                        'count' => $p->ProblemCount(),
+                    ];
+                }, 
+                array: ProblemaIscrizione::Parrocchia(
+                    connection: $this->DB, 
+                    year: $year, 
+                    parrocchia: $church,
+                )
+            ))
+        );
+    }
+
     public function all(): int {
         $this->RequireStaff();
         return $this->Render(
