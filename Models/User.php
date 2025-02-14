@@ -333,6 +333,9 @@ class User implements DbEntity
             $result->close();
         }
         $connection->next_result();
+        if ($ret) {
+            $this->Name = $new_username;
+        }
         return $ret;
     }
     public static function Create(
@@ -414,8 +417,8 @@ class User implements DbEntity
         if (!$connection || $target === 0)
             return "";
         $new_password = Security::RandomPassword();
-        $hashed = Security::Hash($new_password);
-        $result = $connection->query("CALL SetUserPassword($target, '$hashed')");
+        $hashed = Security::Hash(str: $new_password);
+        $result = $connection->query(query: "CALL SetUserPassword($target, '$hashed')");
         if (!$result)
         {
             $new_password = "";

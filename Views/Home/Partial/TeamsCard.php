@@ -1,6 +1,7 @@
 <?php
     $card_name= 'teams';
     $card_title = 'Squadre';
+    $card_link = '/teams';
     $card_json_base = '/teams/list';
     $card_js_mapper = 'team_js_decoder';
     $card_nothing_found = '<li class="list-group-item user-select-none">Nessuna squadra trovata</li>'

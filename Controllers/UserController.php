@@ -37,10 +37,18 @@ class UserController extends Controller {
         return $this->view(id: $target_id);
     }
 
-    public function reset(?int $target_id) {
+    public function reset(?int $target_id): int {
         $this->RequireLogin(require_admin: true);
         
-        // User::ResetPassword(connection: $this->DB, target: $target_id);
+        if (empty($target_id)) {
+            return $this->BadRequest();
+        }
+
+        if (self::IsPost()) {
+            // $new_password = User::ResetPassword(connection: $this->DB, target: $target_id);
+            $this->Message(message: Message::Success(content: 'Password cambiata con successo'));
+        }
+        return $this->view(id: $target_id);
     }
 
     public function ban(?int $target_id): int {
@@ -67,6 +75,42 @@ class UserController extends Controller {
 
     public function password_recover(?string $username) {
         
+    }
+
+    public function update(
+        ?string $new_username, 
+        ?string $current_password, 
+        ?string $new_password = null,
+    ): int {
+        $user = $this->RequireLogin();
+        if (self::IsPost() && !empty($new_username) && !empty($current_password))
+        {
+            if ($user->Name !== $new_username)
+            {
+                if ($user->ChangeUserName(
+                    connection: $this->DB, 
+                    password: $current_password, 
+                    new_username: $new_username)
+                ) {
+                    $this->Message(message: Message::Success(content: 'Nome utente cambiato correttamente'));
+                } else {
+                    $this->Message(message: Message::Error(content: 'Non è stato possibile cambiare il nome utente'));
+                }
+            }
+            if (!empty($new_password))
+            {
+                if ($user->ChangePassword(
+                    connection: $this->DB, 
+                    password: $current_password, 
+                    new_password: $new_password)
+                ) {
+                    $this->Message(message: Message::Success(content: 'Password cambiata correttamente'));
+                } else {
+                    $this->Message(message: Message::Error(content: 'Non è stato possibile cambiare la password'));
+                }
+            }
+        }
+        return $this->me();
     }
 
     public function view(?int $id): int {
