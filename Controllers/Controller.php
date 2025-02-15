@@ -28,6 +28,11 @@ class Controller {
         $this->Path = $path;
     }
 
+    /**
+     * If the user variable is not set interrupts the flow and redirects to login page
+     * @param bool $require_admin Require that the user is also an admin user. Calls NotAuthorized() if not
+     * @return User The loaded user
+     */
     protected function RequireLogin(bool $require_admin = false): User {
         if (!isset($this->User)) {
             Cookie::Set(name: 'Redirect', value: $this->Path, exp: 3600);
@@ -41,10 +46,20 @@ class Controller {
         return $this->User;
     }
 
+    /**
+     * Checks if the user variable is set
+     * @return bool
+     */
     protected function IsLoggedIn(): bool {
         return isset($this->User);
     }
 
+    /**
+     * Returns the associated staff object. If none exists interrupts the flow and calls
+     * NotAuthorized(). Returns null if there is no staff associated with the user but the user
+     * is admin.
+     * @return Staff|null
+     */
     protected function RequireStaff(): ?Staff {
         $this->RequireLogin(require_admin: false);
 
@@ -70,6 +85,12 @@ class Controller {
         return $this->Staff;
     }
 
+    /**
+     * Adds a message to display in the current flow.
+     * Does not work with redirects
+     * @param \Amichiamoci\Models\Message|string|null $message
+     * @return void
+     */
     protected function Message(Message|string|null $message): void {
         if (!isset($message)) {
             return;
@@ -80,6 +101,15 @@ class Controller {
         $this->AlertsToDisplay[] = $message;
     }
 
+    /**
+     * Renders a particular view.
+     * If the associated file in not found calls NotFound()
+     * @param string $view View file name (omit the '.php')
+     * @param array $data Variables to pass to the rendering php. Variables $user and $staff are automatically loaded
+     * @param string $title Title of the page, is passed also as $tile variable
+     * @param int $status_code Override the status code of the response
+     * @return int The status code of the response
+     */
     protected function Render(
         string $view, 
         array $data = [], 
@@ -110,6 +140,11 @@ class Controller {
         return $status_code;
     }
 
+    /**
+     * Redirectes to the specified url
+     * @param string $url
+     * @return int The status code of the response (302)
+     */
     protected function Redirect(string $url): int {
         if (empty($url))
         {
@@ -119,6 +154,12 @@ class Controller {
         return 302;
     }
 
+    /**
+     * Raw string as response
+     * @param string $type Mime type of the content
+     * @param string $content Actual content
+     * @return int The status code of the response (200)
+     */
     protected function Content(string $type, string $content): int {
         header(header: "Content-Type: $type");
         header(header: "Content-length: " . strlen(string: $content));
@@ -128,6 +169,11 @@ class Controller {
         return 200;
     }
 
+    /**
+     * Render an object as json and print it to the stream
+     * @param mixed $object The object. Will be rendered via json_encode()
+     * @return int The status code of the response (200)
+     */
     protected function Json(mixed $object): int {
         return $this->Content(
             type: 'application/json', 
@@ -135,6 +181,13 @@ class Controller {
         );
     }
 
+    /**
+     * Loads a file and prints it to the stream.
+     * Calls NotFound if the file can't be found
+     * @param string $file_path
+     * @param bool $additional_headers
+     * @return int
+     */
     protected function File(string $file_path, bool $additional_headers = true): int {
         if (!file_exists(filename: $file_path))
         {
