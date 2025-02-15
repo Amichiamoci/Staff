@@ -152,6 +152,7 @@ use Amichiamoci\Utils\File;
 
             <?php if ($anagrafica instanceof Amichiamoci\Models\AnagraficaConIscrizione)  { ?>
                 <dt class="col-sm-4 text-nowrap">
+                    <i class="bi bi-list-ol"></i>
                     Iscrizione
                 </dt>
                 <dd class="col-sm-8">
@@ -161,6 +162,7 @@ use Amichiamoci\Utils\File;
                 </dd>
 
                 <dt class="col-sm-4 text-nowrap">
+                    <i class="bi bi-house"></i>
                     Parrocchia
                 </dt>
                 <dd class="col-sm-8">
@@ -173,6 +175,11 @@ use Amichiamoci\Utils\File;
                 </dd>
 
                 <dt class="col-sm-4 text-nowrap">
+                    <?php if ($anagrafica->Sex === 'F') { ?>
+                        <i class="bi bi-person-standing-dress"></i>
+                    <?php } else { ?>
+                        <i class="bi bi-person-standing"></i>
+                    <?php } ?>
                     Taglia
                 </dt>
                 <dd class="col-sm-8">
@@ -203,7 +210,7 @@ use Amichiamoci\Utils\File;
 
                 <?php if ($anagrafica->Eta < 18) { ?>
                     <dt class="col-sm-4 text-nowrap">
-                        <i class="bi bi-activity"></i>
+                        <i class="bi bi-person-lock"></i>
                         Tutore
                     </dt>
                     <dd class="col-sm-8">
@@ -226,6 +233,7 @@ use Amichiamoci\Utils\File;
                 <?php } ?>
             <?php } else { ?>
                 <dt class="col-sm-4 text-nowrap">
+                    <i class="bi bi-person-plus"></i>
                     Iscrivi
                 </dt>
                 <dd class="col-sm-8">
