@@ -14,11 +14,30 @@ if (isset($staff) && $staff instanceof Staff) {
 </p>
 
 <form 
-    method="post" 
-    id="iscrivi-form" 
+    method="post"
     enctype="multipart/form-data"
     action="/staff/iscrivi">
     <input type="hidden" name="id" required value="<?= $target->Id?>">
+
+    <?php if ($user->IsAdmin) { ?>
+        <div class="form-floating mb-3">
+            <select
+                required
+                class="form-control"
+                id="edizione" name="edizione">
+                <?php foreach ($edizioni as $edizione) { ?>
+                    <option value="<?= $edizione->Id ?>" <?= ($edizione->Year === (int)date(format: 'Y')) ? 'selected' : ''?>>
+                        <?= $edizione->Year ?>:
+                        <?= htmlspecialchars(string: $edizione->Motto) ?>
+                    </option>
+                <?php } ?>
+            </select>
+            <label for="edizione">Edizione</label>
+            <div class="invalid-feedback">
+                Per favore, scegli un'edizione
+            </div>
+        </div>
+    <?php } ?>
 
     <div class="form-floating mb-3">
         <select
@@ -99,7 +118,7 @@ if (isset($staff) && $staff instanceof Staff) {
 
     <div class="col-12 mt-2">
         <button class="btn btn-primary" type="submit" id="submit">
-            Aggiungi
+            Iscrivi
             <i class="bi bi-person-add"></i>
         </button>
     </div>

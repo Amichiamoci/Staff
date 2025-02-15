@@ -152,19 +152,19 @@ class Iscrizione extends NomeIdSemplice
     ): bool {
         if (!$connection)
             return false;
-
-        $query = "INSERT INTO iscritti (dati_anagrafici, edizione, tutore, certificato_medico, parrocchia, taglia_maglietta) VALUES (?, ?, ?, ?, ?, ?)";
-        $stmt = $connection->prepare(query: $query);
-        if (!$stmt)
-            return false;
-        if ($tutore == 0)
-            $tutore = null;
-        if (!$stmt->bind_param(
-            "iiisis", $id_anagrafica, $edizione, $tutore, $certificato, $parrocchia, $taglia))
-        {
-            return false;
-        }
-        return $stmt->execute();
+        $query = "INSERT INTO `iscritti` (`dati_anagrafici`, `edizione`, `tutore`, `certificato_medico`, `parrocchia`, `taglia_maglietta`) VALUES (?, ?, ?, ?, ?, ?)";
+        
+        return (bool)$connection->execute_query(
+            query: $query, 
+            params: [
+                $id_anagrafica, 
+                $edizione, 
+                $tutore, 
+                $certificato, 
+                $parrocchia, 
+                $taglia->value
+            ]
+        );
     }
 
     public static function UpdateCertificato(

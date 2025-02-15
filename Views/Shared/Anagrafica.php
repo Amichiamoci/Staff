@@ -79,7 +79,7 @@ use Amichiamoci\Utils\File;
             </dt>
             <dd class="col-sm-8">
                 <?php if (empty($anagrafica->Email)) { ?>
-                    <strong>
+                    <strong class="text-warning">
                         <i class="bi bi-exclamation-triangle"></i>
                         Mancante!
                     </strong>
@@ -136,15 +136,23 @@ use Amichiamoci\Utils\File;
                 Scadenza
             </dt>
             <dd class="col-sm-8">
-                <?= empty($anagrafica->DocumentExpiration) ?
-                    '?' :
-                    htmlspecialchars(string: (new \DateTime(datetime: $anagrafica->DocumentExpiration))->format(format: 'd/m/Y'))
-                     ?>
+                <?php if (empty($anagrafica->DocumentExpiration)) { ?>
+                    <span class="text-danger">Non trovata</span>
+                <?php } else { 
+                    $date = new \DateTime(datetime: $anagrafica->DocumentExpiration);
+                    $is_expired = $date < (new \DateTime());
+                ?>
+                    <span class="<?= $is_expired ? 'text-danger' : '' ?>">
+                        <?= $is_expired ? '<i class="bi bi-exclamation-triangle"></i>' : '' ?>
+                        <?= htmlspecialchars(string: $date->format(format: 'd/m/Y')) ?>
+                        <?= $is_expired ? '(scaduto)' : '' ?>
+                    </span>
+                <?php } ?>
             </dd>
 
             <?php if ($anagrafica instanceof Amichiamoci\Models\AnagraficaConIscrizione)  { ?>
-                <dt class="col-sm-4">
-                    Codice Iscrizione
+                <dt class="col-sm-4 text-nowrap">
+                    Iscrizione
                 </dt>
                 <dd class="col-sm-8">
                     <span class="font-monospace">
@@ -171,29 +179,53 @@ use Amichiamoci\Utils\File;
                     <?= htmlspecialchars(string: $anagrafica->Iscrizione->Taglia->value) ?>
                 </dd>
 
-                <dt class="col-sm-4">
+                <dt class="col-sm-4 text-nowrap">
                     <i class="bi bi-activity"></i>
-                    Certificato medico
+                    Certificato
                 </dt>
                 <dd class="col-sm-8">
                     <?php if (isset($anagrafica->Iscrizione->Certificato)) { ?>
                         <a 
                             href="<?= File::GetExportUrl(path: $anagrafica->Iscrizione->Certificato) ?>"
                             download
-                            class="link-underline link-underline-opacity-0 text-reset"
+                            class="link-underline link-underline-opacity-0 text-success"
                             title="Scarica il documento">
                             <i class="bi bi-check"></i>
                             Presente
                         </a>
                     <?php } else { ?>
-                        <strong>
+                        <strong class="text-danger user-select-none">
                             <i class="bi bi-exclamation-triangle"></i>
                             Mancante!
                         </strong>
                     <?php } ?>
                 </dd>
+
+                <?php if ($anagrafica->Eta < 18) { ?>
+                    <dt class="col-sm-4 text-nowrap">
+                        <i class="bi bi-activity"></i>
+                        Tutore
+                    </dt>
+                    <dd class="col-sm-8">
+                        <?php if (!empty($anagrafica->Iscrizione->IdTutore)) { ?>
+                            <a 
+                                href="/staff/edit_anagrafica?id=<?= $anagrafica->Iscrizione->IdTutore ?>"
+                                class="link-underline link-underline-opacity-0 text-success"
+                                title="Vedi il tutore">
+                                <i class="bi bi-check"></i>
+                                Presente
+                            </a>
+                        <?php } else { ?>
+                            <strong class="text-danger user-select-none">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                Mancante!
+                            </strong>
+                        <?php } ?>
+                    </dd>
+
+                <?php } ?>
             <?php } else { ?>
-                <dt class="col-sm-4">
+                <dt class="col-sm-4 text-nowrap">
                     Iscrivi
                 </dt>
                 <dd class="col-sm-8">

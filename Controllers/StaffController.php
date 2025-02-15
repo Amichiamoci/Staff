@@ -283,8 +283,6 @@ class StaffController extends Controller
             //
             // Create new record
             //
-
-            // TODO: Handle file submission
             $files = File::UploadingFiles(form_name: 'doc');
             $files = array_filter(array: $files, callback: function(array $file): bool {
                 return File::IsUploadOk(file: $file);
@@ -377,6 +375,7 @@ class StaffController extends Controller
         ?int $tutore = null,
         ?int $parrocchia = null,
         ?string $taglia = null,
+        ?int $edizione = null,
     ): int {
         $this->RequireLogin();
         if (empty($id)) {
@@ -392,7 +391,10 @@ class StaffController extends Controller
             if (empty($parrocchia) || empty($taglia)) {
                 return $this->BadRequest();
             }
-            $edizione = (int)date(format: "Y");
+            if (empty($edizione))
+            {
+                $edizione = Edizione::Current(connection: $this->DB)->Id;
+            }
 
             $files = File::UploadingFiles(form_name: 'certificato');
             $files = array_filter(array: $files, callback: function(array $file): bool {
@@ -410,7 +412,7 @@ class StaffController extends Controller
                 connection: $this->DB, 
                 id_anagrafica: $id, 
                 tutore: $tutore, 
-                certificato: $actual_path, 
+                certificato: File::AbsoluteToDbPath(server_path: $actual_path), 
                 parrocchia: $parrocchia, 
                 taglia: Taglia::from(value: $taglia), 
                 edizione: $edizione
@@ -437,7 +439,8 @@ class StaffController extends Controller
                 'parrocchie' => Parrocchia::All(connection: $this->DB),
                 'adulti' => AnagraficaBase::All(connection: $this->DB, filter: function (AnagraficaBase $a): bool {
                     return $a->Eta >= 18;
-                })
+                }),
+                'edizioni' => Edizione::All(connection: $this->DB),
             ]
         );
     }
