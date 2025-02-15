@@ -61,6 +61,42 @@ class HomeController extends Controller
         );
     }
 
+    public function cron(): int {
+        $this->RequireLogin(require_admin: true);
+        $crons = [
+            [
+                'name' => 'Compleanni',
+                'file' => 'birthdays.txt',
+            ],
+            [
+                'name' => 'Partite',
+                'file' => 'matches.txt',
+            ],
+        ];
+        $status = array_map(callback: function (array $a): array {
+            try {
+                $file_name = CRON_LOG_DIR . DIRECTORY_SEPARATOR . $a['file'];
+                if (!is_file(filename: $file_name)) {
+                    throw new \Exception('File non trovato');
+                }
+                $log = file_get_contents(filename: $file_name);
+                if (!$log) {
+                    $log = '?';
+                }
+                return [
+                    'name' => $a['name'], 
+                    'log' => $log,
+                ];
+            } catch (\Throwable $e) {
+                return [
+                    'name' => $a['name'], 
+                    'log' => $e->getMessage(),
+                ];
+            }
+        }, array: $crons);
+        return $this->Json(object: array_values(array: $status));
+    }
+
     public function login(
         ?string $username = null, 
         ?string $password = null

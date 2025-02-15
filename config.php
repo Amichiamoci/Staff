@@ -35,3 +35,7 @@ define(
 define(
     constant_name: 'SERVER_UPLOAD_TMP', 
     value: SERVER_UPLOAD_PATH . DIRECTORY_SEPARATOR . 'tmp');
+
+define(
+    constant_name: 'CRON_LOG_DIR',
+    value: SERVER_UPLOAD_TMP . DIRECTORY_SEPARATOR . 'cron');

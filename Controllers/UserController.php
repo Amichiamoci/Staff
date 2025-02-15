@@ -46,7 +46,7 @@ class UserController extends Controller {
 
         if (self::IsPost()) {
             // $new_password = User::ResetPassword(connection: $this->DB, target: $target_id);
-            $this->Message(message: Message::Success(content: 'Password cambiata con successo'));
+            // $this->Message(message: Message::Success(content: 'Password cambiata con successo'));
         }
         return $this->view(id: $target_id);
     }

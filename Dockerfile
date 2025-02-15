@@ -37,7 +37,12 @@ RUN echo '0 * * * * "php '${APP_DIR}'/cron.php >> /var/log/schedule.log 2>&1"' >
 RUN crontab /etc/cron.d/scheduler
 
 # Copy the actual site
-COPY --from=deps ${APP_DIR}/vendor ./vendor
+RUN mkdir -p \
+    ${APP_DIR}/Uploads/documenti \
+    ${APP_DIR}/Uploads/certificati \
+    ${APP_DIR}/Uploads/tmp \
+    ${APP_DIR}/Uploads/tmp/cron
+COPY --chown=www-data --from=deps ${APP_DIR}/vendor ./vendor
 COPY --chown=www-data . .
 VOLUME [ "${APP_DIR}/Uploads" ]
 RUN ./build-starting-db.sh
