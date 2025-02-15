@@ -159,6 +159,21 @@ use Amichiamoci\Utils\File;
                     <span class="font-monospace">
                         <?= $anagrafica->Iscrizione->Id ?>
                     </span>
+                    <?php if ($user->IsAdmin || (isset($staff) && $staff->Parrocchia->Id === $anagrafica->Iscrizione->Parrocchia->Id)) { ?>
+                        <form action="/staff/delete_iscrizione" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="<?= $anagrafica->Iscrizione->Id ?>">
+                            <button 
+                                type="submit"
+                                class="btn btn-link btn-underline btn-underline-opacity-0 text-reset p-0"
+                                title="Annulla iscrizione"
+                                data-confirm="Vuoi annullare l'iscrizione di <?= htmlspecialchars(string: $anagrafica->Nome) ?>?"
+                                data-confirm-btn="Sì, annulla"
+                                data-cancel-btn="No, lascia così"
+                            >
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </form>
+                    <?php } ?>
                 </dd>
 
                 <dt class="col-sm-4 text-nowrap">

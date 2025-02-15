@@ -445,6 +445,26 @@ class StaffController extends Controller
         );
     }
 
+    public function delete_iscrizione(?int $id = null): int {
+        $user = $this->RequireLogin();
+        $staff = $this->RequireStaff();
+        if (self::IsPost()) {
+            $target = Iscrizione::ById(connection: $this->DB, id: $id);
+            if (!isset($target)) {
+                return $this->NotFound();
+            }
+            if (!$user->IsAdmin && $target->Parrocchia->Id !== $staff->Parrocchia->Id) {
+                return $this->NotAuthorized();
+            }
+            if (Iscrizione::Delete(connection: $this->DB, id: $id)) {
+                $this->Message(message: Message::Success(content: 'Iscrizione cancellata'));
+            } else {
+                $this->Message(message: Message::Error(content: 'Non è stato possibile cancellare l\'iscrizione'));
+            }
+        }
+        return $this->anagrafiche();
+    }
+
     public function edizione(
         ?int $anno = null,
         ?string $motto = null,

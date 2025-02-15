@@ -210,6 +210,17 @@ class Iscrizione extends NomeIdSemplice
         return $stmt->affected_rows === 1;
     }
 
+    public static function Delete(\mysqli $connection, int $id): bool
+    {
+        if (!$connection) {
+            return false;
+        }
+
+        $query = "DELETE FROM `iscritti` WHERE `id` = $id";
+        $res = (bool)$connection->query(query: $query);
+        return $res && $connection->affected_rows >= 1;
+    }
+
     public static function EmailNonSubscribed(\mysqli $connection, int $year): ?array
     {
         if (!$connection) 
