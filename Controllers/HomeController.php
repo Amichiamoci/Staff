@@ -3,6 +3,7 @@
 namespace Amichiamoci\Controllers;
 
 use Amichiamoci\Models\Anagrafica;
+use Amichiamoci\Models\AnagraficaConIscrizione;
 use Amichiamoci\Models\Edizione;
 use Amichiamoci\Models\Iscrizione;
 use Amichiamoci\Models\User;
@@ -48,6 +49,19 @@ class HomeController extends Controller
         $this->RequireLogin();
         return $this->Json(
             object: Anagrafica::GroupFrom(connection: $this->DB)
+        );
+    }
+
+    public function church_stats(?int $year = null): int
+    {
+        $this->RequireLogin();
+        if (empty($year))
+            $year = (int)date(format: 'Y');
+        return $this->Json(
+            object: AnagraficaConIscrizione::GroupByChurch(
+                connection: $this->DB, 
+                year: $year
+            ),
         );
     }
 

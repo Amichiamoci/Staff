@@ -12,7 +12,7 @@
             data: {
                 labels: data.map(row => row.where),
                 datasets: [
-                    { label: 'Provenienze', data: data.map(row => row.count) }
+                    { label: 'Anagrafiche', data: data.map(row => row.count) }
                 ]
             },
             options: {
@@ -22,8 +22,8 @@
                         display: false,
                     },
                     title: {
-                        display: true,
-                        text: 'Provenienze anagrafiche'
+                        display: false,
+                        text: 'Luoghi di nascita anagrafiche'
                     }
                 }
             },

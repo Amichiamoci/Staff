@@ -18,7 +18,10 @@
             <?php require_once __DIR__ . '/Partial/ProblemsCard.php'; ?>
         </div>
         <div class="col col-xs-6 col-sm-4 mb-2">
-            <?php require_once __DIR__ . '/Partial/StatsCard.php'; ?>
+            <?php require_once __DIR__ . '/Partial/ChurchStatsCard.php'; ?>
+        </div>
+        <div class="col col-xs-6 col-sm-4 mb-2">
+            <?php require_once __DIR__ . '/Partial/FromStatsCard.php'; ?>
         </div>
     </div>
 </div>

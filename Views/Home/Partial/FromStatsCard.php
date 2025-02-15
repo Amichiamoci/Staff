@@ -1,5 +1,10 @@
 <div class="card">
     <div class="card-body">
+        <div class="card-title text-center">
+            <strong>
+                Luoghi di nascita
+            </strong>
+        </div>
         <canvas id="stats-chart" 
             style="max-height: 200px;" 
             class="m-x-auto m-y-auto"
@@ -7,5 +12,5 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" defer></script>
+<?php require_once __DIR__ . '/chart.js.php'; ?>
 <script src="/Public/js/stats-from.js" defer></script>

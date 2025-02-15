@@ -8,8 +8,8 @@ class Anagrafica extends AnagraficaBase
 {
     public string $BirthDay = "";
     public string $From = "";
-    public ?string $Phone;
-    public ?string $Email;
+    public ?string $Phone = null;
+    public ?string $Email = null;
     public string $FiscalCode = "";
     public string $Sex = "?";
 

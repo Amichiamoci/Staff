@@ -63,6 +63,22 @@ class AnagraficaConIscrizione extends Anagrafica
         return $arr;
     }
 
+    public static function GroupByChurch(\mysqli $connection, int $year): array {
+        $list = self::FromYear(connection: $connection, year: $year);
+        return array_reduce(
+            array: $list,
+            callback: function (array $carry, self $a): array {
+                if (!array_key_exists(key: $a->Iscrizione->Parrocchia->Nome, array: $carry))
+                {
+                    $carry[$a->Iscrizione->Parrocchia->Nome] = 0;
+                }
+                $carry[$a->Iscrizione->Parrocchia->Nome]++;
+                return $carry;
+            },
+            initial: [],
+        );
+    }
+
     protected static function FromDbRow(array $row): parent|self
     {
         $a = parent::FromDbRow(row: $row);
