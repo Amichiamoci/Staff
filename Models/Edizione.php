@@ -48,6 +48,25 @@ class Edizione
         }
         return null;
     }
+    public static function FromYear(\mysqli $connection, string|int $year) : ?self
+    {
+        if (!$connection || !isset($year))
+            return null;
+        $year = (int)$year;
+        $query = "SELECT * FROM `edizioni` WHERE `anno` = $year";
+        $result = $connection->query(query: $query);
+        if (!$result || $result->num_rows === 0) return null;
+        if ($row = $result->fetch_assoc())
+        {
+            return new self(
+                id: $row["id"], 
+                year: $row['anno'],
+                motto: $row["motto"], 
+                img: $row["path_immagine"], 
+            );
+        }
+        return null;
+    }
     public static function All(\mysqli $connection) : array
     {
         if (!$connection) return array();

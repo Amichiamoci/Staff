@@ -60,6 +60,35 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link text-reset dropdown-toggle"
                             href="#" 
+                            id="matchesDropdownMenuLink" 
+                            role="button" 
+                            data-bs-toggle="dropdown" 
+                            aria-expanded="false">
+                            Partite
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="matchesDropdownMenuLink">
+                            <li>
+                                <a class="dropdown-item" href="/sport">
+                                    Tutti i Tornei
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/sport/matches">
+                                    Partite della settimana
+                                </a>
+                            </li>
+                            <?php if ($user->IsAdmin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'))) { ?>
+                                <li>
+                                    <a class="dropdown-item" href="/sport/plan">
+                                        Pianifica tornei
+                                    </a>
+                                </li>
+                            <?php } ?>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link text-reset dropdown-toggle"
+                            href="#" 
                             id="userDropdownMenuLink" 
                             role="button" 
                             data-bs-toggle="dropdown" 

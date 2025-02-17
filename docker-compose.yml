@@ -22,8 +22,7 @@ services:
       # - ./Uploads:/amichiamoci/Uploads:rw
        - ./Uploads:/var/www/html/Uploads:rw
     depends_on:
-      mysql:
-        condition: service_started
+      - mysql
   
   mysql:
     image: mysql:latest

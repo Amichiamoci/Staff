@@ -1,40 +1,23 @@
-FROM alpine:latest AS base
+FROM php:alpine AS base
 
-ENV PHP_VER=83
+ENV PHP_VER=84
 
 # Install packets and extensions
 RUN apk -U upgrade && \
     apk add --upgrade \
         freetype-dev libjpeg-turbo-dev libpng-dev libwebp-dev \
-        mysql-client mariadb-connector-c \
+        mariadb-client mariadb-connector-c \
         libzip-dev zip unzip \
         ca-certificates \
         openrc \
-        apache2 \
-        php${PHP_VER} \
-        php${PHP_VER}-apache2 \
-        php${PHP_VER}-bz2 \
-        php${PHP_VER}-common \
-        php${PHP_VER}-ctype \
-        php${PHP_VER}-curl \
-        php${PHP_VER}-dom \
-        php${PHP_VER}-gd \
-        php${PHP_VER}-iconv \
-        php${PHP_VER}-mbstring \
-        php${PHP_VER}-mysqlnd \
-        php${PHP_VER}-mysqli \
-        php${PHP_VER}-openssl \
-        php${PHP_VER}-phar \
-        php${PHP_VER}-session \
+        apache2 php${PHP_VER}-apache2 \
         && \
     rm -rf /var/cache/apk/* && \
     update-ca-certificates
 
-#COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
-#RUN chmod +x /usr/local/bin/install-php-extensions && \
-#    install-php-extensions gd mysqli zip
-#RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp && \
-#    docker-php-ext-install -j$(nproc) gd mysqli zip
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp && \
+    docker-php-ext-install -j$(nproc) gd mysqli zip && \
+    docker-php-ext-enable mysqli
 
 # Directory where code will be copied
 ENV APP_DIR=/amichiamoci
@@ -49,10 +32,13 @@ COPY composer.json .
 RUN composer update --no-interaction --no-dev
 
 FROM base AS final
-COPY --from=deps $APP_DIR/vendor ./vendor
-COPY --chown=apache:apache . .
-VOLUME [ "$APP_DIR/Uploads" ]
-RUN ./build-starting-db.sh
+
+# Setup CRON
+RUN touch /var/log/schedule.log
+RUN chmod 777 /var/log/schedule.log
+RUN mkdir /etc/cron.d
+RUN echo '0 * * * * "php '${APP_DIR}'/cron.php >> /var/log/schedule.log 2>&1"' > /etc/cron.d/scheduler
+RUN crontab /etc/cron.d/scheduler
 
 ENV APACHE_CONF=/etc/apache2/httpd.conf
 # ENV PHP_CONF=/etc/php83/php.ini
@@ -76,18 +62,22 @@ RUN sed -i 's#Directory "/var/www/localhost/htdocs"#Directory "'${APP_DIR}'"#g' 
 #RUN cp /usr/local/lib/php/extensions/$(ls /usr/local/lib/php/extensions)/* /usr/lib/php83/modules/
 #RUN rmdir /usr/lib/php83/modules && ln -s /usr/local/lib/php/extensions/$(ls /usr/local/lib/php/extensions)/ /usr/lib/php83/modules
 
-# Setup CRON
-RUN touch /var/log/schedule.log
-RUN chmod 777 /var/log/schedule.log
-RUN mkdir /etc/cron.d
-RUN echo '0 * * * * "php '${APP_DIR}'/cron.php >> /var/log/schedule.log 2>&1"' > /etc/cron.d/scheduler
-RUN crontab /etc/cron.d/scheduler
+
+# Load actual code
+RUN mkdir -p \
+    ${APP_DIR}/Uploads/documenti \
+    ${APP_DIR}/Uploads/certificati \
+    ${APP_DIR}/Uploads/tmp \
+    ${APP_DIR}/Uploads/tmp/cron
+COPY --chown=apache:apache --from=deps $APP_DIR/vendor ./vendor
+COPY --chown=apache:apache . .
+VOLUME [ "$APP_DIR/Uploads" ]
+RUN ./build-starting-db.sh
 
 EXPOSE 80
 RUN chmod +x ./entrypoint.sh
 
 RUN chown -R apache:apache $APACHE_LOG_DIR
 RUN chown -R apache:apache /var/www/logs
-# USER www-data
 
 CMD [ "./entrypoint.sh" ]
