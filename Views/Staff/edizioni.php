@@ -62,14 +62,10 @@ use Amichiamoci\Models\Edizione;
             </div>
         </div>
 
-
         <div class="col-12 mt-2">
             <button class="btn btn-primary" type="submit" id="submit">
                 Invia
             </button>
         </div>
     </form>
-
-
-
 <?php } ?>

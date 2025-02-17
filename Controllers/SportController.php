@@ -21,12 +21,36 @@ class SportController extends Controller
             title: 'Lista tornei',
             data: [
                 'tornei' => $tournaments,
-                
+
                 'anno' => $year,
                 'edizioni' => Edizione::All(connection: $this->DB),
             ],
         );
     }
+
+    public function tournament(?int $id = null): int {
+        $this->RequireLogin();
+        if (!isset($id)) {
+            return $this->BadRequest();
+        }
+        
+        $torneo = Torneo::ById(connection: $this->DB, id: $id);
+        if (!isset($torneo)) {
+            return $this->NotFound();
+        }
+
+        $partite = [];
+        return $this->Render(
+            view: 'Sport/tournament',
+            title: $torneo->Nome,
+            data: [
+                'torneo' => $torneo,
+                'partite' => $partite,
+                'edizioni' => Edizione::All(connection: $this->DB),
+            ]
+        );
+    }
+
     /*
     public function matches(?string $date): int {
 

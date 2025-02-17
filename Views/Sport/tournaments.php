@@ -47,76 +47,7 @@ $tornei_per_sport = array_reduce(
     <div class="row m-0">
         <?php foreach ($tornei_per_sport[$sport_id] as $torneo) { ?>
             <div class="col col-xs-6 col-sm-4">
-                <div class="card mb-1" id="torneo-<?= $torneo->Id ?>">
-                    <div class="card-header user-select-none">
-                        <strong>
-                            <?= htmlspecialchars(string: $torneo->Nome) ?>
-                        </strong>
-                        <a 
-                            href="/sport/tourney?id=<?= $torneo->Id ?>"
-                            class="link-underline link-underline-opacity-0 link-primary text-end"
-                            title="Modifica il torneo">
-                            <i class="bi bi-pencil-square"></i>
-                        </a>
-                    </div>
-                    <div class="card-body">
-                        <dl class="row">
-                            <dt class="col-sm-4 text-nowrap">
-                                Tipologia
-                            </dt>
-                            <dd class="col-sm-8">
-                                <?= htmlspecialchars(string: $torneo->Tipo->Nome) ?>
-                            </dd>
-
-                            <dt class="col-sm-4 text-nowrap">
-                                Calendario
-                            </dt>
-                            <dd class="col-sm-8">
-                                <?php if (count(value: $torneo->IdPartite) > 0) { ?>
-                                    <?= count(value: $torneo->IdPartite) ?> partite previste
-                                <?php } else { ?>
-                                    <?php if ($user->IsAdmin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'))) { ?>
-                                        <form action="/spost/plan" method="post">
-                                            <input type="hidden" name="id" value="<?= $torneo->Id ?>">
-                                            <button 
-                                                type="submit"
-                                                class="btn btn-outline-primary"
-                                                title="Genera il calendario del torneo"
-                                                data-confirm="Assicurati che risultino ADESSO iscritte tutte le squadre che vi devono prendere parte"
-                                                data-confirm-btn="Genera"
-                                                data-cancel-btn="Annulla"
-                                            >
-                                                Genera
-                                            </button>
-                                        </form>
-                                    <?php } else { ?>
-                                        <span class="text-warning">
-                                            Non ancora creato
-                                        </span>
-                                    <?php } ?>
-                                <?php } ?>
-                            </dd>
-
-                            <dt class="col-sm-4 text-nowrap">
-                                Squadre (<?= count(value: $torneo->ListaSquadre) ?>)
-                            </dt>
-                            <dd class="col-sm-8">
-                                <ul class="list-group-flush p-0 m-0">
-                                    <?php foreach ($torneo->ListaSquadre as $id => $nome) { ?>
-                                        <li class="list-group-item">
-                                            <a 
-                                                class="link-underline link-underline-opacity-0 text-reset"
-                                                href="/teams/view?id=<?= $id ?>"
-                                                title="Vedi squadra">
-                                                <?= htmlspecialchars(string: $nome) ?>
-                                            </a>
-                                        </li>
-                                    <?php } ?>
-                                </ul>
-                            </dd>
-                        </dl>
-                    </div>
-                </div>
+                <?php require dirname(path: __DIR__) . '/Shared/Torneo.php'; ?>
             </div>
         <?php } ?>
     </div>

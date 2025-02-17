@@ -137,4 +137,30 @@ class TeamsController extends Controller
             ))
         );
     }
+
+    public function sport(?int $sport, ?int $year): int
+    {
+        $this->RequireLogin();
+        if (empty($sport) || empty($year)) {
+            return $this->BadRequest();
+        }
+
+        return $this->Json(
+            object: array_values(array: array_map(
+                callback: function (Squadra $s): array {
+                    return [
+                        'id' => $s->Id,
+                        'name' => $s->Nome,
+                        'sport' => $s->Sport->Nome,
+                        'church' => $s->Parrocchia->Nome,
+                    ];
+                }, 
+                array: Squadra::All(
+                    connection: $this->DB, 
+                    year: $year, 
+                    sport: $sport
+                )
+            ))
+        );
+    }
 }

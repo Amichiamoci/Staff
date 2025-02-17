@@ -30,9 +30,3 @@
         </button>
     </div>
 </form>
-
-<script>
-    $().ready(function() {
-        $("#login-form").validate();
-    });
-</script>
