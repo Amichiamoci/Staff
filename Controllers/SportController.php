@@ -51,6 +51,14 @@ class SportController extends Controller
         );
     }
 
+    public function tournament_add_team(?int $tournament, ?int $team) {
+
+    }
+
+    public function tournament_remove_team(?int $tournament, ?int $team) {
+        
+    }
+
     /*
     public function matches(?string $date): int {
 
