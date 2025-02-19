@@ -150,21 +150,63 @@ class Torneo extends NomeIdSemplice
             return false;
         }
     }
-    public static function Create(\mysqli $connection, int $sport, string $nome, int $tipo, int $edizione) : bool
+    /**
+     * Does not check if the calendar has already been generated
+     * @param \mysqli $connection
+     * @param int $torneo
+     * @param int $squadra
+     * @return bool
+     */
+    public static function UnSubscribeTeam(\mysqli $connection, int $torneo, int $squadra) : bool
     {
         if (!$connection)
             return false;
+        try {
+            $query = "DELETE FROM `partecipaz_squad_torneo` WHERE `torneo` = $torneo AND `squadra` = $squadra";
+            return (bool)$connection->query(query: $query);
+        } catch (\Exception) {
+            return false;
+        }
+    }
+    public static function Create(
+        \mysqli $connection, 
+        int $sport, 
+        string $nome, 
+        int $tipo, 
+        int $edizione
+    ): ?int
+    {
+        if (!$connection)
+            return null;
         
         $query = "INSERT INTO `tornei` (`edizione`, `nome`, `sport`, `tipo_torneo`) VALUES (?, ?, ?, ?)";
-        $result = $connection->execute_query($query, [$edizione, $nome, $sport, $tipo]);
-        return (bool)$result && $connection->affected_rows === 1;
+        $result = $connection->execute_query(
+            query: $query, 
+            params: [
+                $edizione, 
+                $nome, 
+                $sport, 
+                $tipo,
+            ],
+        );
+        if (!$result || $connection->affected_rows !== 1) {
+            return null;
+        }
+        return $connection->insert_id;
     }
-    public static function GenerateCalendar(\mysqli $connection, int $torneo) : bool
+    public static function GenerateCalendar(
+        \mysqli $connection, 
+        int $torneo, 
+        bool $two_ways = false, 
+        ?int $default_field = null,
+    ): bool
     {
         if (!$connection)
             return false;
-        $query = "CALL `CreaCalendario`($torneo);";
-        $result = $connection->query(query: $query);
+        $query = "CALL `CreaCalendario`(?, ?, ?);";
+        $result = $connection->execute_query(query: $query, params: [
+            $torneo, (int)$two_ways, $default_field,
+        ]);
         $connection->next_result();
         return (bool)$result;   
     }

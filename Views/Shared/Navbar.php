@@ -83,6 +83,11 @@
                                         Pianifica tornei
                                     </a>
                                 </li>
+                                <li>
+                                    <a class="dropdown-item" href="/sport/tournament_create">
+                                        Nuovo torneo
+                                    </a>
+                                </li>
                             <?php } ?>
                         </ul>
                     </li>

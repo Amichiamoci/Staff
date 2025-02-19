@@ -2,12 +2,31 @@
 
 namespace Amichiamoci\Controllers;
 
+use Amichiamoci\Models\Campo;
 use Amichiamoci\Models\Edizione;
+use Amichiamoci\Models\Message;
 use Amichiamoci\Models\Sport;
+use Amichiamoci\Models\TipoTorneo;
 use Amichiamoci\Models\Torneo;
 
 class SportController extends Controller
 {
+    public function fields(): int {
+        $this->RequireLogin();
+
+        return $this->Json(
+            object: array_values(array: array_map(
+                callback: function (Campo $c): array {
+                    return [
+                        'id' => $c->Id,
+                        'nome' => $c->Nome,
+                    ];
+                },
+                array: Campo::All(connection: $this->DB),
+            ))
+        );
+    }
+
     public function index(?int $year = null): int {
         $this->RequireLogin();
         
@@ -51,12 +70,95 @@ class SportController extends Controller
         );
     }
 
-    public function tournament_add_team(?int $tournament, ?int $team) {
-
+    public function tournament_add_team(?int $tournament, ?int $team): int {
+        $this->RequireStaff();
+        if (empty($tournament) || empty($team)) {
+            return $this->BadRequest();
+        }
+        if (self::IsPost())
+        {
+            $res = Torneo::SubscribeTeam(connection: $this->DB, torneo: $tournament, squadra: $team);
+            if ($res) {
+                $this->Message(message: Message::Success(content: 'Squadra iscritta correttamente al torneo'));
+            } else {
+                $this->Message(message: Message::Error(content: 'Non è stato possibile iscrivere la squadra al torneo'));
+            }
+        }
+        return $this->tournament(id: $tournament);
     }
 
-    public function tournament_remove_team(?int $tournament, ?int $team) {
+    public function tournament_remove_team(?int $tournament, ?int $team): int {
+        $this->RequireStaff();
+        if (empty($tournament) || empty($team)) {
+            return $this->BadRequest();
+        }
+        if (self::IsPost())
+        {
+            $res = Torneo::UnSubscribeTeam(connection: $this->DB, torneo: $tournament, squadra: $team);
+            if ($res) {
+                $this->Message(message: Message::Success(content: 'Squadra rimossa dal torneo'));
+            } else {
+                $this->Message(message: Message::Error(content: 'È avvenuto un errore'));
+            }
+        }
+        return $this->tournament(id: $tournament);
+    }
+
+    public function tournament_generate_calendar(?int $id, bool $two_ways = false, ?int $field = null): int
+    {
+        $this->RequireStaff();
+        if (empty($field)) $field = null;
+        if (self::IsPost())
+        {
+            $res = Torneo::GenerateCalendar(
+                connection: $this->DB, 
+                torneo: $id, 
+                two_ways: $two_ways, 
+                default_field: $field
+            );
+            if ($res) {
+                $this->Message(message: Message::Success(content: 'Calendario generato'));
+            } else {
+                $this->Message(message: Message::Error(content: 'Non `e stato possibile generare il calendario'));
+            }
+        }
         
+        return $this->tournament(id: $id);
+    }
+
+    public function tournament_create(
+        ?int $edition = null,
+        ?int $sport = null,
+        ?int $type = null,
+        ?string $name = null,
+    ): int {
+        $this->RequireStaff();
+        if (self::IsPost())
+        {
+            if (empty($edition) || empty($sport) || empty($type) || empty($name)) {
+                return $this->BadRequest();
+            }
+            $id = Torneo::Create(
+                connection: $this->DB, 
+                sport: $sport, 
+                nome: $name, 
+                tipo: $type, 
+                edizione: $edition
+            );
+            if (isset($id)) {
+                return $this->tournament(id: $id);
+            }
+            $this->Message(message: Message::Error(content: 'Non è stato possibile creare il torneo'));
+        }
+        return $this->Render(
+            view: 'Sport/tournament_create.php',
+            title: 'Nuovo torneo',
+            data: [
+                'edizioni' => Edizione::All(connection: $this->DB),
+                'sport' => Sport::All(connection: $this->DB),
+                'tipi_torneo' => TipoTorneo::All(connection: $this->DB),
+            ]
+        );
     }
 
     /*
@@ -71,7 +173,7 @@ class SportController extends Controller
      */
     public function plan(?int $id = null, ?int $year = null): int
     {
-        $this->RequireLogin();
+        $this->RequireStaff();
         if (empty($id)) {
             return $this->BadRequest();
         }

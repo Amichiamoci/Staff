@@ -1,5 +1,6 @@
 <?php
 
+use Amichiamoci\Models\TipoTorneo;
 use Amichiamoci\Models\Torneo;
 
 if (!isset($torneo) || !($torneo instanceof Torneo)) {
@@ -12,15 +13,26 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
         <strong>
             <?= htmlspecialchars(string: $torneo->Nome) ?>
         </strong>
-        <a 
-            href="/sport/tournament?id=<?= $torneo->Id ?>"
-            class="link-underline link-underline-opacity-0 link-primary text-end"
-            title="Modifica il torneo">
-            <i class="bi bi-pencil-square"></i>
-        </a>
+        <?php if (!isset($hide_edit_icon) || $hide_edit_icon !== 'yes') { ?>
+            <a 
+                href="/sport/tournament?id=<?= $torneo->Id ?>"
+                class="link-underline link-underline-opacity-0 link-primary text-end"
+                title="Modifica il torneo">
+                <i class="bi bi-pencil-square"></i>
+            </a>
+        <?php } ?>
     </div>
     <div class="card-body">
         <dl class="row">
+            <?php if (isset($show_sport) && $show_sport === 'yes') { ?>
+                <dt class="col-sm-4 text-nowrap">
+                    Sport
+                </dt>
+                <dd class="col-sm-8">
+                    <?= htmlspecialchars(string: $torneo->Sport->Nome) ?>
+                </dd>
+            <?php } ?>
+
             <dt class="col-sm-4 text-nowrap">
                 Tipologia
             </dt>
@@ -36,19 +48,96 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
                     <?= count(value: $torneo->IdPartite) ?> partite previste
                 <?php } else { ?>
                     <?php if ($user->IsAdmin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'))) { ?>
-                        <form action="/spost/plan" method="post">
-                            <input type="hidden" name="id" value="<?= $torneo->Id ?>">
-                            <button 
-                                type="submit"
-                                class="btn btn-outline-primary"
-                                title="Genera il calendario del torneo"
-                                data-confirm="Assicurati che risultino ADESSO iscritte tutte le squadre che vi devono prendere parte"
-                                data-confirm-btn="Genera"
-                                data-cancel-btn="Annulla"
-                            >
-                                Genera
-                            </button>
-                        </form>
+                        <button
+                            type="button"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#modal-calendario-<?= $torneo->Id ?>"
+                            class="btn btn-outline-primary"
+                        >
+                            Genera
+                        </button>
+                        <div class="modal fade" id="modal-calendario-<?= $torneo->Id ?>" 
+                            tabindex="-1" 
+                            aria-hidden="true"
+                            aria-labelledby="modal-calendario-<?= $torneo->Id ?>-label">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="modal-calendario-<?= $torneo->Id ?>-label">
+                                            Genera il calendario di <?= htmlspecialchars(string: $torneo->Nome) ?>
+                                        </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>
+                                            Le date delle partite andranno inserite a mano successivamente.<br>
+                                            Ora verranno solo generati gli accoppiamenti tra le squadre.
+                                        </p>
+                                        <form method="POST" action="/sport/tournament_generate_calendar">
+                                            <input type="hidden" name="id" value="<?= $torneo->Id ?>" required>
+                                            <div class="form-floating mb-2">
+                                                <select 
+                                                    name="field" 
+                                                    id="field-<?= $torneo->Id ?>"
+                                                    title="La squadra da aggiungere"
+                                                    class="form-control"
+                                                >
+                                                    <option value="0">Specificherò il campo in seguito</option>
+                                                </select>
+                                                <label for="field-<?= $torneo->Id ?>">Campo</label>
+                                                <div class="invalid-feedback">
+                                                    Per favore, scegli un luogo tra i proposti
+                                                </div>
+                                                <div class="form-text user-select-none ms-2">
+                                                    Specifica questa opzione solo se vuoi che tutte le partite siano giocate
+                                                    nel medesimo luogo.
+                                                    Il luogo di una partità potrà comunque essere cambiato in seguito.
+                                                </div>
+                                            </div>
+
+                                            <?php if ($torneo->Tipo->Id === TipoTorneo::$RoundRobin) { ?>
+                                                <div class="form-check">
+                                                    <input 
+                                                        class="form-check-input" 
+                                                        type="checkbox" 
+                                                        value="two-ways-<?= $torneo->Id ?>" 
+                                                        id="two-ways-<?= $torneo->Id ?>" name="two_ways">
+                                                    <label class="form-check-label" for="admin">
+                                                        Andata e ritorno
+                                                    </label>
+                                                </div>
+                                            <?php } ?>
+                                            
+                                            <button type="submit" class="btn btn-primary">
+                                                Genera calendario
+                                            </button>
+                                        </form>
+                                    </div>
+                                    <script>
+                                        $('#modal-calendario-<?= $torneo->Id ?>').on('show.bs.modal', async function (event) {
+                                            const select = document.getElementById('field-<?= $torneo->Id ?>');
+                                            if (select.children.length > 1) {
+                                                return; // Already loaded
+                                            }
+
+                                            const resp = await fetch(`/sport/fields`, { method: 'GET'});
+                                            if (!resp.ok) {
+                                                return;
+                                            }
+
+                                            const list = await resp.json();
+                                            for (const field of list) {
+                                                const o = document.createElement('option');
+                                                o.value = field.id;
+                                                o.innerText = field.nome;
+                                                select.appendChild(o);
+                                            }
+                                        });
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+
                     <?php } else { ?>
                         <span class="text-warning">
                             Non ancora creato
@@ -93,7 +182,7 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
         <?php if ($user->IsAdmin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'))) { ?>
             <div class="row">
                 <div class="col">
-                <button
+                    <button
                         type="button"
                         data-bs-toggle="modal" 
                         data-bs-target="#modal-torneo-<?= $torneo->Id ?>"
@@ -120,13 +209,13 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
                                         <div class="form-floating mb-2">
                                             <select 
                                                 name="team" 
-                                                id="<?= $torneo->Id ?>-team"
+                                                id="add-team-<?= $torneo->Id ?>"
                                                 title="La squadra da aggiungere"
                                                 class="form-control"
                                                 required>
                                                 <option value="">Caricamento delle squadre...</option>
                                             </select>
-                                            <label for="<?= $torneo->Id ?>-team">Squadra</label>
+                                            <label for="add-team-<?= $torneo->Id ?>">Squadra</label>
                                             <div class="invalid-feedback">
                                                 Per favore, scegli una squadra tra le proposte
                                             </div>
@@ -149,7 +238,7 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
                                         }
                                         const list = await resp.json();
 
-                                        const select = document.getElementById('<?= $torneo->Id ?>-team');
+                                        const select = document.getElementById('add-team-<?= $torneo->Id ?>');
                                         select.innerHTML = '<option value="">Scegli una squadra</option>';
                                         for (const team of list) {
                                             const o = document.createElement('option');

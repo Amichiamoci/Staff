@@ -138,7 +138,7 @@ CREATE TABLE IF NOT EXISTS `squadre_iscritti` (
   `squadra` INT NOT NULL,
   `iscritto` INT NOT NULL,
 
-  PRIMARY KEY (`squadra`,`iscritto`),
+  PRIMARY KEY (`squadra`, `iscritto`),
   FOREIGN KEY (`squadra`) REFERENCES `squadre` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (`iscritto`) REFERENCES `iscritti` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
