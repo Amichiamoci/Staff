@@ -1,19 +1,39 @@
 # Portale Staff Amichiamoci
+
+[![Docker image build and push](https://github.com/Amichiamoci/Staff/actions/workflows/docker.yml/badge.svg)](https://github.com/Amichiamoci/Staff/actions/workflows/docker.yml)
+
+[![FTP deploy on push](https://github.com/Amichiamoci/Staff/actions/workflows/ftp-deploy.yml/badge.svg)](https://github.com/Amichiamoci/Staff/actions/workflows/ftp-deploy.yml)
+
 Applicativo per la gestione di iscrizioni, partite e tornei per la 
 [Manifestazione](https://www.amichiamoci.it).
 
 ## Configurazione
 Impostare le seguenti variabili d'ambiente:
 
-- `MYSQL_USER`
-- `MYSQL_PASSWORD`
-- `MYSQL_DB`
-- `MYSQL_HOST`
-- `ADMIN_USERNAME`
-- `ADMIN_PASSWORD`
-- `SITE_NAME`: opzionale, (_Amichiamoci_ come default)
+- `MYSQL_USER`: obbligatoria
+- `MYSQL_PASSWORD`: opzionale
+- `MYSQL_DB`: obbligatoria
+- `MYSQL_HOST`: obbligatoria
+- `MYSQL_PORT`: opzionale, default `3306`
+- `ADMIN_USERNAME`: opzionale, ha effetto solo al primo avvio
+- `ADMIN_PASSWORD`: opzionale, ha effetto solo al primo avvio
+- `SITE_NAME`: opzionale, default `Amichiamoci`
+- `RECAPTCHA_PUBLIC_KEY`: opzionale, chiavi Recaptcha v3 per proteggere la agina di login
+- `RECAPTCHA_SECRET_KEY`: opzionale
+- `DOMAIN`: opzionale, l'host al quale sarà accessibile il portale
+- `POWERED_BY`: opzionale, link che compare nel footer, default <https://github.com/Amichiamoci/Staff>
+- `MAIL_OUTPUT_ADDRESS`: opzionale, se non impostato non sarà possibile inviare email
+- `SMTP_HOST`: opzionale, se non impostato non sarà possibile inviare email
+- `SMTP_PORT`: opzionale, default `25`
+- `SMTP_USER`: opzionale, se non impostato non sarà possibile inviare email
+- `SMTP_PASSWORD`: opzionale
+
 
 ## Installazione con Docker
+```bash
+docker pull ghcr.io/amichiamoci/staff:latest
+```
+
 Avviare il contenitore e impostare le variabili d'ambiente allo stesso. all'avvio genererà il databse se non ne trova uno (il controllo è effettuato sull'esistenza di almeno un utente, non cancellarli mai tutti).
 
 ### Porte e utenti
