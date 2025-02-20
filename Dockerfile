@@ -45,6 +45,9 @@ RUN mkdir -p \
 COPY --chown=www-data --from=deps ${APP_DIR}/vendor ./vendor
 COPY --chown=www-data . .
 VOLUME [ "${APP_DIR}/Uploads" ]
+
+# Build the generator file for mysql
+RUN chmod +x ./build-starting-db.sh
 RUN ./build-starting-db.sh
 
 EXPOSE 80
