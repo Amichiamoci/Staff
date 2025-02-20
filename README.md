@@ -35,7 +35,7 @@ Costrure l'immagine
 docker build . --tag 'amichiamoci-staff'
 ```
 
-## Installazione su Apache
+## Installazione su Apache (sconsigliata)
 Assicurarsi di avere [composer](https://getcomposer.org "Vai al sito") installato sul proprio sistema.
 
 Caricare le librerie con
