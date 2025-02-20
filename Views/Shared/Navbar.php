@@ -129,6 +129,11 @@
                                         Accessi
                                     </a>
                                 </li>
+                                <li>
+                                    <a class="dropdown-item" href="/email/send">
+                                        Invia Email
+                                    </a>
+                                </li>
                             <?php } ?>
                         </ul>
                     </li>

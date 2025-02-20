@@ -44,7 +44,7 @@
 </dl>
 
 <iframe 
-    style="width: 100%;height: auto;max-height: 50vh;" 
+    style="width: 100%;min-height: 450px;height: auto;max-height: 80vh;" 
     class="border border-1"
     id="iframe"
     title="Visualizzazione dell'email"></iframe>

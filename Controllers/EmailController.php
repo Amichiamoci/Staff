@@ -3,6 +3,8 @@
 namespace Amichiamoci\Controllers;
 
 use Amichiamoci\Models\Email;
+use Amichiamoci\Models\Message;
+use Amichiamoci\Utils\Email as EmailSender;
 
 class EmailController extends Controller {
     public function index(): int
@@ -27,7 +29,9 @@ class EmailController extends Controller {
             view: 'Email/view',
             data: [
                 'email' => $email,
-                'content_escaped' => $this->DB->real_escape_string(string: $email->Content),
+                'content_escaped' => $this->DB->real_escape_string(
+                    string: EmailSender::Render(title: $email->Subject, content: $email->Content)
+                ),
             ],
             title: 'Email #' . $id,
         );
@@ -43,6 +47,39 @@ class EmailController extends Controller {
         return $this->File(
             file_path: dirname(path: __DIR__) . '/Public/images/blank_dot.svg',
             additional_headers: false
+        );
+    }
+
+    public function send(
+        ?string $to = null,
+        ?string $subject = null,
+        ?string $body = null
+    ): int {
+        $this->RequireLogin(require_admin: true);
+
+        if (self::IsPost())
+        {
+            if (empty($to) || empty($subject) || empty($body))
+            {
+                return $this->BadRequest();
+            }
+
+            $res = EmailSender::Send(
+                to: $to,
+                subject: $subject,
+                body: $body,
+                connection: $this->DB
+            );
+            if ($res) {
+                $this->Message(message: Message::Success(content: "Email correttamente inviata a $to"));
+                return $this->index();
+            }
+            $this->Message(message: Message::Error(content: "Impossibile inviare l'email"));
+        }
+
+        return $this->Render(
+            view: 'Email/send',
+            title: 'Invia email',
         );
     }
 }

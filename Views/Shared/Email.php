@@ -15,13 +15,19 @@
             width: 100%;
         }
         .container {
-            background-color: #ffffff;
+            background-color:rgb(237, 237, 237);
             border-radius: 8px;
-            padding: 20px;
-            margin-top: 30px;
-            margin-inline: auto;
             box-shadow: 0px 0px 10px rgba(206, 202, 202, 0.5);
+            padding: 20px;
+
+            margin-block: 2em;
+            margin-inline: auto;
+
+            min-width: 300px;
+            width: auto;
             max-width: 600px;
+
+            height: auto;
         }
         .nav {
             width: 100%;
@@ -32,6 +38,8 @@
             .nav > img {
                 width: 100%;
                 height: auto;
+                max-height: 150px;
+                user-select: none;
             }
         .content {
             width: 100%;
@@ -66,7 +74,11 @@
 <body>
     <div class="container">
         <div class="nav">
-            <img src="">
+            <img 
+                src="data:image/png;base64,<?= base64_encode(
+                    string: file_get_contents(filename: dirname(path: __DIR__, levels: 2) . "/Public/images/banner.png")) ?>"
+                alt="Logo <?= htmlspecialchars(string: $site_name) ?>"
+                title="<?= htmlspecialchars(string: $site_name) ?>">
         </div>
         <div class="content">
             <?= $content ?>
@@ -74,15 +86,19 @@
         <div class="footer">
             <p>
                 Messaggio inviato automaticamente da
-                <a href="<?= $site_url ?>" class="no-underline" target="_blank">
+                <a href="<?= $site_url ?>" class="no-underline" target="_blank" title="Vai al sito">
                     <?= htmlspecialchars(string: $site_name) ?>
-                </a>.
+                </a>
             </p>
             <p>
                 Si prega cortesemente di non rispondere a questa email
             </p>
             <?php if (isset($email_id) && $email_id !== 0) { ?>
-                <img src="/view_email" width="1" height="1" style="width: 1px; height: 1px;">
+                <img 
+                    src="https://<?= DOMAIN ?>/email/heartbeat?id=<?= $email_id ?>" 
+                    width="1" height="1" 
+                    style="width: 1px; height: 1px;"
+                    loading="eager">
             <?php } ?> 
         </div>
     </div>

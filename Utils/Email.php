@@ -70,13 +70,14 @@ class Email
     ): bool {
         $sanitized_email = filter_var(value: $to, filter: FILTER_SANITIZE_EMAIL);
         $mail = new PHPMailer();
-        $mail->addAddress($sanitized_email);
+        $mail->addAddress(address: $sanitized_email);
 
         $from_addr = Security::LoadEnvironmentOfFromFile(var: 'MAIL_OUTPUT_ADDRESS');
         if (empty($from_addr)) {
             throw new \Exception(
                 message: 'The address to use for outgoing emails is null. Set the MAIL_OUTPUT_ADDRESS environment variable.');
         }
+        $mail->isSMTP();
 
         $smtp_host = Security::LoadEnvironmentOfFromFile(var: 'SMTP_HOST');
         $smtp_port = Security::LoadEnvironmentOfFromFile(var: 'SMTP_PORT', default: '25');
@@ -95,13 +96,14 @@ class Email
             }
         }
 
-        $mail->setFrom($from_addr, SITE_NAME);
+        $mail->setFrom(address: $from_addr, name: SITE_NAME);
         $mail->clearReplyTos(); // Disable reply-to
         $mail->Subject = $subject;
-        $mail->isSMTP();
         
         $mail->CharSet = 'UTF-8';
         $mail->isHTML();
+
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
 
         $id = null;
         if ($connection)
@@ -129,16 +131,16 @@ class Email
                     $result->close();
                 }
                 $connection->next_result();
-            } catch (\Exception $ex) {
+            } catch (\Throwable) {
                 // echo htmlspecialchars(string: $ex->getMessage());
             }
         }
 
-        $mail->Body = self::Render(
+        $mail->msgHTML(message: self::Render(
             title: $subject, 
             content: $body, 
             id: $id
-        );
+        ));
         $email_sent = $mail->send();
         
         if (!$email_sent && $connection)
