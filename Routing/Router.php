@@ -61,14 +61,9 @@ class Router {
         );
     }
 
-    public function Dispatch(string $uri): void {
-        $path = parse_url(url: $uri, component: PHP_URL_PATH);
-        if (!$path || empty($path)) {
-            throw new \Exception(message: "Could not extract path from uri '$uri'.");
-        }
-
+    private static function ParseParameters(string $uri): array
+    {
         $method_params = [];
-
         if (self::IsPost()) {
             $method_params = $_POST;
         }
@@ -78,6 +73,24 @@ class Router {
                 parse_str(string: $query, result: $method_params);
             }
         }
+
+        $filtered_parameters = [];
+        foreach ($method_params as $name => $value)
+        {
+            $filtered_parameters[
+                str_replace(search: '-', replace: '_', subject: $name)
+            ] = $value;
+        }
+        return $filtered_parameters;
+    }
+
+    public function Dispatch(string $uri): void {
+        $path = parse_url(url: $uri, component: PHP_URL_PATH);
+        if (!$path || empty($path)) {
+            throw new \Exception(message: "Could not extract path from uri '$uri'.");
+        }
+
+        $method_params = self::ParseParameters(uri: $uri);
 
         if (!array_key_exists(key: $path, array: $this->routes)) {
             $controller = ErrorTempController::class;

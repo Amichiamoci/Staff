@@ -26,8 +26,7 @@ class HomeController extends Controller
                 [
                     'src' => '/Public/images/icon.png',
                     'type' => 'image/png',
-                    'sizes' => '256x256'
-
+                    'sizes' => '256x256',
                 ]
             ]
         ]);
@@ -91,7 +90,7 @@ class HomeController extends Controller
             try {
                 $file_name = CRON_LOG_DIR . DIRECTORY_SEPARATOR . $a['file'];
                 if (!is_file(filename: $file_name)) {
-                    throw new \Exception('File non trovato');
+                    throw new \Exception(message: 'File non trovato');
                 }
                 $log = file_get_contents(filename: $file_name);
                 if (!$log) {
@@ -111,9 +110,51 @@ class HomeController extends Controller
         return $this->Json(object: array_values(array: $status));
     }
 
+    private static function recaptcha_validation(?string $g_recaptcha_response = null): ?string
+    {
+        if (empty($g_recaptcha_response)) {
+            return 'Variabile $g_recaptcha_response non impostata!';
+        }
+
+        $secret_key = Security::LoadEnvironmentOfFromFile(var: 'RECAPTCHA_SECRET_KEY');
+        if (empty($secret_key)) {
+            return 'Google Recaptcha è abilitato, ma la chiave segreta non è impostata';
+        }
+        
+        $client = new \GuzzleHttp\Client();
+        $response = $client->post(
+            uri: 'https://www.google.com/recaptcha/api/siteverify',
+            options: [
+                'form_params' => [
+                    'secret' => $secret_key,
+                    'response' => $g_recaptcha_response,
+                ]
+            ]
+        );
+        if (!$response) {
+            return 'Impossibile contattare il server di Google';
+        }
+        
+        $body = $response->getBody();
+        if (empty($body)) {
+            return 'Risposta vuota dai server di Google';
+        }
+        
+        $object = json_decode(json: $body);
+        if (empty($object)) {
+            return 'Risposta non valida dai server di Google';
+        }
+        
+        if ($object->success) {
+            return null;
+        }
+        return 'Token Recaptcha scaduto';
+    }
+
     public function login(
         ?string $username = null, 
-        ?string $password = null
+        ?string $password = null,
+        ?string $g_recaptcha_response = null,
     ): int {
         if ($this->IsLoggedIn()) {
             return $this->Redirect(url: '/');
@@ -126,33 +167,38 @@ class HomeController extends Controller
             !empty($username) &&
             !empty($password)
         ) {
-            // TODO: load body cf-turnstile-response
-            $turnstile_response = '';
+            // Check captcha first (if enabled)
+            if (!empty(RECAPTCHA_PUBLIC_KEY))
+            {
+                $message = self::recaptcha_validation(
+                    g_recaptcha_response: $g_recaptcha_response);       
+            }
 
-            
-
-            if (User::Login(
-                connection: $this->DB, 
-                username: $username, 
-                password: $password, 
-                user_agent: $_SERVER['HTTP_USER_AGENT'], 
-                user_ip: Security::GetIpAddress()
-            )) {
-                // Login successful
-                $redirect_url = '/';
-                if (Cookie::Exists(name: 'Redirect')) {
-                    $redirect_url = Cookie::Get(name: 'Redirect');
-                    Cookie::Delete(name: 'Redirect');
-                    if (empty($redirect_url)) {
-                        $redirect_url = '/';
+            if (empty($message))
+            {
+                if (User::Login(
+                    connection: $this->DB, 
+                    username: $username, 
+                    password: $password, 
+                    user_agent: $_SERVER['HTTP_USER_AGENT'], 
+                    user_ip: Security::GetIpAddress()
+                )) {
+                    // Login successful
+                    $redirect_url = '/';
+                    if (Cookie::Exists(name: 'Redirect')) {
+                        $redirect_url = Cookie::Get(name: 'Redirect');
+                        Cookie::Delete(name: 'Redirect');
+                        if (empty($redirect_url)) {
+                            $redirect_url = '/';
+                        }
                     }
-                }
-    
-                return $this->Redirect(url: $redirect_url);
-            } 
-            
-            // return $this->NotAuthorized();
-            $message = 'Utente non trovato o credenziali non valide';
+        
+                    return $this->Redirect(url: $redirect_url);
+                } 
+                
+                // return $this->NotAuthorized();
+                $message = 'Utente non trovato o credenziali non valide';
+            }
         }
 
         return $this->Render(

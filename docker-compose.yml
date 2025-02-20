@@ -15,9 +15,9 @@ services:
       - MYSQL_HOST=mysql
       - ADMIN_USERNAME=admin
       - ADMIN_PASSWORD=changeme
-      # - SITE_NAME=Amichiamoci
       # - DOMAIN=localhost
-      # - CF_TURNSTILE_TOKEN=
+    env_file:
+      - ./.env
     volumes:
       # - ./Uploads:/amichiamoci/Uploads:rw
        - ./Uploads:/var/www/html/Uploads:rw

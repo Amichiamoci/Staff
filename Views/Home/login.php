@@ -2,7 +2,7 @@
     Effettua il login
 </h1>
 
-<form method="post">
+<form method="post" id="login-form">
     <div class="form-floating mb-3">
         <input 
             required
@@ -40,13 +40,26 @@
         </div>
     <?php } ?>
 
-    <div class="col m-1">
-        <div class="cf-turnstile" data-sitekey="<?= CF_TURNSTILE_TOKEN ?>"></div>
-    </div>
-
     <div class="col-12 mt-2">
-        <button class="btn btn-primary" type="submit">
+        <button 
+            class="btn btn-primary g-recaptcha" 
+            type="submit"
+        <?php if (!empty(RECAPTCHA_PUBLIC_KEY)) { ?>
+            data-sitekey="<?= RECAPTCHA_PUBLIC_KEY ?>" 
+            data-callback="recaptchaCallback"
+            data-action="login"
+        <?php } ?>
+        >
             Accedi
         </button>
     </div>
 </form>
+
+<?php if (!empty(RECAPTCHA_PUBLIC_KEY)) { ?>
+    <script>
+        function recaptchaCallback() {
+            $('#login-form').submit();
+        }
+    </script>
+    <script src="https://www.google.com/recaptcha/enterprise.js?render=<?= RECAPTCHA_PUBLIC_KEY ?>" async defer></script>
+<?php } ?>

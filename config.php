@@ -22,8 +22,8 @@ define(constant_name: 'POWERED_BY', value: 'https://github.com/Amichiamoci/Staff
 
 // Public key, private key will only be loaded when used
 define(
-    constant_name: "CF_TURNSTILE_TOKEN", 
-    value: Security::LoadEnvironmentOfFromFile(var: "CF_TURNSTILE_TOKEN", default: ""));
+    constant_name: "RECAPTCHA_PUBLIC_KEY", 
+    value: Security::LoadEnvironmentOfFromFile(var: "RECAPTCHA_PUBLIC_KEY"));
 
 define(
     constant_name: 'MAIN_SITE_URL',
