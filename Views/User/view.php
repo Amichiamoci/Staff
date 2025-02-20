@@ -4,7 +4,7 @@ if (!isset($target) || !($target instanceof Amichiamoci\Models\User)) {
 }
 ?>
 
-<div class="card">
+<div class="card m-1">
     <div class="card-header font-monospace user-select-none">
         #<?= $target->Id ?>
     </div>
@@ -107,27 +107,38 @@ if (!isset($target) || !($target instanceof Amichiamoci\Models\User)) {
                 <a href="/user/restore?target_id=<?= $target->Id ?>" class="btn btn-outline-secondary" role="button">
                     Riabilita
                 </a>
-
-                <?php if ($user->Id !== $target->Id) { ?>
-                    <form action="/user/reset" method="POST">
-                        <input type="hidden" name="target_id" value="<?= $target->Id ?>">
-                        <button 
-                            type="submit"
-                            class="btn btn-outline-secondary"
-                            title="Reimposta la password"
-                            data-confirm="Sicuro di voler resettare la password di <?= htmlspecialchars(string: $target->Name) ?>?"
-                            data-confirm-btn="Sì"
-                            data-cancel-btn="Annulla"
-                        >
-                            Resetta password
-                        </button>
-                    </form>
-                <?php } ?>
-
                 <button class="btn btn-outline-secondary">
                     Cancella
                 </button>
             </div>
+            
+            <?php if ($user->Id !== $target->Id) { ?>
+                <form action="/user/reset" method="POST">
+                    <input type="hidden" name="target_id" value="<?= $target->Id ?>">
+                    <button 
+                        type="submit"
+                        class="btn btn-outline-secondary"
+                        title="Reimposta la password"
+                        data-confirm="Sicuro di voler resettare la password di <?= htmlspecialchars(string: $target->Name) ?>?"
+                        data-confirm-btn="Sì"
+                        data-cancel-btn="Annulla"
+                    >
+                        Resetta password
+                    </button>
+                </form>
+            <?php } ?>
         <?php } ?>
     </div>
+</div>
+<div class="card m-1">
+    <div class="card-header">
+        Lista dei login
+    </div>
+    <ul class="list list-inline mt-3 card-body">
+        <?php foreach ($activity as $login) { ?>
+            <li class="d-flex justify-content-between m-2 border border-1 p-1" style="max-width: 800px;">
+                <?php require __DIR__ . '/LoginRender.php'; ?>
+            </li>
+        <?php } ?>
+    </ul>
 </div>

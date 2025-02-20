@@ -128,11 +128,14 @@ class UserController extends Controller {
             // Admins can view personal pages of others
             return $this->NotAuthorized();
         }
+
+        $activity = $user->LoginList(connection: $this->DB);
         return $this->Render(
             view: 'User/view',
             title: $target->Name,
             data: [
                 'target' => $target,
+                'activity' => $activity,
             ],
         );
     }

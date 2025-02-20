@@ -50,6 +50,7 @@ if (isset($user))
     $router->SetUser(user: $user);
     $user->UpdateLogTs();
     $user->PutLogTsInSession();
+    $user->UploadDbLog(connection: $connection);
 
     if (!$user->HasAdditionalData())
     {

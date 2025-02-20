@@ -267,11 +267,12 @@ class User implements DbEntity
         $_SESSION[self::$LOGIN_TIME] = $this->LoginTime;
         return $this->LoginTime !== 0;
     }
-    public function UploadDbLog(\mysqli $connection) : bool
+    public function UploadDbLog(\mysqli $connection): bool
     {
-        if (!$connection || empty($this->session_flag) || $this->SessionDbId === 0)
+        if (!$connection || $this->SessionDbId === 0 || strlen(string: $this->SessionFlag) === 0)
             return false;
-        $query = "CALL UpdateSession($this->SessionDbId)";
+        $id = $this->SessionDbId;
+        $query = "CALL UpdateSession($id)";
         $result = (bool)$connection->query(query: $query);
         $connection->next_result();
         return $result;
@@ -515,7 +516,7 @@ class User implements DbEntity
     {
         if (!$connection)
             return [];
-        $result = $connection->query(query: "SELECT * FROM `users_activity` LIMIT 2000");
+        $result = $connection->query(query: "SELECT * FROM `users_activity` LIMIT 500");
         
         $arr = [];
         if ($result) {
