@@ -194,6 +194,14 @@ class Torneo extends NomeIdSemplice
         }
         return $connection->insert_id;
     }
+
+    public static function Delete(\mysqli $connection, int $id): bool {
+        if (!$connection) 
+            return false;
+        $result = $connection->query(query: "DELETE FROM `tornei` WHERE `id` = $id");
+        return (bool)$result && $connection->affected_rows >= 1;
+    }
+
     public static function GenerateCalendar(
         \mysqli $connection, 
         int $torneo, 

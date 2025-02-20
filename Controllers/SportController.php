@@ -146,12 +146,15 @@ class SportController extends Controller
                 edizione: $edition
             );
             if (isset($id)) {
+                $this->Message(message: Message::Success(
+                    content: 'Torneo creato correttamente'));
                 return $this->tournament(id: $id);
             }
-            $this->Message(message: Message::Error(content: 'Non è stato possibile creare il torneo'));
+            $this->Message(message: Message::Error(
+                content: 'Non è stato possibile creare il torneo'));
         }
         return $this->Render(
-            view: 'Sport/tournament_create.php',
+            view: 'Sport/tournament_create',
             title: 'Nuovo torneo',
             data: [
                 'edizioni' => Edizione::All(connection: $this->DB),
@@ -159,6 +162,27 @@ class SportController extends Controller
                 'tipi_torneo' => TipoTorneo::All(connection: $this->DB),
             ]
         );
+    }
+
+    public function tournament_delete(
+        ?int $id,
+    ): int {
+        $this->RequireLogin(require_admin: true);
+
+        $tournament = Torneo::ById(connection: $this->DB, id: $id);
+        if (!isset($tournament)) {
+            return $this->NotFound();
+        }
+
+        if (Torneo::Delete(connection: $this->DB, id: $id)) {
+            $this->Message(message: Message::Success(
+                content: 'Torneo "'. $tournament->Nome . '" correttamente cancellato'));
+        } else {
+            $this->Message(message: Message::Error(
+                content: 'Non è stato possibile eliminare il torneo "' . $tournament->Nome . '"'));
+        }
+
+        return $this->index();
     }
 
     /*

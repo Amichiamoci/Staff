@@ -21,6 +21,25 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
                 <i class="bi bi-pencil-square"></i>
             </a>
         <?php } ?>
+        <?php if ($user->IsAdmin) { ?>
+            <form 
+                action="/sport/tournament_delete" 
+                method="post"
+                class="d-inline p-0"
+            >
+                <input type="hidden" name="id" value="<?= $torneo->Id ?>">
+                <button
+                    type="submit"
+                    class="btn btn-link link-danger link-underline link-underline-opacity-0 p-0"
+                    title="Elimina il torneo"
+                    data-confirm="Sei sicuro? Eliminerai anche le iscrizioni delle squadre e le partite"
+                    data-confirm-btn="Sì, elimina"
+                    data-cancel-btn="Annulla"
+                >
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </form>
+        <?php } ?>
     </div>
     <div class="card-body">
         <dl class="row">
