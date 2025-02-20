@@ -15,7 +15,6 @@ services:
       - MYSQL_HOST=mysql
       - ADMIN_USERNAME=admin
       - ADMIN_PASSWORD=changeme
-      # - DOMAIN=localhost
     env_file:
       - ./.env
     volumes:
