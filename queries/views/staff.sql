@@ -28,17 +28,18 @@ SELECT
     `parrocchie`.`id` AS "id_parrocchia",
     s.`id` AS "id_staffista", 
     p.`is_referente` AS "referente", 
+    p.`maglia`,
     GROUP_CONCAT(DISTINCT c.`nome` SEPARATOR ', ') AS "lista_commissioni",
     e.`anno`,
     e.`id` AS "id_edizione"
-FROM `staffisti` AS s
+FROM `staffisti` s
     INNER JOIN `partecipaz_staff_ediz` p ON p.`staff` = s.`id`
     INNER JOIN `edizioni` e ON p.`edizione` = e.`id`
-    LEFT OUTER JOIN `anagrafiche_espanse` a ON s.`dati_anagrafici` = a.`id`
-    LEFT OUTER JOIN `parrocchie` ON s.`parrocchia` = `parrocchie`.`id`
+    INNER JOIN `anagrafiche_espanse` a ON s.`dati_anagrafici` = a.`id`
+    INNER JOIN `parrocchie` ON s.`parrocchia` = `parrocchie`.`id`
     LEFT OUTER JOIN `ruoli_staff` r ON s.`id` = r.`staffista` AND r.`edizione` = e.`id`
     LEFT OUTER JOIN `commissioni` c ON r.`commissione` = c.`id`
-GROUP BY e.`anno`, a.`id`, `parrocchie`.`nome`
+GROUP BY p.`id`, s.`id`, `parrocchie`.`id`
 ORDER BY `parrocchie`.`nome`, a.`cognome`, a.`nome`;
 
 CREATE OR REPLACE VIEW `staff_attuali` AS

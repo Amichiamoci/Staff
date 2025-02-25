@@ -20,6 +20,33 @@ class Staff extends StaffBase
                 }, array: $this->Commissioni)
         );
     }
+
+    public function __construct(
+        int|string|null $id, 
+        string|null $nome,
+        string|int $id_parrocchia,
+        string|int $nome_parrocchia,
+        array $commissioni = [],
+        string|Taglia|null $taglia = null,
+        string|int|bool $is_referente = false,
+        string|null $codice_fiscale = null, 
+    ) {
+        parent::__construct(id: $id, nome: $nome);
+        $this->Parrocchia = new Parrocchia(
+            id: $id_parrocchia, 
+            nome: $nome_parrocchia
+        );
+        $this->Commissioni = $commissioni;
+        if (isset($taglia))
+        {
+            $this->Taglia = ($taglia instanceof Taglia) ? $taglia : Taglia::from(value: $taglia);
+        }
+        $this->Referente = (bool)$is_referente;
+        if (isset($codice_fiscale))
+        {
+            $this->CodiceFiscale = $codice_fiscale;
+        }
+    }
     public static function ById(\mysqli $connection, int $id) : ?self
     {
         if (!$connection || $id === 0)
@@ -36,15 +63,13 @@ class Staff extends StaffBase
                 $data = new self(
                     id: $id, 
                     nome: $row['nome'],
+                    id_parrocchia: $row["id_parrocchia"],
+                    nome_parrocchia: $row["parrocchia"],
+                    commissioni: array_map(callback: "trim", array: explode(separator: ',', string: $row["commissioni"])),
+                    taglia: $row["maglia"],
+                    is_referente: $row["cf"],
+                    codice_fiscale: $row["referente"],
                 );
-                $data->Commissioni = array_map(callback: "trim", array: explode(separator: ',', string: $row["commissioni"]));
-                $data->Parrocchia = new Parrocchia(
-                    id: $row["id_parrocchia"],
-                    nome: $row["parrocchia"],
-                );
-                $data->Taglia = Taglia::tryFrom(value: $row["maglia"]); 
-                $data->CodiceFiscale = $row["cf"];
-                $data->Referente = (bool)$row["referente"];
             }
             $result->close();
         }
@@ -83,17 +108,18 @@ class Staff extends StaffBase
         int $edizione, 
         string $maglia, 
         array $commissioni, 
-        bool $is_referente = false) : bool
+        bool $is_referente = false,
+    ): bool
     {
         if (!$connection)
             return false;
-        $maglia_sana = $connection->real_escape_string($maglia);
+        $maglia_sana = $connection->real_escape_string(string: $maglia);
         $query = "CALL PartecipaStaff($staff, $edizione, '$maglia_sana', '";
-        for ($i = 0; $i < count($commissioni); $i++)
+        for ($i = 0; $i < count(value: $commissioni); $i++)
         {
             $commissione = (int)$commissioni[$i];
             $query .= "$commissione";
-            if ($i < count($commissioni) - 1)
+            if ($i < count(value: $commissioni) - 1)
             {
                 $query .= ",";
             }
@@ -105,21 +131,40 @@ class Staff extends StaffBase
             $query .= "0";
         }
         $query .= ");";
-        $result = (bool)$connection->query($query);
+        $result = (bool)$connection->query(query: $query);
         $connection->next_result();
         return $result;
     }
 
     public static function All(\mysqli $connection): array {
-        if (!$connection) return [];
-        $query = "SELECT * FROM `staff_attuali`";
+        if (!$connection) 
+            return [];
 
-        return [];
+        $query = "SELECT * FROM `staff_attuali`";
+        $result = $connection->query(query: $query);
+        if (!$result) return [];
+
+        $arr = [];
+        while ($row = $result->fetch_assoc())
+        {
+            $arr[] = new self(
+                id: $row['id_staffista'], 
+                nome: $row['nome'] . ' ' . $row['cognome'],
+                id_parrocchia: $row["id_parrocchia"],
+                nome_parrocchia: $row["parrocchia"],
+                commissioni: array_map(callback: "trim", array: explode(separator: ',', string: $row["lista_commissioni"])),
+                taglia: $row["maglia"],
+                is_referente: $row["cf"],
+                codice_fiscale: $row["referente"]
+            );
+        }
+
+        return $arr;
     }
 
-    public static function FromParrocchia(\mysqli $connection, int $id): array {
+    public static function FromParrocchia(\mysqli $connection, int $id, int $anno): array {
         if (!$connection) return [];
-        $query = "SELECT p.* FROM `partecipazioni_staff` p WHERE p.`id_parrocchia` = $id";
+        $query = "SELECT * FROM `staff_per_edizione` WHERE `id_parrocchia` = $id AND `anno` = $anno";
         
         $result = $connection->query(query: $query);
         if (!$result) {
@@ -129,31 +174,16 @@ class Staff extends StaffBase
         $arr = [];
         while ($row = $result->fetch_assoc())
         {
-            $base =  new self(
-                id: (int)$row['id_staffista'],
+            $arr[] = new self(
+                id: $row['id_staffista'], 
                 nome: $row['nome'] . ' ' . $row['cognome'],
+                id_parrocchia: $row["id_parrocchia"],
+                nome_parrocchia: $row["parrocchia"],
+                commissioni: array_map(callback: "trim", array: explode(separator: ',', string: $row["lista_commissioni"])),
+                taglia: $row["maglia"],
+                is_referente: $row["codice_fiscale"],
+                codice_fiscale: $row["referente"],
             );
-            if (
-                array_key_exists(key: 'lista_commissioni', array: $row) && 
-                isset($row['lista_commissioni'])
-            ) {
-                $base->Commissioni = array_map(
-                    callback: 'trim', 
-                    array: explode(separator: ',', string: $row['lista_commissioni'])
-                );
-            }
-            $base->CodiceFiscale = $row['codice_fiscale'];
-            if (
-                array_key_exists(key: 'referente', array: $row) &&
-                isset($row['referente'])
-            ) {
-                $base->Referente = (bool)$row['referente'];
-            }
-            $base->Parrocchia = new Parrocchia(
-                id: $row['id_parrocchia'],
-                nome: $row['parrocchia'],
-            );
-            $arr[] = $base;
         }
         return $arr;
     }

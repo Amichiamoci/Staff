@@ -26,14 +26,14 @@ if (!isset($staff) || !($staff instanceof StaffBase)) {
             <?php } ?>
 
             <dl class="row">
-                <dt class="col-sm-3">
+                <dt class="col-sm-4  text-nowrap">
                     <?php if ($staff->Referente) { ?>
                         <strong>Referente</strong>
                     <?php } else { ?>
                         Parrocchia
                     <?php } ?>
                 </dt>
-                <dd class="col-sm-9">
+                <dd class="col-sm-8">
                     <a 
                         href="/church?id=<?= $staff->Parrocchia->Id ?>"
                         class="link-underline-opacity-0 link-secondary"
@@ -43,19 +43,19 @@ if (!isset($staff) || !($staff instanceof StaffBase)) {
                 </dd>
 
                 <?php if (isset($staff->Taglia)) { ?>
-                    <dt class="col-sm-3">
+                    <dt class="col-sm-4">
                         Taglia
                     </dt>
-                    <dd class="col-sm-9">
+                    <dd class="col-sm-8">
                         <?= htmlspecialchars(string: $staff->Taglia->value) ?>
                     </dd>
                 <?php } ?>
                 
-                <dt class="col-sm-3">
+                <dt class="col-sm-4">
                     Commissioni (<?= count(value: $staff->Commissioni) ?>)
                 </dt>
-                <dd class="col-sm-9">
-                    <ul class="list-group">
+                <dd class="col-sm-8">
+                    <ul class="list-group-flush">
                         <?php foreach ($staff->Commissioni as $commissione)  { ?>
                             <li class="list-group-item">
                                 <?= htmlspecialchars(string: $commissione) ?>

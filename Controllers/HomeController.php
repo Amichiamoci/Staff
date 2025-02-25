@@ -170,10 +170,14 @@ class HomeController extends Controller
         );
     }
     
-    public function church(?int $id = null): int {
+    public function church(?int $id = null, ?int $year = null): int {
         $this->RequireLogin();
         if (!isset($id)) {
             return $this->BadRequest();
+        }
+
+        if (!isset($year)) {
+            $year = (int)date(format: 'Y');
         }
 
         $church = Parrocchia::ById(connection: $this->DB, id: $id);
@@ -181,8 +185,8 @@ class HomeController extends Controller
             return $this->NotFound();
         }
 
-        $staffs = Staff::FromParrocchia(connection: $this->DB, id: $id);
-        // $iscritti = Iscrizione::FromParrocchia($this->DB, id: $id);
+        $staffs = Staff::FromParrocchia(connection: $this->DB, id: $id, anno: $year);
+        //$iscritti = Iscrizione::FromParrocchia($this->DB, id: $id);
         
         return $this->Render(
             view: 'Home/church',
