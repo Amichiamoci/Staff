@@ -5,12 +5,11 @@ namespace Amichiamoci\Controllers;
 use Amichiamoci\Models\Anagrafica;
 use Amichiamoci\Models\AnagraficaConIscrizione;
 use Amichiamoci\Models\Edizione;
-use Amichiamoci\Models\Iscrizione;
 use Amichiamoci\Models\User;
-use Amichiamoci\Utils\Cookie;
-use Amichiamoci\Utils\Security;
 use Amichiamoci\Models\Parrocchia;
 use Amichiamoci\Models\Staff;
+use Amichiamoci\Utils\Cookie;
+use Amichiamoci\Utils\Security;
 
 class HomeController extends Controller
 {
@@ -170,7 +169,7 @@ class HomeController extends Controller
             // Check captcha first (if enabled)
             if (!empty(RECAPTCHA_PUBLIC_KEY))
             {
-                $message = self::recaptcha_validation(
+                $message = Security::Recaptcha3Validation(
                     g_recaptcha_response: $g_recaptcha_response);       
             }
 

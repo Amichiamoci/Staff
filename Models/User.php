@@ -299,20 +299,26 @@ class User implements DbEntity
         $connection->next_result();
         return $test_ok;
     }
-    public function ChangePassword(\mysqli $connection, ?string $password, ?string $new_password) : bool
+    public function ForceSetNewPassword(\mysqli $connection, ?string $new_password): bool
     {
         if (!$connection || !isset($new_password) || empty($new_password))
             return false;
-        if (!$this->TestPassword(connection: $connection, password: $password))
-        {
-            return false;
-        }
-        $new_hash = Security::Hash($new_password);
+        $new_hash = Security::Hash(str: $new_password);
         $query = "CALL SetUserPassword($this->Id, '$new_hash')";
         $result = $connection->query(query: $query);
         $ret = (bool)$result;
         $connection->next_result();
         return $ret;
+    }
+    public function ChangePassword(\mysqli $connection, ?string $password, ?string $new_password): bool
+    {
+        if (!$connection)
+            return false;
+        if (!$this->TestPassword(connection: $connection, password: $password))
+        {
+            return false;
+        }
+        return self::ForceSetNewPassword(connection: $connection, new_password: $new_password);
     }
     public function ChangeUserName(\mysqli $connection, string $password, string $new_username) : bool
     {

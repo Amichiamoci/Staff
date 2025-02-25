@@ -1,141 +1,143 @@
 <?php
+
+namespace Amichiamoci\Models;
+
+use Amichiamoci\Utils\Security;
 use lfkeitel\phptotp\{Base32,Totp};
 class Token
 {
-    public string $val = "";
-    public ?DateTime $expiration = null;
-    private string $secret = "";
-    public int $edition = 0;
-    public int $anagrafica = 0;
-    public ?DateTime $used_date = null;
-    public function used() : bool { return isset($this->used_date); }
+    public string $Value;
+    public string $Secret;
+    public \DateTime $GenerationDate;
+    public \DateTime $ExpirationDate;
+    public ?\DateTime $UsageDate = null;
+    public int $UserId;
+    public string $Email;
+    public ?string $RequestingIp = null;
+    public ?string $RequestingBrowser = null;
 
-    public function __construct(
-        string|null $val,
-        DateTime|string|null $expire,
-        string|null $secret,
-        string|int|null $edition,
-        string|int|null $anagrafica,
-        Datetime|string|null $used = null
-    ) {
-        if (isset($val) && is_string($val))
-        {
-            $this->val = $val;
-        }
+    public function IsUsed(): bool { return isset($this->UsageDate); }
+    public function IsExpired(): bool { return (new \DateTime()) > $this->ExpirationDate; }
 
-        if (isset($expire))
-        {
-            if ($expire instanceof DateTime) {
-                $this->expiration = $expire;
-            } else {
-                $this->expiration = new DateTime($expire);
-            }
-        }
-
-        if (isset($secret) && is_string($secret))
-        {
-            $this->secret = $secret;
-        }
-
-        if (isset($edition))
-        {
-            $this->edition = (int)$edition;
-        }
-
-        if (isset($anagrafica))
-        {
-            $this->anagrafica = (int)$anagrafica;
-        }
-
-        if (isset($used))
-        {
-            if ($used instanceof DateTime) {
-                $this->used_date = $used;
-            } else {
-                $this->used_date = new DateTime($used);
-            }
-        }
-    }
-
-    public static function Generate(
-        mysqli $connection, 
-        int $edizione, 
-        int $anagrafica,
-        string $expire) : Token|null
-    {
-        if (!$connection || $edizione === 0 || $anagrafica === 0)
-            return null;
-        $secret = Totp::GenerateSecret(16);
-        $secret_s = Base32::encode($secret);
-        $key = (new Totp())->GenerateToken($secret);
-        $query = "REPLACE INTO `token` (`val`, `secret`, `edizione`, `anagrafica`, `expire`) VALUES (?, ?, ?, ?, ?)";
-        $stmt = $connection->prepare($query);
-        if (!$stmt || !$stmt->bind_param("ssiis", $key, $secret_s, $edizione, $anagrafica, $expire))
-        {
-            return null;
-        }
-        if (!$stmt->execute() || $stmt->affected_rows === 0)
-        {
-            return null;
-        }
-        return new Token($key, $expire, $secret_s, $edizione, $anagrafica);
-    }
-
-    public static function Load(mysqli $connection, string $val) : Token|null
-    {
-        if (!$connection || strlen($val) === 0)
-        {
-            return null;
-        }
-        $query = "SELECT * 
-        FROM `token` 
-        WHERE `token`.`val` = '" . $connection->real_escape_string($val) . "'";
-        $result = $connection->query($query);
-        if (!$result || $result->num_rows === 0)
-        {
-            return null;
-        }
-        if ($row = $result->fetch_assoc())
-        {
-            return new Token(
-                $val, 
-                $row["expire"], 
-                $row["secret"], 
-                $row["edizione"], 
-                $row["anagrafica"],
-                $row["used_date"]);
-        }
-        return null;
-    }
-    public static function LoadIfNotExpired(mysqli $connection, string $val) : Token|null
-    {
-        $loaded = self::Load($connection, $val);
-        if (!isset($loaded)/* || $loaded->used()*/)
-            return null;
-        if (isset($loaded->expiration) && $loaded->expiration < new DateTime())
-        {
-            return null;
-        }
-        return $loaded;
-    }
-
-    public function Expire(mysqli $connection) : bool
+    public function Use(\mysqli $connection): bool
     {
         if (!$connection)
             return false;
-        $query = "UPDATE `token` 
-        SET `token`.`used_date` = CURRENT_TIMESTAMP
-        WHERE `token`.`val` = ? AND `token`.`used_date` IS NULL AND (CURRENT_TIMESTAMP < `token`.`expire` OR `token`.`expire` IS NULL)";
-        $stmt = $connection->prepare($query);
-        if (!$stmt || !$stmt->bind_param("s", $this->val))
-        {
+        $query = "UPDATE `token` SET `usage_date` = CURRENT_TIMESTAMP WHERE `value` = ?";
+
+        $result = $connection->execute_query(query: $query, params: [$this->Value]);
+        if (!$result || $connection->affected_rows !== 1) {
             return false;
         }
-        if ($stmt->execute() && $stmt->affected_rows === 1)
-        {
-            $this->used_date = new DateTime();
-            return true;
-        }
-        return false;
+
+        $this->UsageDate = new \DateTime();
+        return true;
     }
+
+    public function __construct(
+        string $value,
+        string $secret,
+        string|\DateTime $generation_date,
+        string|\DateTime $expiration_date,
+        string|\DateTime|null $usage_date,
+        string|int $user_id,
+        string $email,
+        ?string $requesting_ip = null,
+        ?string $requesting_browser = null,
+    ) {
+        $this->Value = $value;
+        $this->Secret = $secret;
+
+        if ($generation_date instanceof \DateTime) {
+            $this->GenerationDate = $generation_date;
+        } else {
+            $this->GenerationDate = new \DateTime(datetime: $generation_date);
+        }
+        if ($expiration_date instanceof \DateTime) {
+            $this->ExpirationDate = $expiration_date;
+        } else {
+            $this->ExpirationDate = new \DateTime(datetime: $expiration_date);
+        }
+        if (isset($usage_date))
+        {
+            if ($usage_date instanceof \DateTime) {
+                $this->UsageDate = $usage_date;
+            } else {
+                $this->UsageDate = new \DateTime(datetime: $usage_date);
+            }
+        }
+
+        $this->UserId = (int)$user_id;
+        $this->Email = $email;
+        $this->RequestingIp = $requesting_ip;
+        $this->RequestingBrowser = $requesting_browser;
+    }
+
+    public static function Load(\mysqli $connection, string $value): ?self
+    {
+        if (!$connection)
+            return null;
+        $query = "SELECT * FROM `token` WHERE `value` = ? LIMIT 1";
+        $result = $connection->execute_query(query: $query, params: [$value]);
+        if (!$result || $result->num_rows !== 1) {
+            return null;
+        }
+        $row = $result->fetch_assoc();
+        return new self(
+            value: $row['value'],
+            secret: $row['secret'],
+            generation_date: $row['generation_date'],
+            expiration_date: $row['expiration_date'],
+            usage_date: $row['usage_date'],
+            user_id: $row['user_id'],
+            email: $row['email'],
+            requesting_ip: $row['requesting_ip'],
+            requesting_browser: $row['requesting_browser'],
+        );
+    }
+
+    private static function GenerateValueFromSecret(string $secret): string
+    {
+        return hash(algo: 'sha256', data: $secret);
+    }
+    public function Matches(string $secret): bool
+    {
+        return 
+            $secret === $this->Secret &&
+            $this->Value === self::GenerateValueFromSecret(secret: $this->Secret);
+    }
+
+    public static function Generate(
+        \mysqli $connection, 
+        int $duration_mins,
+        string|int $user_id,
+        string $email,
+        ?string $requesting_ip = null,
+        ?string $requesting_browser = null,
+    ): ?self
+    {
+        if (!$connection)
+            return null;
+
+        // Generate secret and its hash (value)
+        $secret = Security::RandomSubset(
+            length: 8, 
+            alphabet: str_split(string: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'));
+        $value = self::GenerateValueFromSecret(secret: $secret);
+
+        // Upload to DB
+        $query = 
+            "REPLACE INTO `token` (`value`, `secret`, `expiration_date`, `user_id`, `email`, `requesting_ip`, `requesting_browser`) " .
+            "VALUES (?, ?, CURRENT_TIMESTAMP + INTERVAL $duration_mins MINUTE, ?, ?, ?, ?)";
+        $result = $connection->execute_query(
+            query: $query, 
+            params: [$value, $secret, $user_id, $email, $requesting_ip, $requesting_browser]
+        );
+
+        if (!$result || $connection->affected_rows !== 1) {
+            return null;
+        }
+        return self::Load(connection: $connection, value: $value);
+    }
+
 }

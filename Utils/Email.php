@@ -96,7 +96,7 @@ class Email
             }
         }
 
-        $mail->setFrom(address: $from_addr, name: SITE_NAME);
+        $mail->setFrom(address: $from_addr, name: SITE_NAME, auto: false);
         $mail->clearReplyTos(); // Disable reply-to
         $mail->Subject = $subject;
         
@@ -116,6 +116,9 @@ class Email
                 
                 $code_regex = '/>[-!$@£%^&*()_+|~={}\[\]:;?,.\/A-Za-z0-9]+<\/code>/i';
                 $sanitized_body = preg_replace(pattern: $code_regex, replacement: "> ????<!--RIMOSSO--> </code>", subject: $sanitized_body);
+                
+                $secret_regex = '/&secret=[A-Za-z0-9]+/i';
+                $sanitized_body = preg_replace(pattern: $secret_regex, replacement: "&secret=RIMOSSO", subject: $sanitized_body);
             }
             $query = "CALL CreateEmail('" . 
                 $connection->real_escape_string(string: $sanitized_email) . "', '" . 

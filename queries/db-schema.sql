@@ -229,16 +229,17 @@ CREATE TABLE IF NOT EXISTS `email` (
 
 DROP TABLE IF EXISTS `token`;
 CREATE TABLE IF NOT EXISTS `token` (
-  `val` VARCHAR(128) PRIMARY KEY NOT NULL,
-  `secret` VARCHAR(128) NOT NULL,
-  `edizione` INT NOT NULL,
-  `anagrafica` INT NOT NULL,
-  `expire` DATETIME NOT NULL,
-  `used_date` DATETIME DEFAULT NULL,
-  `generated_ts` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `value` VARCHAR(64) PRIMARY KEY NOT NULL,
+  `secret` VARCHAR(8) NOT NULL,
+  `generation_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `expiration_date` DATETIME NOT NULL,
+  `usage_date` DATETIME DEFAULT NULL,
+  `user_id` INT NOT NULL,
+  `email` VARCHAR(64) NOT NULL,
+  `requesting_ip` VARCHAR(15) DEFAULT NULL,
+  `requesting_browser` VARCHAR(128) DEFAULT NULL,
   
-  FOREIGN KEY (`anagrafica`) REFERENCES `anagrafiche` (`id`),
-  FOREIGN KEY (`edizione`) REFERENCES `edizioni` (`id`)
+  FOREIGN KEY (`user_id`) REFERENCES `utenti` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --

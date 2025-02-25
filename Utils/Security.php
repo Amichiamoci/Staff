@@ -1,6 +1,6 @@
 <?php
 namespace Amichiamoci\Utils;
-use GuzzleHttp\Client;
+use GuzzleHttp\Client as HttpClient;
 
 class Security
 {
@@ -20,23 +20,30 @@ class Security
     {
         return isset($_COOKIE['AppVersion']) && !is_array(value: $_COOKIE['AppVersion']);
     }
-    public static function RandomPassword(int $length = 10) : string
+    public static function RandomSubset(int $length, array $alphabet): string
     {
-        $alphabet = str_split(string: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?/@;*+-$%&=^_");
-        $password = "";
+        $str = "";
         for ($i = 0; $i < $length; $i++)
         {
-            $password .= $alphabet[random_int(min: 0, max: count(value: $alphabet) - 1)];
+            $str .= $alphabet[random_int(min: 0, max: count(value: $alphabet) - 1)];
         }
-        return $password;
+        return $str;
     }
+
+    public static function RandomPassword(int $length = 10) : string
+    {
+        return self::RandomSubset(
+            length: $length, 
+            alphabet: str_split(string: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?/@;*+-$%&=^_"));
+    }
+
     public static function GetIpAddress(): string {
         
-        //$headers = getallheaders();
-        //if (array_key_exists(key: 'Cf-Connecting-Ip', array: $headers)) {
-              // Cloudflare tunnel forwarding
-        //    return $headers['Cf-Connecting-Ip'];
-        //}
+        $headers = getallheaders();
+        if (array_key_exists(key: 'Cf-Connecting-Ip', array: $headers)) {
+            // Cloudflare tunnel forwarding
+            return $headers['Cf-Connecting-Ip'];
+        }
 
         if (!empty($_SERVER['HTTP_CLIENT_IP']) && $_SERVER['HTTP_CLIENT_IP'] !== '::1') {
             //ip from share internet
@@ -72,30 +79,44 @@ class Security
         return $content;
     }
 
-    public static function CfTurnStileVerify(string $turnstile_response): bool {
-        if (strlen(string: $turnstile_response) === 0) {
-            return false;
+    public static function Recaptcha3Validation(?string $g_recaptcha_response): ?string
+    {
+        if (empty($g_recaptcha_response)) {
+            return 'Variabile $g_recaptcha_response non impostata!';
         }
 
-        // Load secret
-        $secret = self::LoadEnvironmentOfFromFile(var: 'CF_TURNSTILE_SECRET');
-        if (empty($secret)) {
-            return false;
+        $secret_key = self::LoadEnvironmentOfFromFile(var: 'RECAPTCHA_SECRET_KEY');
+        if (empty($secret_key)) {
+            return 'Google Recaptcha è abilitato, ma la chiave segreta non è impostata';
         }
-
-        // Challenge
-        $http_client = new Client();
-        $cf_response = $http_client->request(
-            'POST',
-            'https://challenges.cloudflare.com/turnstile/v0/siteverify',
-            [
+        
+        $client = new HttpClient();
+        $response = $client->post(
+            uri: 'https://www.google.com/recaptcha/api/siteverify',
+            options: [
                 'form_params' => [
-                    'secret' => $secret,
-                    'response' => $turnstile_response,
+                    'secret' => $secret_key,
+                    'response' => $g_recaptcha_response,
                 ]
             ]
         );
-        $object = json_decode(json: (string)$cf_response->getBody());
-        return (bool)$object->success;
+        if (!$response) {
+            return 'Impossibile contattare il server di Google';
+        }
+        
+        $body = $response->getBody();
+        if (empty($body)) {
+            return 'Risposta vuota dai server di Google';
+        }
+        
+        $object = json_decode(json: $body);
+        if (empty($object)) {
+            return 'Risposta non valida dai server di Google';
+        }
+        
+        if ($object->success) {
+            return null;
+        }
+        return 'Token Recaptcha scaduto';
     }
 }

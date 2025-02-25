@@ -29,6 +29,7 @@ services:
     environment:
       - MYSQL_DATABASE=amichiamoci
       - MYSQL_ROOT_PASSWORD=root
+      - TZ=Europe/Rome
     networks:
       - db
     volumes:
