@@ -7,60 +7,6 @@
 //
 
 
-function getTornei($connection):string
-{
-    if (!$connection)
-        return "&Egrave; avvenuto un errore.";
-    $query = "SELECT * FROM tornei_attivi";
-    $result = mysqli_query($connection, $query);
-    if (!$result)
-        return "Impossibile interrogare il DB.";
-    if ($result->num_rows === 0)
-    {
-        return "Nessun torneo (ancora) per quest'anno";
-    }
-    $str = "<div class='tables flex wrap'>";
-    while ($row = $result->fetch_assoc())
-    {
-        $id = (int)$row["id"];
-        $nome = htmlspecialchars($row["nome"]);
-        $sport = htmlspecialchars($row["sport"]);
-        $tipo = htmlspecialchars($row["tipo"]);
-        $squadre = htmlspecialchars($row["squadre"]);
-        $numero_squadre = (int)$row["numero_squadre"];
-        $calendario = htmlspecialchars($row["calendario"]);
-        $numero_partite = (int)$row["partite"];
-
-        $str .= "<table>";
-
-        $str .= "<thead>";
-        $str .= "<tr>";
-        $str .= "<th data-label='Nome'>$nome</th>";
-        $str .= "<th data-label='Sport'>$sport</th>";
-        $str .= "</tr>";
-        $str .= "</thead>";
-
-        $str .= "<tbody>";
-        $str .= "<tr>";
-        $str .= "<td data-label='Modalità'>$tipo</td>";
-        $str .= "<td data-label='Squadre ($numero_squadre)'>$squadre</td>";
-        $str .= "<td data-label='Calendario'>$calendario</td>";
-        if ($numero_partite === 0)
-        {
-            $str .= "<td data-label='Azioni'><a href='./crea-partite.php?id=$id' class='link'>Crea Calendario</a></td>";
-        } else {
-            $str .= "<td data-label='Azioni'><a href='./modifica-partite.php?id=$id' class='link'>Modifica date partite</a></td>";
-        }
-        $str .= "</tr>";
-        $str .= "</tbody>";
-
-        $str .= "</table>";
-    }
-    $str .= '</div>';
-    return $str;
-}
-
-
 function calendarioTorneo($connection, int $torneo):string
 {
     if (!$connection)
