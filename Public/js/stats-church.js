@@ -16,9 +16,13 @@
                 count: Number(count)
             });
         }
+
+        const canvas = document.getElementById('stats-church-chart');
+        canvas.classList.toggle('d-none', data.length === 0);
+
         const sorted = data.sort((a, b) => a.church.localeCompare(b.church));
         return new Chart(
-            document.getElementById('stats-church-chart'),
+            canvas,
             {
                 type: 'pie',
                 data: {

@@ -6,11 +6,18 @@
         <div class="col col-xs-12 col-sm-6 col-md-4 col-xl-3" id="user-<?= $user_info->Id ?>">
             <div class="card m-1">
                 <div class="card-header">
-                    <?= htmlspecialchars(string: $user_info->Name) ?>
-                    &nbsp;
                     <span class="user-select-none text-secondary">
                         #<?= $user_info->Id ?>
                     </span>
+                    &nbsp;
+                    <a 
+                        title="Vedi nel dettaglio"
+                        href="/user/view?id=<?= $user_info->Id ?>"
+                        class="text-reset link-underline link-underline-opacity-0"
+                    >
+                        <?= htmlspecialchars(string: $user_info->Name) ?>
+                        <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
                 </div>
                 <div class="card-body">
                     <?php if (!empty($user_info->RealName) && !empty($user_info->IdStaff)) { ?>
@@ -42,11 +49,7 @@
                         <p class="card-text">
                             Online <?= htmlspecialchars(string: $user_info->TimeLoggedMessage()) ?>.
                         </p>
-                    <?php } ?> 
-                    
-                    <a href="/user/view?id=<?= htmlspecialchars(string: $user_info->Id) ?>" class="card-link">
-                        Dettagli
-                    </a>
+                    <?php } ?>
                 </div>
             </div>
         </div>
