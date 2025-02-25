@@ -214,7 +214,7 @@ class UserController extends Controller {
     private function token_submit_logic(
         string $value,
         string $secret,
-        string $password,
+        #[\SensitiveParameter] string $password,
         ?User &$user = null,
     ): ?string {
         
@@ -249,7 +249,7 @@ class UserController extends Controller {
     public function token(
         ?string $value = null, 
         ?string $secret = null,
-        ?string $password = null,
+        #[\SensitiveParameter] ?string $password = null,
     ): int
     {
         if (!isset($value) || strlen(string: $value) === 0) {
@@ -306,8 +306,8 @@ class UserController extends Controller {
 
     public function update(
         ?string $new_username, 
-        ?string $current_password, 
-        ?string $new_password = null,
+        #[\SensitiveParameter] ?string $current_password, 
+        #[\SensitiveParameter] ?string $new_password = null,
     ): int {
         $user = $this->RequireLogin();
         if (self::IsPost() && !empty($new_username) && !empty($current_password))
@@ -403,7 +403,16 @@ class UserController extends Controller {
         );
     }
 
-    public function new(?string $email = null, bool $admin = false): int {
+    private static function welcome_email(): string
+    {
+        
+    }
+
+    public function new(
+        ?string $email = null, 
+        bool $admin = false,
+    ): int
+    {
         $this->RequireLogin(require_admin: true);
         if ($this->IsPost() && !empty($email)) {
             $password = Security::RandomPassword();

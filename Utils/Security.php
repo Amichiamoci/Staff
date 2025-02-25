@@ -4,13 +4,13 @@ use GuzzleHttp\Client as HttpClient;
 
 class Security
 {
-    public static function Hash(string $str) : string
+    public static function Hash(#[\SensitiveParameter] string $str) : string
     {
         if (!isset($str))
             return "";
         return password_hash(password: $str, algo: PASSWORD_BCRYPT);
     }
-    public static function TestPassword(string $password, string $hash) : bool
+    public static function TestPassword(#[\SensitiveParameter] string $password, string $hash) : bool
     {
         if (!isset($password) || !isset($hash))
             return false;
@@ -79,7 +79,7 @@ class Security
         return $content;
     }
 
-    public static function Recaptcha3Validation(?string $g_recaptcha_response): ?string
+    public static function Recaptcha3Validation(#[\SensitiveParameter] ?string $g_recaptcha_response): ?string
     {
         if (empty($g_recaptcha_response)) {
             return 'Variabile $g_recaptcha_response non impostata!';

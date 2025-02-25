@@ -110,12 +110,11 @@ class User implements DbEntity
         if (!isset($user_agent)) $user_agent = "";
         if (!isset($user_ip)) $user_ip = "";
 
-        $query = "CALL GetUserPassword('" . $connection->real_escape_string(string: $username) . "');";
-        $result = $connection->query(query: $query);
+        $query = "CALL `GetUserPassword`(?);";
+        $result = $connection->execute_query(query: $query, params: [ $username ]);
         if (!$result)
         {
             $connection->next_result();
-            //echo "Bad result";
             return false;
         }
         $passed = false;
@@ -160,7 +159,7 @@ class User implements DbEntity
         return $_SESSION[self::$SESSION_DB_ID] !== 0;
     }
 
-    public static function LoadFromSession() : User|null
+    public static function LoadFromSession(): ?self
     {
         if (session_status() !== PHP_SESSION_ACTIVE && !self::SessionStart())
         {
@@ -299,7 +298,7 @@ class User implements DbEntity
         $connection->next_result();
         return $test_ok;
     }
-    public function ForceSetNewPassword(\mysqli $connection, ?string $new_password): bool
+    public function ForceSetNewPassword(\mysqli $connection, #[\SensitiveParameter] ?string $new_password): bool
     {
         if (!$connection || !isset($new_password) || empty($new_password))
             return false;
@@ -310,7 +309,11 @@ class User implements DbEntity
         $connection->next_result();
         return $ret;
     }
-    public function ChangePassword(\mysqli $connection, ?string $password, ?string $new_password): bool
+    public function ChangePassword(
+        \mysqli $connection, 
+        #[\SensitiveParameter] ?string $password, 
+        #[\SensitiveParameter] ?string $new_password,
+    ): bool
     {
         if (!$connection)
             return false;
@@ -320,7 +323,11 @@ class User implements DbEntity
         }
         return self::ForceSetNewPassword(connection: $connection, new_password: $new_password);
     }
-    public function ChangeUserName(\mysqli $connection, string $password, string $new_username) : bool
+    public function ChangeUserName(
+        \mysqli $connection, 
+        #[\SensitiveParameter] string $password, 
+        #[\SensitiveParameter] string $new_username,
+    ): bool
     {
         if (!$connection || !isset($new_username) || empty($new_username))
             return false;
@@ -348,8 +355,8 @@ class User implements DbEntity
     public static function Create(
         \mysqli $connection,
         string $username, 
-        string $password, 
-        bool $is_admin
+        #[\SensitiveParameter] string $password, 
+        bool $is_admin,
     ) : User|null
     {
         if (!$connection || !isset($username) || empty($username)|| !isset($password) || empty($password))
@@ -466,7 +473,13 @@ class User implements DbEntity
             return null;
         }
         $row = $result->fetch_assoc();
-        return new self(id: $id, name: $row["user_name"], login_time: 0, admin: $row["is_admin"] == 1);
+        return new self(
+            id: $id, 
+            name: $row["user_name"], 
+            login_time: 0, 
+            admin: $row["is_admin"] == 1,
+            is_blocked: $row["is_banned"] == 1,
+        );
     }
 
     public static function ByName(\mysqli $connection, string $username): ?self
@@ -480,7 +493,13 @@ class User implements DbEntity
             return null;
         }
         $row = $result->fetch_assoc();
-        return new self(id: (int)$row['id'], name: $row["user_name"], login_time: 0, admin: $row["is_admin"] == 1);
+        return new self(
+            id: $row['id'],
+            name: $row["user_name"], 
+            login_time: 0, 
+            admin: $row["is_admin"] == 1,
+            is_blocked: $row["is_blocked"] == 1,
+        );
     }
 
     public static function All(\mysqli $connection) : array
@@ -489,7 +508,7 @@ class User implements DbEntity
             return [];
 
         $query = "SELECT * FROM users_extended";
-        $result = $connection->query($query);
+        $result = $connection->query(query: $query);
         if (!$result)
             return [];
 

@@ -109,50 +109,9 @@ class HomeController extends Controller
         return $this->Json(object: array_values(array: $status));
     }
 
-    private static function recaptcha_validation(?string $g_recaptcha_response = null): ?string
-    {
-        if (empty($g_recaptcha_response)) {
-            return 'Variabile $g_recaptcha_response non impostata!';
-        }
-
-        $secret_key = Security::LoadEnvironmentOfFromFile(var: 'RECAPTCHA_SECRET_KEY');
-        if (empty($secret_key)) {
-            return 'Google Recaptcha è abilitato, ma la chiave segreta non è impostata';
-        }
-        
-        $client = new \GuzzleHttp\Client();
-        $response = $client->post(
-            uri: 'https://www.google.com/recaptcha/api/siteverify',
-            options: [
-                'form_params' => [
-                    'secret' => $secret_key,
-                    'response' => $g_recaptcha_response,
-                ]
-            ]
-        );
-        if (!$response) {
-            return 'Impossibile contattare il server di Google';
-        }
-        
-        $body = $response->getBody();
-        if (empty($body)) {
-            return 'Risposta vuota dai server di Google';
-        }
-        
-        $object = json_decode(json: $body);
-        if (empty($object)) {
-            return 'Risposta non valida dai server di Google';
-        }
-        
-        if ($object->success) {
-            return null;
-        }
-        return 'Token Recaptcha scaduto';
-    }
-
     public function login(
         ?string $username = null, 
-        ?string $password = null,
+        #[\SensitiveParameter] ?string $password = null,
         ?string $g_recaptcha_response = null,
     ): int {
         if ($this->IsLoggedIn()) {
