@@ -1,8 +1,8 @@
 <?php
 
 require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/Routes.php';
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/Routes.php';
 
 use Amichiamoci\Models\User;
 use Amichiamoci\Models\Staff;

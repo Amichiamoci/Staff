@@ -9,7 +9,7 @@ use Amichiamoci\Controllers\StaffController;
 use Amichiamoci\Controllers\TeamsController;
 use Amichiamoci\Routing\Router;
 
-$router = new Router(base_path: INSTALLATION_PATH);
+$router = new Router(base_path: INSTALLATION_PATH, );
 
 $router->AddController(controller: HomeController::class, route_base: '/');
 $router->AddController(controller: UserController::class, route_base: '/user');

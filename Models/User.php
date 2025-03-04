@@ -66,7 +66,7 @@ class User implements DbEntity
             'name' => self::$COOKIE_NAME,
             'cookie_lifetime' => '172800', // 48h
             'cookie_domain' => DOMAIN,
-            'cookie_path' => ADMIN_PATH,
+            'cookie_path' => defined(constant_name: 'INSTALLATION_PATH') ? INSTALLATION_PATH : '',
             'cookie_httponly' => '1'
         ]);
     }
