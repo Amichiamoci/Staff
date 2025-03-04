@@ -7,9 +7,6 @@ use Monolog\Level;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 
-$log = new Logger(name: 'name');
-$log->pushHandler(handler: new StreamHandler(stream: 'path/to/your.log', level: Level::Warning));
-
 $dotenv = Dotenv::createImmutable(paths: __DIR__);
 $dotenv->safeLoad();
 
@@ -60,3 +57,9 @@ define(
 define(
     constant_name: 'CRON_LOG_DIR',
     value: SERVER_UPLOAD_TMP . DIRECTORY_SEPARATOR . 'cron');
+
+$log = new Logger(name: 'Request logger');
+$log->pushHandler(
+    handler: new StreamHandler(stream: SERVER_UPLOAD_PATH . DIRECTORY_SEPARATOR . 'requests.log', 
+    level: Level::Warning)
+);
