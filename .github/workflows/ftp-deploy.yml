@@ -1,7 +1,7 @@
 on: 
   push:
     branches:
-      - main
+      # - main
       - test
 name: FTP deploy to server
 jobs:
