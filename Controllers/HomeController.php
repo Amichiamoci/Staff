@@ -17,13 +17,13 @@ class HomeController extends Controller
         return $this->Json(object: [
             'name' => SITE_NAME,
             'short_name' => SITE_NAME,
-            'start_url' => '/',
+            'start_url' => INSTALLATION_PATH . '/',
             'display' => 'standalone',
             'background_color' => '#fff',
             'description' => 'Portale staff',
             'icons' => [
                 [
-                    'src' => '/Public/images/icon.png',
+                    'src' => INSTALLATION_PATH . '/Public/images/icon.png',
                     'type' => 'image/png',
                     'sizes' => '256x256',
                 ]
@@ -115,7 +115,7 @@ class HomeController extends Controller
         ?string $g_recaptcha_response = null,
     ): int {
         if ($this->IsLoggedIn()) {
-            return $this->Redirect(url: '/');
+            return $this->Redirect(url: INSTALLATION_PATH . '/');
         }
 
         $message = '';
@@ -142,12 +142,12 @@ class HomeController extends Controller
                     user_ip: Security::GetIpAddress()
                 )) {
                     // Login successful
-                    $redirect_url = '/';
+                    $redirect_url = INSTALLATION_PATH . '/';
                     if (Cookie::Exists(name: 'Redirect')) {
                         $redirect_url = Cookie::Get(name: 'Redirect');
                         Cookie::Delete(name: 'Redirect');
                         if (empty($redirect_url)) {
-                            $redirect_url = '/';
+                            $redirect_url = INSTALLATION_PATH . '/';
                         }
                     }
         
