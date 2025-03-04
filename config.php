@@ -2,6 +2,9 @@
 setlocale(LC_ALL, 'ita', 'it_IT.utf8');
 
 use Amichiamoci\Utils\Security;
+use Dotenv\Dotenv;
+$dotenv = Dotenv::createImmutable(paths: __DIR__);
+$dotenv->safeLoad();
 
 $MYSQL_HOST = Security::LoadEnvironmentOfFromFile(var: 'MYSQL_HOST', default: 'localhost');
 $MYSQL_PORT = (int)Security::LoadEnvironmentOfFromFile(var: 'MYSQL_PORT', default: '3306');
@@ -15,10 +18,21 @@ define(
 define(
     constant_name: "DOMAIN", 
     value: Security::LoadEnvironmentOfFromFile(var: "DOMAIN", default: $_SERVER['HTTP_HOST']));
-define(
-    constant_name: "ADMIN_PATH", 
-    value: Security::LoadEnvironmentOfFromFile(var: "ADMIN_PATH", default: "/"));
 define(constant_name: 'POWERED_BY', value: 'https://github.com/Amichiamoci/Staff');
+
+//
+// Detect if the app is running in a subfolder (DOCUMENT_ROOT != __DIR__) in this file
+//
+if ($_SERVER['DOCUMENT_ROOT'] !== __DIR__)
+{
+    define(
+        constant_name: 'INSTALLATION_PATH',
+        value: substr(string: __DIR__, offset: strlen(string: $_SERVER['DOCUMENT_ROOT']))
+    );
+} else {
+    define(constant_name: 'INSTALLATION_PATH', value: '');
+}
+
 
 // Public key, private key will only be loaded when used
 define(

@@ -12,12 +12,23 @@ class Router {
     private ?Staff $staff = null;
     private array $routes = [];
 
+    public readonly string $BasePath;
+    public function __construct(string $base_path = '')
+    {
+        $this->BasePath = $base_path;
+        if (strlen(string: $base_path) > 0 && !str_starts_with(needle: '/', haystack: $base_path))
+        {
+            throw new \InvalidArgumentException(
+                message: "A custom installation path is detected but does not start with '/'. Given: '$base_path'");
+        }
+    }
+
     public function AddRouteAction(
         string $route, 
         string $controller, 
         string $action
     ): void {
-        $this->routes[$route] = [
+        $this->routes[$this->BasePath . $route] = [
             'controller' => $controller, 
             'action' => $action
         ];
@@ -43,9 +54,12 @@ class Router {
         $methods = get_class_methods(object_or_class: $dummy_instance);
         foreach ($methods as $method)
         {
-            if (str_starts_with(haystack: $method, needle: '_') || 
-                str_starts_with(haystack: $method, needle: '#'))
+            if (
+                str_starts_with(haystack: $method, needle: '_') || 
+                str_starts_with(haystack: $method, needle: '#')
+            ) {
                 continue;
+            }
             $this->AddRouteAction(
                 route: $route_base === '/' ? "/$method" : "$route_base/$method", 
                 controller: $controller, 

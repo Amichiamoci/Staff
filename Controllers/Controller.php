@@ -158,15 +158,19 @@ class Controller {
      * Raw string as response
      * @param string $type Mime type of the content
      * @param string $content Actual content
-     * @return int The status code of the response (200)
+     * @return int The status code of the response (200 by default)
      */
-    protected function Content(string $type, string $content): int {
+    protected function Content(
+        string $type, 
+        string $content,
+        int $status_code = 200,
+    ): int {
         header(header: "Content-Type: $type");
         header(header: "Content-length: " . strlen(string: $content));
         
         // ob_clean();
         echo $content;
-        return 200;
+        return $status_code;
     }
 
     /**
