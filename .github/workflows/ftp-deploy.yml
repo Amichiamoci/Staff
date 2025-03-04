@@ -86,4 +86,6 @@ jobs:
             docker-compose.yml
             .dockerignore
             build-starting-db.sh
+            **/queries/**
+            **/.vscode/**
           
