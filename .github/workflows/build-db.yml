@@ -21,7 +21,7 @@ jobs:
           ref: ${{ github.head_ref }}
         
       - name: Generate the file
-        run: ./build-starting-db.sh
+        run: chmod +x ./build-starting-db.sh && ./build-starting-db.sh
 
       - name: Upload the artifact
         uses: actions/upload-artifact@v4
