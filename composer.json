@@ -1,8 +1,13 @@
 {
     "require": {
-        "vlucas/phpdotenv": "^5.6",
-        "google/recaptcha": "^1.3",
-        "monolog/monolog": "^3.5",
-        "lfkeitel/phptotp": "^1.1"
+        "monolog/monolog": "^3.8",
+        "lfkeitel/phptotp": "^1.1",
+        "guzzlehttp/guzzle": "^7.9",
+        "phpmailer/phpmailer": "^6.9",
+        "mpdf/mpdf": "^8.2",
+        "vlucas/phpdotenv": "^5.6"
+    },
+    "autoload": {
+        "psr-4": {"Amichiamoci\\": "./"}
     }
 }

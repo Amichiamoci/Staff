@@ -96,7 +96,8 @@ BEGIN
         parrocchie.`id` AS "id_parrocchia",
         sp.`nome` AS "nome_sport",
         sp.`id` AS "id_sport",
-        GROUP_CONCAT(CONCAT(a.`nome`, ' ', a.`cognome`) SEPARATOR ', ') AS "lista_membri"
+        GROUP_CONCAT(CONCAT(a.`nome`, ' ', a.`cognome`) SEPARATOR ', ') AS "lista_membri",
+        GROUP_CONCAT(a.`id` SEPARATOR ', ') AS "id_membri"
     FROM `squadre` AS s
         LEFT OUTER JOIN `squadre_iscritti` si ON si.`squadra` = s.`id`
         LEFT OUTER JOIN `iscritti` i ON si.`iscritto` = i.`id`
@@ -130,14 +131,6 @@ BEGIN
         LEFT OUTER JOIN `anagrafiche` a ON i.`dati_anagrafici` = a.`id`
     WHERE s.`id` = id
     GROUP BY s.`id`;
-END; //
-
-DROP PROCEDURE IF EXISTS `CancellaSquadra` //
-CREATE PROCEDURE `CancellaSquadra`(IN id INT)
-BEGIN
-    DELETE 
-    FROM `squadre` 
-    WHERE `squadre`.`id` = id;
 END; //
 
 DELIMITER ;

@@ -1,114 +1,91 @@
 on: 
-    push:
-       branches:
-         - main
-         - test
-name: 🚀 FTP deploy on push
+  push:
+    branches:
+      # - main
+      - test
+name: FTP deploy to server
 jobs:
-    ftp-deploy:
-        name: ⬆️👷 FTP deploy
-        runs-on: ubuntu-latest
-        steps:
+  ftp-deploy:
+    name: FTP deploy
+    runs-on: ubuntu-latest
+    steps:
 
-        - name: 🚚 Get latest code
-          uses: actions/checkout@v4
-          with: 
-            ref: ${{ github.head_ref }}
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v4
+        with: 
+          ref: ${{ github.head_ref }}
         
-        - name: Setup PHP
-          uses: shivammathur/setup-php@v2
-          with:
-              php-version: '8.3'
-              tools: composer:v2
-              coverage: none
-          env:
-              update: true
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          coverage: none
+        env:
+          update: true
         
-        - uses: actions/cache@v4
-          id: cache
-          with:
-            path: ./vendor/
-            key: ${{ runner.os }}-php-vendor-${{ hashFiles('./composer.json') }}
+      - name: Cache php libraries
+        uses: actions/cache@v4
+        id: cache
+        with:
+          path: ./vendor/
+          key: ${{ runner.os }}-php84-vendor-${{ hashFiles('./composer.json') }}
         
-        - name: Install Dependencies
-          if: steps.cache.outputs.cache-hit != 'true'
-          uses: nick-invision/retry@v2
-          with:
-            timeout_minutes: 5
-            max_attempts: 5
-            command: composer update --no-interaction --no-progress
+      - name: Install php Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 5
+          max_attempts: 5
+          command: composer update --no-interaction --no-progress
         
-        - name: Load DB data and website address in .env
-          run: |
-            echo -e "DB_HOST=${{ secrets.DB_ADDRESS }}" > ".env"
-            echo -e "DB_USER=${{ secrets.DB_USER }}" >> ".env"
-            echo -e "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> ".env"
-            echo -e "WEBSITE_DOMAIN=www.${{ vars.DOMAIN }}" >> ".env"
-            echo -e "ISCRIZIONI_URL=${{ secrets.ISCRIZIONI_URL }}" >> ".env"
-            echo -e "INSTAGRAM_URL=${{ vars.INSTAGRAM_URL }}" >> ".env"
-            echo -e "WHATSAPP_URL=${{ vars.WHATSAPP_URL }}" >> ".env"
-            echo -e "FACEBOOK_URL=${{ vars.FACEBOOK_URL }}" >> ".env"
-            echo -e "APP_SECRET=${{ secrets.APP_SECRET }}" >> ".env"
+      - name: Load DB data and website address in .env
+        run: |
+          echo -e "MYSQL_HOST=${{ secrets.DB_ADDRESS }}" > ".env"
+          echo -e "MYSQL_USER=${{ secrets.DB_USER }}" >> ".env"
+          echo -e "MYSQL_PASSWORD=${{ secrets.DB_PASSWORD }}" >> ".env"
+          echo -e "RECAPTCHA_PUBLIC_KEY=${{ secrets.RECAPTCHA_SITE_KEY }}" >> ".env"
+          echo -e "RECAPTCHA_SECRET_KEY=${{ secrets.RECAPTCHA_SECRET }}" >> ".env"
+          echo -e "MAIL_OUTPUT_ADDRESS=${{ secrets.SMTP_USER }}" >> ".env"
+          echo -e "SMTP_HOST=${{ vars.SMTP_HOST }}" >> ".env"
+          echo -e "SMTP_PORT=${{ vars.SMTP_PORT }}" >> ".env"
+          echo -e "SMTP_USER=${{ secrets.SMTP_USER }}" >> ".env"
+          echo -e "SMTP_PASSWORD=${{ secrets.SMTP_USER }}" >> ".env"
         
-        - name: Calculate Deploy Path
-          id: deploy-path
-          run: |
-            if [ $REF = 'main' ]
-            then
-                echo "path=admin/" >> "$GITHUB_OUTPUT"
-            else
-                echo "path=admin_test/" >> "$GITHUB_OUTPUT"
-            fi
-          env:
-            REF: ${{ github.ref_name }}
+      - name: Calculate Deploy Path and Variables
+        id: deploy-path
+        run: |
+          if [ "$BRANCH" = 'main' ]
+          then
+            echo "path=admin/" >> "$GITHUB_OUTPUT"
+            echo -e "MYSQL_DB=${{ secrets.DB_MASTER_DATABASE }}" >> ".env"
+          else
+            echo "path=admin_test/" >> "$GITHUB_OUTPUT"
+            echo -e "MYSQL_DB=${{ secrets.DB_TEST_DATABASE }}" >> ".env"
+            echo -e "SITE_NAME=Amichiamoci TEST" >> ".env"
+          fi
+        env:
+          BRANCH: ${{ github.ref_name }}
 
-        - name: Calculate emails to deploy
-          id: deploy-email
-          run: |
-            if [ $REF = 'main' ]
-            then
-                echo "dev_email=${{ secrets.DEV_EMAIL_BASE }}@${{ vars.DOMAIN }}" >> "$GITHUB_OUTPUT"
-                echo "info_email=${{ secrets.INFO_EMAIL_BASE }}@${{ vars.DOMAIN }}" >> "$GITHUB_OUTPUT"
-            else
-                echo "dev_email=${{ secrets.DEV_EMAIL_BASE }}_${{ github.ref_name }}@${{ vars.DOMAIN }}" >> "$GITHUB_OUTPUT"
-                echo "info_email=${{ secrets.INFO_EMAIL_BASE }}_${{ github.ref_name }}@${{ vars.DOMAIN }}" >> "$GITHUB_OUTPUT"
-            fi
-          env:
-            REF: ${{ github.ref_name }}
-
-        - name: Load Mail addresses in .env
-          if: github.ref_name == 'main'
-          run: |
-            echo -e "EMAIL_SOURCE=$DEV_EMAIL" >> ".env"
-            echo -e "CONTACT_EMAIL=$INFO_EMAIL" >> ".env"
-          env:
-            DEV_EMAIL: ${{ steps.deploy-email.outputs.dev_email }}
-            INFO_EMAIL: ${{ steps.deploy-email.outputs.info_email }}
-
-        - name: Calculate which database to connect
-          id: deploy-db
-          run: |
-            if [ $REF = 'main' ]
-            then
-                echo "deploy_db=${{ secrets.DB_MASTER_DATABASE }}" >> "$GITHUB_OUTPUT"
-                echo "Using PRODUCTION database"
-            else
-                echo "deploy_db=${{ secrets.DB_TEST_DATABASE }}" >> "$GITHUB_OUTPUT"
-                echo "Using TEST database"
-            fi
-          env:
-            REF: ${{ github.ref_name }}
-        
-        - name: Load Database name in .env
-          run: echo -e "DB_NAME=$DB_NAME" >> ".env"
-          env: 
-            DB_NAME: ${{ steps.deploy-db.outputs.deploy_db }}
-
-        - name: 📂 Sync files
-          uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-          with:
-            server: ${{ secrets.FTP_ENDPOINT }}
-            username: ${{ secrets.FTP_USER }}
-            password: ${{ secrets.FTP_PASSWORD }}
-            server-dir: ${{ secrets.FTP_FOLDER_BASE }}${{ steps.deploy-path.outputs.path }}
-            log-level: minimal
+      - name: 📂 Sync files
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_ENDPOINT }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_FOLDER_BASE }}${{ steps.deploy-path.outputs.path }}
+          log-level: minimal
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            *.md
+            entrypoint.sh
+            Dockerfile
+            Alpine.dockerfile
+            docker-compose.yml
+            .dockerignore
+            build-starting-db.sh
+            **/queries/**
+            **/.vscode/**
+          

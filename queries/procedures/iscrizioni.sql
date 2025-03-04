@@ -11,12 +11,16 @@ BEGIN
         a.`id`, 
         a.`cognome`, 
         a.`nome`, 
+        a.`luogo_nascita`,
         a.`data_nascita_italiana` AS "data_nascita", 
         a.`telefono`, 
         a.`email`, 
         a.`cf`, 
         a.`documento`, 
-        a.`codice_documento`, t.`label`, 
+        a.`tipo_documento`,
+        a.`tipo_documento_nome`,
+        a.`codice_documento`, 
+        a.`scadenza`,
         a.`eta`,
         a.`sesso`,
         p.`nome` AS "parrocchia", 
@@ -38,20 +42,19 @@ BEGIN
         CONCAT (a2.`cognome`, ' ', a2.`nome`) AS "tutore",
         i.`tutore` AS "id_tutore"
     FROM `anagrafiche_espanse` AS a
-        INNER JOIN `tipi_documento` t ON a.`tipo_documento` = t.`id`
         LEFT OUTER JOIN (
             SELECT i2.*
             FROM `iscritti` AS i2
             WHERE EXISTS(
                 SELECT e3.*
                 FROM `edizioni` AS e3
-                WHERE e3.`anno` = YEAR(CURRENT_DATE) AND i2.`edizione` = e3.`id`
+                WHERE e3.`anno` = IFNULL (anno, YEAR(CURRENT_DATE)) AND i2.`edizione` = e3.`id`
             )
         ) i ON a.`id` = i.`dati_anagrafici`
         LEFT OUTER JOIN (
             SELECT e2.*
             FROM `edizioni` AS e2
-            WHERE e2.`anno` = YEAR(CURRENT_DATE)
+            WHERE e2.`anno` = IFNULL (anno, YEAR(CURRENT_DATE))
         ) e ON i.`edizione` = e.`id`
         LEFT OUTER JOIN `parrocchie` p ON i.`parrocchia` = p.`id`
         LEFT OUTER JOIN `anagrafiche` a2 ON i.`tutore` = a2.`id`

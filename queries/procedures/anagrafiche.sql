@@ -24,18 +24,19 @@ CREATE PROCEDURE `CreaAnagrafica` (
     IN abort_if_existing BOOLEAN)
 crea_anagrafica_body:BEGIN
     DECLARE id INT DEFAULT 0;
+    DECLARE is_existing BOOLEAN DEFAULT FALSE;
 
     SELECT a.`id` INTO id 
     FROM `anagrafiche` AS a
     WHERE LOWER(a.`codice_fiscale`) = TRIM(LOWER(cf));
 
     IF id <> 0 AND abort_if_existing = 1 THEN
-        SELECT 0 AS 'id';
+        SELECT 0 AS 'id', is_existing;
         LEAVE crea_anagrafica_body;
     END IF;
 
     IF id <> 0 THEN
-        /*User already exists, we just update info*/
+        /* User already exists, we just update info */
         UPDATE `anagrafiche` SET
         `anagrafiche`.`nome` = CASE 
             WHEN nome IS NOT NULL AND nome != '' THEN TRIM(nome)
@@ -44,7 +45,7 @@ crea_anagrafica_body:BEGIN
             WHEN cognome IS NOT NULL AND cognome != '' THEN TRIM(cognome)
             ELSE `anagrafiche`.`cognome` END,
         `anagrafiche`.`data_nascita` = CASE 
-            WHEN STR_TO_DATE(compleanno, '%d,%m,%Y') IS NOT NULL THEN compleanno
+            WHEN compleanno IS NOT NULL THEN compleanno
             ELSE `anagrafiche`.`data_nascita` END,
         `anagrafiche`.`luogo_nascita` = CASE 
             WHEN provenienza IS NOT NULL AND provenienza != '' THEN TRIM(provenienza)
@@ -62,35 +63,46 @@ crea_anagrafica_body:BEGIN
             WHEN doc_code IS NOT NULL AND doc_code != '' THEN REPLACE(UPPER(doc_code), ' ', '')
             ELSE `anagrafiche`.`codice_documento` END,
         `anagrafiche`.`scadenza` = CASE 
-            WHEN doc_expires IS NOT NULL AND doc_expires != '' THEN doc_expires
+            WHEN doc_expires IS NOT NULL THEN doc_expires
             ELSE `anagrafiche`.`scadenza` END,
         `anagrafiche`.`documento` = CASE 
             WHEN doc_addr IS NOT NULL AND doc_addr != '' THEN doc_addr
             ELSE `anagrafiche`.`documento` END
         WHERE `anagrafiche`.`id` = id;
+        SET is_existing = TRUE;
     ELSE
-        /*Create the record*/
+        /* Create the record */
         INSERT INTO `anagrafiche` (
-            `nome`, `cognome`, 
-            `data_nascita`, `luogo_nascita`, 
-            `telefono`, `email`, 
-            `codice_fiscale`, `tipo_documento`, 
-            `codice_documento`, `scadenza`, `documento`, 
-            `self_generated`)
-        VALUES (
+            `nome`, 
+            `cognome`, 
+            `data_nascita`, 
+            `luogo_nascita`, 
+            `telefono`, 
+            `email`, 
+            `codice_fiscale`, 
+            `tipo_documento`, 
+            `codice_documento`, 
+            `scadenza`, 
+            `documento`, 
+            `self_generated`
+        ) VALUES (
             TRIM(nome), 
             TRIM(cognome),
             compleanno, 
             TRIM(provenienza),
             REPLACE(telefono, ' ', ''), 
             REPLACE(email, ' ', ''),
-            REPLACE(UPPER(cf), ' ', ''), doc_type,
-            REPLACE(UPPER(doc_code), ' ', ''), doc_expires, doc_addr,
-            abort_if_existing);
+            REPLACE(UPPER(cf), ' ', ''), 
+            doc_type,
+            REPLACE(UPPER(doc_code), ' ', ''), 
+            doc_expires, 
+            doc_addr,
+            abort_if_existing
+        );
         SET id = LAST_INSERT_ID();
     END IF;
 
-    SELECT id;
+    SELECT id, is_existing;
 
 END; //
 

@@ -1,0 +1,10 @@
+./db
+Uploads
+!Uploads/.htaccess
+./.github
+./.vscode
+./composer.lock
+./README.md
+./vendor
+./.git
+.env

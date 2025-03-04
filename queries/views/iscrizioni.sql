@@ -5,6 +5,7 @@ SELECT
     a.`sesso`, 
     a.`luogo_nascita`, 
     a.`data_nascita_italiana` AS "data_nascita",
+    a.`data_nascita` AS "data_nascita_americana",
     IFNULL (a.`telefono`, '') AS "telefono",
     IFNULL (a.`email`, '') AS "email"
 FROM `iscritti` i
@@ -63,7 +64,11 @@ SELECT
     i.`id` AS "id_iscrizione",
     IF (i.`certificato_medico` IS NULL OR TRIM(i.`certificato_medico`) = '',
         'Mancante', 'Presente') AS "stato_certificato",
-    i.`taglia_maglietta` AS "maglia"
+    i.`taglia_maglietta` AS "maglia",
+
+    -- Tutore
+    CONCAT(a2.`nome`, ' ', a2.`cognome`) AS "nome_tutore",
+    a2.`email` AS "email_tutore" 
 
 FROM `anagrafiche_espanse` AS a
     INNER JOIN `tipi_documento` t ON a.`tipo_documento` = t.`id`
@@ -71,5 +76,12 @@ FROM `anagrafiche_espanse` AS a
     LEFT OUTER JOIN `iscritti` i ON i.`edizione` = e.`id` AND i.`dati_anagrafici` = a.`id`
     LEFT OUTER JOIN `parrocchie` p ON i.`parrocchia` = p.`id`
     LEFT OUTER JOIN `anagrafiche` a2 ON i.`tutore` = a2.`id`
-GROUP BY a.`id`, i.`id`
+GROUP BY a.`id`, i.`id`, e.`anno`
 ORDER BY YEAR(a.`data_nascita`) ASC, a.`cognome` ASC, a.`nome` ASC;
+
+CREATE OR REPLACE VIEW `anni_parrocchie_taglie` AS
+SELECT e.`anno`, i.`taglia_maglietta` AS "taglia", i.`parrocchia`, COUNT(DISTINCT i.`id`) AS "numero"
+FROM `iscritti` i
+	INNER JOIN `edizioni` e ON e.`id` = i.`edizione`
+GROUP BY e.`anno`, i.`parrocchia`, i.`taglia_maglietta`
+ORDER BY e.`anno` DESC, COUNT(DISTINCT i.`id`) DESC;
