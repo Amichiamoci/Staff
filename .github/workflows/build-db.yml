@@ -1,0 +1,31 @@
+on: 
+  push:
+    branches:
+      - main
+      - test
+    paths:
+      - queries/**
+      - .github/workflows/build-db.yml
+      - build-starting-db.sh
+    
+name: Build database generator
+jobs:
+  build-db:
+    name: Generate sql schema
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v4
+        with: 
+          ref: ${{ github.head_ref }}
+        
+      - name: Generate the file
+        run: ./build-starting-db.sh
+
+      - name: Upload the artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: database-schema
+          path: ./starting-db.tmp.sql
+          
