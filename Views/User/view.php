@@ -44,7 +44,7 @@ if (!isset($target) || !($target instanceof Amichiamoci\Models\User)) {
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
                         </div>
                         <div class="modal-body">
-                            <form method="POST" action="/user/update">
+                            <form method="POST" action="<?= $B ?>/user/update">
                                 <div class="form-floating mb-2">
                                     <input 
                                         required
@@ -93,7 +93,7 @@ if (!isset($target) || !($target instanceof Amichiamoci\Models\User)) {
                 </div>
             </div>
 
-            <a href="/user/logout" class="btn btn-primary" role="button">
+            <a href="<?= $B ?>/user/logout" class="btn btn-primary" role="button">
                 Esci
             </a>
         <?php } ?>
@@ -101,10 +101,10 @@ if (!isset($target) || !($target instanceof Amichiamoci\Models\User)) {
 
         <?php if ($user->IsAdmin) { ?>
             <div class="input-group m-1">
-                <a href="/user/ban?target_id=<?= $target->Id ?>" class="btn btn-outline-secondary" role="button">
+                <a href="<?= $B ?>/user/ban?target_id=<?= $target->Id ?>" class="btn btn-outline-secondary" role="button">
                     Blocca
                 </a>
-                <a href="/user/restore?target_id=<?= $target->Id ?>" class="btn btn-outline-secondary" role="button">
+                <a href="<?= $B ?>/user/restore?target_id=<?= $target->Id ?>" class="btn btn-outline-secondary" role="button">
                     Riabilita
                 </a>
                 <button class="btn btn-outline-secondary">
@@ -113,7 +113,7 @@ if (!isset($target) || !($target instanceof Amichiamoci\Models\User)) {
             </div>
             
             <?php if ($user->Id !== $target->Id) { ?>
-                <form action="/user/reset" method="POST">
+                <form action="<?= $B ?>/user/reset" method="POST">
                     <input type="hidden" name="target_id" value="<?= $target->Id ?>">
                     <button 
                         type="submit"

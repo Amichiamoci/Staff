@@ -1,9 +1,13 @@
+<?php
+use Amichiamoci\Models\TipoTorneo;
+?>
+
 <h1>
     Crea nuovo torneo
 </h1>
 
 <form 
-    action="/sport/tournament_create" 
+    action="<?= $B ?>/sport/tournament_create" 
     method="post"
 >
     <div class="form-floating mb-3">
@@ -13,11 +17,7 @@
             class="form-control"
             required
         >
-            <?php
-
-use Amichiamoci\Models\TipoTorneo;
-
- foreach ($edizioni as $edizione) { ?>
+            <?php foreach ($edizioni as $edizione) { ?>
                 <option value="<?= $edizione->Id ?>">
                     <?= $edizione->Year ?>
                 </option>

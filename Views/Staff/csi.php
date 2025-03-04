@@ -82,7 +82,7 @@
 </button>
 
 <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js" defer></script>
-<script type="text/javascript">
+<script>
     function exportTables()
     {
         const table = document.getElementById('csi');

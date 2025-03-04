@@ -55,4 +55,4 @@
     crossorigin="anonymous" 
     referrerpolicy="no-referrer"
     defer></script>
-<script src="/Public/js/email.js" defer></script>
+<script src="<?= $B ?>/Public/js/email.js" defer></script>

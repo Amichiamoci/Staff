@@ -4,7 +4,7 @@
 <p>
     Ci dispiace, sembra che qualcosa sia andato storto.<br />
     Prova a andare alla 
-    <a href="/" title="Home" class="link-underline-opacity-0 text-reset">pagina principale</a>
+    <a href="<?= $B ?>/" title="Home" class="link-underline-opacity-0 text-reset">pagina principale</a>
 </p>
 
 <hr>

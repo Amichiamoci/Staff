@@ -67,13 +67,13 @@ $squadre_per_sport = array_reduce(
                             <?= htmlspecialchars(string: $squadra->Nome) ?>
                         </strong>
                         <a 
-                            href="/teams/edit?id=<?= $squadra->Id ?>"
+                            href="<?= $B ?>/teams/edit?id=<?= $squadra->Id ?>"
                             class="link-underline link-underline-opacity-0 link-primary text-end"
                             title="Modifica <?= htmlspecialchars(string: $squadra->Nome) ?>">
                             <i class="bi bi-pencil-square"></i>
                         </a>
                         <?php if ($user->IsAdmin) { ?>
-                            <form action="/teams/delete" method="post" class="d-inline">
+                            <form action="<?= $B ?>/teams/delete" method="post" class="d-inline">
                                 <input type="hidden" name="id" value="<?= $squadra->Id ?>" required>
                                 <input type="hidden" name="year" value="<?= $anno ?>">
                                 <input type="hidden" name="church" value="<?= $id_parrocchia ?>">
@@ -95,7 +95,7 @@ $squadre_per_sport = array_reduce(
                             <?php foreach ($squadra->MembriFull() as $id_anagrafica => $nome) { ?>
                                 <li class="list-group-item">
                                     <a 
-                                        href="/staff/edit_anagrafica?id=<?= $id_anagrafica ?>"
+                                        href="<?= $B ?>/staff/edit_anagrafica?id=<?= $id_anagrafica ?>"
                                         class="text-reset link-underline link-underline-opacity-0"
                                         title="Modifica i dati">
                                         <?= htmlspecialchars(string: $nome) ?>

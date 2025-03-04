@@ -10,7 +10,7 @@ if (!($login instanceof UserActivity)) {
     <div class="ms-2">
         <h6 class="mb-0">
             <a 
-                href="/user/username?u=<?= htmlspecialchars(string: $login->UserName) ?>"
+                href="<?= $B ?>/user/username?u=<?= htmlspecialchars(string: $login->UserName) ?>"
                 class="link-underline link-underline-opacity-0 text-reset"
                 title="Vedi utente">
                 <?= htmlspecialchars(string: $login->UserName) ?>

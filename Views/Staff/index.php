@@ -60,7 +60,7 @@ use Amichiamoci\Models\ProblemaIscrizione;
                     <?php } ?>
 
                     <a 
-                        href="/staff/edit_anagrafica?id=<?= $problema->Id ?>"
+                        href="<?= $B ?>/staff/edit_anagrafica?id=<?= $problema->Id ?>"
                         class="link-underline link-underline-opacity-0 link-primary text-end"
                         title="Modifica <?= htmlspecialchars(string: $problema->Nome) ?>">
                         <i class="bi bi-pencil-square"></i>
@@ -77,7 +77,7 @@ use Amichiamoci\Models\ProblemaIscrizione;
                                 <a 
                                     class="link-primary link-underline link-underline-opacity-0"
                                     title="Aggiungi documento"
-                                    href="/staff/edit_anagrafica?id=<?= $problema->Id ?>">
+                                    href="<?= $B ?>/staff/edit_anagrafica?id=<?= $problema->Id ?>">
                                     Inserisci
                                 </a>
                             </dd>
@@ -109,7 +109,7 @@ use Amichiamoci\Models\ProblemaIscrizione;
                                 <a 
                                     class="link-primary link-underline link-underline-opacity-0"
                                     title="Aggiungi certificato"
-                                    href="/staff/modifica_iscrizione?id=<?= $problema->Iscrizione ?>">
+                                    href="<?= $B ?>/staff/modifica_iscrizione?id=<?= $problema->Iscrizione ?>">
                                     Inserisci
                                 </a>
                             </dd>
@@ -131,7 +131,7 @@ use Amichiamoci\Models\ProblemaIscrizione;
                                 <a 
                                     class="link-primary link-underline link-underline-opacity-0"
                                     title="Aggiungi certificato"
-                                    href="/staff/modifica_iscrizione?id=<?= $problema->Iscrizione ?>">
+                                    href="<?= $B ?>/staff/modifica_iscrizione?id=<?= $problema->Iscrizione ?>">
                                     Inserisci
                                 </a>
                             </dd>
@@ -156,7 +156,7 @@ use Amichiamoci\Models\ProblemaIscrizione;
                                 <a 
                                     class="link-primary link-underline link-underline-opacity-0"
                                     title="Aggiungi email"
-                                    href="/staff/edit_anagrafica?id=<?= $problema->Id ?>">
+                                    href="<?= $B ?>/staff/edit_anagrafica?id=<?= $problema->Id ?>">
                                     Aggiungi
                                 </a>
                             </dd>

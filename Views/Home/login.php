@@ -30,7 +30,7 @@
         <div class="form-text">
             Password dimenticata? Clicca
             <a 
-                href="/user/password_recover" 
+                href="<?= $B ?>/user/password_recover" 
                 class="link-underline link-underline-opacity-0 link-primary"
                 title="Recupera la password">
                 qui

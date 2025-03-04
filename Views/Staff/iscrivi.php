@@ -16,7 +16,7 @@ if (isset($staff) && $staff instanceof Staff) {
 <form 
     method="post"
     enctype="multipart/form-data"
-    action="/staff/iscrivi">
+    action="<?= $B ?>/staff/iscrivi">
     <input type="hidden" name="id" required value="<?= $target->Id?>">
 
     <?php if ($user->IsAdmin) { ?>

@@ -21,7 +21,7 @@ if ($is_editing) {
     method="post" 
     id="anagrafica-form" 
     enctype="multipart/form-data"
-    action="/staff/new_anagrafica">
+    action="<?= $B ?>/staff/new_anagrafica">
 
     <?php if ($is_editing) { ?>
         <input type="hidden" name="id" required value="<?= $anagrafica->Id?> ">

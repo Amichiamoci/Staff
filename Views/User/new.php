@@ -2,7 +2,7 @@
     Crea nuovo utente
 </h1>
 
-<form method="post" id="login-form">
+<form method="post">
     <div class="form-floating mb-3">
         <input 
             required

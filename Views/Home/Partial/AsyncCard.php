@@ -39,7 +39,7 @@ if (!isset($card_name))
         <div class="card-title">
             <?php if (isset($card_link)) { ?>
                 <a 
-                    href="<?= $card_link ?>"
+                    href="<?= $B . $card_link ?>"
                     class="link-underline link-underline-opacity-0 text-reset"
                 >
                     <strong>
@@ -60,9 +60,9 @@ if (!isset($card_name))
     (() => {
         async function load(parrocchia, anno) {
             <?php if (!isset($card_church_year_ignore)) { ?>
-                const r = await fetch(`<?= $card_json_base ?>?church=${parrocchia}&year=${anno}`, { method: 'GET' });
+                const r = await fetch(`<?= $B . $card_json_base ?>?church=${parrocchia}&year=${anno}`, { method: 'GET' });
             <?php } else { ?>
-                const r = await fetch(`<?= $card_json_base ?>`, { method: 'GET' });
+                const r = await fetch(`<?= $B . $card_json_base ?>`, { method: 'GET' });
             <?php } ?>
             
             if (!r.ok) return;

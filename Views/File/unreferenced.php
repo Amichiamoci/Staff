@@ -6,7 +6,13 @@ use Amichiamoci\Utils\File;
 </h1>
 
 <form method="post">
-    <button type="submit" class="btn btn-primary">
+    <button 
+        type="submit" 
+        class="btn btn-primary"
+        data-confirm="Sicuro di voler cancellare i files? Questa azione non può essere annullata"
+        data-confirm-btn="Sì, cancella"
+        data-cancel-btn="Annulla"
+    >
         <i class="bi bi-exclamation-triangle"></i>
         Avvia la cancellazione
     </button>

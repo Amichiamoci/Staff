@@ -11,9 +11,9 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net/" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net/">
     
-    <link rel="icon" href="/Public/images/icon.png" type="image/png">
-    <link rel="shortcut icon" href="/Public/images/icon.png" type="image/png">
-    <link rel="manifest" href="/web_manifest">
+    <link rel="icon" href="<?= $B ?>/Public/images/icon.png" type="image/png">
+    <link rel="shortcut icon" href="<?= $B ?>/Public/images/icon.png" type="image/png">
+    <link rel="manifest" href="<?= $B ?>/web_manifest">
 
     <link 
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" 
@@ -71,8 +71,8 @@
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 
         crossorigin="anonymous"></script>
-    <script src="/Public/js/darkmode.js"></script>
-    <script src="/Public/js/jQuery.bsConfirm.js"></script>
+    <script src="<?= $B ?>/Public/js/darkmode.js"></script>
+    <script src="<?= $B ?>/Public/js/jQuery.bsConfirm.js"></script>
     <script>
         //
         // Form validation

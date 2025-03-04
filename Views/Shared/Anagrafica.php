@@ -28,7 +28,7 @@ use Amichiamoci\Utils\File;
             <?php } ?>
 
             <a 
-                href="/staff/edit_anagrafica?id=<?= $anagrafica->Id ?>"
+                href="<?= $B ?>/staff/edit_anagrafica?id=<?= $anagrafica->Id ?>"
                 class="link-underline link-underline-opacity-0 link-primary text-end"
                 title="Modifica <?= htmlspecialchars(string: $anagrafica->Nome) ?>">
                 <i class="bi bi-pencil-square"></i>
@@ -160,7 +160,7 @@ use Amichiamoci\Utils\File;
                         <?= $anagrafica->Iscrizione->Id ?>
                     </span>
                     <?php if ($user->IsAdmin || (isset($staff) && $staff->Parrocchia->Id === $anagrafica->Iscrizione->Parrocchia->Id)) { ?>
-                        <form action="/staff/delete_iscrizione" method="post" class="d-inline">
+                        <form action="<?= $B ?>/staff/delete_iscrizione" method="post" class="d-inline">
                             <input type="hidden" name="id" value="<?= $anagrafica->Iscrizione->Id ?>">
                             <button 
                                 type="submit"
@@ -182,7 +182,7 @@ use Amichiamoci\Utils\File;
                 </dt>
                 <dd class="col-sm-8">
                     <a 
-                        href="/church?id=<?= $anagrafica->Iscrizione->Parrocchia->Id ?>"
+                        href="<?= $B ?>/church?id=<?= $anagrafica->Iscrizione->Parrocchia->Id ?>"
                         class="link-underline link-underline-opacity-0 link-secondary"
                         title="Vedi la parrocchia">
                         <?= htmlspecialchars(string: $anagrafica->Iscrizione->Parrocchia->Nome) ?>
@@ -231,7 +231,7 @@ use Amichiamoci\Utils\File;
                     <dd class="col-sm-8">
                         <?php if (!empty($anagrafica->Iscrizione->IdTutore)) { ?>
                             <a 
-                                href="/staff/edit_anagrafica?id=<?= $anagrafica->Iscrizione->IdTutore ?>"
+                                href="<?= $B ?>/staff/edit_anagrafica?id=<?= $anagrafica->Iscrizione->IdTutore ?>"
                                 class="link-underline link-underline-opacity-0 text-success"
                                 title="Vedi il tutore">
                                 <i class="bi bi-check"></i>
@@ -253,7 +253,7 @@ use Amichiamoci\Utils\File;
                 </dt>
                 <dd class="col-sm-8">
                     <a 
-                        href="/staff/iscrivi?id=<?= $anagrafica->Id ?>"
+                        href="<?= $B ?>/staff/iscrivi?id=<?= $anagrafica->Id ?>"
                         class="btn btn-secondary"
                         title="Iscrivi alla manifestazione">
                         Clicca qui

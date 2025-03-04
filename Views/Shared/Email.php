@@ -95,7 +95,7 @@
             </p>
             <?php if (isset($email_id) && $email_id !== 0) { ?>
                 <img 
-                    src="https://<?= DOMAIN ?>/email/heartbeat?id=<?= $email_id ?>" 
+                    src="https://<?= DOMAIN . $B ?>/email/heartbeat?id=<?= $email_id ?>" 
                     width="1" height="1" 
                     style="width: 1px; height: 1px;"
                     loading="eager">

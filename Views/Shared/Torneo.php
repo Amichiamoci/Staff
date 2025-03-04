@@ -15,7 +15,7 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
         </strong>
         <?php if (!isset($hide_edit_icon) || $hide_edit_icon !== 'yes') { ?>
             <a 
-                href="/sport/tournament?id=<?= $torneo->Id ?>"
+                href="<?= $B ?>/sport/tournament?id=<?= $torneo->Id ?>"
                 class="link-underline link-underline-opacity-0 link-primary text-end"
                 title="Modifica il torneo">
                 <i class="bi bi-pencil-square"></i>
@@ -23,7 +23,7 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
         <?php } ?>
         <?php if ($user->IsAdmin) { ?>
             <form 
-                action="/sport/tournament_delete" 
+                action="<?= $B ?>/sport/tournament_delete" 
                 method="post"
                 class="d-inline p-0"
             >
@@ -92,7 +92,7 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
                                             Le date delle partite andranno inserite a mano successivamente.<br>
                                             Ora verranno solo generati gli accoppiamenti tra le squadre.
                                         </p>
-                                        <form method="POST" action="/sport/tournament_generate_calendar">
+                                        <form method="POST" action="<?= $B ?>/sport/tournament_generate_calendar">
                                             <input type="hidden" name="id" value="<?= $torneo->Id ?>" required>
                                             <div class="form-floating mb-2">
                                                 <select 
@@ -174,12 +174,12 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
                         <li class="list-group-item">
                             <a 
                                 class="link-underline link-underline-opacity-0 text-reset"
-                                href="/teams/view?id=<?= $id ?>"
+                                href="<?= $B ?>/teams/view?id=<?= $id ?>"
                                 title="Vedi squadra">
                                 <?= htmlspecialchars(string: $nome) ?>
                             </a>
                             <?php if ($user->IsAdmin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'))) { ?>
-                                <form action="/sport/tournament_remove_team" method="post" class="d-inline p-0">
+                                <form action="<?= $B ?>/sport/tournament_remove_team" method="post" class="d-inline p-0">
                                     <input type="hidden" name="tournament" value="<?= $torneo->Id ?>" required>
                                     <input type="hidden" name="team" value="<?= $id ?>" required>
                                     <button 
@@ -223,7 +223,7 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <form method="POST" action="/sport/tournament_add_team">
+                                    <form method="POST" action="<?= $B ?>/sport/tournament_add_team">
                                         <input type="hidden" name="tournament" value="<?= $torneo->Id ?>">
                                         <div class="form-floating mb-2">
                                             <select 
@@ -251,7 +251,7 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
                                         const year = button.data('year'), sport = button.data('sport');
                                         const modal = $(this);
 
-                                        const resp = await fetch(`/teams/sport?year=${year}&sport=${sport}`, { method: 'GET'});
+                                        const resp = await fetch(`<?= $B ?>/teams/sport?year=${year}&sport=${sport}`, { method: 'GET'});
                                         if (!resp.ok) {
                                             return;
                                         }

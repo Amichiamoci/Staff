@@ -14,7 +14,7 @@ use Amichiamoci\Models\Email;
         <div class="col col-sm-6 col-md-4">
             <div class="card mb-1">
                 <div class="card-header font-monospace user-select-none">
-                    <a href="/email/view?id=<?= $email->Id ?>" 
+                    <a href="<?= $B ?>/email/view?id=<?= $email->Id ?>" 
                         class="text-reset link-underline link-underline-opacity-0"
                         title="Vedi contenuto">
                         #<?= $email->Id ?>
@@ -35,9 +35,10 @@ use Amichiamoci\Models\Email;
                             Oggetto
                         </dt>
                         <dd class="col-sm-8">
-                            <a href="/email/view?id=<?= $email->Id ?>" 
+                            <a href="<?= $B ?>/email/view?id=<?= $email->Id ?>" 
                                 class="text-reset link-underline link-underline-opacity-0"
-                                title="Vedi contenuto">
+                                title="Vedi contenuto"
+                            >
                                 <strong>
                                     <?= htmlspecialchars(string: $email->Subject) ?>
                                 </strong>

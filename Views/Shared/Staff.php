@@ -35,7 +35,7 @@ if (!isset($staff) || !($staff instanceof StaffBase)) {
                 </dt>
                 <dd class="col-sm-8">
                     <a 
-                        href="/church?id=<?= $staff->Parrocchia->Id ?>"
+                        href="<?= $B ?>/church?id=<?= $staff->Parrocchia->Id ?>"
                         class="link-underline-opacity-0 link-secondary"
                         title="Vedi la parrocchia">
                         <?= htmlspecialchars(string: $staff->Parrocchia->Nome) ?>
