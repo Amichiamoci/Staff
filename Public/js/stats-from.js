@@ -1,5 +1,5 @@
 (async function() {
-    const resp = await fetch('/stats');
+    const resp = await fetch(`${BasePath}/stats`);
     if (!resp.ok) {
         console.warn('Response not ok!');
         return;

@@ -2,7 +2,7 @@
     const select = document.getElementById('stats-church-year');
     async function load() {
         const year = select.value;
-        const resp = await fetch(`/church_stats?year=${year}`);
+        const resp = await fetch(`${BasePath}/church_stats?year=${year}`);
         if (!resp.ok) {
             console.warn('Response not ok!');
             return;
