@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3">
     <div class="container-fluid">
         <a class="navbar-brand" href="<?= $B ?>/">
-            <img src="/Public/images/banner.png" 
+            <img src="<?= $B ?>/Public/images/banner.png" 
                 height="48"
                 alt="Logo di Amichiamoci" title="Vai alla pagina principale" 
                 class="d-inline-block align-text-top"/>
