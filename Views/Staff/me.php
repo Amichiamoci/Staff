@@ -40,7 +40,7 @@ use Amichiamoci\Models\Templates\Anagrafica as AnagraficaBase;
             <div class="form-text user-select-none ms-2">
                 Non hai mai partecipato come concorrente?
                 Registra prima i tuoi dati
-                <a href="/staff/new_anagrafica" class="link-underline link-underline-opacity-0">qui</a>.
+                <a href="<?= $B ?>/staff/new_anagrafica" class="link-underline link-underline-opacity-0">qui</a>.
             </div>
         <?php } ?>
     </div>

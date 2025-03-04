@@ -73,7 +73,7 @@ class File
 
     public static function GetExportUrl(string $path): string
     {
-        return "/file?name=$path";
+        return INSTALLATION_PATH . "/file?name=$path";
     }
 
     public static function RemoveCharacters(string $str) : string
@@ -137,46 +137,6 @@ class File
                 $_ENV['FILE_MAX_SIZE'] : 
                 10 * 1024 * 1024;
     }
-
-    public static function Upload($file, string &$future_file_name, string &$error): bool
-    {
-        if ($file == null)
-            return false;
-        $file_name = $file["name"];
-        $file_size = $file["size"];
-
-        // Verify file extension
-        $ext = pathinfo(path: $file_name, flags: PATHINFO_EXTENSION);
-
-        if (!in_array(needle: $ext, haystack: self::$ALLOWED_EXT)) {
-            $error = "Tipo di file non valido!";
-            return false;
-        }    
-            
-        if ($file_size > self::MAX_SIZE()) {
-            $error = "File troppo grande!";
-            return false;
-        }            
-
-
-        $actual_path = SERVER_UPLOAD_PATH . "$future_file_name.$ext";
-        $actual_path = str_replace(search: ' ', replace: '_', subject: $actual_path);
-
-        // Check whether file exists before uploading it
-        while (file_exists(filename: $actual_path))
-        {
-            $ext_index = strrpos(haystack: $actual_path, needle: $ext) - 1;
-            $actual_path = substr(string: $actual_path, offset: 0, length: $ext_index). "_nuovo." . $ext;
-        }        
-        if (move_uploaded_file(from: $file["tmp_name"], to: $actual_path))
-        {
-            $future_file_name = substr(string: $actual_path, offset: strlen(string: SERVER_UPLOAD_PATH));
-            return true;
-        } 
-        $error = "Impossibile uploadare il file!<!--Path: $actual_path -->";
-        return false;
-    }
-
     public static function ListDirectory(string $dir): array {
         $result = [];
         $files = scandir(directory: $dir);

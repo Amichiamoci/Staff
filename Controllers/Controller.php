@@ -36,7 +36,7 @@ class Controller {
     protected function RequireLogin(bool $require_admin = false): User {
         if (!isset($this->User)) {
             Cookie::Set(name: 'Redirect', value: $this->Path, exp: 3600);
-            $this->Redirect(url: '/login');
+            $this->Redirect(url: INSTALLATION_PATH . '/login');
             exit;
         }
         if ($require_admin && !$this->User->IsAdmin) {
@@ -122,6 +122,7 @@ class Controller {
             'user' => $this->User,
             'staff' => $this->Staff,
             'alerts' => $this->AlertsToDisplay,
+            'B' => INSTALLATION_PATH,
         ]));
 
         if (!file_exists(filename: $view_file)) {
@@ -158,7 +159,8 @@ class Controller {
      * Raw string as response
      * @param string $type Mime type of the content
      * @param string $content Actual content
-     * @return int The status code of the response (200 by default)
+     * @param int $status_code The status code to return (200 by default)
+     * @return int The status code of the response
      */
     protected function Content(
         string $type, 
@@ -176,12 +178,14 @@ class Controller {
     /**
      * Render an object as json and print it to the stream
      * @param mixed $object The object. Will be rendered via json_encode()
+     * @param int $status_code The status code to return (200 by default)
      * @return int The status code of the response (200)
      */
-    protected function Json(mixed $object): int {
+    protected function Json(mixed $object, int $status_code = 200): int {
         return $this->Content(
             type: 'application/json', 
-            content: json_encode(value: $object)
+            content: json_encode(value: $object),
+            status_code: $status_code,
         );
     }
 
@@ -190,9 +194,14 @@ class Controller {
      * Calls NotFound if the file can't be found
      * @param string $file_path
      * @param bool $additional_headers
+     * @param int $status_code The status code to return (200 by default)
      * @return int
      */
-    protected function File(string $file_path, bool $additional_headers = true): int {
+    protected function File(
+        string $file_path, 
+        bool $additional_headers = true,
+        int $status_code = 200,
+    ): int {
         if (!file_exists(filename: $file_path))
         {
             // File not found.
@@ -221,7 +230,8 @@ class Controller {
         
         return $this->Content(
             type: $mime,
-            content: file_get_contents(filename: $file_path)
+            content: file_get_contents(filename: $file_path),
+            status_code: $status_code,
         );
     }
 
