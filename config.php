@@ -3,6 +3,13 @@ setlocale(LC_ALL, 'ita', 'it_IT.utf8');
 
 use Amichiamoci\Utils\Security;
 use Dotenv\Dotenv;
+use Monolog\Level;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+
+$log = new Logger(name: 'name');
+$log->pushHandler(handler: new StreamHandler(stream: 'path/to/your.log', level: Level::Warning));
+
 $dotenv = Dotenv::createImmutable(paths: __DIR__);
 $dotenv->safeLoad();
 

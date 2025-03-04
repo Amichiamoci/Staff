@@ -4,6 +4,8 @@ namespace Amichiamoci\Routing;
 use Amichiamoci\Controllers\Controller;
 use Amichiamoci\Models\User;
 use Amichiamoci\Models\Staff;
+use Monolog\Level;
+use Monolog\Logger;
 
 class Router {
 
@@ -13,8 +15,10 @@ class Router {
     private array $routes = [];
 
     public readonly string $BasePath;
-    public function __construct(string $base_path = '')
+    private readonly Logger $Logger;
+    public function __construct(Logger $logger, string $base_path = '')
     {
+        $this->Logger = $logger;
         $this->BasePath = $base_path;
         if (strlen(string: $base_path) > 0 && !str_starts_with(needle: '/', haystack: $base_path))
         {
@@ -122,19 +126,21 @@ class Router {
         );
 
         try {
-            call_user_func_array(callback: [$controller_instance, $action], args: $method_params);
+            $status_code = call_user_func_array(callback: [$controller_instance, $action], args: $method_params);
+            $this->Logger->log(level: Level::Info, message: "[$status_code] $uri");
         } catch (\Throwable $ex) {
             if (headers_sent()) {
                 // Cannot send an other HTTP status code, just print the error
                 // It will be handled by the general handler 
                 throw $ex;
             }
-            (new ErrorTempController(
+            $result = (new ErrorTempController(
                 connection: $this->connection, 
                 user: $this->user,
                 staff: $this->staff,
                 path: $uri,
             ))->InternalErrorHandler(ex: $ex);
+            $this->Logger->log(level: Level::Warning, message: "[$result] $uri");
         }
     }
 

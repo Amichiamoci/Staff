@@ -80,6 +80,7 @@ jobs:
             **/.git*/**
             **/node_modules/**
             *.md
+            composer.json
             entrypoint.sh
             Dockerfile
             Alpine.dockerfile

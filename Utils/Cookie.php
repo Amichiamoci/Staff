@@ -5,7 +5,7 @@ class Cookie
 {
     public static function Set(string $name, string $value, int $exp) : bool
     {
-        if (!defined(constant_name: "DOMAIN") || !defined(constant_name: "ADMIN_PATH")) 
+        if (!defined(constant_name: "DOMAIN") || !defined(constant_name: "INSTALLATION_PATH")) 
             return false;
         if (!isset($name) || empty($name)) 
             return false;
@@ -14,7 +14,7 @@ class Cookie
             name: $name, 
             value: $value, 
             expires_or_options: time() + $exp, 
-            path: ADMIN_PATH, 
+            path: INSTALLATION_PATH, 
             domain: DOMAIN, 
             secure: false, 
             httponly: true
