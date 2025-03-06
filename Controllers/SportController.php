@@ -5,6 +5,7 @@ namespace Amichiamoci\Controllers;
 use Amichiamoci\Models\Campo;
 use Amichiamoci\Models\Edizione;
 use Amichiamoci\Models\Message;
+use Amichiamoci\Models\Partita;
 use Amichiamoci\Models\Sport;
 use Amichiamoci\Models\TipoTorneo;
 use Amichiamoci\Models\Torneo;
@@ -58,7 +59,7 @@ class SportController extends Controller
             return $this->NotFound();
         }
 
-        $partite = [];
+        $partite = Partita::Torneo(connection: $this->DB, torneo: $torneo);
         return $this->Render(
             view: 'Sport/tournament',
             title: $torneo->Nome,
@@ -66,6 +67,7 @@ class SportController extends Controller
                 'torneo' => $torneo,
                 'partite' => $partite,
                 'edizioni' => Edizione::All(connection: $this->DB),
+                'campi' => Campo::All(connection: $this->DB),
             ]
         );
     }

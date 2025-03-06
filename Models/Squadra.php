@@ -17,13 +17,13 @@ class Squadra extends NomeIdSemplice
         string|int $id,
         string $nome,
 
-        ?string $membri,
-        string|array|null $iscrizione_membri,
-
         string $parrocchia,
         string|int $id_parrocchia,
         string $sport,
-        string|int $id_sport
+        string|int $id_sport,
+
+        ?string $membri = null,
+        string|array|null $iscrizione_membri = [],
     ) {
         parent::__construct(id: $id, nome: $nome);
         
