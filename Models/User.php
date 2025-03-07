@@ -478,7 +478,7 @@ class User implements DbEntity
             name: $row["user_name"], 
             login_time: 0, 
             admin: $row["is_admin"] == 1,
-            is_blocked: $row["is_banned"] == 1,
+            is_blocked: $row["is_blocked"] == 1,
         );
     }
 
