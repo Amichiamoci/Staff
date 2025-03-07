@@ -167,6 +167,10 @@ class Controller {
         string $content,
         int $status_code = 200,
     ): int {
+        if ($status_code !== 200)
+        {
+            http_response_code(response_code: $status_code);
+        }
         header(header: "Content-Type: $type");
         header(header: "Content-length: " . strlen(string: $content));
         

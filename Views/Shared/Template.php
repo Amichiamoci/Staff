@@ -24,6 +24,7 @@
         href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
         rel="stylesheet"
         crossorigin="anonymous">
+    <script>const BasePath = '<?= $B ?>';</script>
 </head>
 <body class="d-flex flex-column min-vh-100">
     <header>
@@ -117,5 +118,6 @@
             $('[data-confirm]').bsConfirm();
         });
     </script>
+    <script src="<?= $B ?>/Public/js/match-handling.js" defer></script>
 </body>
 </html>
