@@ -364,7 +364,7 @@ class SportController extends Controller
         } else {
             $this->Message(message: Message::Error(content: 'Non è stato possibile eliminare la partita'));
         }
-        
+
         return $this->tournament(id: $partita->Torneo);
     }
 
@@ -433,6 +433,15 @@ class SportController extends Controller
             ], status_code: 400);
         }
 
-        //$score = Partita::AddScore();
+        if (!Punteggio::Edit(connection: $this->DB, id: $score, casa: $home, ospiti: $guest))
+        {
+            return $this->Json(object: [
+                'result' => 'fail',
+                'message' => 'Impossibile modificare il risultato',
+            ], status_code: 500);
+        }
+        return $this->Json(object: [
+            'result' => 'success',
+        ]);
     }
 }

@@ -115,6 +115,23 @@ class Punteggio implements DbEntity
         return (bool)$result && $connection->affected_rows === 1;
     }
 
+    public static function Edit(\mysqli $connection, int $id, string $casa, string $ospiti): bool
+    {
+        if (!$connection)
+            return false;
+
+        $result = $connection->execute_query(
+            query: 'UPDATE `punteggi` SET `home` = ?, `guest`= ? WHERE `id` = ?', 
+            params: [
+                $casa, 
+                $ospiti, 
+                $id
+            ]
+        );
+
+        return (bool)$result && $connection->affected_rows === 1;
+    }
+
     public static function All(\mysqli $connection): array
     {
         return [];

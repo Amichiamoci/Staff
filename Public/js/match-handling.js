@@ -151,7 +151,60 @@ const remove_this_result = function() {
     })
 };
 
+const edit_this_result = function () {
+    const $input = $(this);
+    const result = $input.attr('data-result');
+    const $btn = $(`button[data-result="${result}"]`);
+    if (!(new RegExp($input.attr('pattern'))).test($input.val()))
+    {
+        return;
+    }
+
+    if ($input.attr('data-timeout') != '')
+    {
+        clearTimeout($input.attr('data-timeout'));
+    }
+
+    const id = setTimeout(function () {
+        $input.prop('disabled', true);
+        $btn.prop('disabled', true);
+        $.ajax({
+            method: 'POST',
+            url: BasePath + '/sport/match_edit_score',
+            data: {
+                'score': $input.attr('data-result'),
+                'home': $input.val().split('-')[0],
+                'guest': $input.val().split('-')[1],
+            },
+        }).done(function() {
+            $input.attr('data-timeout', '');
+            $input.prop('disabled', false);
+            $btn.prop('disabled', false);
+
+            // Signal the user of the sync ended
+            $input.addClass('is-valid');
+            $input.removeClass('is-invalid');
+            setTimeout(function () {
+                $input.removeClass('is-valid');
+            }, 2000);
+        }).fail(function(err) {
+            $input.attr('data-timeout', '');
+            $input.prop('disabled', false);
+            $btn.prop('disabled', false);
+            console.log(`Something went wrong: ${err.status}`);
+            
+            const response = err.responseJSON;
+            if (response && response.message)
+            {
+                alert(response.message);
+            }
+        });
+    }, 500);
+    $input.attr('data-timeout', id);
+};
+
 $('.match-result-remove').click(remove_this_result);
+$('.match-result-edit').on('input', edit_this_result);
 
 $('.match-result-add').click(function() {
     const $btn = $(this);
@@ -175,6 +228,7 @@ $('.match-result-add').click(function() {
             .attr('pattern', '[0-9]{1,2}\\s{0,}-\\s{0,}[0-9]{1,2}')
             .attr('placeholder', '0 - 0')
             .addClass('form-control match-result-edit');
+        $input.on('input', edit_this_result);
 
         const $remove_btn = $('<button type="button"><i class="bi bi-trash3"></i></button>')
             .attr('data-result', resp.id)
@@ -201,5 +255,5 @@ $('.match-result-add').click(function() {
         {
             alert(response.message);
         }
-    })
+    });
 });
