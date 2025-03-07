@@ -231,4 +231,114 @@ class SportController extends Controller
             ],
         );
     }
+
+    public function match_field(?int $match, string|int|null $field = null): int
+    {
+        $user = $this->RequireLogin();
+        $staff = $this->RequireStaff();
+        if ((!isset($staff) || !$staff->InCommissione(commissione: 'Tornei')) && !$user->IsAdmin)
+        {
+            return $this->Json(object: [
+                'result' => 'fail',
+                'message' => 'Non autorizzato: solo chi è in commissione Tornei può impostare il campo di gioco',
+            ], status_code: 401);
+        }
+
+        if (!isset($match)) {
+            return $this->Json(object: [
+                'result' => 'fail',
+                'message' => 'Partita non specificata',
+            ], status_code: 400);
+        }
+
+        if (is_string(value: $field))
+        {
+            $field = ($field === '') ? null : (int)$field;
+        }
+
+        if (!Partita::ImpostaCampo(connection: $this->DB, partita: $match, campo: $field))
+        {
+            return $this->Json(object: [
+                'result' => 'fail',
+                'message' => 'Impossibile aggiornare il campo della partita specificata',
+            ], status_code: 500);
+        }
+
+        return $this->Json(object: [
+            'result' => 'success',
+        ]);
+    }
+    public function match_time(?int $match, ?string $time = null): int
+    {
+        $user = $this->RequireLogin();
+        $staff = $this->RequireStaff();
+        if ((!isset($staff) || !$staff->InCommissione(commissione: 'Tornei')) && !$user->IsAdmin)
+        {
+            return $this->Json(object: [
+                'result' => 'fail',
+                'message' => 'Non autorizzato: solo chi è in commissione Tornei può impostare l\'orario della partita',
+            ], status_code: 401);
+        }
+
+        if (!isset($match)) {
+            return $this->Json(object: [
+                'result' => 'fail',
+                'message' => 'Partita non specificata',
+            ], status_code: 400);
+        }
+
+        if ($time === '')
+        {
+            $time = null;
+        }
+
+        if (!Partita::ImpostaOrario(connection: $this->DB, partita: $match, orario: $time))
+        {
+            return $this->Json(object: [
+                'result' => 'fail',
+                'message' => 'Impossibile aggiornare l\'orario della partita specificata',
+            ], status_code: 500);
+        }
+
+        return $this->Json(object: [
+            'result' => 'success',
+        ]);
+    }
+
+    public function match_date(?int $match, ?string $date = null): int
+    {
+        $user = $this->RequireLogin();
+        $staff = $this->RequireStaff();
+        if ((!isset($staff) || !$staff->InCommissione(commissione: 'Tornei')) && !$user->IsAdmin)
+        {
+            return $this->Json(object: [
+                'result' => 'fail',
+                'message' => 'Non autorizzato: solo chi è in commissione Tornei può impostare la data della partita',
+            ], status_code: 401);
+        }
+
+        if (!isset($match)) {
+            return $this->Json(object: [
+                'result' => 'fail',
+                'message' => 'Partita non specificata',
+            ], status_code: 400);
+        }
+
+        if ($date === '')
+        {
+            $date = null;
+        }
+
+        if (!Partita::ImpostaData(connection: $this->DB, partita: $match, data: $date))
+        {
+            return $this->Json(object: [
+                'result' => 'fail',
+                'message' => 'Impossibile aggiornare la data della partita specificata',
+            ], status_code: 500);
+        }
+
+        return $this->Json(object: [
+            'result' => 'success',
+        ]);
+    }
 }

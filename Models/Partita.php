@@ -178,4 +178,46 @@ class Partita implements DbEntity
             query: "SELECT * FROM `partite_completo` WHERE `id_torneo` = $torneo" 
         );
     }
+
+    public static function ImpostaCampo(\mysqli $connection, int $partita, ?int $campo): bool
+    {
+        if (!$connection)
+            return false;
+        
+        $result = $connection->execute_query('UPDATE `partite` SET `campo` = ? WHERE `id` = ?', [
+            $campo,
+            $partita,
+        ]);
+        if (!$result)
+            return false;
+        return $connection->affected_rows === 1;
+    }
+
+    public static function ImpostaOrario(\mysqli $connection, int $partita, ?string $orario): bool
+    {
+        if (!$connection)
+            return false;
+        
+        $result = $connection->execute_query('UPDATE `partite` SET `orario` = ? WHERE `id` = ?', [
+            $orario,
+            $partita,
+        ]);
+        if (!$result)
+            return false;
+        return $connection->affected_rows === 1;
+    }
+
+    public static function ImpostaData(\mysqli $connection, int $partita, ?string $data): bool
+    {
+        if (!$connection)
+            return false;
+        
+        $result = $connection->execute_query('UPDATE `partite` SET `data` = ? WHERE `id` = ?', [
+            $data,
+            $partita,
+        ]);
+        if (!$result)
+            return false;
+        return $connection->affected_rows === 1;
+    }
 }

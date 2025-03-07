@@ -118,5 +118,6 @@
             $('[data-confirm]').bsConfirm();
         });
     </script>
+    <script src="<?= $B ?>/Public/js/match-handling.js" defer></script>
 </body>
 </html>

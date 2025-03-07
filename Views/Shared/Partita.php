@@ -16,13 +16,13 @@
         <div class="card-title text-center">
             <a href="<?= $B ?>/church?id=<?= $partita->Casa->Parrocchia->Id ?>"
                 title="Vai alla parrocchia"
-                class="text-reset"
+                class="text-reset fw-bold"
                 target="_blank"
             ><?= htmlspecialchars(string: $partita->Casa->Nome) ?></a>
             vs
             <a href="<?= $B ?>/church?id=<?= $partita->Ospiti->Parrocchia->Id ?>"
                 title="Vai alla parrocchia"
-                class="text-reset"
+                class="text-reset fw-bold"
                 target="_blank"
             ><?= htmlspecialchars(string: $partita->Ospiti->Nome) ?></a>
         </div>
@@ -42,10 +42,12 @@
                 <?php if ($can_edit) { ?>
                     <input 
                         type="date" 
-                        class="form-control"
-                        id="date-match-<?= $partita->Id ?>" 
+                        class="form-control match-date-selector"
                         data-match="<?= $partita->Id ?>"
-                        value="<?= $partita->Data ? htmlspecialchars(string: $partita->Data) : '' ?>">  
+                        value="<?= $partita->Data ? htmlspecialchars(string: $partita->Data) : '' ?>"
+                        min="<?=date(format: 'Y') ?>-09-01"
+                        max="<?=date(format: 'Y') ?>-10-31"
+                        title="Imposta la data della partita">  
                 <?php } else { ?>
                     <?php if (isset($partita->Data)) { ?>   
                         <?= htmlspecialchars(string: $partita->Data) ?> 
@@ -64,10 +66,13 @@
                 <?php if ($can_edit) { ?>
                     <input 
                         type="time" 
-                        class="form-control"
-                        id="time-match-<?= $partita->Id ?>" 
+                        class="form-control match-time-selector"
                         data-match="<?= $partita->Id ?>"
-                        value="<?= $partita->Orario ? htmlspecialchars(string: $partita->Orario) : '' ?>">  
+                        value="<?= $partita->Orario ? htmlspecialchars(string: $partita->Orario) : '' ?>"
+                        min="12:00"
+                        max="23:00"
+                        step="300"
+                        title="Imposta l'orario della partita">  
                 <?php } else { ?>
                     <?php if (isset($partita->Orario)) { ?>   
                         <?= htmlspecialchars(string: $partita->Orario) ?> 
@@ -85,9 +90,9 @@
             <dd class="col-sm-8">
                 <?php if ($can_edit) { ?>
                     <select 
-                        id="field-match-<?= $partita->Id ?>" 
                         data-match="<?= $partita->Id ?>"
-                        class="match-selector form-control"
+                        class="match-field-selector form-control"
+                        title="Imposta il campo della partita"
                     >
                         <option value="">Nessun campo</option>
                         <?php foreach ($campi as $campo) { ?>
