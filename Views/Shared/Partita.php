@@ -10,6 +10,20 @@
     <?php if ($user->IsAdmin) { ?>
         <div class="card-header font-monospace">
             #<?= $partita->Id ?>
+
+            <form action="<?= $B ?>/sport/match_delete" method="post" class="d-inline">
+                <input type="hidden" name="match" value="<?= $partita->Id ?>">
+                <button 
+                    type="submit"
+                    class="p-0 btn btn-link link-danger link-underline link-underline-opacity-0"
+                    title="Elimina la partita"
+                    data-confirm="Sei sicuro di voler eliminare la partita? Tutti i risultati andranno persi"
+                    data-confirm-btn="Sì, elimina"
+                    data-cancel-btn="Annulla"
+                >
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </form>
         </div>
     <?php } ?>
     <div class="card-body">

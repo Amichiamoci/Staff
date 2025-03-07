@@ -10,6 +10,7 @@ use Amichiamoci\Models\Punteggio;
 use Amichiamoci\Models\Sport;
 use Amichiamoci\Models\TipoTorneo;
 use Amichiamoci\Models\Torneo;
+use Dotenv\Parser\Parser;
 
 class SportController extends Controller
 {
@@ -341,6 +342,30 @@ class SportController extends Controller
         return $this->Json(object: [
             'result' => 'success',
         ]);
+    }
+
+    public function match_delete(?int $match): int
+    {
+        $this->RequireLogin(require_admin: true);
+        if (empty($match))
+        {
+            return $this->BadRequest();
+        }
+
+        $partita = Partita::ById(connection: $this->DB, id: $match);
+        if (!isset($partita))
+        {
+            return $this->NotFound();
+        }
+
+        if (Partita::Delete(connection: $this->DB, id: $match))
+        {
+            $this->Message(message: Message::Success(content: 'Partita eliminata correttamente'));
+        } else {
+            $this->Message(message: Message::Error(content: 'Non è stato possibile eliminare la partita'));
+        }
+        
+        return $this->tournament(id: $partita->Torneo);
     }
 
     public function match_add_score(?int $match): int
