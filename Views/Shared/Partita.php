@@ -114,6 +114,46 @@
                     <?php } ?>
                 <?php } ?>
             </dd>
+
+            <dt class="col-sm-4">
+                Risultato
+            </dt>
+            <dd class="col-sm-8">
+                <ul class="list-group-flush m-0 p-0" data-match="<?= $partita->Id ?>">
+                    <?php foreach ($partita->Punteggi as $punteggio) { ?>
+                        <li class="list-group-item" data-result="<?= $punteggio->Id ?>">
+                            <div class="input-group mb-2">
+                                <input 
+                                    type="text"
+                                    data-result="<?= $punteggio->Id ?>"
+                                    class="form-control match-result-edit"
+                                    pattern="[0-9]{1,2}\s{0,}-\s{0,}[0-9]{1,2}"
+                                    placeholder="0 - 0"
+                                    value="<?= htmlspecialchars(string: (string)$punteggio) ?>"
+                                >
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-danger match-result-remove"
+                                    data-result="<?= $punteggio->Id ?>"
+                                    title="Rimuovi punteggio"
+                                >
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </div>
+                        </li>
+                    <?php } ?>
+                    <li class="list-group-item">
+                        <button 
+                            type="button"
+                            class="btn btn-outline-primary w-100 match-result-add"
+                            title="Aggiungi risultato"
+                            data-match="<?= $partita->Id ?>"
+                        >
+                            <i class="bi bi-plus"></i>
+                        </button>
+                    </li>
+                </ul>
+            </dd>
         </dl>
     </div>
 </div>

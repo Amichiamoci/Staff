@@ -6,6 +6,7 @@ use Amichiamoci\Models\Campo;
 use Amichiamoci\Models\Edizione;
 use Amichiamoci\Models\Message;
 use Amichiamoci\Models\Partita;
+use Amichiamoci\Models\Punteggio;
 use Amichiamoci\Models\Sport;
 use Amichiamoci\Models\TipoTorneo;
 use Amichiamoci\Models\Torneo;
@@ -340,5 +341,73 @@ class SportController extends Controller
         return $this->Json(object: [
             'result' => 'success',
         ]);
+    }
+
+    public function match_add_score(?int $match): int
+    {
+        $this->RequireLogin();
+        if (empty($match))
+        {
+            return $this->Json(object: [
+                'result' => 'fail',
+                'message' => 'Richiesta non valida',
+            ], status_code: 400);
+        }
+
+        $id = Partita::PunteggioVuoto(connection: $this->DB, match: $match);
+        if (empty($id))
+        {
+            return $this->Json(object: [
+                'result' => 'fail',
+                'message' => 'Impossibile aggiungere il nuovo punteggio al database',
+            ], status_code: 500);
+        }
+
+        return $this->Json(object: [
+            'result' => 'success',
+            'id' => $id,
+        ]);
+    }
+
+    public function match_remove_score(?int $score): int
+    {
+        $this->RequireLogin();
+        if (empty($score))
+        {
+            return $this->Json(object: [
+                'result' => 'fail',
+                'message' => 'Richiesta non valida',
+            ], status_code: 400);
+        }
+
+        $id = Punteggio::Delete(connection: $this->DB, id: $score);
+        if (empty($id))
+        {
+            return $this->Json(object: [
+                'result' => 'fail',
+                'message' => 'Impossibile rimuovere il risultato',
+            ], status_code: 500);
+        }
+
+        return $this->Json(object: [
+            'result' => 'success',
+        ]);
+    }
+
+    public function match_edit_score(
+        ?int $score, 
+        ?string $home, 
+        ?string $guest,
+    ): int {
+        $this->RequireLogin();
+        if (empty($score) || !isset($home) || !isset($guest))
+        {
+            return $this->Json(object: [
+                'result' => 'fail',
+                'message' => 'Richiesta non valida',
+            ], status_code: 400);
+        }
+
+        //$score = Partita::AddScore();
     }
 }
