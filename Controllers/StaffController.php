@@ -504,4 +504,25 @@ class StaffController extends Controller
             ]
         );
     }
+
+    public function t_shirts(?int $year = null): int
+    {
+        $this->RequireLogin();
+
+        if (empty($year)) {
+            $year = (int)date(format: 'Y');
+        }
+
+        return $this->Render(
+            view: 'Staff/t-shirts',
+            title: 'Tutte le Maglie',
+            data: [
+                'anno' => $year,
+                'edizioni' => Edizione::All(connection: $this->DB),
+
+                'riepilogo' => Taglia::Grouped(connection: $this->DB, year: $year),
+                'lista_completa' => Taglia::List(connection: $this->DB, year: $year),
+            ],
+        );
+    }
 }
