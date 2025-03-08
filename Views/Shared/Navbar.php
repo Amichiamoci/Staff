@@ -173,6 +173,12 @@
                             </li>
                             <li>
                                 <a class="dropdown-item" 
+                                    href="<?= $B ?>/staff/church_leaderboard">
+                                    Classifica parrocchiale
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" 
                                     href="<?= $B ?>/staff/edizione">
                                     Tutte le edizioni
                                 </a>

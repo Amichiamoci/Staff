@@ -13,17 +13,19 @@ ORDER BY CAST(r.`punteggio` AS UNSIGNED) DESC;
 
 
 CREATE OR REPLACE VIEW `lista_parrocchie_partecipanti` AS
-SELECT p.*, 
+SELECT 
+    p.*, 
 	COUNT(DISTINCT i.`id`) AS "iscritti", 
     COUNT(DISTINCT s.`id`) AS "squadre",
     COUNT(DISTINCT `staffisti`.id) AS "staffisti",
-    GROUP_CONCAT(DISTINCT sp.`nome` SEPARATOR ', ') AS "sport"
+    GROUP_CONCAT(DISTINCT sp.`nome` SEPARATOR ', ') AS "sport",
+    e.`anno`,
+    e.`id` AS "id_edizione"
 FROM `parrocchie` p
 	INNER JOIN `iscritti` i ON i.`parrocchia` = p.`id`
     INNER JOIN `edizioni` e ON e.`id` = i.`edizione`
     LEFT OUTER JOIN `squadre` s ON s.`parrocchia` = p.`id` AND s.`edizione` = e.`id`
     LEFT OUTER JOIN `sport` sp ON s.`sport` = sp.`id`
     LEFT OUTER JOIN `staffisti` ON `staffisti`.`parrocchia` = p.`id`
-WHERE e.`anno` = YEAR(CURRENT_DATE)
-GROUP BY p.`id`
-ORDER BY COUNT(DISTINCT i.`id`) DESC; -- Non rimpiazzare con "iscritti"
+GROUP BY e.`anno`, p.`id`
+ORDER BY e.`anno` DESC, COUNT(DISTINCT i.`id`) DESC; -- Non rimpiazzare con "iscritti"

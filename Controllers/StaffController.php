@@ -12,6 +12,7 @@ use Amichiamoci\Models\Message;
 use Amichiamoci\Models\MessageType;
 use Amichiamoci\Models\Parrocchia;
 use Amichiamoci\Models\ProblemaIscrizione;
+use Amichiamoci\Models\PunteggioParrocchia;
 use Amichiamoci\Models\Staff;
 use Amichiamoci\Models\StaffBase;
 use Amichiamoci\Models\TesseramentoCSI;
@@ -524,5 +525,46 @@ class StaffController extends Controller
                 'lista_completa' => Taglia::List(connection: $this->DB, year: $year),
             ],
         );
+    }
+
+    public function church_leaderboard(?int $year = null): int
+    {
+        $this->RequireLogin();
+        if (!isset($year)) {
+            $year = (int)date(format: 'Y');
+        }
+
+        return $this->Render(
+            view: 'Staff/leaderboard',
+            title: 'Classifica parrocchie',
+            data: [
+                'anno' => $year,
+                'edizioni' => Edizione::All(connection: $this->DB),
+                'classifica' => PunteggioParrocchia::All(connection: $this->DB, year: $year),
+            ]
+        );
+    }
+
+    public function church_leaderboard_edit(
+        ?int $edition,
+        ?int $church,
+        ?string $score,
+    ): int {
+        $this->RequireLogin(require_admin: true);
+
+        if (!PunteggioParrocchia::Insert(
+            connection: $this->DB, 
+            edizione: $edition, 
+            parrocchia: $church, 
+            punteggio: $score)
+        ) {
+            return $this->Json(object: [
+                'message' => 'Non è stato possibile aggiornare il punteggio',
+            ], status_code: 500);
+        }
+
+        return $this->Json(object: [
+            'message' => 'Punteggio inserito/modificato correttamente',
+        ]);
     }
 }

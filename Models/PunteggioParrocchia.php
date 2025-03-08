@@ -42,15 +42,15 @@ class PunteggioParrocchia
     }
     public static function All(
         \mysqli $connection,
-        int $id_edizione
+        int $year
     ) : array {
         if (!$connection)
             return [];
 
-        $query = "SELECT l.`id`, l.`nome`, p.`punteggio` AS \"punti\" 
+        $query = "SELECT l.*, p.`punteggio` AS \"punti\" 
             FROM `lista_parrocchie_partecipanti` l
-                LEFT OUTER JOIN `punteggio_parrocchia` p ON l.`id` = p.`parrocchia`
-            WHERE p.`edizione` = $id_edizione
+                LEFT OUTER JOIN `punteggio_parrocchia` p ON l.`id` = p.`parrocchia` AND l.`id_edizione` = p.`edizione`
+            WHERE l.`anno` = $year
             ORDER BY l.`nome` ASC";
         
         $result = $connection->query($query);
@@ -61,7 +61,7 @@ class PunteggioParrocchia
         while ($row = $result->fetch_assoc())
         {
             $arr[] = new self(
-                edizione: $id_edizione,
+                edizione: $row['id_edizione'],
                 id_parrocchia: $row["id"],
                 parrocchia: $row["nome"],
                 punteggio: $row["punti"]
