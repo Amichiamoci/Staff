@@ -3,36 +3,36 @@ namespace Amichiamoci\Utils;
 
 class Cookie
 {
-    public static function Set(string $name, string $value, int $exp) : bool
+    public static function Set(string $name, string $value, int $exp): bool
     {
-        if (!defined(constant_name: "DOMAIN") || !defined(constant_name: "INSTALLATION_PATH")) 
-            return false;
-        if (!isset($name) || empty($name)) 
+        //if (!defined(constant_name: "DOMAIN") || !defined(constant_name: "INSTALLATION_PATH")) 
+        //    return false;
+        if (strlen(string: $name) === 0) 
             return false;
 
         return setcookie(
             name: $name, 
             value: $value, 
             expires_or_options: time() + $exp, 
-            path: INSTALLATION_PATH, 
+            path: INSTALLATION_PATH . '/', 
             domain: DOMAIN, 
             secure: false, 
             httponly: true
         );
     }
-    public static function Get(string $name)
+    public static function Get(string $name): mixed
     {
-        if (!isset($name) || empty($name))
+        if (strlen(string: $name) === 0)
         {
             return null;
         }
         return $_COOKIE[$name];
     }
-    public static function Delete(string $name) : bool
+    public static function Delete(string $name): bool
     {
         return self::Set(name: $name, value: "", exp: -3600);
     }
-    public static function DeleteIfItIs(string $name, string $value) : bool
+    public static function DeleteIfItIs(string $name, string $value): bool
     {
         if (!self::Exists(name: $name))
             return false;
@@ -40,11 +40,14 @@ class Cookie
             return true;
         return self::Delete(name: $name);
     }
-    public static function Exists(string $name) : bool
+    public static function Exists(string $name): bool
     {
-        return isset($name) && !empty($name) && isset($_COOKIE[$name]);
+        return 
+            (strlen(string: $name) !== 0) && 
+            array_key_exists(key: $name, array: $_COOKIE) &&
+            isset($_COOKIE[$name]);
     }
-    public static function DeleteIfExists(string $name) : bool
+    public static function DeleteIfExists(string $name): bool
     {
         if (!self::Exists(name: $name))
         {

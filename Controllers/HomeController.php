@@ -39,6 +39,7 @@ class HomeController extends Controller
             data: [
                 'churches' => Parrocchia::All(connection: $this->DB),
                 'editions' => Edizione::All(connection: $this->DB),
+                'compleanni' => Anagrafica::NomiCompleannati(connection: $this->DB),
             ]
         );
     }
@@ -143,7 +144,8 @@ class HomeController extends Controller
                 )) {
                     // Login successful
                     $redirect_url = INSTALLATION_PATH . '/';
-                    if (Cookie::Exists(name: 'Redirect')) {
+                    if (Cookie::Exists(name: 'Redirect'))
+                    {
                         $redirect_url = Cookie::Get(name: 'Redirect');
                         Cookie::Delete(name: 'Redirect');
                         if (empty($redirect_url)) {

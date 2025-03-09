@@ -3,12 +3,31 @@
 ini_set(option: 'display_errors', value: '1');
 ini_set(option: 'display_startup_errors', value: '1');
 
-echo 'CRON job started' . PHP_EOL;
-$_SERVER['HTTP_HOST'] = 'localhost';
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/config.php';
 use Amichiamoci\Utils\Email;
 use Amichiamoci\Utils\Link;
+use Amichiamoci\Utils\Security;
+
+if (PHP_SAPI !== 'cli')
+{
+    define(constant_name: 'EOL', value: '<br>');
+    echo 'Non cli (' . PHP_SAPI . ') request detected.' . EOL;
+
+    $allow_http = Security::LoadEnvironmentOfFromFile(var: 'CRON_ENABLE_HTTP');
+    if (!isset($allow_http) || !((bool)$allow_http))
+    {
+        echo 'Job not allowed.' . EOL;
+        echo 'Activate them via setting the variable CRON_ENABLE_HTTP to 1' . EOL;
+        exit;
+    }
+} else {
+    define(constant_name: 'EOL', value: PHP_EOL);
+    $_SERVER['HTTP_HOST'] = 'localhost';
+}
+
+
+echo 'CRON job started' . EOL . EOL;
 
 $connection = new \mysqli(
     hostname: $MYSQL_HOST, 
@@ -19,7 +38,7 @@ $connection = new \mysqli(
 );
 unset($MYSQL_HOST, $MYSQL_USER, $MYSQL_PASSWORD, $MYSQL_DB);
 if (!$connection) {
-    echo 'Connection to db host failed: all operations aborted.' . PHP_EOL;
+    echo 'Connection to db host failed: all operations aborted.' . EOL;
     exit;
 }
 
@@ -32,38 +51,46 @@ function run_daily_operation(
         throw new \Exception(message: "Invalid paramters");
     }
 
-    echo "Starting operation $name" . PHP_EOL;
-    if (!file_exists(filename: __DIR__ . CRON_LOG_DIR)) {
-        mkdir(directory: __DIR__ . CRON_LOG_DIR);
+    echo "Starting operation '$name'" . EOL;
+    if (!file_exists(filename: CRON_LOG_DIR)) {
+        mkdir(directory: CRON_LOG_DIR);
     }
 
-    $file_path = __DIR__ . CRON_LOG_DIR . DIRECTORY_SEPARATOR . $last_run_file;
-    $curr_date = date(format: "d-m-Y");
-    $file_created = false;
-    if (!file_exists(filename: $file_path)) {
-        echo "File '$file_path' not found. Creating now..." . PHP_EOL;
+    $file_path = CRON_LOG_DIR . DIRECTORY_SEPARATOR . $last_run_file;
+    $curr_date = date(format: "Y-m-d");
+    $file_just_created = false;
+    if (!file_exists(filename: $file_path))
+    {
+        echo "File '$file_path' not found. Creating now..." . EOL;
         file_put_contents(filename: $file_path, data: $curr_date);
-        $file_created = true;
+        $file_just_created = true;
     }
 
     $file_content = file_get_contents(filename: $file_path);
-    $file_date = date_create(datetime: date(format: 'd-m-Y', timestamp: strtotime(datetime: $file_content)));
+    $file_date = date_create(datetime: date(format: 'Y-m-d', timestamp: strtotime(datetime: $file_content)));
     if (!$file_date) {
-        echo "'$file_content' was not recognized as a valid date (required format d-m-Y): operation aborted." . PHP_EOL;
+        echo 
+            "'$file_content' was not recognized as a valid date " . 
+            "(required format Y-m-d): operation aborted." . EOL . EOL;
         return;
     }
-    if (date_diff(baseObject: new DateTime(), targetObject: $file_date)->days < 1 || !$file_created) {
-        echo "Operation skipped (last run on " . $file_date->format(format: 'd-m-Y') . ")." .PHP_EOL;
+
+    $diff = (int)date_diff(baseObject: $file_date, targetObject: new DateTime())->days;
+    if ($diff < 1 && !$file_just_created)
+    {
+        $italian_date = $file_date->format(format: 'd/m/Y');
+        echo "Operation skipped (last run on $italian_date: $diff days ago)." . EOL . EOL;
         return;
     }
 
     try {
         $function();
     } catch (\Throwable $e) {
-        echo $e->getMessage() . PHP_EOL;
+        echo $e->getMessage() . EOL;
     }
 
     file_put_contents(filename: $file_path, data: $curr_date);
+    echo EOL;
 }
 
 
@@ -71,14 +98,14 @@ function birthday_emails(): void
 {
     global $connection;
     if (!$connection) {
-        echo 'Connection to db lost' . PHP_EOL;
+        echo 'Connection to db lost' . EOL;
         return;
     }
 
     $query = "SELECT `nome`, `email` FROM `compleanni_oggi` WHERE `email` IS NOT NULL";
     $result = $connection->query(query: $query);
     if (!$result) {
-        echo 'Could not query the db' . PHP_EOL;
+        echo 'Could not query the db' . EOL;
         return;
     }
     
@@ -96,57 +123,71 @@ function birthday_emails(): void
     
     foreach ($people_to_write as $person)
     {
-        $name = htmlspecialchars(string: $person['name']);
-        $email = htmlspecialchars(string: $person['email']);
-        $mail_text = join(separator: PHP_EOL, array: array(
-            "<h3>Tanti auguri a te</h3>",
-            "<h3>Tanti auguri a te</h3>",
-            "<h3>Tanti auguri a $name</h3>",
-            "<h3>Tanti auguri a te!</h3>",
-            "<p>Ciao $name, lo staff di <a href=\"" . MAIN_SITE_URL . "\" target=\"_blank\">Amichiamoci</a>",
-            "ti augura un buon compleanno, passa questo giorno al meglio.</p>",
-            "<br />",
-            "<p><small>Ti preghiamo di non rispondere a questa email</small></p>"));
-        $subject = "Buon compleanno";
+        $email = $person['email'];
+        $subject = "Buon compleanno " . htmlspecialchars(string: $person['name']) . '!';
 
+        ob_start();
+        ?>
+            <h3>Tanti auguri a te</h3>
+            <h3>Tanti auguri a te</h3>
+            <h3>Tanti auguri a <?= htmlspecialchars(string: $person['name']) ?></h3>
+            <h3>Tanti auguri a te!</h3>
+
+            <p>
+                Ciao <?= htmlspecialchars(string: $person['name']) ?>, lo staff di 
+                <a href="<?= MAIN_SITE_URL ?>" target="_blank" class="link">Amichiamoci</a>
+                ti augura un buon compleanno, passa questo giorno al meglio.
+            </p>
+        <?php
+        $mail_text = ob_get_contents();
+        ob_end_clean();
+
+        // For debugging: we don't want to send real emails when testing
+        $email_cron_override = Security::LoadEnvironmentOfFromFile(var: 'CRON_CAPTURE_OUTGOING_ADDRESS');
+        if (isset($email_cron_override))
+        {
+            $email = $email_cron_override;
+        }
 
         if (!Email::Send(
-            to: $person['email'], 
+            to: $email, 
             subject: $subject, 
             body: $mail_text, 
             connection: $connection)
         ) {
-            echo "Could not send email to $email." . PHP_EOL;
+            echo "Could not send email to $email." . EOL;
             continue;
         }
         $sent_emails++;
     }
 
-    echo "$sent_emails/$emails_to_send sent emails." . PHP_EOL;
+    echo "$sent_emails/$emails_to_send sent emails." . EOL;
 }
 
 function matches_emails(): void {
     global $connection;
     if (!$connection) {
-        echo 'Connection to db lost' . PHP_EOL;
+        echo 'Connection to db lost' . EOL;
         return;
     }
     
-    $query = "SELECT * FROM `chi_gioca_oggi` WHERE `email` IS NOT NULL";
+    $query = "SELECT * FROM `chi_gioca_oggi`";
     $result = $connection->query(query: $query);
     if (!$result)
     {
-        echo 'Could not query the db' . PHP_EOL;
+        echo 'Could not query the db' . EOL;
         return;
     }
+
+    $players_and_emails = [];
 
     while ($row = $result->fetch_assoc())
     {
         $email = $row["email"];
-        $name = htmlspecialchars(string: $row["nome"]);
+        $name = $row["nome"];
         $certificate_problem = isset($row["necessita_certificato"]) && $row["necessita_certificato"] == "1";
 
-        $tourneys = explode(separator: "|", string: $row["nomi_tornei_sport"]);
+        $tournaments = explode(separator: "|", string: $row["nomi_tornei_sport"]);
 
         $opponents_names = explode(separator: "|", string: $row["nomi_avversari"]);
         $matches_times = explode(separator: "|", string: $row["orari_partite"]);
@@ -156,7 +197,7 @@ function matches_emails(): void {
         $fields_latitude = explode(separator: "|", string: $row["lat_campi"]);
         $fields_longitude = explode(separator: "|", string: $row["lon_campi"]);
 
-        $matches_count = count(value: $tourneys);
+        $matches_count = count(value: $tournaments);
 
         if (
             $matches_count !== count(value: $opponents_names)  ||
@@ -171,104 +212,117 @@ function matches_emails(): void {
             continue;
         }
 
-        $content = "<h2>Ciao $name</h2>" . PHP_EOL;
+        ob_start();
+        ?>
+            <h2>
+                Ciao <?= htmlspecialchars(string: $name) ?>
+            </h2>
 
-        // Introduction
-        $content .= "<p class=\"text\">" . PHP_EOL;
-        $content .= "Ti scriviamo per ricordarti ";
+            <p class="text">
+                Ti scriviamo per ricordarti 
+                <?= ($matches_count === 1) ? 
+                    'della partita che dovrai disputare oggi.' : 
+                    "delle $matches_count partite che dovrai disputare oggi." 
+                ?>
+            </p>
+            <br>
+
+            <?php for ($i = 0; $i < $matches_count; $i++) { ?>
+                <dl>
+                    <dt>Torneo</dt>
+                    <dd><em><?= htmlspecialchars(string: $tournaments[$i]) ?></em></dd>
+
+                    <dt>Avversari</dt>
+                    <dd><em><?= htmlspecialchars(string: $opponents_names[$i]) ?></em></dd>
+
+                    <?php if (isset($matches_times[$i]) && $matches_times[$i] !== '?') { ?>
+                        <dt>Orario</dt>
+                        <dd><time><?=htmlspecialchars(string: $matches_times[$i])?></time></dd>
+                    <?php } ?>
+
+                    <?php if (isset($fields_names[$i]) && $fields_names[$i] !== '?') { ?>
+                        <dt>Luogo</dt>
+                        <dd>
+                            <?php if (isset($fields_latitude[$i]) && $fields_latitude[$i] !== '?' && isset($fields_longitude[$i]) && $fields_longitude[$i] !== '?') { ?>
+                                <a href="<?= Link::Geo(lat: $fields_latitude[$i], lon: $fields_longitude[$i]) ?>"
+                                    class="link"
+                                    title="Apri in Mappe"
+                                >
+                                    <?= htmlspecialchars(string: $fields_names[$i]) ?>
+                                </a>
+                            <?php } ?>
+                        </dd>
+                    <?php } ?>
+
+                    <?php if (isset($fields_addresses[$i]) && $fields_addresses[$i] !== '?') { ?>
+                        <dt>Indirizzo</dt>
+                        <dd>
+                            <a href="<?= Link::Address2Maps(addr: $fields_addresses[$i])?>"
+                                class="link"
+                                title="Apri in Google Maps">
+                                <?= htmlspecialchars(string: $fields_addresses[$i]) ?>
+                            </a>
+                        </dd>
+                    <?php } ?>
+                </dl>
+            <?php } ?>
+
+            <?php if ($certificate_problem) { ?>
+                <p class="text">
+                    Sembra che tu non abbia ancora consegnato il certificato medico sportivo.<br />
+                    <strong>NON si può scendere in campo senza!</strong><br />
+                    Invialo <strong>tempestivamente</strong> al tuo referente parrocchiale.
+                </p>
+                <hr>
+            <?php } ?>
+
+            <p class="text">
+                <strong>In bocca al lupo!</strong>
+            </p>
+        <?php
+        $mail_text = ob_get_contents();
+        ob_end_clean();
+
         if ($matches_count === 1)
         {
-            $content .= "della partita che dovrai disputare oggi.<br />" . PHP_EOL;
             $subject = "Partita di " . SITE_NAME . " oggi";
         } else {
-            $content .= "delle $matches_count partite che dovrai disputare oggi.<br />" . PHP_EOL;
             $subject = "$matches_count partite di " . SITE_NAME . " oggi";
         }
-        $content .= "</p>" . PHP_EOL;
-
-        // Add each match
-        for ($i = 0; $i < $matches_count; $i++)
-        {
-            $tourney = htmlspecialchars(string: $tourneys[$i]);
-            $opponent = htmlspecialchars(string: $opponents_names[$i]);
-            $time = htmlspecialchars(string: $matches_times[$i]);
-            $field_name = htmlspecialchars(string: $fields_names[$i]);
-            $field_lat = $fields_latitude[$i];
-            $field_lon = $fields_longitude[$i];
-            $field_addr = $fields_addresses[$i];
-
-            $content .= "<dl>" . PHP_EOL;
-            $content .= "    <dt>Torneo</dt>" . PHP_EOL;
-            $content .= "    <dd><em>$tourney</em></dd>" . PHP_EOL;
-            $content .= "    <dt>Avversari</dt>" . PHP_EOL;
-            $content .= "    <dd><em>$opponent</em></dd>" . PHP_EOL;
-            if (!empty($time) && $time !== "?")
-            {
-                $content .= "    <dt>Orario</dt>" . PHP_EOL;
-                $content .= "    <dd><time>$time</time></dd>" . PHP_EOL;
-            }
-            if (!empty($field_name) && $field_name !== "?")
-            {
-                $content .= "    <dt>Luogo</dt>" . PHP_EOL;
-                $content .= "    <dd>";
-                if (!empty($field_lat) && $field_lat !== "?" && !empty($file_lon) && $field_lon !== "?")
-                {
-                    $content .= Link::Geo(lat: $field_lat, lon: $file_lon, text: $field_name);
-                } else {
-                    $content .= "<em>$field_name</em>";
-                }
-                $content .= "    </dd>" . PHP_EOL;
-            }
-            if (!empty($field_addr) && $field_addr !== '?')
-            {
-                $link = Link::Address2Maps(addr: $field_addr);
-                $content .= "    <dt>Indirizzo</dt>" . PHP_EOL;
-                $content .= "    <dd>$link</dd>" . PHP_EOL;
-            }
-
-            $content .= "</dl>" . PHP_EOL;
-        }
-        
-        // Check subscritpion problems
-        if ($certificate_problem)
-        {
-            $content .= "<p class=\"text\">" . PHP_EOL;
-            $content .= "    Sembra che tu non abbia ancora consegnato il certificato medico sportivo.<br />" . PHP_EOL;
-            $content .= "    <strong>NON si pu&ograve; scendere in campo senza!</strong><br />" . PHP_EOL;
-            $content .= "    Invialo <strong>tempestivamente</strong> al tuo referente parrocchiale." . PHP_EOL;
-            $content .= "</p>" . PHP_EOL;
-
-            $content .= "<hr />" . PHP_EOL;
-        }
-
-        // Last part of the email
-        $content .= "<p class=\"text\">" . PHP_EOL;
-        $content .= "    <strong>In bocca al lupo!</strong>" . PHP_EOL;
-        $content .= "</p>" . PHP_EOL;
-
         $players_and_emails[] = array(
             'email' => $email, 
             'subject' => $subject, 
-            'content' => $content
+            'content' => $mail_text
         );
     }
     $result->close();
 
     $emails_sent = 0;
+    $email_to_send_total = count(value: $players_and_emails);
 
     foreach($players_and_emails as $mail_to_send)
     {
+        $to = $mail_to_send['email'];
+
+        // For debugging: we don't want to send real emails when testing
+        $email_cron_override = Security::LoadEnvironmentOfFromFile(var: 'CRON_CAPTURE_OUTGOING_ADDRESS');
+        if (isset($email_cron_override))
+        {
+            $to = $email_cron_override;
+        }
+
         if (!Email::Send(
-            to: $mail_to_send['email'], 
+            to: $to, 
             subject: $mail_to_send['subject'], 
             body: $mail_to_send['content'], 
             connection: $connection)
         ) {
-            echo 'Could not send email to ' . $mail_to_send['email'] . PHP_EOL;
+            echo 'Could not send email to ' . $to . EOL;
         }
         $emails_sent++;
     }
-    echo "$emails_sent/$matches_count mails sent." . PHP_EOL;
+
+    echo "$emails_sent/$email_to_send_total mails sent." . EOL;
 }
 
 $operations = [
@@ -284,11 +338,18 @@ $operations = [
     ]
 ];
 
-foreach ($operations as $operation) {
-    run_daily_operation(
-        name: $operation['name'], 
-        function: $operation['function'], 
-        last_run_file: $operation['last_run_file']
-    );
+foreach ($operations as $operation)
+{
+    try {
+        run_daily_operation(
+            name: $operation['name'], 
+            function: $operation['function'], 
+            last_run_file: $operation['last_run_file']
+        );
+    } catch (\Throwable $ex) {
+        echo "Job interruped by exception: " . $ex->getMessage();
+        echo EOL . EOL;
+    }
 }
-echo 'Cron ended.' . PHP_EOL;
+echo 'Cron ended.' . EOL;
+echo 'See sent emails at http://' . DOMAIN . INSTALLATION_PATH . '/emails'. EOL;

@@ -41,6 +41,9 @@ class Partita implements DbEntity
         int|string $id_parrocchia_ospiti,
         string $nome_parrocchia_ospiti,
 
+        string|array|null $id_punteggi = null,
+        string|array|null $punteggi_casa = null,
+        string|array|null $punteggi_ospiti = null,
     ) {
         $this->Id = (int)$id;
         $this->Torneo = (int)$torneo;
@@ -74,6 +77,13 @@ class Partita implements DbEntity
             sport: $nome_sport,
             id_sport: $id_sport,
         );
+
+        $this->Punteggi = Punteggio::Decompress(
+            id: $id_punteggi,
+            casa: $punteggi_casa,
+            ospiti: $punteggi_ospiti,
+            partita: $this->Id
+        );
     }
     private static function ParseFromRow(array $row): self
     {
@@ -101,6 +111,10 @@ class Partita implements DbEntity
             nome_ospiti: $row['ospiti'],
             id_parrocchia_ospiti: $row['id_parrocchia_ospiti'],
             nome_parrocchia_ospiti: $row['nome_parrocchia_ospiti'],
+
+            id_punteggi: $row['id_punteggi'],
+            punteggi_casa: $row['punteggi_casa'],
+            punteggi_ospiti: $row['punteggi_ospiti'],
         );
     }
     public static function ById(\mysqli $connection, int $id): ?self
@@ -184,7 +198,7 @@ class Partita implements DbEntity
         if (!$connection)
             return false;
         
-        $result = $connection->execute_query('UPDATE `partite` SET `campo` = ? WHERE `id` = ?', [
+        $result = $connection->execute_query(query: 'UPDATE `partite` SET `campo` = ? WHERE `id` = ?', params: [
             $campo,
             $partita,
         ]);
@@ -198,7 +212,7 @@ class Partita implements DbEntity
         if (!$connection)
             return false;
         
-        $result = $connection->execute_query('UPDATE `partite` SET `orario` = ? WHERE `id` = ?', [
+        $result = $connection->execute_query(query: 'UPDATE `partite` SET `orario` = ? WHERE `id` = ?', params: [
             $orario,
             $partita,
         ]);
@@ -212,12 +226,35 @@ class Partita implements DbEntity
         if (!$connection)
             return false;
         
-        $result = $connection->execute_query('UPDATE `partite` SET `data` = ? WHERE `id` = ?', [
+        $result = $connection->execute_query(query: 'UPDATE `partite` SET `data` = ? WHERE `id` = ?', params: [
             $data,
             $partita,
         ]);
         if (!$result)
             return false;
         return $connection->affected_rows === 1;
+    }
+
+    public static function Delete(\mysqli $connection, int $id): bool
+    {
+        if (!$connection)
+            return false;
+
+        $result = $connection->query(query: "DELETE FROM `partite` WHERE `id` = $id");
+        return (bool)$result && $connection->affected_rows >= 1;
+    }
+
+    public static function PunteggioVuoto(\mysqli $connection, int $match): ?int
+    {
+        if (!$connection)
+            return null;
+
+        $result = $connection->query(query: "INSERT INTO `punteggi` (`partita`, `home`, `guest`) VALUES ($match, '', '')");
+        if (!$result || $connection->affected_rows !== 1)
+        {
+            return null;
+        }
+
+        return $connection->insert_id;
     }
 }

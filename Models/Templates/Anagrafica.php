@@ -97,4 +97,22 @@ class Anagrafica
         $result->close();
         return "";
     }
+
+    public static function NomiCompleannati(\mysqli $connection): array
+    {
+        if (!$connection)
+            return [];
+
+        $result = $connection->query('SELECT `nome`, `cognome`, `eta` FROM `compleanni_oggi` ORDER BY `eta` DESC');
+        if (!$result || $result->num_rows === 0) {
+            return [];
+        }
+
+        return array_map(
+            callback: function (array $row): string {
+                return $row['nome'] . ' ' . $row['cognome']. ' (' . $row['eta'] . ')';
+            },
+            array: $result->fetch_all(MYSQLI_ASSOC),
+        );
+    }
 }

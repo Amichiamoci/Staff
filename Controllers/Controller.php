@@ -149,7 +149,7 @@ class Controller {
     protected function Redirect(string $url): int {
         if (empty($url))
         {
-            $url = '/';
+            $url = INSTALLATION_PATH . '/';
         }
         header(header: "Location: $url");
         return 302;
