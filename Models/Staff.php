@@ -65,7 +65,7 @@ class Staff extends StaffBase
         {
             return new self(
                 id: $id, 
-                nome: $row['nome_completo'],
+                nome: $row['nome'] . ' ' . $row['cognome'],
                 id_parrocchia: $row["id_parrocchia"],
                 nome_parrocchia: $row["parrocchia"],
                 commissioni: array_map(callback: "trim", array: explode(separator: ',', string: $row["lista_commissioni"])),
