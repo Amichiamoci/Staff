@@ -1,8 +1,5 @@
 services:
   amichiamoci:
-    #build: 
-    #  dockerfile: ./Alpine.dockerfile
-    #  context: ./
     build: ./
     ports:
       - 80:80
@@ -15,10 +12,10 @@ services:
       - MYSQL_HOST=mysql
       - ADMIN_USERNAME=admin
       - ADMIN_PASSWORD=changeme
+      - CRON_ENABLE_HTTP=1
     env_file:
       - ./.env
     volumes:
-      # - ./Uploads:/amichiamoci/Uploads:rw
        - ./Uploads:/var/www/html/Uploads:rw
     depends_on:
       - mysql

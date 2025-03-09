@@ -28,6 +28,8 @@ Impostare le seguenti variabili d'ambiente:
 - `SMTP_PORT`: opzionale, default `25`
 - `SMTP_USER`: opzionale, se non impostato non sarà possibile inviare email
 - `SMTP_PASSWORD`: opzionale
+- `CRON_CAPTURE_OUTGOING_ADDRESS`: opzionale, se impostato, le email inviate in automatico dal CRON andranno a questo indirizzo
+- `CRON_ENABLE_HTTP`: opzionale, se impostato, lo script CRON sarà avviabile dall'esterno tramite una richiesta HTTP
 
 
 ## Installazione con Docker

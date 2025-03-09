@@ -39,6 +39,7 @@ class HomeController extends Controller
             data: [
                 'churches' => Parrocchia::All(connection: $this->DB),
                 'editions' => Edizione::All(connection: $this->DB),
+                'compleanni' => Anagrafica::NomiCompleannati(connection: $this->DB),
             ]
         );
     }

@@ -44,6 +44,7 @@ RUN mkdir -p \
     ${APP_DIR}/Uploads/tmp/cron
 COPY --chown=www-data --from=deps ${APP_DIR}/vendor ./vendor
 COPY --chown=www-data . .
+RUN chown -R www-data:www-data ${APP_DIR}/Uploads
 VOLUME [ "${APP_DIR}/Uploads" ]
 
 # Build the generator file for mysql
