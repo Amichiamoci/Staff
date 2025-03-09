@@ -53,28 +53,28 @@ class Staff extends StaffBase
         {
             return null;
         }
-        $query = "CALL StaffData($id, YEAR(CURRENT_DATE))";
+
+        $query = "SELECT * FROM `staff_correnti_incompleto` WHERE  `id_staffista` = $id";
         $result = $connection->query(query: $query);
-        $data = null;
-        if ($result)
+        if (!$result || $result->num_rows === 0)
         {
-            if ($row = $result->fetch_assoc())
-            {
-                $data = new self(
-                    id: $id, 
-                    nome: $row['nome'],
-                    id_parrocchia: $row["id_parrocchia"],
-                    nome_parrocchia: $row["parrocchia"],
-                    commissioni: array_map(callback: "trim", array: explode(separator: ',', string: $row["commissioni"])),
-                    taglia: $row["maglia"],
-                    is_referente: $row["cf"],
-                    codice_fiscale: $row["referente"],
-                );
-            }
-            $result->close();
+            return null;
         }
-        $connection->next_result();
-        return $data;
+
+        if ($row = $result->fetch_assoc())
+        {
+            return new self(
+                id: $id, 
+                nome: $row['nome_completo'],
+                id_parrocchia: $row["id_parrocchia"],
+                nome_parrocchia: $row["parrocchia"],
+                commissioni: array_map(callback: "trim", array: explode(separator: ',', string: $row["lista_commissioni"])),
+                taglia: $row["maglia"],
+                is_referente: $row["referente"],
+                codice_fiscale: $row["cf"],
+            );
+        }
+        return null;
     }
     public static function Create(\mysqli $connection, int $id_anagrafica, int $user, int $parrocchia) : ?int
     {
