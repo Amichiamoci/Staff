@@ -62,7 +62,7 @@ jobs:
           else
             echo "path=admin_test/" >> "$GITHUB_OUTPUT"
             echo -e "MYSQL_DB=${{ secrets.DB_TEST_DATABASE }}" >> ".env"
-            echo -e "SITE_NAME=Amichiamoci TEST" >> ".env"
+            echo -e "SITE_NAME=\"Amichiamoci TEST\"" >> ".env"
             echo -e "CRON_CAPTURE_OUTGOING_ADDRESS=dummy" >> ".env"
           fi
         env:
