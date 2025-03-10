@@ -14,8 +14,8 @@ set_error_handler(callback: function(\Throwable|int $ex, ?string $msg = null): v
     <pre class="text-warning"><?= htmlspecialchars(string: $ex->getTraceAsString())?></pre>
     <?php } else { ?>
         <strong class="user-select-none font-monospace text-error">
-            Errore 0x<?= $ex ?>
-        </strong>
+            Errore 0x<?= dechex(num: $ex) ?>
+        </strong> (<?= $ex ?>)
         <?php if (isset($msg)) { ?>
             <code class="text-error">
                 <?= htmlspecialchars(string: $msg) ?>
