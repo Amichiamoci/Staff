@@ -164,7 +164,8 @@ class Email
             'content' => $content,
             'email_id' => $id,
             'site_name' => SITE_NAME,
-            'site_url' => MAIN_SITE_URL
+            'site_url' => MAIN_SITE_URL,
+            'B' => INSTALLATION_PATH,
         ]);
         ob_start();
         require dirname(path: __DIR__) . "/Views/Shared/Email.php";

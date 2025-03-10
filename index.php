@@ -7,13 +7,20 @@ require_once __DIR__ . '/Routes.php';
 use Amichiamoci\Models\User;
 use Amichiamoci\Models\Staff;
 
-set_error_handler(callback: function(\Throwable|int $ex): void {
+set_error_handler(callback: function(\Throwable|int $ex, ?string $msg = null): void {
     if ($ex instanceof \Throwable) {
     ?>
-    <pre><?= htmlspecialchars(string: $ex->getMessage())?></pre>
-    <pre><?= htmlspecialchars(string: $ex->getTraceAsString())?></pre>
+    <pre class="text-error"><?= htmlspecialchars(string: $ex->getMessage())?></pre>
+    <pre class="text-warning"><?= htmlspecialchars(string: $ex->getTraceAsString())?></pre>
     <?php } else { ?>
-        <strong class="user-select-none font-monospace">Errore <?= $ex ?></strong>
+        <strong class="user-select-none font-monospace text-error">
+            Errore 0x<?= $ex ?>
+        </strong>
+        <?php if (isset($msg)) { ?>
+            <code class="text-error">
+                <?= htmlspecialchars(string: $msg) ?>
+            </code>
+        <?php } ?>
     <?php }
 });
 set_exception_handler(callback: function(\Throwable $ex): void {
