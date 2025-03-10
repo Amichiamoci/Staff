@@ -50,7 +50,7 @@ jobs:
           echo -e "SMTP_HOST=${{ vars.SMTP_HOST }}" >> ".env"
           echo -e "SMTP_PORT=${{ vars.SMTP_PORT }}" >> ".env"
           echo -e "SMTP_USER=${{ secrets.SMTP_USER }}" >> ".env"
-          echo -e "SMTP_PASSWORD=${{ secrets.SMTP_USER }}" >> ".env"
+          echo -e "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}" >> ".env"
         
       - name: Calculate Deploy Path and Variables
         id: deploy-path
