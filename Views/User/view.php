@@ -110,7 +110,7 @@ if (!isset($target) || !($target instanceof Amichiamoci\Models\User)) {
             </div>
             
             <?php if ($user->Id !== $target->Id) { ?>
-                <form action="<?= $B ?>/user/delete" method="POST">
+                <form action="<?= $B ?>/user/delete" method="POST" class="d-inline-block m-1">
                     <input type="hidden" name="target_id" value="<?= $target->Id ?>">
                     <button 
                         type="submit"
@@ -123,7 +123,7 @@ if (!isset($target) || !($target instanceof Amichiamoci\Models\User)) {
                         Elimina utente
                     </button>
                 </form>
-                <form action="<?= $B ?>/user/reset" method="POST">
+                <form action="<?= $B ?>/user/reset" method="POST" class="d-inline-block m-1">
                     <input type="hidden" name="target_id" value="<?= $target->Id ?>">
                     <button 
                         type="submit"
