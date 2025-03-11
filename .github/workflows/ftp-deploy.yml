@@ -84,7 +84,6 @@ jobs:
             composer.json
             entrypoint.sh
             Dockerfile
-            Alpine.dockerfile
             docker-compose.yml
             .dockerignore
             build-starting-db.sh
