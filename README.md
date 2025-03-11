@@ -30,6 +30,7 @@ Impostare le seguenti variabili d'ambiente:
 - `SMTP_PASSWORD`: opzionale
 - `CRON_CAPTURE_OUTGOING_ADDRESS`: opzionale, se impostato, le email inviate in automatico dal CRON andranno a questo indirizzo
 - `CRON_ENABLE_HTTP`: opzionale, se impostato, lo script CRON sarà avviabile dall'esterno tramite una richiesta HTTP
+- `ENABLE_API`: opzionale, impostare a `true` od `1` per abilitare l'ApiController
 
 
 ## Installazione con Docker
