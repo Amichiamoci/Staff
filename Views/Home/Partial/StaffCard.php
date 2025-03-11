@@ -73,13 +73,26 @@ if (isset($staff) && $staff instanceof Staff) {
     </div>
 
 <?php } else { ?>
-    <p>
-        <?= htmlspecialchars(string: $user->Label())?>, diventa uno staffista!
-    </p>
-    <a 
-        href="<?= $B ?>/staff/me" 
-        class="link-underline link-underline-opacity-0 link-primary"
-        title="Diventa staff">
-        Clicca qui
-    </a>
+    <div class="card" id="staff-to-create">
+        <div class="card-body">
+            <div class="card-title">
+                <strong>
+                    <?= htmlspecialchars(string: $user->Label())?>, diventa uno staffista!
+                </strong>
+            </div>
+
+            <p>
+                Al tuo account non risultano ancora associati dei dati anagrafici.<br>
+                Se hai partecipato alla manifestazione in passato ti dovrebbe bastare la
+                procedura seguente per diventare uno staffista.
+            </p>
+            <a 
+                href="<?= $B ?>/staff/me" 
+                class="link-underline link-underline-opacity-0 link-primary"
+                title="Diventa staff"
+            >
+                Clicca qui
+            </a>
+        </div>
+    </div>
 <?php } ?>
