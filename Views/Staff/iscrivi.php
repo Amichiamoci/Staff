@@ -1,6 +1,8 @@
 <?php
 
 use Amichiamoci\Models\Staff;
+use Amichiamoci\Utils\File;
+
 $default_parrocchia = 0;
 if (isset($staff) && $staff instanceof Staff) {
     $default_parrocchia = $staff->Parrocchia->Id;
@@ -103,7 +105,7 @@ if (isset($staff) && $staff instanceof Staff) {
             type="file" multiple 
             class="form-control" 
             id="certificato" name="certificato[]"
-            accept="">
+            accept="<?= File::ALLOWED_EXT_DOTS() ?>">
         <label for="certificato">Certificato medico</label>
         <div class="invalid-feedback">
             Per favore, immetti una o più foto del certificato

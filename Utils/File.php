@@ -106,23 +106,20 @@ class File
         "jpg", 
         "jpeg", 
         "png",
-        //"bmp",
-        //"avif",
-        //"tif", 
-        //"tiff",
         "webp",
         "heic",
         "heif",
         "pdf",        
         "doc",
         "docx",
-        //"ppt",
-        //"pptx"
     ];
-    public static function ALLOWED_EXT_DOTS(): array {
-        return array_map(
-            callback: function(string $s): string { return ".$s"; }, 
-            array: self::$ALLOWED_EXT
+    public static function ALLOWED_EXT_DOTS(): string {
+        return join(
+            separator: ', ',
+            array: array_map(
+                callback: function(string $s): string { return ".$s"; }, 
+                array: self::$ALLOWED_EXT
+            )
         );
     } 
 

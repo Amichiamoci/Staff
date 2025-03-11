@@ -1,6 +1,8 @@
 <?php
 
 use Amichiamoci\Models\Anagrafica;
+use Amichiamoci\Utils\File;
+
 $is_editing = isset($anagrafica) && ($anagrafica instanceof Anagrafica);
 
 if ($is_editing) {
@@ -92,7 +94,7 @@ if ($is_editing) {
             class="form-control" 
             id="provenienza" name="provenienza" 
             value="<?= $is_editing ? htmlspecialchars(string: $anagrafica->From) : '' ?>">
-        <label for="provenienza">Data di nascita</label>
+        <label for="provenienza">Luogo di nascita</label>
         <div class="invalid-feedback">
             Per favore, immetti un luogo di nascita
         </div>
@@ -168,7 +170,7 @@ if ($is_editing) {
             type="file" multiple 
             class="form-control" 
             id="doc" name="doc[]"
-            accept="">
+            accept="<?= File::ALLOWED_EXT_DOTS() ?>">
         <label for="doc">Documento</label>
         <div class="invalid-feedback">
             Per favore, immetti una o più foto del documento
@@ -191,5 +193,5 @@ if ($is_editing) {
     </div>
 </form>
 
-<script src="/Public/js/codicefiscale.js" defer></script>
-<script src="/Public/js/anagrafica.js" defer></script>
+<script src="<?= $B ?>/Public/js/codicefiscale.js" defer></script>
+<script src="<?= $B ?>/Public/js/anagrafica.js" defer></script>

@@ -30,16 +30,18 @@
                             Iscrizioni
                         </a>
                         <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="subscriptionDropdownMenuLink">
-                            <li>
-                                <a class="dropdown-item" href="<?= $B ?>/staff/index">
-                                    La mia parrocchia
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="<?= $B ?>/teams">
-                                    Le squadre
-                                </a>
-                            </li>
+                            <?php if ($user->IsAdmin || isset($staff)) { ?>
+                                <li>
+                                    <a class="dropdown-item" href="<?= $B ?>/staff/index">
+                                        La mia parrocchia
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="<?= $B ?>/teams">
+                                        Le squadre
+                                    </a>
+                                </li>
+                            <?php } ?>
                             <li>
                                 <a class="dropdown-item" href="<?= $B ?>/staff/anagrafiche?year=<?= date(format: "Y") ?>">
                                     Tutti gli iscritti
@@ -72,11 +74,13 @@
                                     Tutti i Tornei
                                 </a>
                             </li>
+                            <!--
                             <li>
                                 <a class="dropdown-item" href="<?= $B ?>/sport/matches">
                                     Partite della settimana
                                 </a>
                             </li>
+                            -->
                             <?php if ($user->IsAdmin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'))) { ?>
                                 <li>
                                     <a class="dropdown-item" href="<?= $B ?>/sport/plan">
