@@ -12,9 +12,9 @@
                 data-bs-toggle="collapse"
                 data-target="#navbar-collapse"
                 data-bs-target="#navbar-collapse" 
-                aria-expanded="false" aria-label="Toggle navigation">
-
-            
+                aria-expanded="false" aria-label="Toggle navigation"
+            >
+                <i class="bi bi-list text-secondary" style="pointer-events: none;"></i>
         </button>
         <div id="navbar-collapse"
             class="navbar-collapse collapse d-sm-inline-flex justify-content-between">

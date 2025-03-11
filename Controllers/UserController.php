@@ -16,7 +16,7 @@ class UserController extends Controller {
     {
         $this->RequireLogin()->Logout();
         Cookie::DeleteIfExists(name: "login_forward");
-        return $this->Redirect(url: '/');
+        return $this->Redirect(url: INSTALLATION_PATH . '/');
     }
 
     public function delete(?int $target_id): int {
@@ -39,6 +39,27 @@ class UserController extends Controller {
         return $this->view(id: $target_id);
     }
 
+    private static function reset_password_email(
+        User $user, 
+        #[\SensitiveParameter]  string $new_password
+    ): string {
+        ob_start();
+        ?>
+        <h3>Ciao <?= htmlspecialchars(string: $user->Label()) ?></h3>
+        <p>
+            La tua password è appena stata cambiata da un amministratore.
+            D'ora in poi, per accedere, utilizza 
+            <span style="user-select: none;"> come password: </span><code style="font-family: monospace;"><?= htmlspecialchars(string: $new_password) ?></code>
+        </p>
+        <p>
+            In caso di altri problemi, contattare nuovamente gli amministratori.
+        </p>
+        <?php
+        $mail_body = ob_get_contents();
+        ob_end_clean();
+        return $mail_body;
+    }
+
     public function reset(?int $target_id): int {
         $this->RequireLogin(require_admin: true);
         
@@ -46,9 +67,46 @@ class UserController extends Controller {
             return $this->BadRequest();
         }
 
+        $target = User::ById(connection: $this->DB, id: $target_id);
+        if (!isset($target)) {
+            return $this->NotFound();
+        }
+
         if (self::IsPost()) {
-            // $new_password = User::ResetPassword(connection: $this->DB, target: $target_id);
-            // $this->Message(message: Message::Success(content: 'Password cambiata con successo'));
+            $new_password = Security::RandomPassword();
+
+            $result = $target->ForceSetNewPassword(
+                connection: $this->DB, 
+                new_password: $new_password
+            );
+            if (!$result) {
+                return $this->InternalError();
+            }
+
+            $email = Email::GetByUserId(connection: $this->DB, user: $target->Id);
+            $result = isset($email);
+            if ($result)
+            {
+                $mail_body = $this->reset_password_email(user: $target, new_password: $new_password);
+                $result = Email::Send(
+                    to: $email, 
+                    subject: "Nuova password", 
+                    body: $mail_body, 
+                    connection: $this->DB, 
+                    hide_output: true,
+                );
+            }
+
+            if ($result)
+            {
+                $this->Message(message: Message::Success(
+                    content: "Password cambiata ed inviata per mail all'utente con successo"
+                ));
+            } else
+            {
+                $this->Message(message: Message::Warn(content: 'Errore durante l\'invio dell\'email'));
+                $this->Message(message: Message::Warn(content: "Comunica all'utente la seguente password: $new_password"));
+            }
         }
         return $this->view(id: $target_id);
     }
@@ -132,11 +190,11 @@ class UserController extends Controller {
         </p>
         <div style="margin: 1em;" class="border">
             <a 
-                href="https://<?= DOMAIN ?>/user/token?value=<?= $token->Value ?>&secret=<?= $token->Secret ?>"
+                href="https://<?= DOMAIN . INSTALLATION_PATH ?>/user/token?value=<?= $token->Value ?>&secret=<?= $token->Secret ?>"
                 class="no-underline"
                 title="Clicca qui">
                 <strong>
-                    https://<?= DOMAIN ?>/user/token?value=<?= $token->Value ?>&secret=<?= $token->Secret ?>
+                    https://<?= DOMAIN . INSTALLATION_PATH  ?>/user/token?value=<?= $token->Value ?>&secret=<?= $token->Secret ?>
                 </strong>
             </a>
         </div>
@@ -356,7 +414,7 @@ class UserController extends Controller {
             return $this->NotAuthorized();
         }
 
-        $activity = $user->LoginList(connection: $this->DB);
+        $activity = $target->LoginList(connection: $this->DB);
         return $this->Render(
             view: 'User/view',
             title: $target->Name,
@@ -403,9 +461,54 @@ class UserController extends Controller {
         );
     }
 
-    private static function welcome_email(): string
+    private static function welcome_email(
+        User $user, 
+        #[\SensitiveParameter] string $password, 
+        #[\SensitiveParameter] string $hash
+    ): string
     {
-        
+        ob_start();
+        ?>
+            <h3>Benvenuto/a</h3>
+            <p>
+                È appena stato creato un utente sul portale con questa email.
+                Ti chiediamo di loggarti nella sezione 
+                <a href="https://<?= DOMAIN . INSTALLATION_PATH ?>" class="link">admin</a>
+                utilizzando come 
+                <strong style="user-select: none;">nome utente: </strong><code style="font-family: monospace;"><?= htmlspecialchars(string: $user->Name) ?></code>
+                <span style="user-select: none;"> e come </span>
+                <strong style="user-select: none;">password: </strong><code style="font-family: monospace;"><?= htmlspecialchars(string: $password) ?></code>
+            </p>
+            <p>
+                Una volta loggato potrai cambiare sia nome utente che password.
+                <br>
+                Nel caso tu non riesca a loggarti con le credenziali appena fornite prova a cancellare i cookie e riprovare dopo qualche minuto.
+                <br>
+            </p>
+            <hr>
+            <p>
+                Dal portale ti sarà possibile inserire i tuoi dati anagrafici, scegliendo la mail con cui gestire l'account
+                (puoi quindi non scegliere questa) e, anno per anno, registrarti come staffista all'edizione corrente.
+            </p>
+            <p>
+                In caso di problemi contatta tempestivamente gli staffisti adiniti alla gestione del portale.
+            </p>
+            <br>
+            <p style="font-size: smaller; user-select: none;">
+                Ecco una serie di informazioni che non ti interessaranno, ma io le metto ugualmente:<br>
+                <ul>
+                    <li>
+                        Hash della password: <output style="user-select:none;"><?= htmlspecialchars(string: $hash) ?></output>
+                    </li>
+                    <li>
+                        Id utente: <output style="user-select:none;"><?= $user->Id ?></output>
+                    </li>
+                </ul>
+            </p>
+        <?php
+        $mail_body = ob_get_contents();
+        ob_end_clean();
+        return $mail_body;
     }
 
     public function new(
@@ -419,40 +522,30 @@ class UserController extends Controller {
             $hashed_password = Security::Hash(str: $password);
             $user_name = explode(separator: '@', string: $email)[0];
 
-            $created_user = User::Create(connection: $this->DB, username: $user_name, password: $hashed_password, is_admin: $admin);
-            if (!isset($created_user) || $created_user->Id == 0) {
+            $created_user = User::Create(
+                connection: $this->DB, 
+                username: $user_name, 
+                password: $hashed_password, 
+                is_admin: $admin
+            );
+            if (!isset($created_user))
+            {
                 return $this->InternalError();
             }
-            $generated_id = $created_user->Id;
 
-            $mail_text = join(separator: "\r\n", array: array(
-                "<h3>Benvenuto/a</h3>",
-                "<p>&Egrave; appena stato creato un utente sul sito con questa email.",
-                "Ti chiediamo di loggarti sul sito nella sezione <a href=\"https://www.amichiamoci.it/admin\">admin</a>,\r\n" .
-                    "utilizzando come <strong style=\"user-select: none;\">nome utente: </strong><code style=\"font-family: monospace;\">$user_name</code>\r\n" .
-                    "<span style=\"user-select: none;\"> e come </span><strong style=\"user-select: none;\">password: </strong><code style='font-family: monospace;'>$password</code><br>",
-                "Una volta loggato potrai cambiare sia nome utente che password.</p>",
-                "<p>Nel caso tu non riesca a loggarti con le credenziali appena fornite prova a cancellare i cookie e riprovare dopo qualche minuto.</p>",
-                "<hr>",
-                "<p>Dal portale ti sar&agrave; possibile inserire i tuoi dati anagrafici, scegliendo la mail con cui gestire l'account\r\n" .
-                "(puoi quindi non scegliere questa) e anno per anno registrarti come staffista all'edizione corrente.</p>",
-                "<hr>",
-                "<p>In caso di problemi scrivi tempestivamente a <a href=\"mailto:info@amichiamoci.it\">info@amichiamoci.it</a></p>",
-                "Ecco una serie di informazioni che non ti interessaranno, ma io le metto ugualmente:<br>",
-                "Hash della password: <output style=\"user-select:none;\">$hashed_password</output><br>",
-                "User id: <output style=\"user-select:none;\">$generated_id</output>"));
-            $subject = "Creazione utente";
+            $mail_text = $this->welcome_email(user: $created_user, password: $password, hash: $hashed_password);
             
             if (!Email::Send(
                 to: $email, 
-                subject: $subject, 
+                subject: "Creazione utente", 
                 body: $mail_text, 
                 connection: $this->DB, 
                 hide_output: true,
             )) {
-                $this->Message(message: new Message(type: MessageType::Error, content: 'Errore durante l\'invio dell\'email'));
+                $this->Message(message: Message::Error(content: 'Errore durante l\'invio dell\'email'));
             }
-            return $this->view(id: $generated_id);
+            $this->Message(message: Message::Success(content: 'Utente creato correttamente'));
+            return $this->view(id: $created_user->Id);
         }
 
         return $this->Render(

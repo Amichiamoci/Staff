@@ -107,17 +107,27 @@ if (!isset($target) || !($target instanceof Amichiamoci\Models\User)) {
                 <a href="<?= $B ?>/user/restore?target_id=<?= $target->Id ?>" class="btn btn-outline-secondary" role="button">
                     Riabilita
                 </a>
-                <button class="btn btn-outline-secondary">
-                    Cancella
-                </button>
             </div>
             
             <?php if ($user->Id !== $target->Id) { ?>
+                <form action="<?= $B ?>/user/delete" method="POST">
+                    <input type="hidden" name="target_id" value="<?= $target->Id ?>">
+                    <button 
+                        type="submit"
+                        class="btn btn-outline-danger"
+                        title="Elimina l'utente"
+                        data-confirm="Sei sicuro di voler eliminare <?= htmlspecialchars(string: $target->Name) ?>? Questa azione non potrà essere annullata"
+                        data-confirm-btn="Sì, Cancella"
+                        data-cancel-btn="No, ci ho ripensato"
+                    >
+                        Elimina utente
+                    </button>
+                </form>
                 <form action="<?= $B ?>/user/reset" method="POST">
                     <input type="hidden" name="target_id" value="<?= $target->Id ?>">
                     <button 
                         type="submit"
-                        class="btn btn-outline-secondary"
+                        class="btn btn-outline-info"
                         title="Reimposta la password"
                         data-confirm="Sicuro di voler resettare la password di <?= htmlspecialchars(string: $target->Name) ?>?"
                         data-confirm-btn="Sì"

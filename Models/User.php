@@ -281,8 +281,8 @@ class User implements DbEntity
     {
         if (!$connection || !isset($password) || empty($password))
             return false;
-        $query = "CALL GetUserPasswordFromId($this->Id)";
-        $result = $connection->query($query);
+        $query = "CALL `GetUserPasswordFromId`($this->Id)";
+        $result = $connection->query(query: $query);
         if (!$result)
         {
             $connection->next_result();
@@ -292,20 +292,26 @@ class User implements DbEntity
         if ($row = $result->fetch_assoc())
         {
             $hash = $row["password"];
-            $test_ok = Security::TestPassword($password, $hash);
+            $test_ok = Security::TestPassword(password: $password, hash: $hash);
         }
         $result->close();
         $connection->next_result();
         return $test_ok;
     }
-    public function ForceSetNewPassword(\mysqli $connection, #[\SensitiveParameter] ?string $new_password): bool
-    {
-        if (!$connection || !isset($new_password) || empty($new_password))
+    public function ForceSetNewPassword(
+        \mysqli $connection, 
+        #[\SensitiveParameter] ?string $new_password,
+    ): bool {
+        if (!$connection || !isset($new_password) || strlen(string: $new_password) < 6)
             return false;
         $new_hash = Security::Hash(str: $new_password);
-        $query = "CALL SetUserPassword($this->Id, '$new_hash')";
-        $result = $connection->query(query: $query);
+        
+        $result = $connection->execute_query(
+            query: "CALL `SetUserPassword`(?, ?)",
+            params:[$this->Id, $new_hash],
+        );
         $ret = (bool)$result;
+
         $connection->next_result();
         return $ret;
     }
@@ -335,7 +341,7 @@ class User implements DbEntity
         {
             return false;
         }
-        $query = "CALL SetUserName($this->Id, '" . $connection->real_escape_string(string: $new_username) . "')";
+        $query = "CALL `SetUserName`($this->Id, '" . $connection->real_escape_string(string: $new_username) . "')";
         $result = $connection->query(query: $query);
         $ret = false;
         if ($result)
@@ -357,36 +363,41 @@ class User implements DbEntity
         string $username, 
         #[\SensitiveParameter] string $password, 
         bool $is_admin,
-    ) : User|null
+    ): ?self
     {
-        if (!$connection || !isset($username) || empty($username)|| !isset($password) || empty($password))
+        if (
+            !$connection || 
+            strlen(string: $username) === 0 || 
+            strlen(string: $password) < 6
+        ) {
             return null;
+        }
+
         $query = "INSERT INTO `utenti` (`user_name`, `password`, `is_admin`) VALUES (?, ?, ?)";
-        $admin = $is_admin ? 1 : 0;
         $hash = Security::Hash(str: $password);
-        $stmt = $connection->prepare(query: $query);
-        if (!$stmt)
-            return null;
-        if (!$stmt->bind_param("ssi", $username, $hash, $admin))
-            return null;
-        if (!$stmt->execute() || $stmt->affected_rows !== 1)
-            return null;
 
-        $query = 'SELECT LAST_INSERT_ID() AS "id"';
-        $result = $connection->query(query: $query);
-
-        if (!$result)
+        $result = $connection->execute_query(query: $query, params: [
+            $username,
+            $hash,
+            $is_admin ? '1' : '0',
+        ]);
+        if (!$result || $connection->affected_rows !== 1)
         {
             return null;
         }
-        if ($row = $result->fetch_assoc())
+
+        $id = (int)$connection->insert_id;
+        if (empty($id))
         {
-            if (isset($row["id"]))
-            {
-                return new User(id: $row["id"], name: $username, login_time: 0, admin: $is_admin);
-            }
+            return null;
         }
-        return null;
+
+        return new self(
+            id: $id, 
+            name: $username, 
+            login_time: 0, 
+            admin: $is_admin
+        );
     }
     public static function Ban(\mysqli $connection, string|int|null $id) : bool
     {
@@ -395,7 +406,7 @@ class User implements DbEntity
         $target = (int)$id;
         if ($target === 0)
             return false;
-        $query = "CALL BanUser($target)";
+        $query = "CALL `BanUser`($target)";
         $result = (bool)$connection->query(query: $query);
         $connection->next_result();
         return $result;
@@ -407,7 +418,7 @@ class User implements DbEntity
         $target = (int)$id;
         if ($target === 0)
             return false;
-        $query = "CALL RestoreUser($target)";
+        $query = "CALL `RestoreUser`($target)";
         $result = (bool)$connection->query(query: $query);
         $connection->next_result();
         return $result;
@@ -417,44 +428,13 @@ class User implements DbEntity
         if (!$connection || $target === 0)
             return false;
         try {
-            
-            $ret = (bool)$connection->query(query: "CALL DeleteUser($target)");
+            $ret = (bool)$connection->query(query: "CALL `DeleteUser`($target)");
             $ret = $ret && $connection->affected_rows > 0;
             $connection->next_result();
             return $ret;
-        } catch (\Exception $ex) {
+        } catch (\Throwable) {
             return false;
         }
-    }
-    public static function ResetPassword(\mysqli $connection, int $target = 0) : string
-    {
-        if (!$connection || $target === 0)
-            return "";
-        $new_password = Security::RandomPassword();
-        $hashed = Security::Hash(str: $new_password);
-        $result = $connection->query(query: "CALL SetUserPassword($target, '$hashed')");
-        if (!$result)
-        {
-            $new_password = "";
-        }
-        $connection->next_result();
-        if ($new_password != "")
-        {
-            $email = Email::GetByUserId($connection, $target);
-            if (strlen($email) == 0)
-                return $new_password;
-            if (Email::Send($email, "Cambio password", 
-                "Ciao, &egrave; appena stata cambiata la tua password.<br>\n" .
-                "<span style=\"user-select: none;\">Da adesso per accedere utilizza: </span>" . 
-                "<output style=\"font-family: monospace\">$new_password</output><br>\n" .
-                "<hr>\n".
-                "Ti preghiamo di non rispondere a questa email.<br>" . 
-                "Buona giornata", 
-                $connection, true))
-                return "Inviata per email a <a href=\"mailto:$email\" class=\"link\">$email</a>";
-            return "Errore durante invio mail";
-        }
-        return $new_password;
     }
     public function Label() : string
     {
@@ -486,8 +466,10 @@ class User implements DbEntity
     {
         if (!$connection)
             return null;
-        $result = $connection->query(query: 
-            "SELECT * FROM `utenti` WHERE `user_name` = '" . $connection->real_escape_string(string: $username) . "'");
+        $result = $connection->execute_query(
+            query: "SELECT * FROM `utenti` WHERE `user_name` = ?",
+            params: [$username]
+        );
         if (!$result || $result->num_rows === 0)
         {
             return null;
@@ -507,7 +489,7 @@ class User implements DbEntity
         if (!$connection)
             return [];
 
-        $query = "SELECT * FROM users_extended";
+        $query = "SELECT * FROM `users_extended`";
         $result = $connection->query(query: $query);
         if (!$result)
             return [];
@@ -541,23 +523,24 @@ class User implements DbEntity
     {
         if (!$connection)
             return [];
-        $result = $connection->query(query: "SELECT * FROM `users_activity` LIMIT 500");
-        
-        $arr = [];
-        if ($result) {
-            while ($row = $result->fetch_assoc())
-            {
-                $arr[] = new UserActivity(
-                    user_name: $row["user_name"],
-                    time_start: $row["time_start"],
-                    time_log: $row["time_log"],
-                    flag: $row["user_flag"],
-                    ip: $row["device_ip"],
-                );
-            }
 
-            $result->close();
+        $result = $connection->query(query: "SELECT * FROM `users_activity` LIMIT 500");
+        if (!$result) {
+            return [];
         }
+
+        $arr = [];
+        while ($row = $result->fetch_assoc())
+        {
+            $arr[] = new UserActivity(
+                user_name: $row["user_name"],
+                time_start: $row["time_start"],
+                time_log: $row["time_log"],
+                flag: $row["user_flag"],
+                ip: $row["device_ip"],
+            );
+        }
+        $result->close();
         return $arr;
     }
     public function LoginList(\mysqli $connection) : array 
@@ -565,7 +548,10 @@ class User implements DbEntity
         if (!$connection)
             return [];
 
-        $result = $connection->query(query: "SELECT * FROM `sessioni` WHERE `user_id` = $this->Id");
+        $result = $connection->execute_query(
+            query: "SELECT * FROM `sessioni` WHERE `user_id` = ?",
+            params: [$this->Id],
+        );
         if (!$result) {
             return [];
         }
