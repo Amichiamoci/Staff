@@ -464,26 +464,30 @@ class UserController extends Controller {
     private static function welcome_email(
         User $user, 
         #[\SensitiveParameter] string $password, 
-        #[\SensitiveParameter] string $hash
     ): string
     {
         ob_start();
         ?>
             <h3>Benvenuto/a</h3>
+            <h5>
+                È sempre bello vedere dei nuovi staffisti!
+            </h5>
             <p>
                 È appena stato creato un utente sul portale con questa email.
                 Ti chiediamo di loggarti nella sezione 
                 <a href="https://<?= DOMAIN . INSTALLATION_PATH ?>" class="link">admin</a>
-                utilizzando come 
-                <strong style="user-select: none;">nome utente: </strong><code style="font-family: monospace;"><?= htmlspecialchars(string: $user->Name) ?></code>
-                <span style="user-select: none;"> e come </span>
-                <strong style="user-select: none;">password: </strong><code style="font-family: monospace;"><?= htmlspecialchars(string: $password) ?></code>
+                utilizzando come nome utente: 
+                <code style="font-family: monospace;"><?= htmlspecialchars(string: $user->Name) ?></code>
+                e come <strong>password: </strong>
+                <code style="font-family: monospace;"><?= htmlspecialchars(string: $password) ?></code>
             </p>
             <p>
                 Una volta loggato potrai cambiare sia nome utente che password.
                 <br>
-                Nel caso tu non riesca a loggarti con le credenziali appena fornite prova a cancellare i cookie e riprovare dopo qualche minuto.
+                Nel caso tu non riesca ad accedere con le credenziali appena fornite 
+                prova a cancellare i cookie e riprovare dopo qualche minuto.
                 <br>
+                Se il problema dovesse persistere, provare a contattare un amministratore.
             </p>
             <hr>
             <p>
@@ -498,10 +502,7 @@ class UserController extends Controller {
                 Ecco una serie di informazioni che non ti interessaranno, ma io le metto ugualmente:<br>
                 <ul>
                     <li>
-                        Hash della password: <output style="user-select:none;"><?= htmlspecialchars(string: $hash) ?></output>
-                    </li>
-                    <li>
-                        Id utente: <output style="user-select:none;"><?= $user->Id ?></output>
+                        Il tuo Id utente è <output style="user-select:none;"><?= $user->Id ?></output>
                     </li>
                 </ul>
             </p>
@@ -519,13 +520,12 @@ class UserController extends Controller {
         $this->RequireLogin(require_admin: true);
         if ($this->IsPost() && !empty($email)) {
             $password = Security::RandomPassword();
-            $hashed_password = Security::Hash(str: $password);
             $user_name = explode(separator: '@', string: $email)[0];
 
             $created_user = User::Create(
                 connection: $this->DB, 
                 username: $user_name, 
-                password: $hashed_password, 
+                password: $password, 
                 is_admin: $admin
             );
             if (!isset($created_user))
@@ -533,7 +533,7 @@ class UserController extends Controller {
                 return $this->InternalError();
             }
 
-            $mail_text = $this->welcome_email(user: $created_user, password: $password, hash: $hashed_password);
+            $mail_text = $this->welcome_email(user: $created_user, password: $password);
             
             if (!Email::Send(
                 to: $email, 
