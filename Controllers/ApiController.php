@@ -2,17 +2,58 @@
 
 namespace Amichiamoci\Controllers;
 
-use Amichiamoci\Models\ApiCall;
+use Amichiamoci\Models\Api\Call as ApiCall;
+use Amichiamoci\Models\Api\Token as ApiToken;
+use Amichiamoci\Models\Message;
+use Amichiamoci\Utils\Security;
 
 class ApiController extends Controller
 {
+    public function admin(?string $token_name = null): int
+    {
+        $this->RequireLogin(require_admin: true);
+
+        if (self::IsPost() && isset($token_name))
+        {
+            $new_token = ApiToken::New(connection: $this->DB, name: $token_name);
+            if (isset($new_token))
+            {
+                $this->Message(
+                    message: Message::Success(
+                        content: "Token correttamente generato: " . $new_token->Key)
+                );
+            } else {
+                $this->Message(
+                    message: Message::Error(content: "Impossibile generare il token!")
+                );
+            }
+        }
+
+        return $this->Render(
+            view: 'Api/all',
+            title: 'Applicazioni attive',
+            data: [
+                'tokens' => ApiToken::All(connection: $this->DB),
+            ],
+        );
+    }
+
     public function get(?string $resource = null): int {
         if (empty($resource)) {
             return $this->BadRequest();
         }
 
-        // TODO: check bearer token
         $bearer = $this->get_param(name: 'Bearer');
+        if (!ApiToken::Test(
+            connection: $this->DB, 
+            key: $bearer, 
+            ip: Security::GetIpAddress(),
+        )) {
+            return $this->Json(
+                object: ['message' => 'Invalid bearer token'],
+                status_code: 401,
+            );
+        }
 
         if (!array_key_exists(key: $resource, array: $this->avaible_methods)) {
             return $this->NotFound();

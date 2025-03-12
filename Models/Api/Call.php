@@ -1,8 +1,8 @@
 <?php
 
-namespace Amichiamoci\Models;
+namespace Amichiamoci\Models\Api;
 
-class ApiCall
+class Call
 {
     public string $Query;
 

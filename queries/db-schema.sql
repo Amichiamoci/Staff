@@ -295,6 +295,22 @@ CREATE TABLE IF NOT EXISTS `partecipaz_staff_ediz` (
   FOREIGN KEY (`edizione`) REFERENCES `edizioni` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+DROP TABLE IF EXISTS `api_token`;
+CREATE TABLE IF NOT EXISTS `api_token` (
+  `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `name` VARCHAR(256) NOT NULL,
+  `key` VARCHAR(128) NOT NULL UNIQUE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `api_usage`;
+CREATE TABLE IF NOT EXISTS `api_usage` (
+  `token_id` INT NOT NULL,
+  `ip_address` VARCHAR(15) NOT NULL,
+  `last_usage` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `hits` INT NOT NULL DEFAULT 0,
+
+  PRIMARY KEY (`token_id`, `ip_address`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 COMMIT;
 

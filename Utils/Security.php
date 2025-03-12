@@ -34,7 +34,8 @@ class Security
     {
         return self::RandomSubset(
             length: $length, 
-            alphabet: str_split(string: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?/@;*+-$%&=^_"));
+            alphabet: str_split(string: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?/@;*+-$%&=^_"),
+        );
     }
 
     public static function GetIpAddress(): string {
