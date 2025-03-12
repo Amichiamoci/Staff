@@ -203,6 +203,11 @@
                                         Lista email
                                     </a>
                                 </li>
+                                <li>
+                                    <a class="dropdown-item" href="<?= $B ?>/api/admin">
+                                        Api
+                                    </a>
+                                </li>
                             <?php } ?>
                         </ul>
                     </li>

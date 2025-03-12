@@ -11,12 +11,14 @@
                 <?php require_once __DIR__ . '/Partial/CronCard.php'; ?>
             </div>
         <?php } ?>
-        <div class="col col-xs-6 col-sm-4 mb-2">
-            <?php require_once __DIR__ . '/Partial/TeamsCard.php'; ?>
-        </div>
-        <div class="col col-xs-6 col-sm-4 mb-2">
-            <?php require_once __DIR__ . '/Partial/ProblemsCard.php'; ?>
-        </div>
+        <?php if ($user->IsAdmin || isset($staff)) { ?>
+            <div class="col col-xs-6 col-sm-4 mb-2">
+                <?php require_once __DIR__ . '/Partial/TeamsCard.php'; ?>
+            </div>
+            <div class="col col-xs-6 col-sm-4 mb-2">
+                <?php require_once __DIR__ . '/Partial/ProblemsCard.php'; ?>
+            </div>
+        <?php } ?>
         <div class="col col-xs-6 col-sm-4 mb-2">
             <?php require_once __DIR__ . '/Partial/ChurchStatsCard.php'; ?>
         </div>
