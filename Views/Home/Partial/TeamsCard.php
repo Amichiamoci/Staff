@@ -10,7 +10,7 @@
 <script>
     function team_js_decoder(i) {
         const a = document.createElement('a');
-        a.href = `/teams/view?id=${i.id}`;
+        a.href = `${BasePath}/teams/view?id=${i.id}`;
         a.className = 'text-reset link-underline link-underline-opacity-0';
         a.innerText = `${i.name} (${i.sport})`;
 
