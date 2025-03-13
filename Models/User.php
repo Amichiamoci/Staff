@@ -549,7 +549,7 @@ class User implements DbEntity
             return [];
 
         $result = $connection->execute_query(
-            query: "SELECT * FROM `sessioni` WHERE `user_id` = ?",
+            query: "SELECT * FROM `sessioni` WHERE `user_id` = ? ORDER BY `time_log` DESC",
             params: [$this->Id],
         );
         if (!$result) {
