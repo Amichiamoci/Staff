@@ -2,7 +2,7 @@
 use Amichiamoci\Utils\File;
 ?>
 <h1>
-    Cancella file non più in uso
+    Cancella file non più in uso (<?= count(value: $files) ?>)
 </h1>
 
 <form method="post">
