@@ -3,6 +3,7 @@
 namespace Amichiamoci\Models\Api;
 use Amichiamoci\Models\Templates\NomeIdSemplice;
 use Amichiamoci\Utils\Security;
+use Random\Engine\Secure;
 
 class Token extends NomeIdSemplice
 {
@@ -33,7 +34,7 @@ class Token extends NomeIdSemplice
         {
             $arr[] = new self(
                 id: $row['id'],
-                nome: $row['nome'],
+                nome: $row['name'],
                 key: $row['key'],
             );
         }
@@ -71,7 +72,10 @@ class Token extends NomeIdSemplice
         if (!$connection)
             return null;
 
-        $token = Security::RandomPassword(length: 64);
+        $token = Security::RandomSubset(
+            length: 64, 
+            alphabet: str_split(string: Security::LETTERS . Security::DIGITS),
+        );
         $query = "INSERT INTO `api_token` (`name`, `key`) VALUES (?, ?)";
 
         $result = $connection->execute_query(query: $query, params: [$name, $token]);
@@ -85,5 +89,18 @@ class Token extends NomeIdSemplice
             nome: $name,
             key: $token
         );
+    }
+
+    public static function Delete(\mysqli $connection, int $id): bool
+    {
+        if (!$connection)
+            return false;
+
+        
+        $result = $connection->execute_query(
+            query: 'DELETE FROM `api_token` WHERE `id` = ?', 
+            params: [$id],
+        );
+        return (bool)$result && $connection->affected_rows > 0;
     }
 }

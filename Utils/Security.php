@@ -30,11 +30,15 @@ class Security
         return $str;
     }
 
+    public const LETTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    public const DIGITS = '0123456789';
+    public const SYMBOLS = '!?/@;*+-$%&=^_';
+
     public static function RandomPassword(int $length = 10) : string
     {
         return self::RandomSubset(
             length: $length, 
-            alphabet: str_split(string: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?/@;*+-$%&=^_"),
+            alphabet: str_split(string: self::LETTERS . self::DIGITS . self::SYMBOLS),
         );
     }
 

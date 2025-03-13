@@ -9,9 +9,27 @@ use Amichiamoci\Utils\Security;
 
 class ApiController extends Controller
 {
+    public function delete_token(?int $id = null): int
+    {
+        $this->RequireLogin(require_admin: true);
+        if (empty($id))
+        {
+            return $this->admin();
+        }
+
+        if (ApiToken::Delete(connection: $this->DB, id: $id))
+        {
+            $this->Message(message: Message::Success(content: 'Token correttamente eliminato'));
+        } else {
+            $this->Message(message: Message::Error(content: 'Non è stato possibile disabilitare il token'));
+        }
+
+        return $this->admin();
+    }
     public function admin(?string $token_name = null): int
     {
         $this->RequireLogin(require_admin: true);
+        $generated_key = null;
 
         if (self::IsPost() && isset($token_name))
         {
@@ -20,8 +38,9 @@ class ApiController extends Controller
             {
                 $this->Message(
                     message: Message::Success(
-                        content: "Token correttamente generato: " . $new_token->Key)
+                        content: "Token correttamente generato.")
                 );
+                $generated_key = $new_token->Key;
             } else {
                 $this->Message(
                     message: Message::Error(content: "Impossibile generare il token!")
@@ -34,6 +53,7 @@ class ApiController extends Controller
             title: 'Applicazioni attive',
             data: [
                 'tokens' => ApiToken::All(connection: $this->DB),
+                'new_key' => $generated_key,
             ],
         );
     }

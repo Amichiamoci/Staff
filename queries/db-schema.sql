@@ -309,7 +309,8 @@ CREATE TABLE IF NOT EXISTS `api_usage` (
   `last_usage` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `hits` INT NOT NULL DEFAULT 0,
 
-  PRIMARY KEY (`token_id`, `ip_address`)
+  PRIMARY KEY (`token_id`, `ip_address`),
+  FOREIGN KEY (`token_id`) REFERENCES `api_token`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 COMMIT;
