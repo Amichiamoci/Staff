@@ -55,7 +55,7 @@ if (!isset($staff) || !($staff instanceof StaffBase)) {
                     Commissioni (<?= count(value: $staff->Commissioni) ?>)
                 </dt>
                 <dd class="col-sm-8">
-                    <ul class="list-group-flush">
+                    <ul class="list-group-flush p-0">
                         <?php foreach ($staff->Commissioni as $commissione)  { ?>
                             <li class="list-group-item">
                                 <?= htmlspecialchars(string: $commissione) ?>

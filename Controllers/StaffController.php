@@ -105,6 +105,25 @@ class StaffController extends Controller
         );
     }
 
+    public function view(?int $id): int
+    {
+        $this->RequireLogin();
+        if (empty($id)) {
+            return $this->BadRequest();
+        }
+
+        $target = Staff::ById(connection: $this->DB, id: $id);
+        if (!isset($target)) {
+            return $this->NotFound();
+        }
+
+        return $this->Render(
+            view: 'Staff/view',
+            title: $target->Nome,
+            data: ['target' => $target],
+        );
+    }
+
     public function anagrafiche(?int $year = null): int {
         $this->RequireLogin();
         if (!isset($year) || $year === 0) {    
