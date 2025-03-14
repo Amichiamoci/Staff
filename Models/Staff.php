@@ -154,8 +154,8 @@ class Staff extends StaffBase
                 nome_parrocchia: $row["parrocchia"],
                 commissioni: array_map(callback: "trim", array: explode(separator: ',', string: $row["lista_commissioni"])),
                 taglia: $row["maglia"],
-                is_referente: $row["cf"],
-                codice_fiscale: $row["referente"]
+                is_referente: $row["referente"],
+                codice_fiscale: $row["cf"]
             );
         }
 
