@@ -36,7 +36,9 @@ class Staff extends StaffBase
             id: $id_parrocchia, 
             nome: $nome_parrocchia
         );
-        $this->Commissioni = $commissioni;
+        $this->Commissioni = array_filter(array: $commissioni, callback: function (string $c): bool {
+            return strlen(string: trim(string: $c)) > 0;
+        });
         if (isset($taglia))
         {
             $this->Taglia = ($taglia instanceof Taglia) ? $taglia : Taglia::from(value: $taglia);

@@ -19,14 +19,19 @@
         <div id="navbar-collapse"
             class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
             <ul class="navbar-nav flex-grow-1">
-                <?php if (isset($user)) { ?>
+                <?php
+
+                        use Amichiamoci\Utils\Security;
+
+ if (isset($user)) { ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link text-reset dropdown-toggle"
                             href="#" 
                             id="subscriptionDropdownMenuLink" 
                             role="button" 
                             data-bs-toggle="dropdown" 
-                            aria-expanded="false">
+                            aria-expanded="false"
+                        >
                             Iscrizioni
                         </a>
                         <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="subscriptionDropdownMenuLink">
@@ -65,7 +70,8 @@
                             id="matchesDropdownMenuLink" 
                             role="button" 
                             data-bs-toggle="dropdown" 
-                            aria-expanded="false">
+                            aria-expanded="false"
+                        >
                             Partite
                         </a>
                         <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="matchesDropdownMenuLink">
@@ -83,9 +89,7 @@
                             -->
                             <?php if ($user->IsAdmin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'))) { ?>
                                 <li>
-                                    <a class="dropdown-item" href="<?= $B ?>/sport/plan">
-                                        Pianifica tornei
-                                    </a>
+                                    <hr class="dropdown-divider">
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="<?= $B ?>/sport/tournament_create">
@@ -101,7 +105,8 @@
                             id="userDropdownMenuLink" 
                             role="button" 
                             data-bs-toggle="dropdown" 
-                            aria-expanded="false">
+                            aria-expanded="false"
+                        >
                             Utente
                         </a>
                         <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="userDropdownMenuLink">
@@ -118,6 +123,9 @@
                                 </a>
                             </li>
                             <?php if ($user->IsAdmin) { ?>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
                                 <li>
                                     <a class="dropdown-item" href="<?= $B ?>/user/all">
                                         Tutti gli utenti
@@ -147,7 +155,8 @@
                             id="listsDropdownMenuLink" 
                             role="button" 
                             data-bs-toggle="dropdown" 
-                            aria-expanded="false">
+                            aria-expanded="false"
+                        >
                             Liste
                         </a>
                         <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="listsDropdownMenuLink">
@@ -189,6 +198,9 @@
                             </li>
                             <?php if ($user->IsAdmin) { ?>
                                 <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
                                     <a class="dropdown-item" href="<?= $B ?>/file/list">
                                         Tutti gli uploads
                                     </a>
@@ -203,11 +215,16 @@
                                         Lista email
                                     </a>
                                 </li>
-                                <li>
-                                    <a class="dropdown-item" href="<?= $B ?>/api/admin">
-                                        Api
-                                    </a>
-                                </li>
+                                <?php if (Security::ApiEnabled()) { ?>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="<?= $B ?>/api/admin">
+                                            Api
+                                        </a>
+                                    </li>
+                                <?php } ?>
                             <?php } ?>
                         </ul>
                     </li>
@@ -219,20 +236,27 @@
                         id="themeDropdownMenuLink" 
                         role="button" 
                         data-bs-toggle="dropdown" 
-                        aria-expanded="false">
+                        aria-expanded="false"
+                    >
                         Tema
                     </a>
                     <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="themeDropdownMenuLink">
                         <li>
                             <a class="dropdown-item" 
-                                href="#" data-bs-theme-value="light">
+                                href="#" 
+                                data-bs-theme-value="light"
+                                title="Imposta il tema chiaro"
+                            >
                                 <i class="bi bi-sun"></i>
                                 Chiaro
                             </a>
                         </li>
                         <li>
                             <a class="dropdown-item" 
-                                href="#" data-bs-theme-value="dark">
+                                href="#" 
+                                data-bs-theme-value="dark"
+                                title="Imposta il tema scuro"
+                            >
                                 <i class="bi bi-moon"></i>
                                 Scuro 
                             </a>

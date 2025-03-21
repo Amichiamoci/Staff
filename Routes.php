@@ -22,8 +22,7 @@ $router->AddController(controller: SportController::class, route_base: '/sport')
 $router->AddController(controller: EmailController::class, route_base: '/email');
 
 // This controller is not present by default
-$enable_api = Security::LoadEnvironmentOfFromFile(var: 'ENABLE_API');
-if (is_string(value: $enable_api) && (bool)$enable_api)
+if (Security::ApiEnabled())
 {
     $router->AddController(controller: ApiController::class, route_base: '/api');
 }
