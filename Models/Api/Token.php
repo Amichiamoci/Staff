@@ -3,7 +3,6 @@
 namespace Amichiamoci\Models\Api;
 use Amichiamoci\Models\Templates\NomeIdSemplice;
 use Amichiamoci\Utils\Security;
-use Random\Engine\Secure;
 
 class Token extends NomeIdSemplice
 {
@@ -95,7 +94,6 @@ class Token extends NomeIdSemplice
     {
         if (!$connection)
             return false;
-
         
         $result = $connection->execute_query(
             query: 'DELETE FROM `api_token` WHERE `id` = ?', 
