@@ -295,7 +295,7 @@ class File
 
         function isWordDocument($file): bool {
             $extension = pathinfo(path: $file['name'], flags: PATHINFO_EXTENSION);
-            return $extension === 'docx' && $extension === 'doc';
+            return $extension === 'docx' || $extension === 'doc';
         }
 
         if (array_any(array: $files, callback: function ($f): bool { return isWordDocument(file: $f); })) {
