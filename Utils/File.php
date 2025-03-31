@@ -298,10 +298,10 @@ class File
             return $extension === 'docx' && $extension === 'doc';
         }
 
-        if (array_any(array: $files, callback: 'isWordDocument')) {
+        if (array_any(array: $files, callback: function ($f): bool { return isWordDocument(file: $f); })) {
             // Upload the first docx file
 
-            $file = array_filter(array: $files, callback: 'isWordDocument')[0];
+            $file = array_filter(array: $files, callback: function ($f): bool { return isWordDocument(file: $f); })[0];
             $extension = pathinfo(path: $file['name'], flags: PATHINFO_EXTENSION);
             $final_name .= ".$extension";
             
