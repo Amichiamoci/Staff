@@ -16,7 +16,7 @@ class Call
         bool $is_procedure = false,
     ) {
         $this->Query = $query;
-        $this->RowParser = isset($$row_parser) ? 
+        $this->RowParser = isset($row_parser) ? 
             $row_parser : 
             function (array $r): array { return $r; };
         $this->IsProcedure = $is_procedure;

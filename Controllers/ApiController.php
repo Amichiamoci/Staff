@@ -301,7 +301,7 @@ class ApiController extends Controller
             "WHERE LOWER(TRIM(`email`)) = LOWER(TRIM('$email')) OR LOWER(TRIM(`email_tutore`)) = LOWER(TRIM('$email'))";
         return new ApiCall(
             query: $query,
-            row_parser: function(array $r): array {
+            row_parser: function (array $r): array {
                 return [
                     'Id' => (int)$r['id'],
                     'Name' => $r['nome'],
