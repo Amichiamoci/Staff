@@ -6,6 +6,9 @@ use Amichiamoci\Models\Api\Call as ApiCall;
 use Amichiamoci\Models\Api\Token as ApiToken;
 use Amichiamoci\Models\Message;
 use Amichiamoci\Utils\Security;
+use Reflection;
+use ReflectionClass;
+
 class ApiController extends Controller
 {
     public function delete_token(?int $id = null): int
@@ -95,17 +98,17 @@ class ApiController extends Controller
         {
             return $this->NotFound();
         }
-        $f = $this->avaible_methods[$resource];
 
         // Get the parameters for the query
         $parameters = self::get_parameters();
 
-        $dummy_controller = new self(
-            connection: $this->DB,
-        );
+        $dummy_controller = new ReflectionClass(objectOrClass: $this);
+        $method = $dummy_controller->getMethod(name: $this->avaible_methods[$resource]);
+        $method->setAccessible(accessible: true);
 
         try { 
-            $call_object = call_user_func_array(callback: [$dummy_controller, $f], args: $parameters);
+            // $call_object = call_user_func_array(callback: [$dummy_controller, $f], args: $parameters);
+            $call_object = $method->invokeArgs(object: $this, args: $parameters);
             $result = $call_object->Execute($this->DB);
 
             if (!isset($result))
