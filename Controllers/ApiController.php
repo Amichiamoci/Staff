@@ -259,7 +259,7 @@ class ApiController extends Controller
                     'Phone' => is_string(value: $r['telefono']) && strlen(string: $r['telefono']) > 0 ? $r['telefono'] : null,
                     'Email' => is_string(value: $r['email']) && strlen(string: $r['email']) > 0 ? $r['email'] : null,
                     
-                    'FiscalCode' => $r['cf'],
+                    'TaxCode' => $r['cf'],
                     'BirthDate' => $r['data_nascita_italiana'],
                     
                     'Document' => [
@@ -295,8 +295,8 @@ class ApiController extends Controller
     
                     'Id' => (int)$r['id_partita'],
     
-                    'TourneyName' => $r['torneo'],
-                    'TourneyId' => (int)$r['codice_torneo'],
+                    'TournamentName' => $r['torneo'],
+                    'TournamentId' => (int)$r['codice_torneo'],
     
                     'SportName' => $r['sport'],
                     'SportId' => (int)$r['codice_sport'],
@@ -359,8 +359,8 @@ class ApiController extends Controller
                 $arr = [
                     'Id' => (int)$r['id'],
     
-                    'TourneyName' => $r['nome_torneo'],
-                    'TourneyId' => (int)$r['torneo'],
+                    'TournamentName' => $r['nome_torneo'],
+                    'TournamentId' => (int)$r['torneo'],
     
                     'SportName' => $r['sport'],
                     'SportId' => (int)$r['codice_sport'],
@@ -428,8 +428,8 @@ class ApiController extends Controller
                 $arr = [
                     'Id' => (int)$r['id'],
     
-                    'TourneyName' => $r['nome_torneo'],
-                    'TourneyId' => (int)$r['torneo'],
+                    'TournamentName' => $r['nome_torneo'],
+                    'TournamentId' => (int)$r['torneo'],
     
                     'SportName' => $r['sport'],
                     'SportId' => (int)$r['codice_sport'],
@@ -521,8 +521,8 @@ class ApiController extends Controller
                 $arr = [
                     'Id' => (int)$r['id'],
     
-                    'TourneyName' => $r['nome_torneo'],
-                    'TourneyId' => (int)$r['torneo'],
+                    'TournamentName' => $r['nome_torneo'],
+                    'TournamentId' => (int)$r['torneo'],
     
                     'SportName' => $r['sport'],
                     'SportId' => (int)$r['codice_sport'],
@@ -598,8 +598,8 @@ class ApiController extends Controller
                     'Sport' => $r['nome_sport'],
                     'SportId' => (int)$r['id_sport'],
     
-                    'ToruneyName' => $r['nome_torneo'],
-                    'TourneyId' => (int)$r['id_torneo'],
+                    'TournamentName' => $r['nome_torneo'],
+                    'TournamentId' => (int)$r['id_torneo'],
     
                     'Points' => isset($r['punteggio']) ? (int)$r['punteggio'] : null,
                     'MatchesToPlay' => isset($r['partite_da_giocare']) ? (int)$r['partite_da_giocare'] : null,
