@@ -100,10 +100,14 @@ class ApiController extends Controller
         // Get the parameters for the query
         $parameters = self::get_parameters();
 
+        $dummy_controller = new self(
+            connection: $this->DB,
+        );
+
         try { 
-            $call_object = call_user_func_array(callback: [$this, $f], args: $parameters);
+            $call_object = call_user_func_array(callback: [$dummy_controller, $f], args: $parameters);
             $result = $call_object->Execute($this->DB);
-            
+
             if (!isset($result))
             {
                 return $this->Json(
