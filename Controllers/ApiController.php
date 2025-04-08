@@ -60,10 +60,16 @@ class ApiController extends Controller
 
     public function get(?string $resource = null): int {
         if (empty($resource)) {
-            return $this->BadRequest();
+            return $this->Json(
+                object: [
+                    'message' => 'Invalid resource',
+                    'resource' => $resource,
+                ],
+                status_code: 400,
+            );
         }
 
-        $bearer = $this->get_param(name: 'Bearer');
+        $bearer = $this->get_bearer();
         if (!ApiToken::Test(
             connection: $this->DB, 
             key: $bearer, 
@@ -79,9 +85,12 @@ class ApiController extends Controller
             return $this->NotFound();
         }
 
+        $parameters = self::get_parameters();
+
         // Get the parameters for the query
         $f = $this->avaible_methods[$resource];
-        $call_object = $this->$f();
+        
+        $call_object = call_user_func_array(callback: [$this, $f], args: $parameters);
 
         $result = $call_object->Execute($this->DB);
         if (!isset($result)) {
@@ -91,17 +100,32 @@ class ApiController extends Controller
         return $this->Json(object: $result);
     }
 
-    private function get_param(string $name): string
+    private function get_bearer(): string
     {
         global $_HEADERS;
-        if (!array_key_exists(key: "Data-Param-$name", array: $_HEADERS))
+        if (!array_key_exists(key: "Data-Param-Bearer", array: $_HEADERS))
         {
             $this->Json(object: [
-                'message' => "Parameter '$name' missing",
+                'message' => "Parameter 'Bearer' missing",
             ], status_code: 400);
             exit;
         }
-        return $_HEADERS["Data-Param-$name"];
+        return $_HEADERS["Data-Param-Bearer"];
+    }
+    private static function get_parameters(): array
+    {
+        global $_HEADERS;
+        $arr = [];
+        foreach ($_HEADERS as $key => $value)
+        {
+            if (!str_starts_with(haystack: $key, needle: 'Data-Param-') || $key === "Data-Param-Bearer")
+            {
+                continue;
+            }
+
+            $arr[substr(string: $key, offset: strlen(string: 'Data-Param-'))] = $value;
+        }
+        return $arr;
     }
 
     private array $avaible_methods = [
@@ -191,12 +215,10 @@ class ApiController extends Controller
         );
     }
 
-    private function church(): ApiCall
+    private function church(int $Id): ApiCall
     {
-        $id = (int)$this->get_param(name: 'Id');
-
         return new ApiCall(
-            query: "SELECT * FROM `parrocchie` WHERE `id` = $id",
+            query: "SELECT * FROM `parrocchie` WHERE `id` = $Id",
             row_parser: function (array $r): array {
                 return [
                     'Id' => (int)$r['id'],
@@ -241,9 +263,9 @@ class ApiController extends Controller
         );
     }
 
-    private function managed_anagraphicals(): ApiCall
+    private function managed_anagraphicals(string $Email): ApiCall
     {
-        $email = $this->DB->escape_string($this->get_param(name: 'Email'));
+        $email = $this->DB->escape_string($Email);
         $query = 
             "SELECT * " .
             "FROM `anagrafiche_con_iscrizioni_correnti` " .
@@ -280,9 +302,9 @@ class ApiController extends Controller
         );
     }
 
-    private function today_matches_of(): ApiCall
+    private function today_matches_of(string $Email): ApiCall
     {
-        $email = $this->DB->escape_string($this->get_param(name: 'Email'));
+        $email = $this->DB->escape_string($Email);
         $query = "SELECT * FROM `partite_oggi_persona` WHERE LOWER(TRIM(`email`)) = LOWER(TRIM('$email'))";
         return new ApiCall(
             query: $query,
@@ -349,9 +371,9 @@ class ApiController extends Controller
         );
     }
 
-    private function today_matches_sport(): ApiCall
+    private function today_matches_sport(string $Sport): ApiCall
     {
-        $area = $this->DB->escape_string($this->get_param(name: 'Sport'));
+        $area = $this->DB->escape_string($Sport);
         $query = "SELECT * FROM `partite_oggi` WHERE UPPER(`area_sport`) = UPPER('$area')";
         return new ApiCall(
             query: $query,
@@ -489,11 +511,10 @@ class ApiController extends Controller
         );
     }
 
-    private function tournament(): ApiCall
+    private function tournament(int $Id): ApiCall
     {
-        $id = (int)$this->get_param(name: 'Id');
         return new ApiCall(
-            query: "SELECT * FROM `tornei_attivi` WHERE `id` = $id",
+            query: "SELECT * FROM `tornei_attivi` WHERE `id` = $Id",
             row_parser: function (array $r): array {
                 return [
                     'Id' => (int)$r['id'],
@@ -512,11 +533,10 @@ class ApiController extends Controller
         );
     }
 
-    private function tournament_matches(): ApiCall
+    private function tournament_matches(int $Id): ApiCall
     {
-        $id = (int)$this->get_param(name: 'Id');
         return new ApiCall(
-            query: "SELECT * FROM `partite_completo` WHERE `torneo` = $id",
+            query: "SELECT * FROM `partite_completo` WHERE `torneo` = $Id",
             row_parser: function($r): array {
                 $arr = [
                     'Id' => (int)$r['id'],
@@ -561,7 +581,7 @@ class ApiController extends Controller
                             ) : [],
                         'Home' => is_string(value: $r['punteggi_casa']) ? 
                             explode(separator: '|', string: $r['punteggi_casa']) : [],
-                        'Guest' => is_string($r['punteggi_ospiti']) ?
+                        'Guest' => is_string(value: $r['punteggi_ospiti']) ?
                             explode(separator: '|', string: $r['punteggi_ospiti']) : [],
                     ],
                 ];
@@ -582,11 +602,10 @@ class ApiController extends Controller
         );
     }
 
-    private function tournament_leaderboard(): ApiCall
+    private function tournament_leaderboard(int $Id): ApiCall
     {
-        $id = (int)$this->get_param(name: 'Id');
         return new ApiCall(
-            query: "SELECT * FROM `classifica_torneo` WHERE `id_torneo` = $id ORDER BY CAST(`punteggio` AS UNSIGNED) DESC",
+            query: "SELECT * FROM `classifica_torneo` WHERE `id_torneo` = $Id ORDER BY CAST(`punteggio` AS UNSIGNED) DESC",
             row_parser: function(array $r): array {
                 return [
                     'Name' => $r['nome_squadra'],
@@ -609,9 +628,9 @@ class ApiController extends Controller
         );
     }
 
-    private function tournament_sport(): ApiCall
+    private function tournament_sport(string $Sport): ApiCall
     {
-        $area = $this->DB->escape_string($this->get_param(name: 'Sport'));
+        $area = $this->DB->escape_string($Sport);
         return new ApiCall(
             query: "SELECT * FROM `tornei_attivi` WHERE UPPER(`area`) = UPPER('$area')",
             row_parser: function (array $r): array {
@@ -632,12 +651,11 @@ class ApiController extends Controller
         );
     }
 
-    private function add_result(): ApiCall
+    private function add_result(int $Id, string $Home, string $Guest): ApiCall
     {
-        $id = (int)$this->get_param(name: 'Id');
-        $home = $this->DB->escape_string($this->get_param(name: 'Home'));
-        $guest = $this->DB->escape_string($this->get_param(name: 'Guest'));
-        $query = "CALL `CreaPunteggioCompleto`($id, TRIM('$home'), TRIM('$guest'));";
+        $home = $this->DB->escape_string($Home);
+        $guest = $this->DB->escape_string($Guest);
+        $query = "CALL `CreaPunteggioCompleto`($Id, TRIM('$home'), TRIM('$guest'));";
         return new ApiCall(
             query: $query,
             row_parser: function (array $r) use($home, $guest): array {
@@ -651,11 +669,10 @@ class ApiController extends Controller
         );
     }
 
-    private function delete_result(): ApiCall
+    private function delete_result(int $Id): ApiCall
     {
-        $id = (int)$this->get_param(name: 'Id');
         return new ApiCall(
-            query: "DELETE FROM `punteggi` WHERE `id` = $id",
+            query: "DELETE FROM `punteggi` WHERE `id` = $Id",
         );
     }
 
