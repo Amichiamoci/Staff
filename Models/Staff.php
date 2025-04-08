@@ -36,7 +36,9 @@ class Staff extends StaffBase
             id: $id_parrocchia, 
             nome: $nome_parrocchia
         );
-        $this->Commissioni = $commissioni;
+        $this->Commissioni = array_filter(array: $commissioni, callback: function (string $c): bool {
+            return strlen(string: trim(string: $c)) > 0;
+        });
         if (isset($taglia))
         {
             $this->Taglia = ($taglia instanceof Taglia) ? $taglia : Taglia::from(value: $taglia);
@@ -154,8 +156,8 @@ class Staff extends StaffBase
                 nome_parrocchia: $row["parrocchia"],
                 commissioni: array_map(callback: "trim", array: explode(separator: ',', string: $row["lista_commissioni"])),
                 taglia: $row["maglia"],
-                is_referente: $row["cf"],
-                codice_fiscale: $row["referente"]
+                is_referente: $row["referente"],
+                codice_fiscale: $row["cf"]
             );
         }
 

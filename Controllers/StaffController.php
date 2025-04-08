@@ -105,6 +105,25 @@ class StaffController extends Controller
         );
     }
 
+    public function view(?int $id): int
+    {
+        $this->RequireLogin();
+        if (empty($id)) {
+            return $this->BadRequest();
+        }
+
+        $target = Staff::ById(connection: $this->DB, id: $id);
+        if (!isset($target)) {
+            return $this->NotFound();
+        }
+
+        return $this->Render(
+            view: 'Staff/view',
+            title: $target->Nome,
+            data: ['target' => $target],
+        );
+    }
+
     public function anagrafiche(?int $year = null): int {
         $this->RequireLogin();
         if (!isset($year) || $year === 0) {    
@@ -236,6 +255,30 @@ class StaffController extends Controller
         );
     }
 
+    private function anagrafica_handle_file(): ?string
+    {
+        $files = File::UploadingFiles(form_name: 'doc');
+        $files = array_filter(array: $files, callback: function(array $file): bool {
+            return File::IsUploadOk(file: $file);
+        });
+        if (count(value: $files) === 0)
+        {
+            return null;
+        }
+
+        $target_file_name = 
+            "documenti" . DIRECTORY_SEPARATOR . 
+            "documento_" . str_replace(search: '.', replace: '', subject: uniqid(more_entropy: true));
+
+        $path = File::UploadDocumentsMerge(files: $files, final_name: $target_file_name);
+        if (empty($path))
+        {
+            return null;
+        }
+
+        return File::AbsoluteToDbPath(server_path: $path);
+    }
+
     public function new_anagrafica(
         // Required parameters
         string $nome = '',
@@ -258,7 +301,8 @@ class StaffController extends Controller
 
         $types = TipoDocumento::All(connection: $this->DB);
 
-        if (self::IsPost()) {
+        if (self::IsPost())
+        {
             if (
                 empty($nome) ||
                 empty($cognome) ||
@@ -272,36 +316,17 @@ class StaffController extends Controller
                 return $this->BadRequest();
             }
 
-            if (!empty($id)) {
-                //
-                // Edit an existing record
-                //
+            $document_path = $this->anagrafica_handle_file();
+            $already_existed = false;
 
-                $this->Message(message: Message::Success(content: 'Dati correttamente modificati'));
-                return $this->edit_anagrafica(id: $id);
-            }
 
-            //
-            // Create new record
-            //
-            $files = File::UploadingFiles(form_name: 'doc');
-            $files = array_filter(array: $files, callback: function(array $file): bool {
-                return File::IsUploadOk(file: $file);
-            });
-            if (count(value: $files) === 0) {
+            if (empty($id) && empty($document_path))
+            {
+                // If we are creating a new record the document is mandatory
                 return $this->BadRequest();
             }
-            $target_file_name = 
-                "documenti" . DIRECTORY_SEPARATOR . 
-                "documento_" . str_replace(search: '.', replace: '', subject: uniqid(more_entropy: true));
-            $actual_path = File::UploadDocumentsMerge(files: $files, final_name: $target_file_name);
-            if (empty($actual_path)) {
-                // Error
-                return $this->InternalError();
-            }
 
-            $already_existed = false;
-            $id = Anagrafica::CreateOrUpdate(
+            $record_id = Anagrafica::CreateOrUpdate(
                 connection: $this->DB,
                 nome: $nome,
                 cognome: $cognome,
@@ -314,25 +339,50 @@ class StaffController extends Controller
                 doc_type: $doc_type,
                 doc_code: $doc_code,
                 doc_expires: $doc_expires,
-                nome_file: File::AbsoluteToDbPath(server_path: $actual_path),
+                nome_file: $document_path,
 
                 already_existing: $already_existed,
             );
 
-            if (isset($id))
+            if (!empty($id))
+            {
+                // If we have edited a record (an id was provided with the request)
+
+                if (empty($record_id))
+                {
+                    // Something has gone wrong: the procedure failed.
+                    $this->Message(message: Message::Error(content: 'È avvenuto un errore'));
+                    return $this->edit_anagrafica(id: $id); 
+                }
+
+                if (!$already_existed || $record_id !== $id)
+                {
+                    // The procedure succeded but the cf was not pointing to this anagrafica
+                    $this->Message(message: Message::Warn(content: 'Anagrafica modificata, tuttavia i dati non sembrano essere allineati'));
+                    return $this->edit_anagrafica(id: $id); 
+                }
+
+                // All ok
+                $this->Message(message: Message::Success(content: 'Dati correttamente modificati'));
+                return $this->edit_anagrafica(id: $id);
+            }
+
+            // We have creted a new record. Hopefully
+            if (!empty($record_id))
             {
                 // Everything went ok
                 return $this->Render(
                     view: 'Staff/created-anagrafica',
                     title: $nome . ' correttamente ' . ($already_existed ? 'modificato' : 'aggiunto'),
                     data: [
-                        'id' => $id,
+                        'id' => $record_id,
                         'nome' => $nome,
                         'already_existed' => $already_existed,
                     ]
                 );
             }
 
+            // Something has gone wrong
             $this->Message(message: Message::Error(content: 'Non è stato possibile registrare i dati!'));
         }
 
@@ -388,7 +438,8 @@ class StaffController extends Controller
             return $this->NotFound();
         }
 
-        if (self::IsPost()) {
+        if (self::IsPost())
+        {
             if (empty($parrocchia) || empty($taglia)) {
                 return $this->BadRequest();
             }
@@ -402,10 +453,18 @@ class StaffController extends Controller
                 return File::IsUploadOk(file: $file);
             });
             $actual_path = null;
-            if (count(value: $files) > 0) {
+            if (count(value: $files) > 0)
+            {
+                $year = Edizione::ById(connection: $this->DB, id: $edizione);
+                if (!isset($year))
+                {
+                    return $this->NotFound();
+                }
+
                 $target_file_name = 
                     "certificati" . DIRECTORY_SEPARATOR . 
-                    $edizione . '_' . str_replace(search: '.', replace: '', subject: uniqid(more_entropy: true));
+                    $year->Year . '_' . 
+                    str_replace(search: '.', replace: '', subject: uniqid(more_entropy: true));
                 $actual_path = File::UploadDocumentsMerge(files: $files, final_name: $target_file_name);
             }
 
@@ -413,10 +472,12 @@ class StaffController extends Controller
                 connection: $this->DB, 
                 id_anagrafica: $id, 
                 tutore: $tutore, 
-                certificato: File::AbsoluteToDbPath(server_path: $actual_path), 
+                certificato: empty($actual_path) ? 
+                    null : 
+                    File::AbsoluteToDbPath(server_path: $actual_path), 
                 parrocchia: $parrocchia, 
                 taglia: Taglia::from(value: $taglia), 
-                edizione: $edizione
+                edizione: $edizione,
             );
             if ($res) {
                 if (isset($actual_path)) {

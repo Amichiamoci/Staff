@@ -111,8 +111,11 @@ class User implements DbEntity
         if (!isset($user_ip)) $user_ip = "";
 
         $query = "CALL `GetUserPassword`(?);";
-        $result = $connection->execute_query(query: $query, params: [ $username ]);
-        if (!$result)
+        $result = $connection->execute_query(
+            query: $query, 
+            params: [ trim(string: $username) ]
+        );
+        if (!$result || $result->num_rows === 0)
         {
             $connection->next_result();
             return false;
@@ -125,7 +128,10 @@ class User implements DbEntity
             $id = (int)$row["id"];
             $hash = $row["password"];
             $admin = isset($row["is_admin"]) && (int)$row["is_admin"] === 1;
-            $passed = $id !== 0 && Security::TestPassword(password: $password, hash: $hash);
+            $passed = $id !== 0 && Security::TestPassword(
+                password: trim(string: $password), 
+                hash: $hash
+            );
         }
         $result->close();
         $connection->next_result();
@@ -549,7 +555,7 @@ class User implements DbEntity
             return [];
 
         $result = $connection->execute_query(
-            query: "SELECT * FROM `sessioni` WHERE `user_id` = ?",
+            query: "SELECT * FROM `sessioni` WHERE `user_id` = ? ORDER BY `time_log` DESC",
             params: [$this->Id],
         );
         if (!$result) {

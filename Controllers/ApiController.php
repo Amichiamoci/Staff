@@ -6,12 +6,32 @@ use Amichiamoci\Models\Api\Call as ApiCall;
 use Amichiamoci\Models\Api\Token as ApiToken;
 use Amichiamoci\Models\Message;
 use Amichiamoci\Utils\Security;
+use Reflection;
+use ReflectionClass;
 
 class ApiController extends Controller
 {
+    public function delete_token(?int $id = null): int
+    {
+        $this->RequireLogin(require_admin: true);
+        if (empty($id))
+        {
+            return $this->admin();
+        }
+
+        if (ApiToken::Delete(connection: $this->DB, id: $id))
+        {
+            $this->Message(message: Message::Success(content: 'Token correttamente eliminato'));
+        } else {
+            $this->Message(message: Message::Error(content: 'Non è stato possibile disabilitare il token'));
+        }
+
+        return $this->admin();
+    }
     public function admin(?string $token_name = null): int
     {
         $this->RequireLogin(require_admin: true);
+        $generated_key = null;
 
         if (self::IsPost() && isset($token_name))
         {
@@ -20,8 +40,9 @@ class ApiController extends Controller
             {
                 $this->Message(
                     message: Message::Success(
-                        content: "Token correttamente generato: " . $new_token->Key)
+                        content: "Token correttamente generato.")
                 );
+                $generated_key = $new_token->Key;
             } else {
                 $this->Message(
                     message: Message::Error(content: "Impossibile generare il token!")
@@ -34,16 +55,34 @@ class ApiController extends Controller
             title: 'Applicazioni attive',
             data: [
                 'tokens' => ApiToken::All(connection: $this->DB),
+                'new_key' => $generated_key,
             ],
         );
     }
 
-    public function get(?string $resource = null): int {
-        if (empty($resource)) {
-            return $this->BadRequest();
+    public function index(?string $resource = null): int {
+        if (!isset($resource))
+        {
+            return $this->Json(
+                object: [
+                    'message' => 'Invalid resource',
+                    'resource' => $resource,
+                ],
+                status_code: 400,
+            );
         }
 
-        $bearer = $this->get_param(name: 'Bearer');
+        $bearer = $this->get_bearer();
+        if (!isset($bearer))
+        {
+            return $this->Json(
+                object: [
+                    'message' => "Header 'App-Bearer' missing",
+                ],
+                status_code: 400,
+            );
+        }
+
         if (!ApiToken::Test(
             connection: $this->DB, 
             key: $bearer, 
@@ -55,33 +94,67 @@ class ApiController extends Controller
             );
         }
 
-        if (!array_key_exists(key: $resource, array: $this->avaible_methods)) {
+        if (!array_key_exists(key: $resource, array: $this->avaible_methods))
+        {
             return $this->NotFound();
         }
 
         // Get the parameters for the query
-        $f = $this->avaible_methods[$resource];
-        $call_object = $this->$f();
+        $parameters = self::get_parameters();
 
-        $result = $call_object->Execute($this->DB);
-        if (!isset($result)) {
-            return $this->InternalError();
+        $dummy_controller = new ReflectionClass(objectOrClass: $this);
+        $method = $dummy_controller->getMethod(name: $this->avaible_methods[$resource]);
+        $method->setAccessible(accessible: true);
+
+        try { 
+            // $call_object = call_user_func_array(callback: [$dummy_controller, $f], args: $parameters);
+            $call_object = $method->invokeArgs(object: $this, args: $parameters);
+            $result = $call_object->Execute($this->DB);
+
+            if (!isset($result))
+            {
+                return $this->Json(
+                    object: ['message' => 'Could not obtain result from action'],
+                    status_code: 500,
+                );
+            }
+        } catch (\Throwable $ex) {
+            return $this->Json(
+                object: [
+                    'message' => $ex->getMessage(),
+                    'stack' => $ex->getTrace(),
+                    'line' => $ex->getLine(),
+                    'file' => $ex->getFile(),
+                ],
+                status_code: 500,
+            );
         }
 
         return $this->Json(object: $result);
     }
 
-    private function get_param(string $name): string
+    private function get_bearer(): ?string
     {
-        global $_HEADERS;
-        if (!array_key_exists(key: "Data-Param-$name", array: $_HEADERS))
+        $headers = getallheaders();
+        if (!array_key_exists(key: "App-Bearer", array: $headers))
         {
-            $this->Json(object: [
-                'message' => "Parameter '$name' missing",
-            ], status_code: 400);
-            exit;
+            return null;
         }
-        return $_HEADERS["Data-Param-$name"];
+        return $headers["App-Bearer"];
+    }
+    private static function get_parameters(): array
+    {
+        $arr = [];
+        foreach (getallheaders() as $key => $value)
+        {
+            if (!str_starts_with(haystack: $key, needle: 'Data-Param-'))
+            {
+                continue;
+            }
+
+            $arr[substr(string: $key, offset: strlen(string: 'Data-Param-'))] = $value;
+        }
+        return $arr;
     }
 
     private array $avaible_methods = [
@@ -89,6 +162,7 @@ class ApiController extends Controller
         'teams-info' => 'teams_info',
 
         'church' => 'church',
+        'churches' => 'churches',
         'staff-list' => 'staff_list',
 
         'managed-anagraphicals' => 'managed_anagraphicals',
@@ -170,12 +244,26 @@ class ApiController extends Controller
         );
     }
 
-    private function church(): ApiCall
+    private function church(int $Id): ApiCall
     {
-        $id = (int)$this->get_param(name: 'Id');
-
         return new ApiCall(
-            query: "SELECT * FROM `parrocchie` WHERE `id` = $id",
+            query: "SELECT * FROM `parrocchie` WHERE `id` = $Id",
+            row_parser: function (array $r): array {
+                return [
+                    'Id' => (int)$r['id'],
+                    'Name' => $r['nome'],
+    
+                    'Address' => is_string(value: $r['indirizzo']) && strlen(string: $r['indirizzo']) > 0 ? $r['indirizzo'] : null,
+                    'Website' => is_string(value: $r['website']) && strlen(string: $r['website']) > 0 ? $r['website'] : null,
+                ];
+            }
+        );
+    }
+
+    private function churches(): ApiCall
+    {
+        return new ApiCall(
+            query: "SELECT * FROM `parrocchie`",
             row_parser: function (array $r): array {
                 return [
                     'Id' => (int)$r['id'],
@@ -204,9 +292,9 @@ class ApiController extends Controller
         );
     }
 
-    private function managed_anagraphicals(): ApiCall
+    private function managed_anagraphicals(string $Email): ApiCall
     {
-        $email = $this->DB->escape_string($this->get_param(name: 'Email'));
+        $email = $this->DB->escape_string($Email);
         $query = 
             "SELECT * " .
             "FROM `anagrafiche_con_iscrizioni_correnti` " .
@@ -222,7 +310,7 @@ class ApiController extends Controller
                     'Phone' => is_string(value: $r['telefono']) && strlen(string: $r['telefono']) > 0 ? $r['telefono'] : null,
                     'Email' => is_string(value: $r['email']) && strlen(string: $r['email']) > 0 ? $r['email'] : null,
                     
-                    'FiscalCode' => $r['cf'],
+                    'TaxCode' => $r['cf'],
                     'BirthDate' => $r['data_nascita_italiana'],
                     
                     'Document' => [
@@ -243,9 +331,9 @@ class ApiController extends Controller
         );
     }
 
-    private function today_matches_of(): ApiCall
+    private function today_matches_of(string $Email): ApiCall
     {
-        $email = $this->DB->escape_string($this->get_param(name: 'Email'));
+        $email = $this->DB->escape_string($Email);
         $query = "SELECT * FROM `partite_oggi_persona` WHERE LOWER(TRIM(`email`)) = LOWER(TRIM('$email'))";
         return new ApiCall(
             query: $query,
@@ -258,8 +346,8 @@ class ApiController extends Controller
     
                     'Id' => (int)$r['id_partita'],
     
-                    'TourneyName' => $r['torneo'],
-                    'TourneyId' => (int)$r['codice_torneo'],
+                    'TournamentName' => $r['torneo'],
+                    'TournamentId' => (int)$r['codice_torneo'],
     
                     'SportName' => $r['sport'],
                     'SportId' => (int)$r['codice_sport'],
@@ -312,9 +400,9 @@ class ApiController extends Controller
         );
     }
 
-    private function today_matches_sport(): ApiCall
+    private function today_matches_sport(string $Sport): ApiCall
     {
-        $area = $this->DB->escape_string($this->get_param(name: 'Sport'));
+        $area = $this->DB->escape_string($Sport);
         $query = "SELECT * FROM `partite_oggi` WHERE UPPER(`area_sport`) = UPPER('$area')";
         return new ApiCall(
             query: $query,
@@ -322,8 +410,8 @@ class ApiController extends Controller
                 $arr = [
                     'Id' => (int)$r['id'],
     
-                    'TourneyName' => $r['nome_torneo'],
-                    'TourneyId' => (int)$r['torneo'],
+                    'TournamentName' => $r['nome_torneo'],
+                    'TournamentId' => (int)$r['torneo'],
     
                     'SportName' => $r['sport'],
                     'SportId' => (int)$r['codice_sport'],
@@ -391,8 +479,8 @@ class ApiController extends Controller
                 $arr = [
                     'Id' => (int)$r['id'],
     
-                    'TourneyName' => $r['nome_torneo'],
-                    'TourneyId' => (int)$r['torneo'],
+                    'TournamentName' => $r['nome_torneo'],
+                    'TournamentId' => (int)$r['torneo'],
     
                     'SportName' => $r['sport'],
                     'SportId' => (int)$r['codice_sport'],
@@ -452,11 +540,10 @@ class ApiController extends Controller
         );
     }
 
-    private function tournament(): ApiCall
+    private function tournament(int $Id): ApiCall
     {
-        $id = (int)$this->get_param(name: 'Id');
         return new ApiCall(
-            query: "SELECT * FROM `tornei_attivi` WHERE `id` = $id",
+            query: "SELECT * FROM `tornei_attivi` WHERE `id` = $Id",
             row_parser: function (array $r): array {
                 return [
                     'Id' => (int)$r['id'],
@@ -475,17 +562,16 @@ class ApiController extends Controller
         );
     }
 
-    private function tournament_matches(): ApiCall
+    private function tournament_matches(int $Id): ApiCall
     {
-        $id = (int)$this->get_param(name: 'Id');
         return new ApiCall(
-            query: "SELECT * FROM `partite_completo` WHERE `torneo` = $id",
+            query: "SELECT * FROM `partite_completo` WHERE `torneo` = $Id",
             row_parser: function($r): array {
                 $arr = [
                     'Id' => (int)$r['id'],
     
-                    'TourneyName' => $r['nome_torneo'],
-                    'TourneyId' => (int)$r['torneo'],
+                    'TournamentName' => $r['nome_torneo'],
+                    'TournamentId' => (int)$r['torneo'],
     
                     'SportName' => $r['sport'],
                     'SportId' => (int)$r['codice_sport'],
@@ -524,7 +610,7 @@ class ApiController extends Controller
                             ) : [],
                         'Home' => is_string(value: $r['punteggi_casa']) ? 
                             explode(separator: '|', string: $r['punteggi_casa']) : [],
-                        'Guest' => is_string($r['punteggi_ospiti']) ?
+                        'Guest' => is_string(value: $r['punteggi_ospiti']) ?
                             explode(separator: '|', string: $r['punteggi_ospiti']) : [],
                     ],
                 ];
@@ -545,11 +631,10 @@ class ApiController extends Controller
         );
     }
 
-    private function tournament_leaderboard(): ApiCall
+    private function tournament_leaderboard(int $Id): ApiCall
     {
-        $id = (int)$this->get_param(name: 'Id');
         return new ApiCall(
-            query: "SELECT * FROM `classifica_torneo` WHERE `id_torneo` = $id ORDER BY CAST(`punteggio` AS UNSIGNED) DESC",
+            query: "SELECT * FROM `classifica_torneo` WHERE `id_torneo` = $Id ORDER BY CAST(`punteggio` AS UNSIGNED) DESC",
             row_parser: function(array $r): array {
                 return [
                     'Name' => $r['nome_squadra'],
@@ -561,8 +646,8 @@ class ApiController extends Controller
                     'Sport' => $r['nome_sport'],
                     'SportId' => (int)$r['id_sport'],
     
-                    'ToruneyName' => $r['nome_torneo'],
-                    'TourneyId' => (int)$r['id_torneo'],
+                    'TournamentName' => $r['nome_torneo'],
+                    'TournamentId' => (int)$r['id_torneo'],
     
                     'Points' => isset($r['punteggio']) ? (int)$r['punteggio'] : null,
                     'MatchesToPlay' => isset($r['partite_da_giocare']) ? (int)$r['partite_da_giocare'] : null,
@@ -572,9 +657,9 @@ class ApiController extends Controller
         );
     }
 
-    private function tournament_sport(): ApiCall
+    private function tournament_sport(string $Sport): ApiCall
     {
-        $area = $this->DB->escape_string($this->get_param(name: 'Sport'));
+        $area = $this->DB->escape_string($Sport);
         return new ApiCall(
             query: "SELECT * FROM `tornei_attivi` WHERE UPPER(`area`) = UPPER('$area')",
             row_parser: function (array $r): array {
@@ -595,12 +680,11 @@ class ApiController extends Controller
         );
     }
 
-    private function add_result(): ApiCall
+    private function add_result(int $Id, string $Home, string $Guest): ApiCall
     {
-        $id = (int)$this->get_param(name: 'Id');
-        $home = $this->DB->escape_string($this->get_param(name: 'Home'));
-        $guest = $this->DB->escape_string($this->get_param(name: 'Guest'));
-        $query = "CALL `CreaPunteggioCompleto`($id, TRIM('$home'), TRIM('$guest'));";
+        $home = $this->DB->escape_string($Home);
+        $guest = $this->DB->escape_string($Guest);
+        $query = "CALL `CreaPunteggioCompleto`($Id, TRIM('$home'), TRIM('$guest'));";
         return new ApiCall(
             query: $query,
             row_parser: function (array $r) use($home, $guest): array {
@@ -614,11 +698,10 @@ class ApiController extends Controller
         );
     }
 
-    private function delete_result(): ApiCall
+    private function delete_result(int $Id): ApiCall
     {
-        $id = (int)$this->get_param(name: 'Id');
         return new ApiCall(
-            query: "DELETE FROM `punteggi` WHERE `id` = $id",
+            query: "DELETE FROM `punteggi` WHERE `id` = $Id",
         );
     }
 

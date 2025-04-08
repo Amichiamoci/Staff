@@ -53,12 +53,12 @@ SELECT
     `parrocchie`.`nome` AS "parrocchia", 
     `parrocchie`.`id` AS "id_parrocchia",
     s.`id` AS "id_staffista", 
-    IFNULL(p.`is_referente`, FALSE) AS "referente", 
-    p.`maglia`,
+    MAX(IFNULL(p.`is_referente`, FALSE)) AS "referente", 
+    MAX(p.`maglia`) AS "maglia",
     IFNULL(GROUP_CONCAT(DISTINCT c.`nome` SEPARATOR ', '), '') AS "lista_commissioni",
 
-    e.`anno`,
-    e.`id` AS "id_edizione"
+    MAX(e.`anno`) AS "anno",
+    MAX(e.`id`) AS "id_edizione"
 FROM `staffisti` s
     INNER JOIN `anagrafiche_espanse` a ON s.`dati_anagrafici` = a.`id`
     INNER JOIN `parrocchie` ON s.`parrocchia` = `parrocchie`.`id`

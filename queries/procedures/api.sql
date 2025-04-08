@@ -6,8 +6,8 @@ CREATE PROCEDURE `ApiCallValidate`(
     IN `ip` VARCHAR(15)
 )
 BEGIN
-    DECLARE @id INT DEFAULT NULL;
-    DECLARE @hits INT DEFAULT 0;
+    SET @id = NULL;
+    SET @hits = NULL;
 
     SELECT `api_token`.`id` INTO @id 
     FROM `api_token`
@@ -15,11 +15,11 @@ BEGIN
 
     SELECT `api_usage`.`hits` INTO @hits
     FROM `api_usage`
-    WHERE `api_usage`.`token_id` = @id AND `api_usage`.`ip` = ip;
+    WHERE `api_usage`.`token_id` = @id AND `api_usage`.`ip_address` = ip;
 
     IF @id IS NOT NULL THEN
         REPLACE INTO `api_usage` (`token_id`, `ip_address`, `hits`)
-        VALUES (`key`, `ip`, IFNULL(@hits, 0) + 1);
+        VALUES (@id, ip, IFNULL(@hits, 0) + 1);
     END IF;
 
     SELECT @id AS "id";

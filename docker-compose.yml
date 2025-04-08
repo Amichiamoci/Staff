@@ -13,6 +13,7 @@ services:
       - ADMIN_USERNAME=admin
       - ADMIN_PASSWORD=changeme
       - CRON_ENABLE_HTTP=1
+      - ENABLE_API=1
     env_file:
       - ./.env
     volumes:

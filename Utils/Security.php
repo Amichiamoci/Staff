@@ -16,9 +16,10 @@ class Security
             return false;
         return password_verify(password: $password, hash: $hash);
     }
-    public static function IsFromApp() : bool
+    public static function ApiEnabled(): bool
     {
-        return isset($_COOKIE['AppVersion']) && !is_array(value: $_COOKIE['AppVersion']);
+        $enable_api = self::LoadEnvironmentOfFromFile(var: 'ENABLE_API');
+        return is_string(value: $enable_api) && (bool)$enable_api;
     }
     public static function RandomSubset(int $length, array $alphabet): string
     {
@@ -30,11 +31,15 @@ class Security
         return $str;
     }
 
+    public const LETTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    public const DIGITS = '0123456789';
+    public const SYMBOLS = '!?/@;*+-$%&=^_';
+
     public static function RandomPassword(int $length = 10) : string
     {
         return self::RandomSubset(
             length: $length, 
-            alphabet: str_split(string: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?/@;*+-$%&=^_"),
+            alphabet: str_split(string: self::LETTERS . self::DIGITS . self::SYMBOLS),
         );
     }
 
