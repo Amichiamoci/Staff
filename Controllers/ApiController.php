@@ -6,7 +6,6 @@ use Amichiamoci\Models\Api\Call as ApiCall;
 use Amichiamoci\Models\Api\Token as ApiToken;
 use Amichiamoci\Models\Message;
 use Amichiamoci\Utils\Security;
-
 class ApiController extends Controller
 {
     public function delete_token(?int $id = null): int
@@ -102,23 +101,22 @@ class ApiController extends Controller
 
     private function get_bearer(): string
     {
-        global $_HEADERS;
-        if (!array_key_exists(key: "Data-Param-Bearer", array: $_HEADERS))
+        $headers = getallheaders();
+        if (!array_key_exists(key: "App-Bearer", array: $headers))
         {
             $this->Json(object: [
                 'message' => "Parameter 'Bearer' missing",
             ], status_code: 400);
             exit;
         }
-        return $_HEADERS["Data-Param-Bearer"];
+        return $headers["App-Bearer"];
     }
     private static function get_parameters(): array
     {
-        global $_HEADERS;
         $arr = [];
-        foreach ($_HEADERS as $key => $value)
+        foreach (getallheaders() as $key => $value)
         {
-            if (!str_starts_with(haystack: $key, needle: 'Data-Param-') || $key === "Data-Param-Bearer")
+            if (!str_starts_with(haystack: $key, needle: 'Data-Param-'))
             {
                 continue;
             }
