@@ -57,8 +57,9 @@ class ApiController extends Controller
         );
     }
 
-    public function get(?string $resource = null): int {
-        if (empty($resource)) {
+    public function index(?string $resource = null): int {
+        if (!isset($resource))
+        {
             return $this->Json(
                 object: [
                     'message' => 'Invalid resource',
@@ -69,6 +70,16 @@ class ApiController extends Controller
         }
 
         $bearer = $this->get_bearer();
+        if (!isset($bearer))
+        {
+            return $this->Json(
+                object: [
+                    'message' => "Header 'App-Bearer' missing",
+                ],
+                status_code: 400,
+            );
+        }
+
         if (!ApiToken::Test(
             connection: $this->DB, 
             key: $bearer, 
@@ -99,15 +110,12 @@ class ApiController extends Controller
         return $this->Json(object: $result);
     }
 
-    private function get_bearer(): string
+    private function get_bearer(): ?string
     {
         $headers = getallheaders();
         if (!array_key_exists(key: "App-Bearer", array: $headers))
         {
-            $this->Json(object: [
-                'message' => "Parameter 'Bearer' missing",
-            ], status_code: 400);
-            exit;
+            return null;
         }
         return $headers["App-Bearer"];
     }
