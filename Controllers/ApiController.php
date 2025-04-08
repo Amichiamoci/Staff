@@ -91,20 +91,36 @@ class ApiController extends Controller
             );
         }
 
-        if (!array_key_exists(key: $resource, array: $this->avaible_methods)) {
+        if (!array_key_exists(key: $resource, array: $this->avaible_methods))
+        {
             return $this->NotFound();
         }
-
-        $parameters = self::get_parameters();
+        $f = $this->avaible_methods[$resource];
 
         // Get the parameters for the query
-        $f = $this->avaible_methods[$resource];
-        
-        $call_object = call_user_func_array(callback: [$this, $f], args: $parameters);
+        $parameters = self::get_parameters();
 
-        $result = $call_object->Execute($this->DB);
-        if (!isset($result)) {
-            return $this->InternalError();
+        try { 
+            $call_object = call_user_func_array(callback: [$this, $f], args: $parameters);
+            $result = $call_object->Execute($this->DB);
+            
+            if (!isset($result))
+            {
+                return $this->Json(
+                    object: ['message' => 'Could not obtain result from action'],
+                    status_code: 500,
+                );
+            }
+        } catch (\Throwable $ex) {
+            return $this->Json(
+                object: [
+                    'message' => $ex->getMessage(),
+                    'stack' => $ex->getTrace(),
+                    'line' => $ex->getLine(),
+                    'file' => $ex->getFile(),
+                ],
+                status_code: 500,
+            );
         }
 
         return $this->Json(object: $result);
