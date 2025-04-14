@@ -5,6 +5,7 @@ namespace Amichiamoci\Controllers;
 use Amichiamoci\Models\Api\Call as ApiCall;
 use Amichiamoci\Models\Api\Token as ApiToken;
 use Amichiamoci\Models\Message;
+use Amichiamoci\Models\Taglia;
 use Amichiamoci\Utils\Security;
 use Reflection;
 use ReflectionClass;
@@ -163,6 +164,7 @@ class ApiController extends Controller
 
         'church' => 'church',
         'churches' => 'churches',
+        'document-types' => 'document_types',
         'staff-list' => 'staff_list',
 
         'managed-anagraphicals' => 'managed_anagraphicals',
@@ -180,6 +182,8 @@ class ApiController extends Controller
         'delete-match-result' => 'delete_result',
 
         'leaderboard' => 'leaderboard',
+
+        //'subscribe' => 'subscribe',
     ];
     private function teams_members(): ApiCall
     {
@@ -271,6 +275,19 @@ class ApiController extends Controller
     
                     'Address' => is_string(value: $r['indirizzo']) && strlen(string: $r['indirizzo']) > 0 ? $r['indirizzo'] : null,
                     'Website' => is_string(value: $r['website']) && strlen(string: $r['website']) > 0 ? $r['website'] : null,
+                ];
+            }
+        );
+    }
+
+    private function document_types(): ApiCall
+    {
+        return new ApiCall(
+            query: "SELECT * FROM `tipi_documento`",
+            row_parser: function (array $r): array {
+                return [
+                    'Id' => (int)$r['id'],
+                    'Label' => $r['label'],
                 ];
             }
         );
@@ -720,6 +737,37 @@ class ApiController extends Controller
                     'Position' => (int)$r['posizione'],
                 ];
             }
+        );
+    }
+
+    private function subscribe(
+        int $Anagraphical,
+        int $Church,
+        string $Shirt,
+        ?int $Id = null,
+
+        ?int $Tutor = null,
+    ): ApiCall
+    {
+        $taglia = Taglia::from(value: $Shirt)->value;
+        $tutor = empty($Tutor) ? 'NULL' : $Tutor;
+
+        return new ApiCall(
+            query: 
+                ($Id === null) ?
+                    "CALL `IscriviEdizioneCorrente`($Anagraphical, $Church, '$Shirt', $tutor);" :
+                    "UPDATE `iscritti` SET `dati_anagrafici` = $Anagraphical, `parrocchia`= $Church, `taglia_maglietta` = $Shirt, `tutore` = $tutor WHERE `id` = $Id",
+            row_parser: function (array $r) use($Anagraphical, $Church, $taglia, $Tutor): array
+            {
+                return [
+                    'Anagraphical' => $Anagraphical,
+                    'Church' => $Church,
+                    'Shirt' => $taglia,
+                    'Tutor' => $Tutor,
+                    'Id' => (int)$r['id'],
+                ];
+            },
+            is_procedure: $Id === null,
         );
     }
 }

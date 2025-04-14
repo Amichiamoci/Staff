@@ -221,5 +221,19 @@ lista_body:BEGIN
     ORDER BY Parrocchia, Taglia, Cognome, Nome;
 END ; //
 
+DROP PROCEDURE IF EXISTS `IscriviEdizioneCorrente` //
+CREATE PROCEDURE `IscriviEdizioneCorrente` (IN anagrafica INT, IN parrocchia INT, IN taglia VARCHAR(8), IN tutore INT)
+lista_body:BEGIN 
+    DECLARE _ediz INT DEFAULT 0;
+
+    SELECT e.`id` INTO _ediz
+    FROM `edizioni` e
+    WHERE e.`anno` = YEAR(CURRENT_DATE);
+
+    INSERT INTO `iscritti` (`dati_anagrafici`, `edizione`, `tutore`, `parrocchia`, `taglia_maglietta`) 
+    VALUES (anagrafica, _ediz, tutore, parrocchia, taglia);
+
+    SELECT LAS_INSERT_ID() AS "id";
+END ; //
 
 DELIMITER ;
