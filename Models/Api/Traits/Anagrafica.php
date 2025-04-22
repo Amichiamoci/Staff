@@ -69,11 +69,11 @@ trait Anagrafica
 
                 if (isset($r['scadenza_problem']))
                 {
-                    $base['Status'][] = $r['scadenza_problem'];
+                    $base['Status']['Scadenza documento'] = $r['scadenza_problem'];
                 }
                 if (isset($r['stato_certificato']))
                 {
-                    $base['Status'][] = $r['stato_certificato'];
+                    $base['Status']['Certificato medico'] = $r['stato_certificato'];
                 }
 
                 return $base;
