@@ -171,6 +171,7 @@ class ApiController extends Controller
         'churches' => 'churches',
         'document-types' => 'document_types',
         'staff-list' => 'staff_list',
+        'get-user-claims' => 'get_user_claims',
 
         'managed-anagraphicals' => 'managed_anagraphicals',
 
