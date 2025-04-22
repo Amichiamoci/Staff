@@ -5,7 +5,6 @@ namespace Amichiamoci\Controllers;
 use Amichiamoci\Models\Api\Call as ApiCall;
 use Amichiamoci\Models\Api\Token as ApiToken;
 use Amichiamoci\Models\Message;
-use Amichiamoci\Models\Taglia;
 use Amichiamoci\Models\Api\Traits\Anagrafica as AnagraficaTrait;
 use Amichiamoci\Models\Api\Traits\Parrocchia as ParrocchiaTrait;
 use Amichiamoci\Models\Api\Traits\Staff as StaffTrait;
@@ -199,53 +198,4 @@ class ApiController extends Controller
     use SquadraTrait;
 
     use TorneoTrait, PartitaTrait;
-
-    private function leaderboard(): ApiCall
-    {
-        return new ApiCall(
-            query: "SELECT * FROM `classifica_parrocchie`",
-            row_parser: function (array $r): array {
-                return [
-                    'Id' => (int)$r['id'],
-                    'Name' => $r['nome'],
-                    'Address' => is_string(value: $r['indirizzo']) && strlen(string: $r['indirizzo']) > 0 ? $r['indirizzo'] : null,
-                    'Website' => is_string(value: $r['website']) && strlen(string: $r['website']) > 0 ? $r['website'] : null,
-               
-                    'Score' => (int)$r['punteggio'],
-                    'Position' => (int)$r['posizione'],
-                ];
-            }
-        );
-    }
-
-    private function subscribe(
-        int $Anagraphical,
-        int $Church,
-        string $Shirt,
-        ?int $Id = null,
-
-        ?int $Tutor = null,
-    ): ApiCall
-    {
-        $taglia = Taglia::from(value: $Shirt)->value;
-        $tutor = empty($Tutor) ? 'NULL' : $Tutor;
-
-        return new ApiCall(
-            query: 
-                ($Id === null) ?
-                    "CALL `IscriviEdizioneCorrente`($Anagraphical, $Church, '$Shirt', $tutor);" :
-                    "UPDATE `iscritti` SET `dati_anagrafici` = $Anagraphical, `parrocchia`= $Church, `taglia_maglietta` = $Shirt, `tutore` = $tutor WHERE `id` = $Id",
-            row_parser: function (array $r) use($Anagraphical, $Church, $taglia, $Tutor): array
-            {
-                return [
-                    'Anagraphical' => $Anagraphical,
-                    'Church' => $Church,
-                    'Shirt' => $taglia,
-                    'Tutor' => $Tutor,
-                    'Id' => (int)$r['id'],
-                ];
-            },
-            is_procedure: $Id === null,
-        );
-    }
 }

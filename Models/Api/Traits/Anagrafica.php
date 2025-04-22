@@ -2,6 +2,7 @@
 
 namespace Amichiamoci\Models\Api\Traits;
 use Amichiamoci\Models\Api\Call as ApiCall;
+use Amichiamoci\Models\Taglia;
 
 trait Anagrafica
 {
@@ -58,7 +59,10 @@ trait Anagrafica
                 {
                     $base['Subscription'] = [
                         'Id' => (int)$r['id_iscrizione'],
-                        'ChurchId' => (int)$r['id_parrocchia'],
+                        'Church' => [
+                            'Id' => (int)$r['id_parrocchia'],
+                            'Name' => $r['parrocchia'],
+                        ],
                         'Shirt' => $r['maglia'],
                     ];
                 }
@@ -74,6 +78,37 @@ trait Anagrafica
 
                 return $base;
             }
+        );
+    }
+
+    protected function subscribe(
+        int $Anagraphical,
+        int $Church,
+        string $Shirt,
+        ?int $Id = null,
+
+        ?int $Tutor = null,
+    ): ApiCall
+    {
+        $taglia = Taglia::from(value: $Shirt)->value;
+        $tutor = empty($Tutor) ? 'NULL' : $Tutor;
+
+        return new ApiCall(
+            query: 
+                ($Id === null) ?
+                    "CALL `IscriviEdizioneCorrente`($Anagraphical, $Church, '$Shirt', $tutor);" :
+                    "UPDATE `iscritti` SET `dati_anagrafici` = $Anagraphical, `parrocchia` = $Church, `taglia_maglietta` = $Shirt, `tutore` = $tutor WHERE `id` = $Id",
+            row_parser: function (array $r) use($Anagraphical, $Church, $taglia, $Tutor): array
+            {
+                return [
+                    'Anagraphical' => $Anagraphical,
+                    'Church' => $Church,
+                    'Shirt' => $taglia,
+                    'Tutor' => $Tutor,
+                    'Id' => (int)$r['id'],
+                ];
+            },
+            is_procedure: $Id === null,
         );
     }
 }
