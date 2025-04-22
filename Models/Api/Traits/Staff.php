@@ -27,6 +27,12 @@ trait Staff
         return new ApiCall(
             query: "CALL `GetAppUserClaims`('$email')",
             is_procedure: true,
+            row_parser: function (array $r): array {
+                return [
+                    'Admin' => (bool)$r['admin'],
+                    'Referee' => (bool)$r['referee'],
+                ];
+            }
         );
     }
 }
