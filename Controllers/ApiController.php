@@ -6,6 +6,9 @@ use Amichiamoci\Models\Api\Call as ApiCall;
 use Amichiamoci\Models\Api\Token as ApiToken;
 use Amichiamoci\Models\Message;
 use Amichiamoci\Models\Taglia;
+use Amichiamoci\Models\Api\Traits\Anagrafica as AnagraficaTrait;
+use Amichiamoci\Models\Api\Traits\Parrocchia as ParrocchiaTrait;
+use Amichiamoci\Models\Api\Traits\Staff as StaffTrait;
 use Amichiamoci\Utils\Security;
 use Reflection;
 use ReflectionClass;
@@ -248,105 +251,13 @@ class ApiController extends Controller
         );
     }
 
-    private function church(int $Id): ApiCall
-    {
-        return new ApiCall(
-            query: "SELECT * FROM `parrocchie` WHERE `id` = $Id",
-            row_parser: function (array $r): array {
-                return [
-                    'Id' => (int)$r['id'],
-                    'Name' => $r['nome'],
-    
-                    'Address' => is_string(value: $r['indirizzo']) && strlen(string: $r['indirizzo']) > 0 ? $r['indirizzo'] : null,
-                    'Website' => is_string(value: $r['website']) && strlen(string: $r['website']) > 0 ? $r['website'] : null,
-                ];
-            }
-        );
-    }
+    use ParrocchiaTrait, StaffTrait;
 
-    private function churches(): ApiCall
-    {
-        return new ApiCall(
-            query: "SELECT * FROM `parrocchie`",
-            row_parser: function (array $r): array {
-                return [
-                    'Id' => (int)$r['id'],
-                    'Name' => $r['nome'],
-    
-                    'Address' => is_string(value: $r['indirizzo']) && strlen(string: $r['indirizzo']) > 0 ? $r['indirizzo'] : null,
-                    'Website' => is_string(value: $r['website']) && strlen(string: $r['website']) > 0 ? $r['website'] : null,
-                ];
-            }
-        );
-    }
+    use AnagraficaTrait;
 
-    private function document_types(): ApiCall
-    {
-        return new ApiCall(
-            query: "SELECT * FROM `tipi_documento`",
-            row_parser: function (array $r): array {
-                return [
-                    'Id' => (int)$r['id'],
-                    'Label' => $r['label'],
-                ];
-            }
-        );
-    }
-
-    private function staff_list(): ApiCall
-    {
-        return new ApiCall(
-            query: 'SELECT * FROM `staffisti_attuali`',
-            row_parser: function (array $r): array {
-                return [
-                    'Name' => $r['chi'],
-                    'ChurchId' => (int)$r['id_parrocchia'],
-                    
-                    'Phone' => is_string(value: $r['telefono']) && strlen(string: $r['telefono']) > 0 ? $r['telefono'] : null,
-                    'Email' => is_string(value: $r['email']) && strlen(string: $r['email']) > 0 ? $r['email'] : null,
-                ];
-            }
-        );
-    }
-
-    private function managed_anagraphicals(string $Email): ApiCall
-    {
-        $email = $this->DB->escape_string($Email);
-        $query = 
-            "SELECT * " .
-            "FROM `anagrafiche_con_iscrizioni_correnti` " .
-            "WHERE LOWER(TRIM(`email`)) = LOWER(TRIM('$email')) OR LOWER(TRIM(`email_tutore`)) = LOWER(TRIM('$email'))";
-        return new ApiCall(
-            query: $query,
-            row_parser: function (array $r): array {
-                return [
-                    'Id' => (int)$r['id'],
-                    'Name' => $r['nome'],
-                    'Surname' => $r['cognome'],
-                    
-                    'Phone' => is_string(value: $r['telefono']) && strlen(string: $r['telefono']) > 0 ? $r['telefono'] : null,
-                    'Email' => is_string(value: $r['email']) && strlen(string: $r['email']) > 0 ? $r['email'] : null,
-                    
-                    'TaxCode' => $r['cf'],
-                    'BirthDate' => $r['data_nascita_italiana'],
-                    
-                    'Document' => [
-                        'TypeId' => (int)$r['tipo_documento'],
-                        'TypeName' => $r['nome_tipo_documento'],
-                        'Code' => $r['codice_documento'],
-                        'Message' => $r['scadenza_problem'],
-                    ],
     
-                    'MedicalCertificate' => $r['stato_certificato'],
-                    'SubscriptionStatus' => $r['codice_iscrizione'],
-                    'ShirtSize' => $r['maglia'],
+
     
-                    'Church' => $r['parrocchia'],
-                    'ChurchId' => (int)$r['id_parrocchia'],
-                ];
-            }
-        );
-    }
 
     private function today_matches_of(string $Email): ApiCall
     {

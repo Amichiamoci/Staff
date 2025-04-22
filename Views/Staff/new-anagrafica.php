@@ -59,7 +59,7 @@ if ($is_editing) {
             type="text" 
             class="form-control" 
             id="cf" name="cf" 
-            pattern="[a-zA-Z]{6}[0-9]{2}[a-zA-Z][0-9]{2}[a-zA-Z][0-9]{3}[a-zA-Z]"
+            pattern="[A-Za-z]{6}[0-9]{2}[ABCDEHLMPRSTabcdehlmprst]{1}[0-9]{2}[A-Za-z]{1}[0-9LMNPQRSTUVlmnpqrstuv]{3}[A-Za-z]{1}"
             value="<?= $is_editing ? htmlspecialchars(string: $anagrafica->FiscalCode) : '' ?>">
         <label for="cf">Codice Fiscale</label>
         <div class="invalid-feedback">
