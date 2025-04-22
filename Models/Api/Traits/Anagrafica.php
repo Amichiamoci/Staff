@@ -28,31 +28,51 @@ trait Anagrafica
         return new ApiCall(
             query: $query,
             row_parser: function (array $r): array {
-                return [
+                $base = [
                     'Id' => (int)$r['id'],
                     'Name' => $r['nome'],
                     'Surname' => $r['cognome'],
                     
+                    'TaxCode' => $r['cf'],
+                    
                     'Phone' => is_string(value: $r['telefono']) && strlen(string: $r['telefono']) > 0 ? $r['telefono'] : null,
                     'Email' => is_string(value: $r['email']) && strlen(string: $r['email']) > 0 ? $r['email'] : null,
                     
-                    'TaxCode' => $r['cf'],
                     'BirthDate' => $r['data_nascita_italiana'],
+                    //'BirthPlace' => $r['luogo_nascita'],
                     
                     'Document' => [
-                        'TypeId' => (int)$r['tipo_documento'],
-                        'TypeName' => $r['nome_tipo_documento'],
                         'Code' => $r['codice_documento'],
-                        'Message' => $r['scadenza_problem'],
+                        'Type' => [
+                            'Id' => (int)$r['tipo_documento'],
+                            'Label' => $r['nome_tipo_documento'],
+                        ],
                     ],
-    
-                    'MedicalCertificate' => $r['stato_certificato'],
-                    'SubscriptionStatus' => $r['codice_iscrizione'],
-                    'ShirtSize' => $r['maglia'],
-    
-                    'Church' => $r['parrocchia'],
-                    'ChurchId' => (int)$r['id_parrocchia'],
+
+                    // 'Subscription' => null,
+
+                    'Status' => [ ],
                 ];
+
+                if (isset($r['id_parrocchia']) && isset($r['id_iscrizione']))
+                {
+                    $base['Subscription'] = [
+                        'Id' => (int)$r['id_iscrizione'],
+                        'ChurchId' => (int)$r['id_parrocchia'],
+                        'Shirt' => $r['maglia'],
+                    ];
+                }
+
+                if (isset($r['scadenza_problem']))
+                {
+                    $base['Status'][] = $r['scadenza_problem'];
+                }
+                if (isset($r['stato_certificato']))
+                {
+                    $base['Status'][] = $r['stato_certificato'];
+                }
+
+                return $base;
             }
         );
     }
