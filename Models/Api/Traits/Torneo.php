@@ -126,7 +126,7 @@ trait Torneo
     {
         $area = $this->DB->escape_string($Sport);
         return new ApiCall(
-            query: "SELECT * FROM `tornei_attivi` WHERE UPPER(`area`) = UPPER('$area')",
+            query: "SELECT * FROM `tornei_attivi` WHERE UPPER(`area_sport`) = UPPER('$area')",
             row_parser: function (array $r): array {
                 return [
                     'Id' => (int)$r['id'],
