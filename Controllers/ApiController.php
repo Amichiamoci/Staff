@@ -189,7 +189,7 @@ class ApiController extends Controller
 
         'leaderboard' => 'leaderboard',
 
-        //'subscribe' => 'subscribe',
+        'subscribe' => 'subscribe',
     ];
     
     use AnagraficaTrait;
