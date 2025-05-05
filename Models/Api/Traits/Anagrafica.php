@@ -98,11 +98,13 @@ trait Anagrafica
                 ($Id === null) ?
                     "CALL `IscriviEdizioneCorrente`($Anagraphical, $Church, '$Shirt', $tutor);" :
                     "UPDATE `iscritti` SET `dati_anagrafici` = $Anagraphical, `parrocchia` = $Church, `taglia_maglietta` = $Shirt, `tutore` = $tutor WHERE `id` = $Id",
-            row_parser: function (array $r) use($Anagraphical, $Church, $taglia, $Tutor): array
+            row_parser: function (array $r) use($Church, $taglia, $Tutor): array
             {
                 return [
-                    'Anagraphical' => $Anagraphical,
-                    'Church' => $Church,
+                    'Church' => [
+                        'Id' => $Church,
+                        'Name' => $r['nome_parrocchia'],
+                    ],
                     'Shirt' => $taglia,
                     'Tutor' => $Tutor,
                     'Id' => (int)$r['id'],

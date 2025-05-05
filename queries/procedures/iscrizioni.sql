@@ -221,6 +221,7 @@ DROP PROCEDURE IF EXISTS `IscriviEdizioneCorrente` //
 CREATE PROCEDURE `IscriviEdizioneCorrente` (IN anagrafica INT, IN parrocchia INT, IN taglia VARCHAR(8), IN tutore INT)
 lista_body:BEGIN 
     DECLARE _ediz INT DEFAULT 0;
+    DECLARE _id INT DEFAULT 0;
 
     SELECT e.`id` INTO _ediz
     FROM `edizioni` e
@@ -229,7 +230,11 @@ lista_body:BEGIN
     INSERT INTO `iscritti` (`dati_anagrafici`, `edizione`, `tutore`, `parrocchia`, `taglia_maglietta`) 
     VALUES (anagrafica, _ediz, tutore, parrocchia, taglia);
 
-    SELECT LAS_INSERT_ID() AS "id";
+    SET _id = LAS_INSERT_ID();
+
+    SELECT _id AS "id", p.`nome` AS "nome_parrocchia"
+    FROM `parrocchie` p
+    WHERE p.`id` = parrocchia;
 END ; //
 
 DELIMITER ;
