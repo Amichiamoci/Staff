@@ -2,13 +2,13 @@ CREATE OR REPLACE VIEW `classifica_parrocchie` AS
 SELECT p.*, r.`punteggio`, (COUNT(DISTINCT r2.`parrocchia`) + 1) AS "posizione"
 FROM `punteggio_parrocchia` r
     INNER JOIN `edizioni` e ON e.`id` = r.`edizione`
+    INNER JOIN `parrocchie` p ON p.`id` = r.`parrocchia`
     LEFT OUTER JOIN `punteggio_parrocchia` r2 ON 
         r2.`edizione` = r.`edizione` AND 
         r2.`parrocchia` <> r.`parrocchia` AND 
         CAST(r2.`punteggio` AS UNSIGNED) > CAST(r.`punteggio` AS UNSIGNED)
-    INNER JOIN `parrocchie` p ON p.`id` = r.`parrocchia`
 WHERE e.`anno` = YEAR(CURRENT_DATE)
-GROUP BY r.`parrocchia`
+GROUP BY r.`parrocchia`, r.punteggio
 ORDER BY CAST(r.`punteggio` AS UNSIGNED) DESC;
 
 
