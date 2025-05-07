@@ -12,7 +12,6 @@ use Amichiamoci\Models\Api\Traits\Squadra as SquadraTrait;
 use Amichiamoci\Models\Api\Traits\Torneo as TorneoTrait;
 use Amichiamoci\Models\Api\Traits\Partita as PartitaTrait;
 use Amichiamoci\Utils\Security;
-use Reflection;
 use ReflectionClass;
 
 class ApiController extends Controller
@@ -190,6 +189,7 @@ class ApiController extends Controller
         'leaderboard' => 'leaderboard',
 
         'subscribe' => 'subscribe',
+        'anagraphical' => 'anagraphical',
     ];
     
     use AnagraficaTrait;

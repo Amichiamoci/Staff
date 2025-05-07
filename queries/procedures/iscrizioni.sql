@@ -230,7 +230,7 @@ lista_body:BEGIN
     INSERT INTO `iscritti` (`dati_anagrafici`, `edizione`, `tutore`, `parrocchia`, `taglia_maglietta`) 
     VALUES (anagrafica, _ediz, tutore, parrocchia, taglia);
 
-    SET _id = LAS_INSERT_ID();
+    SELECT LAST_INSERT_ID() INTO _id;
 
     SELECT _id AS "id", p.`nome` AS "nome_parrocchia"
     FROM `parrocchie` p
