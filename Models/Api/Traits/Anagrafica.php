@@ -33,11 +33,13 @@ trait Anagrafica
             'Phone' => is_string(value: $r['telefono']) && strlen(string: $r['telefono']) > 0 ? $r['telefono'] : null,
             'Email' => is_string(value: $r['email']) && strlen(string: $r['email']) > 0 ? $r['email'] : null,
             
-            'BirthDate' => $r['data_nascita_italiana'],
-            //'BirthPlace' => $r['luogo_nascita'],
+            //'BirthDate' => $r['data_nascita_italiana'],
+            'BirthDate' => $r['data_nascita'],
+            'BirthPlace' => $r['luogo_nascita'],
             
             'Document' => [
                 'Code' => $r['codice_documento'],
+                'Expiration' => $r['scadenza'],
                 'Type' => [
                     'Id' => (int)$r['tipo_documento'],
                     'Label' => $r['nome_tipo_documento'],
