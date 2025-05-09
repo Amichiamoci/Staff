@@ -39,7 +39,7 @@ trait Anagrafica
             
             'Document' => [
                 'Code' => $r['codice_documento'],
-                'Expiration' => $r['scadenza']. 'T00:00:00',
+                'Expiration' => $r['scadenza'], // . 'T00:00:00',
                 'Type' => [
                     'Id' => (int)$r['tipo_documento'],
                     'Label' => $r['nome_tipo_documento'],
