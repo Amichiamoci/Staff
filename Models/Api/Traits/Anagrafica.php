@@ -123,19 +123,20 @@ trait Anagrafica
     protected function anagraphical(
         string $Name,
         string $Surname,
-        string $TaxCode,
+        string $Taxcode,
         string $Email,
-        string $DocumentCode,
-        string $DocumentExpiration,
-        int $DocumentType,
 
-        ?string $BirthDate = null,
-        ?string $BirthPlace = null,
+        string $Documentcode,
+        string $Documentexpiration,
+        int $Documenttype,
+
+        ?string $Birthdate = null,
+        ?string $Birthplace = null,
         ?string $Phone = null,
         ?int $Id = null,
     ): ApiCall
     {
-        $a = ModelsAnagrafica::FromFiscalCode(connection: $this->DB, cf: $TaxCode);
+        $a = ModelsAnagrafica::FromFiscalCode(connection: $this->DB, cf: $Taxcode);
         if (isset($a) && $a->Id !== $Id)
         {
             // Trying to change someone-else's data
@@ -146,14 +147,14 @@ trait Anagrafica
             connection: $this->DB,
             nome: $Name,
             cognome: $Surname,
-            compleanno: $BirthDate,
-            provenienza: $BirthPlace ?? "Sconosciuto",
+            compleanno: $Birthdate,
+            provenienza: $Birthplace ?? "Sconosciuto",
             tel: $Phone,
             email: $Email,
-            cf: $TaxCode,
-            doc_type: $DocumentType,
-            doc_code: $DocumentCode,
-            doc_expires: $DocumentExpiration,
+            cf: $Taxcode,
+            doc_type: $Documenttype,
+            doc_code: $Documentcode,
+            doc_expires: $Documentexpiration,
             nome_file: '',
         );
         if (!empty($Id) && $Id !== $id)
