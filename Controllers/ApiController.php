@@ -70,8 +70,12 @@ class ApiController extends Controller
         {
             return $this->Json(
                 object: [
-                    'message' => 'Invalid resource',
-                    'resource' => $resource,
+                    'Message' => 'Invalid resource (null)',
+                    'Stack' => [
+                        __METHOD__,
+                    ],
+                    'Line' => __LINE__, 
+                    'File' => __FILE__,
                 ],
                 status_code: 400,
             );
@@ -82,7 +86,12 @@ class ApiController extends Controller
         {
             return $this->Json(
                 object: [
-                    'message' => "Header 'App-Bearer' missing",
+                    'Message' => "Header 'App-Bearer' missing",
+                    'Stack' => [
+                        __METHOD__,
+                    ],
+                    'Line' => __LINE__,
+                    'File' => __FILE__,
                 ],
                 status_code: 400,
             );
@@ -94,14 +103,31 @@ class ApiController extends Controller
             ip: Security::GetIpAddress(),
         )) {
             return $this->Json(
-                object: ['message' => 'Invalid bearer token'],
+                object: [
+                    'Message' => 'Invalid bearer token',
+                    'Stack' => [
+                        __METHOD__,
+                    ],
+                    'Line' => __LINE__,
+                    'File' => __FILE__,
+                ],
                 status_code: 401,
             );
         }
 
         if (!array_key_exists(key: $resource, array: $this->avaible_methods))
         {
-            return $this->NotFound();
+            return $this->Json(
+                object: [
+                    'Message' => "Action '$resource' not found",
+                    'Stack' => [
+                        __METHOD__,
+                    ],
+                    'Line' => __LINE__,
+                    'File' => __FILE__,
+                ],
+                status_code: 404,
+            );
         }
 
         // Get the parameters for the query
@@ -119,7 +145,14 @@ class ApiController extends Controller
             if (!isset($result))
             {
                 return $this->Json(
-                    object: ['message' => 'Could not obtain result from action'],
+                    object: [
+                        'Message' => 'Could not obtain result from action',
+                        'Stack' => [
+                            __METHOD__,
+                        ],
+                        'Line' => __LINE__,
+                        'File' => __FILE__,
+                    ],
                     status_code: 500,
                 );
             }

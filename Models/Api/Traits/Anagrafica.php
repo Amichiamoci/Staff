@@ -101,9 +101,9 @@ trait Anagrafica
 
         return new ApiCall(
             query: 
-                ($Id === null) ?
+                empty($Id) ?
                 "CALL `IscriviEdizioneCorrente`($Anagraphical, $Church, '$taglia', $tutor);" :
-                "UPDATE `iscritti` SET `parrocchia` = $Church, `taglia_maglietta` = $taglia, `tutore` = IFNULL($tutor, `tutore`) WHERE `id` = $Id AND `dati_anagrafici` = $Anagraphical",
+                "UPDATE `iscritti` SET `parrocchia` = $Church, `taglia_maglietta` = '$taglia', `tutore` = IFNULL($tutor, `tutore`) WHERE `id` = $Id AND `dati_anagrafici` = $Anagraphical",
             row_parser: function (array $r) use($Church, $taglia, $Tutor): array
             {
                 return [
@@ -116,7 +116,7 @@ trait Anagrafica
                     'Id' => (int)$r['id'],
                 ];
             },
-            is_procedure: $Id === null,
+            is_procedure: empty($Id),
         );
     }
 

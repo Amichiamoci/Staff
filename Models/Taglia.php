@@ -17,11 +17,13 @@ enum Taglia: string
     }
     */
 
-    public static function All(): array {
+    public static function All(): array
+    {
         return array_column(array: self::cases(), column_key: 'value');
     }
 
-    public static function Valid(string $s) : bool {
+    public static function Valid(string $s): bool
+    {
         return in_array(needle: $s, haystack: self::All());
     }
 
@@ -30,13 +32,14 @@ enum Taglia: string
         if (!$connection)
             return [];
 
-        $result = $connection->query("CALL `ListaMaglie`($year, FALSE);");
-        if (!$result) {
+        $result = $connection->query(query: "CALL `ListaMaglie`($year, FALSE);");
+        if (!$result)
+        {
             $connection->next_result();
             return [];
         }
 
-        $all = $result->fetch_all(MYSQLI_ASSOC);
+        $all = $result->fetch_all(mode: MYSQLI_ASSOC);
         $connection->next_result();
 
         return $all;
