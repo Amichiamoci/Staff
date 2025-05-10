@@ -126,10 +126,10 @@ class ApiController extends Controller
         } catch (\Throwable $ex) {
             return $this->Json(
                 object: [
-                    'message' => $ex->getMessage(),
-                    'stack' => $ex->getTrace(),
-                    'line' => $ex->getLine(),
-                    'file' => $ex->getFile(),
+                    'Message' => $ex->getMessage(),
+                    'Stack' => $ex->getTrace(),
+                    'Line' => $ex->getLine(),
+                    'File' => $ex->getFile(),
                 ],
                 status_code: 500,
             );
