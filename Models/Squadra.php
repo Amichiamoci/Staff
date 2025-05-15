@@ -180,8 +180,8 @@ class Squadra extends NomeIdSemplice
     ) : bool {
         if (!$connection || $edizione === 0)
             return false;
-        $nome = $connection->real_escape_string($nome);
-        $membri = $connection->real_escape_string($membri);
+        $nome = $connection->real_escape_string(string: $nome);
+        $membri = $connection->real_escape_string(string: $membri);
 
         $result = $connection->query(query: "CALL CreaSquadra('$nome', $parrocchia, $sport, '$membri', $edizione)");
         if (!$result)
@@ -209,8 +209,8 @@ class Squadra extends NomeIdSemplice
     {
         if (!$connection || $id === 0)
             return false;
-        $nome = $connection->real_escape_string($nome);
-        $membri = $connection->real_escape_string($membri);
+        $nome = $connection->real_escape_string(string: $nome);
+        $membri = $connection->real_escape_string(string: $membri);
         
         $result = $connection->query(query: "CALL ModificaSquadra($id, '$nome', $parrocchia, $sport, '$membri')");
         if (!$result)

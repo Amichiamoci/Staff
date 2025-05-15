@@ -1,3 +1,6 @@
+<?php
+    use Amichiamoci\Utils\Security;
+?>
 <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3">
     <div class="container-fluid">
         <a class="navbar-brand" href="<?= $B ?>/">
@@ -19,11 +22,7 @@
         <div id="navbar-collapse"
             class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
             <ul class="navbar-nav flex-grow-1">
-                <?php
-
-                        use Amichiamoci\Utils\Security;
-
- if (isset($user)) { ?>
+                <?php if (isset($user)) { ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link text-reset dropdown-toggle"
                             href="#" 
@@ -45,6 +44,14 @@
                                     <a class="dropdown-item" href="<?= $B ?>/teams">
                                         Le squadre
                                     </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="<?= $B ?>/teams/new">
+                                        Crea squadra
+                                    </a>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
                                 </li>
                             <?php } ?>
                             <li>
@@ -111,14 +118,12 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="userDropdownMenuLink">
                             <li>
-                                <a class="dropdown-item" 
-                                    href="<?= $B ?>/user/me">
+                                <a class="dropdown-item" href="<?= $B ?>/user/me">
                                     Menù Utente
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" 
-                                    href="<?= $B ?>/staff">
+                                <a class="dropdown-item" href="<?= $B ?>/staff">
                                     Menù Staff
                                 </a>
                             </li>
@@ -141,14 +146,57 @@
                                         Accessi
                                     </a>
                                 </li>
+                            <?php } ?>
+                        </ul>
+                    </li>
+                    <?php if ($user->IsAdmin) { ?>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link text-reset dropdown-toggle"
+                                href="#" 
+                                id="emailDropdownMenuLink" 
+                                role="button" 
+                                data-bs-toggle="dropdown" 
+                                aria-expanded="false"
+                            >
+                                Server
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="emailDropdownMenuLink">
+                                <li>
+                                    <a class="dropdown-item" href="<?= $B ?>/email">
+                                        Lista email
+                                    </a>
+                                </li>
                                 <li>
                                     <a class="dropdown-item" href="<?= $B ?>/email/send">
                                         Invia Email
                                     </a>
                                 </li>
-                            <?php } ?>
-                        </ul>
-                    </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="<?= $B ?>/file/list">
+                                        Tutti gli uploads
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="<?= $B ?>/file/unreferenced">
+                                        File non usati
+                                    </a>
+                                </li>
+                                <?php if (Security::ApiEnabled()) { ?>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="<?= $B ?>/api/admin">
+                                            Api
+                                        </a>
+                                    </li>
+                                <?php } ?>
+                            </ul>
+                        </li>
+                    <?php } ?>
                     <li class="nav-item dropdown">
                         <a class="nav-link text-reset dropdown-toggle"
                             href="#" 
@@ -196,36 +244,6 @@
                                     Tutte le edizioni
                                 </a>
                             </li>
-                            <?php if ($user->IsAdmin) { ?>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="<?= $B ?>/file/list">
-                                        Tutti gli uploads
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="<?= $B ?>/file/unreferenced">
-                                        File non usati
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="<?= $B ?>/email">
-                                        Lista email
-                                    </a>
-                                </li>
-                                <?php if (Security::ApiEnabled()) { ?>
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="<?= $B ?>/api/admin">
-                                            Api
-                                        </a>
-                                    </li>
-                                <?php } ?>
-                            <?php } ?>
                         </ul>
                     </li>
                 <?php } ?>
@@ -268,9 +286,8 @@
             <?php if (isset($user)) { ?>
                 <a href="<?= $B ?>/user/me" 
                     class="nav-link text-reset"
-                    title="Vai alla pagina del profilo">
-
-
+                    title="Vai alla pagina del profilo"
+                >
                     <?= htmlspecialchars(string: $user->Label()) ?>
                 </a>
             <?php } ?>

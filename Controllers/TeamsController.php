@@ -11,7 +11,8 @@ use Amichiamoci\Models\Message;
 
 class TeamsController extends Controller
 {
-    public function index(?int $church = null, ?int $year = null): int {
+    public function index(?int $church = null, ?int $year = null): int
+    {
         if (empty($year)) {
             $year = (int)date(format: "Y");
         }
@@ -45,23 +46,28 @@ class TeamsController extends Controller
         array $members = [],
     ): int {
         $staff = $this->RequireStaff();
-        if (!isset($church) && isset($staff)) {
+        if (!isset($church) && isset($staff))
+        {
             $church = $staff->Parrocchia->Id;
         }
-        if (empty($church)) {
+        if (empty($church))
+        {
             return $this->BadRequest();
         }
 
-        if (!isset($edition)) {
+        if (!isset($edition))
+        {
             $edition = Edizione::Current(connection: $this->DB);
         }
-        if (!isset($edition)) {
+        if (!isset($edition))
+        {
             return $this->NotFound();
         }
 
         if (self::IsPost())
         {
-            if (empty($name) || empty($sport)) {
+            if (empty($name) || empty($sport))
+            {
                 return $this->BadRequest();
             }
             $res = Squadra::Create(
@@ -69,9 +75,15 @@ class TeamsController extends Controller
                 nome: $name, 
                 parrocchia: $church, 
                 sport: $sport, 
-                membri: implode(separator: ' ', array: $members), 
+                membri: implode(separator: ', ', array: $members), 
                 edizione: $edition
             );
+            if ($res) {
+                $this->Message(message: Message::Success(content: 'Squadra creata correttamente'));
+                return $this->index(church: $church);
+            }
+            
+            $this->Message(message: Message::Error(content: 'Non è stato possibile creare la squadra'));
         }
 
         return $this->Render(
