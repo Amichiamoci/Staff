@@ -11,8 +11,14 @@ class FileController extends Controller
     public function index(?string $name = null): int {
         $this->RequireLogin();
         
-        if (!is_string(value: $name)) {
+        if (!is_string(value: $name))
+        {
             return $this->NotFound();
+        }
+
+        if (File::IsExternalFile(filename: $name))
+        {
+            return $this->Redirect(url: File::GetExportUrl(path: $name));
         }
 
         return $this->File(file_path: File::ServerPath(db_path: $name));

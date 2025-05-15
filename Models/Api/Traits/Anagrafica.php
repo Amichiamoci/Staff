@@ -4,6 +4,7 @@ namespace Amichiamoci\Models\Api\Traits;
 
 use Amichiamoci\Models\Anagrafica as ModelsAnagrafica;
 use Amichiamoci\Models\Api\Call as ApiCall;
+use Amichiamoci\Models\Iscrizione;
 use Amichiamoci\Models\Taglia;
 
 trait Anagrafica
@@ -74,6 +75,12 @@ trait Anagrafica
 
         return $base;
     }
+
+    private static function managed_anagraphicals_parse_subscription(array $r): array
+    {
+        $whole_record = self::managed_anagraphicals_parse($r);
+        return $whole_record['Subscription'];
+    }
     protected function managed_anagraphicals(string $Email): ApiCall
     {
         $email = $this->DB->escape_string($Email);
@@ -96,14 +103,39 @@ trait Anagrafica
         ?int $Tutor = null,
     ): ApiCall
     {
+        if (empty($Anagraphical))
+        {
+            throw new \InvalidArgumentException(message: 'Invalid Anagraphical');
+        }
         $taglia = Taglia::from(value: $Shirt)->value;
-        $tutor = empty($Tutor) ? 'NULL' : $Tutor;
 
+        if (!empty($Id))
+        {
+            // Update existing record
+            $this->DB->execute_query(
+                "UPDATE `iscritti` 
+                SET `parrocchia` = ?, 
+                `taglia_maglietta` = ?, 
+                `tutore` = IFNULL(?, `tutore`) 
+                WHERE `id` = ? AND `dati_anagrafici` = ?",
+                [
+                    $Church,
+                    $taglia,
+                    $Tutor,
+                    $Id,
+                    $Anagraphical,
+                ],
+            );
+
+            return new ApiCall(
+                query: "SELECT * FROM `anagrafiche_con_iscrizioni_correnti` WHERE `id` = $Anagraphical",
+                row_parser: function (array $r): array { return self::managed_anagraphicals_parse_subscription($r); },
+            );
+        }
+        $tutor = empty($Tutor) ? 'NULL' : $Tutor;
+        
         return new ApiCall(
-            query: 
-                empty($Id) ?
-                "CALL `IscriviEdizioneCorrente`($Anagraphical, $Church, '$taglia', $tutor);" :
-                "UPDATE `iscritti` SET `parrocchia` = $Church, `taglia_maglietta` = '$taglia', `tutore` = IFNULL($tutor, `tutore`) WHERE `id` = $Id AND `dati_anagrafici` = $Anagraphical",
+            query: "CALL `IscriviEdizioneCorrente`($Anagraphical, $Church, '$taglia', $tutor);",
             row_parser: function (array $r) use($Church, $taglia, $Tutor): array
             {
                 return [
@@ -116,7 +148,28 @@ trait Anagrafica
                     'Id' => (int)$r['id'],
                 ];
             },
-            is_procedure: empty($Id),
+            is_procedure: true,
+        );
+    }
+
+    protected function subscription_certificate(
+        int $Anagraphical,
+        int $Id,
+        string $Certificate,
+    ): ApiCall
+    {
+        if (empty($Id) || empty($Anagraphical) || strlen(string: $Certificate) === 0)
+        {
+            throw new \InvalidArgumentException(message: 'Inspecified Id or Certificate');
+        }
+        if (!Iscrizione::UpdateCertificato(connection: $this->DB, id: $Id, certificato: $Certificate))
+        {
+            throw new \Exception(message: 'Cannot update certificate for subscription ' . $Id);
+        }
+
+        return new ApiCall(
+            query: "SELECT * FROM `anagrafiche_con_iscrizioni_correnti` WHERE `id` = $Anagraphical",
+            row_parser: function (array $r): array { return self::managed_anagraphicals_parse_subscription($r); },
         );
     }
 
@@ -133,6 +186,7 @@ trait Anagrafica
         ?string $Birthdate = null,
         ?string $Birthplace = null,
         ?string $Phone = null,
+        ?string $Documenturl = null,
         ?int $Id = null,
     ): ApiCall
     {
@@ -155,7 +209,7 @@ trait Anagrafica
             doc_type: $Documenttype,
             doc_code: $Documentcode,
             doc_expires: $Documentexpiration,
-            nome_file: '',
+            nome_file: empty($Documenturl) ? '' : $Documenturl,
         );
         if (!empty($Id) && $Id !== $id)
         {
