@@ -100,6 +100,7 @@ trait Anagrafica
         string $Shirt,
         ?int $Id = null,
 
+        ?string $Certificate = null,
         ?int $Tutor = null,
     ): ApiCall
     {
@@ -116,12 +117,14 @@ trait Anagrafica
                 "UPDATE `iscritti` 
                 SET `parrocchia` = ?, 
                 `taglia_maglietta` = ?, 
-                `tutore` = IFNULL(?, `tutore`) 
+                `tutore` = IFNULL(?, `tutore`),
+                `certificato_medico` = IFNULL(?, `certificato_medico`)  
                 WHERE `id` = ? AND `dati_anagrafici` = ?",
                 [
                     $Church,
                     $taglia,
                     $Tutor,
+                    $Certificate,
                     $Id,
                     $Anagraphical,
                 ],
@@ -132,7 +135,8 @@ trait Anagrafica
                 row_parser: function (array $r): array { return self::managed_anagraphicals_parse_subscription($r); },
             );
         }
-        $tutor = empty($Tutor) ? 'NULL' : $Tutor;
+        $tutor = empty($Tutor) ? 'NULL' : (string)$Tutor;
+        $certificate = empty($Certificate) ? 'NULL' : '\'' . $this->DB->escape_string($Certificate) . '\'';
         
         return new ApiCall(
             query: "CALL `IscriviEdizioneCorrente`($Anagraphical, $Church, '$taglia', $tutor);",
@@ -152,45 +156,24 @@ trait Anagrafica
         );
     }
 
-    protected function subscription_certificate(
-        int $Anagraphical,
-        int $Id,
-        string $Certificate,
-    ): ApiCall
-    {
-        if (empty($Id) || empty($Anagraphical) || strlen(string: $Certificate) === 0)
-        {
-            throw new \InvalidArgumentException(message: 'Inspecified Id or Certificate');
-        }
-        if (!Iscrizione::UpdateCertificato(connection: $this->DB, id: $Id, certificato: $Certificate))
-        {
-            throw new \Exception(message: 'Cannot update certificate for subscription ' . $Id);
-        }
-
-        return new ApiCall(
-            query: "SELECT * FROM `anagrafiche_con_iscrizioni_correnti` WHERE `id` = $Anagraphical",
-            row_parser: function (array $r): array { return self::managed_anagraphicals_parse_subscription($r); },
-        );
-    }
-
     protected function anagraphical(
         string $Name,
         string $Surname,
-        string $Taxcode,
+        string $Tax_Code,
         string $Email,
 
-        string $Documentcode,
-        string $Documentexpiration,
-        int $Documenttype,
+        string $Document_Code,
+        string $Document_Expiration,
+        int $Document_Type,
 
-        ?string $Birthdate = null,
-        ?string $Birthplace = null,
+        ?string $Birth_Date = null,
+        ?string $Birth_Place = null,
         ?string $Phone = null,
-        ?string $Documenturl = null,
+        ?string $Document_Url = null,
         ?int $Id = null,
     ): ApiCall
     {
-        $a = ModelsAnagrafica::FromFiscalCode(connection: $this->DB, cf: $Taxcode);
+        $a = ModelsAnagrafica::FromFiscalCode(connection: $this->DB, cf: $Tax_Code);
         if (isset($a) && $a->Id !== $Id)
         {
             // Trying to change someone-else's data
@@ -201,15 +184,15 @@ trait Anagrafica
             connection: $this->DB,
             nome: $Name,
             cognome: $Surname,
-            compleanno: $Birthdate,
-            provenienza: $Birthplace ?? "Sconosciuto",
+            compleanno: $Birth_Date,
+            provenienza: $Birth_Place ?? "Sconosciuto",
             tel: $Phone,
             email: $Email,
-            cf: $Taxcode,
-            doc_type: $Documenttype,
-            doc_code: $Documentcode,
-            doc_expires: $Documentexpiration,
-            nome_file: empty($Documenturl) ? '' : $Documenturl,
+            cf: $Tax_Code,
+            doc_type: $Document_Type,
+            doc_code: $Document_Code,
+            doc_expires: $Document_Expiration,
+            nome_file: empty($Document_Url) ? '' : $Document_Url,
         );
         if (!empty($Id) && $Id !== $id)
         {

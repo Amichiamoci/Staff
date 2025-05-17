@@ -190,7 +190,8 @@ class ApiController extends Controller
                 continue;
             }
 
-            $arr[substr(string: $key, offset: strlen(string: 'Data-Param-'))] = $value;
+            $base_name = substr(string: $key, offset: strlen(string: 'Data-Param-'));
+            $arr[str_replace(search: '-', replace: '_', subject: $base_name)] = $value;
         }
         return $arr;
     }

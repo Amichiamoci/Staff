@@ -218,7 +218,7 @@ lista_body:BEGIN
 END ; //
 
 DROP PROCEDURE IF EXISTS `IscriviEdizioneCorrente` //
-CREATE PROCEDURE `IscriviEdizioneCorrente` (IN anagrafica INT, IN parrocchia INT, IN taglia VARCHAR(8), IN tutore INT)
+CREATE PROCEDURE `IscriviEdizioneCorrente` (IN anagrafica INT, IN parrocchia INT, IN taglia VARCHAR(8), IN tutore INT, IN certificato VARCHAR(2048))
 lista_body:BEGIN 
     DECLARE _ediz INT DEFAULT 0;
     DECLARE _id INT DEFAULT 0;
@@ -227,8 +227,8 @@ lista_body:BEGIN
     FROM `edizioni` e
     WHERE e.`anno` = YEAR(CURRENT_DATE);
 
-    INSERT INTO `iscritti` (`dati_anagrafici`, `edizione`, `tutore`, `parrocchia`, `taglia_maglietta`) 
-    VALUES (anagrafica, _ediz, tutore, parrocchia, taglia);
+    INSERT INTO `iscritti` (`dati_anagrafici`, `edizione`, `tutore`, `parrocchia`, `taglia_maglietta`, `certificato_medico`) 
+    VALUES (anagrafica, _ediz, tutore, parrocchia, taglia, certificato);
 
     SELECT LAST_INSERT_ID() INTO _id;
 
