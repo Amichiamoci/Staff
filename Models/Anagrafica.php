@@ -138,19 +138,25 @@ class Anagrafica extends AnagraficaBase
             eta: $row["eta"]
         );
         $a->FiscalCode = $row["cf"];
-        if (array_key_exists(key: 'data_nascita_italiana', array: $row) && is_string(value: $row['data_nascita_italiana'])) {
+        if (
+            array_key_exists(key: 'data_nascita_italiana', array: $row) && 
+            is_string(value: $row['data_nascita_italiana'])
+        ) {
             $a->BirthDay = $row['data_nascita_italiana'];
         } else {
             $a->BirthDay = $row['data_nascita'];
         }
         $a->From = $row["luogo_nascita"];
-        if (array_key_exists(key: 'sesso', array: $row) && is_string(value: $row['sesso'])) {
+        if (array_key_exists(key: 'sesso', array: $row) && is_string(value: $row['sesso']))
+        {
             $a->Sex = $row['sesso'];
         }
-        if (array_key_exists(key: 'email', array: $row) && is_string(value: $row['email'])) {
+        if (array_key_exists(key: 'email', array: $row) && is_string(value: $row['email']))
+        {
             $a->Email = $row['email'];
         }
-        if (array_key_exists(key: 'telefono', array: $row) && is_string(value: $row['telefono'])) {
+        if (array_key_exists(key: 'telefono', array: $row) && is_string(value: $row['telefono']))
+        {
             $a->Phone = $row['telefono'];
         }
 
@@ -159,10 +165,12 @@ class Anagrafica extends AnagraficaBase
             id: (int)$row["tipo_documento"],
             nome: array_key_exists(key: 'tipo_documento_nome', array: $row) ? $row['tipo_documento_nome'] : 'Documento' 
         );
-        if (array_key_exists(key: 'scadenza', array: $row) && is_string(value: $row['scadenza'])) {
+        if (array_key_exists(key: 'scadenza', array: $row) && is_string(value: $row['scadenza']))
+        {
             $a->DocumentExpiration = $row['scadenza'];
         }
-        if (array_key_exists(key: 'documento', array: $row) && is_string(value: $row['documento'])) {
+        if (array_key_exists(key: 'documento', array: $row) && is_string(value: $row['documento']))
+        {
             $a->DocumentFileName = $row['documento'];
         }
         return $a;

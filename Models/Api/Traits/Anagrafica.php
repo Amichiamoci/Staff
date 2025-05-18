@@ -68,8 +68,12 @@ trait Anagrafica
         {
             $base['Status']['Scadenza documento'] = $r['scadenza_problem'];
         }
-        if (isset($r['stato_certificato']) && isset($r['id_parrocchia']) && isset($r['id_iscrizione']))
-        {
+        if (
+            isset($r['stato_certificato']) && 
+            strtolower(string: $r['stato_certificato']) !== 'presente' && 
+            isset($r['id_parrocchia']) && 
+            isset($r['id_iscrizione'])
+        ) {
             $base['Status']['Certificato medico'] = $r['stato_certificato'];
         }
 

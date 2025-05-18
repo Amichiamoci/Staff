@@ -200,13 +200,8 @@ class ApiController extends Controller
         'teams-members' => 'teams_members',
         'teams-info' => 'teams_info',
 
-        'church' => 'church',
-        'churches' => 'churches',
-        'document-types' => 'document_types',
         'staff-list' => 'staff_list',
         'get-user-claims' => 'get_user_claims',
-
-        'managed-anagraphicals' => 'managed_anagraphicals',
 
         'today-matches-of' => 'today_matches_of',
         'today-matches-sport' => 'today_matches_sport',
@@ -220,8 +215,12 @@ class ApiController extends Controller
         'new-match-result' => 'add_result',
         'delete-match-result' => 'delete_result',
 
+        'church' => 'church',
+        'churches' => 'churches',
         'leaderboard' => 'leaderboard',
 
+        'document-types' => 'document_types',
+        'managed-anagraphicals' => 'managed_anagraphicals',
         'subscribe' => 'subscribe',
         'anagraphical' => 'anagraphical',
     ];
