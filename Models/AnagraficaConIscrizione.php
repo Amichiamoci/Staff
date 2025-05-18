@@ -106,7 +106,7 @@ class AnagraficaConIscrizione extends Anagrafica
             if ($destinationReflection->hasProperty(name: $name)) {
                 $propDest = $destinationReflection->getProperty(name: $name);
                 $propDest->setAccessible(accessible: true);
-                $propDest->setValue(object: $ai, value: $value);
+                $propDest->setValue($ai, $value); // do not add named parameters
             } else {
                 $ai->$name = $value;
             }
