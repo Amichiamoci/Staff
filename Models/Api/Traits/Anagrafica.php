@@ -143,7 +143,7 @@ trait Anagrafica
         $certificate = empty($Certificate) ? 'NULL' : '\'' . $this->DB->escape_string($Certificate) . '\'';
         
         return new ApiCall(
-            query: "CALL `IscriviEdizioneCorrente`($Anagraphical, $Church, '$taglia', $tutor);",
+            query: "CALL `IscriviEdizioneCorrente`($Anagraphical, $Church, '$taglia', $tutor, $certificate);",
             row_parser: function (array $r) use($Church, $taglia, $Tutor): array
             {
                 return [
