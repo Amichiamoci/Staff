@@ -166,7 +166,7 @@ if ($is_editing) {
     </div>
     <div class="form-floating mb-3">
         <input 
-            required
+            <?= (!$is_editing) ? 'required' : '' ?>
             type="file" multiple 
             class="form-control" 
             id="doc" name="doc[]"

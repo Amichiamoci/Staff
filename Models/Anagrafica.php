@@ -29,7 +29,7 @@ class Anagrafica extends AnagraficaBase
         int $doc_type, 
         string $doc_code, 
         string $doc_expires, 
-        string $nome_file, 
+        ?string $nome_file = null, 
         bool $abort_if_existing = false,
         ?bool &$already_existing = null,
     ) : int {
