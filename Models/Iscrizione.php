@@ -189,9 +189,7 @@ class Iscrizione extends NomeIdSemplice
     {
         if (!$connection)
             return false;
-        $query = "UPDATE `iscritti`
-        SET `taglia_maglietta` = ?, `tutore` = ?, `parrocchia` = ? 
-        WHERE `id` = ?";
+        $query = "UPDATE `iscritti` SET `taglia_maglietta` = ?, `tutore` = ?, `parrocchia` = ? WHERE `id` = ?";
         $result = $connection->execute_query(query: $query, params: [
             $this->Taglia->value,
             $this->IdTutore,
