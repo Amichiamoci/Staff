@@ -170,19 +170,20 @@ class Iscrizione extends NomeIdSemplice
     public static function UpdateCertificato(
         \mysqli $connection, 
         int $id, 
-        string $certificato
+        string $certificato,
     ) : bool {
         if (!$connection)
             return false;
+        if (empty($certificato) || strlen(string: trim(string: $certificato)) === 0)
+        {
+            $certificato = null;
+        }
         $query = "UPDATE `iscritti` SET `certificato_medico` = ? WHERE `id` = ?";
-        $stmt = $connection->prepare(query: $query);
-        if (!$stmt) 
-            return false;
-        if (!$stmt->bind_param("si", $certificato, $id))
-            return false;
-        if (!$stmt->execute())
-            return false;
-        return $stmt->affected_rows === 1;
+        $result = $connection->execute_query(query: $query, params: [
+            $certificato,
+            $id,
+        ]);
+        return $result !== false && $connection->affected_rows === 1;
     }
 
     public function Update(\mysqli $connection): bool
