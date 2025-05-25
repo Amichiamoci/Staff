@@ -183,7 +183,7 @@ class Iscrizione extends NomeIdSemplice
             $certificato,
             $id,
         ]);
-        return $result !== false && $connection->affected_rows === 1;
+        return $result !== false && $connection->affected_rows >= 1;
     }
 
     public function Update(\mysqli $connection): bool
@@ -197,7 +197,7 @@ class Iscrizione extends NomeIdSemplice
             $this->Parrocchia->Id,
             $this->Id,
         ]);
-        return $result !== false && $connection->affected_rows === 1; 
+        return $result !== false && $connection->affected_rows >= 1; 
     }
 
     public static function Delete(\mysqli $connection, int $id): bool
