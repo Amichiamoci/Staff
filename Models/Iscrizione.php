@@ -192,22 +192,13 @@ class Iscrizione extends NomeIdSemplice
         $query = "UPDATE `iscritti`
         SET `taglia_maglietta` = ?, `tutore` = ?, `parrocchia` = ? 
         WHERE `id` = ?";
-        $stmt = $connection->prepare(query: $query);
-        if (!$stmt)
-            return false;
-        if ($this->IdTutore == 0)
-            $this->IdTutore = null;
-        if (!$stmt->bind_param("siii", 
-            $this->Taglia, 
-            $this->IdTutore, 
-            $this->Parrocchia->Id, 
-            $this->Id)
-        ) {
-            return false;
-        }
-        if (!$stmt->execute())
-            return false;
-        return $stmt->affected_rows === 1;
+        $result = $connection->execute_query(query: $query, params: [
+            $this->Taglia->value,
+            $this->IdTutore,
+            $this->Parrocchia->Id,
+            $this->Id,
+        ]);
+        return (bool)$result && $connection->affected_rows === 1; 
     }
 
     public static function Delete(\mysqli $connection, int $id): bool
@@ -227,16 +218,12 @@ class Iscrizione extends NomeIdSemplice
             return null;
         $query = "SELECT `nome`, `sesso`, `email` 
         FROM `non_iscritti` 
-        WHERE `anno` = ? AND `email` IS NOT NULL";
-        $result = $connection->execute_query($query, array($year));
+        WHERE `anno` = $year AND `email` IS NOT NULL";
+        $result = $connection->query(query: $query);
         if (!$result)
             return [];
 
-        $arr = [];
-        while ($row = $result->fetch_array())
-            $arr[] = $row;
-        
-        return $arr;
+        return $result->fetch_all(mode: \MYSQL_ASSOC);
     }
     
     public static function UnreferencedCertificates(\mysqli $connection): array
