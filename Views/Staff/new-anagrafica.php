@@ -162,7 +162,7 @@ if ($is_editing) {
             class="form-control" 
             id="doc_code" 
             name="doc_code" 
-            value="<?= $is_editing ? htmlspecialchars(string: $anagrafica->DocumentCode) : '' ?>"
+            value="<?= ($is_editing && !empty($anagrafica->DocumentCode)) ? htmlspecialchars(string: $anagrafica->DocumentCode) : '' ?>"
         >
         <label for="doc_code">Codice Documento <small>(facoltativo)</small></label>
         <div class="invalid-feedback">
