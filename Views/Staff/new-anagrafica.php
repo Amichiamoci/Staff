@@ -23,7 +23,8 @@ if ($is_editing) {
     method="post" 
     id="anagrafica-form" 
     enctype="multipart/form-data"
-    action="<?= $B ?>/staff/new_anagrafica">
+    action="<?= $B ?>/staff/new_anagrafica"
+>
 
     <?php if ($is_editing) { ?>
         <input type="hidden" name="id" required value="<?= $anagrafica->Id?> ">
@@ -34,8 +35,10 @@ if ($is_editing) {
             required
             type="text" 
             class="form-control" 
-            id="nome" name="nome" 
-            value="<?= $is_editing ? htmlspecialchars(string: $anagrafica->Nome) : '' ?>">
+            id="nome" 
+            name="nome" 
+            value="<?= $is_editing ? htmlspecialchars(string: $anagrafica->Nome) : '' ?>"
+        >
         <label for="nome">Nome</label>
         <div class="invalid-feedback">
             Per favore, immetti un nome
@@ -46,8 +49,10 @@ if ($is_editing) {
             required
             type="text" 
             class="form-control" 
-            id="cognome" name="cognome" 
-            value="<?= $is_editing ? htmlspecialchars(string: $anagrafica->Cognome) : '' ?>">
+            id="cognome" 
+            name="cognome" 
+            value="<?= $is_editing ? htmlspecialchars(string: $anagrafica->Cognome) : '' ?>"
+        >
         <label for="cognome">Cognome</label>
         <div class="invalid-feedback">
             Per favore, immetti un cognome
@@ -58,9 +63,11 @@ if ($is_editing) {
             required
             type="text" 
             class="form-control" 
-            id="cf" name="cf" 
+            id="cf" 
+            name="cf" 
             pattern="[A-Za-z]{6}[0-9]{2}[ABCDEHLMPRSTabcdehlmprst]{1}[0-9]{2}[A-Za-z]{1}[0-9LMNPQRSTUVlmnpqrstuv]{3}[A-Za-z]{1}"
-            value="<?= $is_editing ? htmlspecialchars(string: $anagrafica->FiscalCode) : '' ?>">
+            value="<?= $is_editing ? htmlspecialchars(string: $anagrafica->FiscalCode) : '' ?>"
+        >
         <label for="cf">Codice Fiscale</label>
         <div class="invalid-feedback">
             Per favore, immetti un codice fiscale
@@ -79,9 +86,11 @@ if ($is_editing) {
             required
             type="date" 
             class="form-control" 
-            id="compleanno" name="compleanno" 
+            id="compleanno" 
+            name="compleanno" 
             value="<?= $is_editing ? htmlspecialchars(string: $anagrafica->AmericanBirthDay()) : '' ?>"
-            max="<?= date(format: "Y-m-d") ?>">
+            max="<?= date(format: "Y-m-d") ?>"
+        >
         <label for="compleanno">Data di nascita</label>
         <div class="invalid-feedback">
             Per favore, immetti una data di nascita
@@ -92,8 +101,10 @@ if ($is_editing) {
             required
             type="text" 
             class="form-control" 
-            id="provenienza" name="provenienza" 
-            value="<?= $is_editing ? htmlspecialchars(string: $anagrafica->From) : '' ?>">
+            id="provenienza" 
+            name="provenienza" 
+            value="<?= $is_editing ? htmlspecialchars(string: $anagrafica->From) : '' ?>"
+        >
         <label for="provenienza">Luogo di nascita</label>
         <div class="invalid-feedback">
             Per favore, immetti un luogo di nascita
@@ -104,8 +115,10 @@ if ($is_editing) {
             required
             type="email" 
             class="form-control" 
-            id="email" name="email" 
-            value="<?= ($is_editing && !empty($anagrafica->Email)) ? htmlspecialchars(string: $anagrafica->Email) : '' ?>">
+            id="email" 
+            name="email" 
+            value="<?= ($is_editing && !empty($anagrafica->Email)) ? htmlspecialchars(string: $anagrafica->Email) : '' ?>"
+        >
         <label for="email">Email</label>
         <div class="invalid-feedback">
             Per favore, immetti un'email
@@ -115,9 +128,11 @@ if ($is_editing) {
         <input 
             type="tel" 
             class="form-control" 
-            id="telefono" name="telefono" 
-            value="<?= ($is_editing && !empty($anagrafica->Phone)) ? htmlspecialchars(string: $anagrafica->Phone) : '' ?>">
-        <label for="telefono">Numero di telefono</label>
+            id="telefono" 
+            name="telefono" 
+            value="<?= ($is_editing && !empty($anagrafica->Phone)) ? htmlspecialchars(string: $anagrafica->Phone) : '' ?>"
+        >
+        <label for="telefono">Numero di telefono <small>(facoltativo)</small></label>
         <div class="invalid-feedback">
             Per favore, immetti un numero di telefono
         </div>
@@ -126,7 +141,9 @@ if ($is_editing) {
         <select
             required
             class="form-control"
-            id="doc_type" name="doc_type">
+            id="doc_type" 
+            name="doc_type"
+        >
             <?php foreach ($tipi_documento as $tipo) { ?>
                 <option value="<?= $tipo->Id ?>"
                     <?= (($is_editing && $anagrafica->DocumentType === $tipo->Id) || $tipo->Id === 1) ? 'selected' : '' ?>>
@@ -141,12 +158,13 @@ if ($is_editing) {
     </div>
     <div class="form-floating mb-3">
         <input 
-            required
             type="text" 
             class="form-control" 
-            id="doc_code" name="doc_code" 
-            value="<?= $is_editing ? htmlspecialchars(string: $anagrafica->DocumentCode) : '' ?>">
-        <label for="doc_code">Codice Documento</label>
+            id="doc_code" 
+            name="doc_code" 
+            value="<?= $is_editing ? htmlspecialchars(string: $anagrafica->DocumentCode) : '' ?>"
+        >
+        <label for="doc_code">Codice Documento <small>(facoltativo)</small></label>
         <div class="invalid-feedback">
             Per favore, immetti il codice del documento
         </div>
@@ -156,9 +174,11 @@ if ($is_editing) {
             required
             type="date" 
             class="form-control" 
-            id="doc_expires" name="doc_expires" 
+            id="doc_expires" 
+            name="doc_expires" 
             value="<?= $is_editing ? htmlspecialchars(string: $anagrafica->DocumentExpiration) : '' ?>"
-            <?= (!$is_editing) ? 'min="' . date(format: "Y-m-d") . '"' : '' ?>>
+            <?= (!$is_editing) ? 'min="' . date(format: "Y-m-d") . '"' : '' ?>
+        >
         <label for="doc_expires">Scadenza Documento</label>
         <div class="invalid-feedback">
             Per favore, immetti la scadenza del documento
@@ -169,8 +189,10 @@ if ($is_editing) {
             <?= (!$is_editing) ? 'required' : '' ?>
             type="file" multiple 
             class="form-control" 
-            id="doc" name="doc[]"
-            accept="<?= File::ALLOWED_EXT_DOTS() ?>">
+            id="doc" 
+            name="doc[]"
+            accept="<?= File::ALLOWED_EXT_DOTS() ?>"
+        >
         <label for="doc">Documento</label>
         <div class="invalid-feedback">
             Per favore, immetti una o più foto del documento

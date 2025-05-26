@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `anagrafiche` (
   `email` VARCHAR(64) DEFAULT NULL,
   `codice_fiscale` VARCHAR(64) NOT NULL,
   `tipo_documento` INT NOT NULL,
-  `codice_documento` VARCHAR(128) NOT NULL,
+  `codice_documento` VARCHAR(128) DEFAULT NULL,
   `scadenza` DATE DEFAULT NULL,
   `documento` VARCHAR(4096) NOT NULL,
   `self_generated` BOOLEAN NOT NULL DEFAULT '0',

@@ -22,7 +22,8 @@ if (empty($taglia))
 <form 
     method="post"
     enctype="multipart/form-data"
-    action="<?= $B ?>/staff/iscrivi">
+    action="<?= $B ?>/staff/iscrivi"
+>
     <input type="hidden" name="id" required value="<?= $target->Id?>">
 
     <?php if ($user->IsAdmin) { ?>
@@ -30,7 +31,8 @@ if (empty($taglia))
             <select
                 required
                 class="form-control"
-                id="edizione" name="edizione"
+                id="edizione" 
+                name="edizione"
             >
                 <?php foreach ($edizioni as $edizione) { ?>
                     <option value="<?= $edizione->Id ?>" <?= ($edizione->Year === (int)date(format: 'Y')) ? 'selected' : ''?>>
@@ -50,7 +52,8 @@ if (empty($taglia))
         <select
             required
             class="form-control"
-            id="parrocchia" name="parrocchia"
+            id="parrocchia" 
+            name="parrocchia"
         >
             <option value="">Scegli una parrocchia</option>
             <?php foreach ($parrocchie as $p) { ?>
@@ -70,7 +73,8 @@ if (empty($taglia))
         <select
             required
             class="form-control"
-            id="taglia" name="taglia"
+            id="taglia" 
+            name="taglia"
         >
             <option value="">Scegli una taglia</option>
             <?php foreach ($taglie as $t) { ?>
@@ -91,7 +95,8 @@ if (empty($taglia))
             <select
                 required
                 class="form-control"
-                id="tutore" name="tutore"
+                id="tutore" 
+                name="tutore"
             >
                 <option value="">Scegli</option>
                 <?php foreach ($adulti as $a) { ?>
@@ -139,6 +144,7 @@ if (empty($taglia))
         <button class="btn btn-primary" type="submit" id="submit">
             <?php if (!empty($id_iscrizione)) { ?>
                 Aggiorna iscrizione
+                <i class="bi bi-person-fill-up"></i>
             <?php } else { ?>
                 Iscrivi
                 <i class="bi bi-person-add"></i>

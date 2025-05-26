@@ -285,7 +285,7 @@ class StaffController extends Controller
         string $cognome = '',
         string $cf = '',
         int $doc_type = 1,
-        string $doc_code = '',
+        ?string $doc_code = null,
         string $doc_expires = '',
         string $email = '',
         string $compleanno = '',
@@ -307,7 +307,7 @@ class StaffController extends Controller
                 empty($nome) ||
                 empty($cognome) ||
                 empty($cf) ||
-                empty($doc_code) ||
+                // empty($doc_code) ||
                 empty($doc_expires) ||
                 empty($email) ||
                 empty($provenienza) ||
@@ -456,7 +456,7 @@ class StaffController extends Controller
             // Handle the submitted files
             //
             $files = File::UploadingFiles(form_name: 'certificato');
-            $files = array_filter(array: $files, callback: function(array $file): bool {
+            $files = array_filter(array: $files, callback: function (array $file): bool {
                 return File::IsUploadOk(file: $file);
             });
             $actual_path = null;

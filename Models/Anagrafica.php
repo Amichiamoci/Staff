@@ -14,7 +14,7 @@ class Anagrafica extends AnagraficaBase
     public string $Sex = "?";
 
     public TipoDocumento $DocumentType;
-    public string $DocumentCode = "";
+    public ?string $DocumentCode = null;
     public string $DocumentExpiration = "";
     public string $DocumentFileName = "";
     
@@ -27,7 +27,7 @@ class Anagrafica extends AnagraficaBase
         ?string $email,
         string $cf, 
         int $doc_type, 
-        string $doc_code, 
+        ?string $doc_code, 
         string $doc_expires, 
         ?string $nome_file = null, 
         bool $abort_if_existing = false,
@@ -160,7 +160,10 @@ class Anagrafica extends AnagraficaBase
             $a->Phone = $row['telefono'];
         }
 
-        $a->DocumentCode = $row["codice_documento"];
+        if (array_key_exists(key: 'codice_documento', array: $row) && is_string(value: $row['codice_documento']))
+        {
+            $a->DocumentCode = $row["codice_documento"];
+        }
         $a->DocumentType = new TipoDocumento(
             id: (int)$row["tipo_documento"],
             nome: array_key_exists(key: 'tipo_documento_nome', array: $row) ? $row['tipo_documento_nome'] : 'Documento' 
