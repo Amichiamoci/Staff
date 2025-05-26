@@ -39,7 +39,7 @@ trait Anagrafica
             'BirthPlace' => $r['luogo_nascita'],
             
             'Document' => [
-                'Code' => $r['codice_documento'],
+                'Code' => is_string(value: $r['codice_documento']) && strlen(string: $r['codice_documento']) > 0 ? $r['codice_documento'] : null,
                 'Expiration' => $r['scadenza'] . 'T12:00:00',
                 'Type' => [
                     'Id' => (int)$r['tipo_documento'],
@@ -166,7 +166,6 @@ trait Anagrafica
         string $Tax_Code,
         string $Email,
 
-        string $Document_Code,
         string $Document_Expiration,
         int $Document_Type,
 
@@ -174,6 +173,7 @@ trait Anagrafica
         ?string $Birth_Place = null,
         ?string $Phone = null,
         ?string $Document_Url = null,
+        ?string $Document_Code = null,
         ?int $Id = null,
     ): ApiCall
     {
