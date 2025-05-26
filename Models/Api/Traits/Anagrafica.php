@@ -39,7 +39,7 @@ trait Anagrafica
             'BirthPlace' => $r['luogo_nascita'],
             
             'Document' => [
-                'Code' => is_string(value: $r['codice_documento']) && strlen(string: $r['codice_documento']) > 0 ? $r['codice_documento'] : null,
+                // 'Code' => null,
                 'Expiration' => $r['scadenza'] . 'T12:00:00',
                 'Type' => [
                     'Id' => (int)$r['tipo_documento'],
@@ -51,6 +51,11 @@ trait Anagrafica
 
             'Status' => [ ],
         ];
+
+        if (is_string(value: $r['codice_documento']) && strlen(string: $r['codice_documento']) > 0)
+        {
+            $base['Document']['Code'] = $r['codice_documento'];
+        }
 
         if (isset($r['id_parrocchia']) && isset($r['id_iscrizione']))
         {
