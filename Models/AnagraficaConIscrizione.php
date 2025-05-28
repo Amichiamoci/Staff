@@ -42,6 +42,7 @@ class AnagraficaConIscrizione extends Anagrafica
         {
             $arr[] = self::FromDbRow(row: $row);
         }
+        $connection->next_result();
         return $arr;
     }
 
