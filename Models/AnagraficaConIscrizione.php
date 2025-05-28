@@ -29,7 +29,7 @@ class AnagraficaConIscrizione extends Anagrafica
 
     public static function FromChurchId(\mysqli $connection, int $church_id): array {
         if (!$connection) return [];
-        $query = "CALL `IscrizioniList`(YEAR(CURRENT_DATE), $church_id";
+        $query = "CALL `IscrizioniList`(YEAR(CURRENT_DATE), $church_id);";
         
         $result = $connection->query(query: $query);
         if (!$result) {
