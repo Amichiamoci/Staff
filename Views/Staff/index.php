@@ -187,7 +187,7 @@ use Amichiamoci\Models\ProblemaIscrizione;
 <?php } ?>
 
 <h1>
-    Iscrizioni di <?= htmlspecialchars(string: $nome_parrocchia) ?>
+    <?= count(value: $iscritti) ?> iscritti di <?= htmlspecialchars(string: $nome_parrocchia) ?>
     per il <?= date(format: 'Y') ?>
 </h1>
 
