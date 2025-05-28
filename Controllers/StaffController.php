@@ -26,16 +26,25 @@ class StaffController extends Controller
         ?int $church = null,
         ?int $year = null,
     ): int {
-        if (empty($year)) {
+        if (empty($year))
+        {
             $year = (int)date(format: "Y");
         }
         
         $staff = $this->RequireStaff();
-        if (!isset($church) && isset($staff)) {
+        if (!isset($church) && isset($staff))
+        {
             $church = $staff->Parrocchia->Id;
         }
-        if (empty($church)) {
+        if (empty($church))
+        {
             return $this->BadRequest();
+        }
+
+        $church_object = Parrocchia::ById(connection: $this->DB, id: $church);
+        if ($church_object === null)
+        {
+            return $this->NotFound();
         }
 
         return $this->Render(
@@ -47,7 +56,12 @@ class StaffController extends Controller
                     year: $year, 
                     parrocchia: $church
                 ),
+                'iscritti' => AnagraficaConIscrizione::FromChurchId(
+                    connection: $this->DB, 
+                    church_id: $church,
+                ),
                 'id_parrocchia' => $church,
+                'nome_parrocchia' => $church_object->Nome,
                 'anno' => $year,
                 'parrocchie' => Parrocchia::All(connection: $this->DB),
                 'edizioni' => Edizione::All(connection: $this->DB),
