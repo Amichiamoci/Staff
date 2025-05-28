@@ -217,7 +217,7 @@ use Amichiamoci\Models\ProblemaIscrizione;
     <?php foreach ($iscritti as $anagrafica) { ?>
         <div 
             class="col col-xs-12 col-sm-6 col-lg-4 mb-2"
-            data-keywords="<?= $iscritti->KeyWords() ?>"
+            data-keywords="<?= $anagrafica->KeyWords() ?>"
         >
             <?php require dirname(path: __DIR__) . "/Shared/Anagrafica.php"; ?>
         </div>
