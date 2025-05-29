@@ -22,7 +22,7 @@ BEGIN
         WHILE @arr != '' DO
             SET element = SUBSTRING_INDEX(@arr, ',', 1);
             
-            INSERT INTO `squadre_iscritti` (`squadra`, `iscritto`) VALUES (`id`, `element`);
+            INSERT INTO `squadre_iscritti` (`squadra`, `iscritto`) VALUES (id, element);
             
             IF LOCATE(',', @arr) > 0 THEN
                 SET @arr = SUBSTRING(@arr, LOCATE(',', @arr) + 1);
@@ -70,7 +70,7 @@ proc_body:BEGIN
     WHILE NOT @arr = '' DO
         SET element = SUBSTRING_INDEX(@arr, ',', 1);
         
-        INSERT INTO `squadre_iscritti` (`squadra`, `iscritto`) VALUES (`id`, `element`);
+        INSERT INTO `squadre_iscritti` (`squadra`, `iscritto`) VALUES (_id, element);
         
         IF LOCATE(',', @arr) > 0 THEN
             SET @arr = SUBSTRING(@arr, LOCATE(',', @arr) + 1);

@@ -25,6 +25,7 @@ $iscritti_per_parrocchia = array_reduce(
         <input 
             required
             type="text" 
+            maxlength="128"
             class="form-control" 
             id="name" 
             name="name"

@@ -221,6 +221,7 @@ class Squadra extends NomeIdSemplice
                     $parrocchia,
                     $sport,
                     $membri,
+                    // $edizione,
                     $coach,
                 ],
             );

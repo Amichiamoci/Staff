@@ -83,6 +83,7 @@ class TeamsController extends Controller
                 sport: $sport, 
                 membri: implode(separator: ', ', array: $members), 
                 edizione: $edition,
+                coach: $coach,
                 id: $id,
             );
             if ($res)
