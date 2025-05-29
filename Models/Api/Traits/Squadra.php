@@ -49,7 +49,7 @@ trait Squadra
 
     protected function teams_info(): ApiCall
     {
-        return new ApiCall(query: 'CALL `SquadreList(YEAR(CURRENT_DATE), NULL);',
+        return new ApiCall(query: 'CALL `SquadreList`(YEAR(CURRENT_DATE), NULL);',
             row_parser: function (array $row): array {
                 $base = [
                     'Name' => $row['nome'],
