@@ -196,8 +196,6 @@ class Squadra extends NomeIdSemplice
     {
         if (!$connection || $edizione === 0)
             return false;
-        $nome = $connection->real_escape_string(string: $nome);
-        $membri = $connection->real_escape_string(string: $membri);
 
         if (empty($id))
         {

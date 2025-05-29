@@ -2,23 +2,23 @@ DELIMITER //
 
 DROP PROCEDURE IF EXISTS `CreaSquadra` //
 CREATE PROCEDURE `CreaSquadra`(
-    IN nome VARCHAR(128), 
-    IN parrocchia INT, 
-    IN sport INT, 
-    IN membri VARCHAR(2048), 
-    IN edizione INT,
-    IN referenti VARCHAR(2048))
+    IN _nome VARCHAR(128), 
+    IN _parrocchia INT, 
+    IN _sport INT, 
+    IN _membri VARCHAR(2048), 
+    IN _edizione INT,
+    IN _referenti VARCHAR(2048))
 BEGIN
     DECLARE element VARCHAR(512);
     DECLARE id INT DEFAULT 0;
     
     INSERT INTO `squadre` (`nome`, `parrocchia`, `sport`, `edizione`, `referenti`) VALUES 
-    (nome, parrocchia, sport, edizione, TRIM(referenti));
+    (_nome, _parrocchia, _sport, _edizione, TRIM(_referenti));
     
     SET id = LAST_INSERT_ID();
 
     IF id <> 0 THEN
-        SET @arr = membri;
+        SET @arr = _membri;
         WHILE @arr != '' DO
             SET element = SUBSTRING_INDEX(@arr, ',', 1);
             
@@ -37,36 +37,36 @@ END; //
 
 DROP PROCEDURE IF EXISTS `ModificaSquadra` //
 CREATE PROCEDURE `ModificaSquadra`(
-    IN id INT, 
-    IN nome VARCHAR(128), 
-    IN parrocchia INT, 
-    IN sport INT, 
-    IN membri VARCHAR(2048),
-    IN referenti VARCHAR(2048))
+    IN _id INT, 
+    IN _nome VARCHAR(128), 
+    IN _parrocchia INT, 
+    IN _sport INT, 
+    IN _membri VARCHAR(2048),
+    IN _referenti VARCHAR(2048))
 proc_body:BEGIN
 
     DECLARE element VARCHAR(512) DEFAULT NULL;
     
-    IF NOT EXISTS (SELECT * FROM `squadre` WHERE `squadre`.`id` = id) THEN
+    IF NOT EXISTS (SELECT * FROM `squadre` WHERE `squadre`.`id` = _id) THEN
         SELECT 0 AS "id";
         LEAVE proc_body;
     END IF;
 
     -- Aggiorno info sulla squadra
     UPDATE `squadre`
-    SET `squadre`.`nome` = nome,
-        `squadre`.`parrocchia` = parrocchia,
-        `squadre`.`sport` = sport,
-        `squadre`.`referenti` = TRIM(referenti)
-    WHERE `squadre`.`id` = id;
+    SET `squadre`.`nome` = _nome,
+        `squadre`.`parrocchia` = _parrocchia,
+        `squadre`.`sport` = _sport,
+        `squadre`.`referenti` = TRIM(_referenti)
+    WHERE `squadre`.`id` = _id;
     
     -- Cancello tutti i membri che non fanno piu' parte
     DELETE 
     FROM `squadre_iscritti`
-    WHERE `squadre_iscritti`.`squadra` = id;
+    WHERE `squadre_iscritti`.`squadra` = _id;
 
     -- Creo nuovi membri e reinserisco gli altri
-    SET @arr = membri;
+    SET @arr = _membri;
     WHILE NOT @arr = '' DO
         SET element = SUBSTRING_INDEX(@arr, ',', 1);
         
@@ -79,7 +79,7 @@ proc_body:BEGIN
         END IF;
     END WHILE;
 
-    SELECT id;
+    SELECT _id AS "id";
 END; //
 
 DROP PROCEDURE IF EXISTS `SquadreList` //

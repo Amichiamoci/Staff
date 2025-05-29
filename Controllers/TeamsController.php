@@ -109,6 +109,7 @@ class TeamsController extends Controller
             title: 'Crea squadra',
             data: [
                 'id' => $id,
+                'nome' => $name,
 
                 'parrocchia' => $church,
                 'parrocchie' => Parrocchia::All(connection: $this->DB),
@@ -152,6 +153,7 @@ class TeamsController extends Controller
             title: 'Crea squadra',
             data: [
                 'id' => $team->Id,
+                'nome' => $team->Nome,
 
                 'parrocchia' => $team->Parrocchia->Id,
                 'parrocchie' => Parrocchia::All(connection: $this->DB),
