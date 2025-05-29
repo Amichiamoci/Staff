@@ -102,7 +102,7 @@ $squadre_per_sport = array_reduce(
                                     explode(
                                         separator: ',', 
                                         string: str_replace(
-                                            search: ['\n', '\r', '\t', ';'], 
+                                            search: ["\n", "\r", "\t", ";", ], 
                                             replace: ',', 
                                             subject: $squadra->Referenti,
                                         ),
