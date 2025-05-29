@@ -105,6 +105,7 @@ CREATE TABLE IF NOT EXISTS `squadre` (
   `parrocchia` INT NOT NULL,
   `sport` INT NOT NULL,
   `edizione` INT NOT NULL,
+  `referenti` VARCHAR(2048) DEFAULT NULL,
 
   FOREIGN KEY (`parrocchia`) REFERENCES `parrocchie` (`id`),
   FOREIGN KEY (`sport`) REFERENCES `sport` (`id`),

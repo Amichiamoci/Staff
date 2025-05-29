@@ -11,6 +11,8 @@ class Squadra extends NomeIdSemplice
     public Parrocchia $Parrocchia;
     public Sport $Sport;
 
+    public ?string $Referenti = null;
+
     public static function Table(): string { return 'squadre'; }
 
     public function __construct(
@@ -24,6 +26,8 @@ class Squadra extends NomeIdSemplice
 
         ?string $membri = null,
         string|array|null $iscrizione_membri = [],
+
+        ?string $referenti = null,
     ) {
         parent::__construct(id: $id, nome: $nome);
         
@@ -50,6 +54,8 @@ class Squadra extends NomeIdSemplice
             id: $id_sport,
             nome: $sport
         );
+
+        $this->Referenti = $referenti;
     }
     
     public static function All(
@@ -59,10 +65,11 @@ class Squadra extends NomeIdSemplice
     ) : array {
         if (!$connection)
             return [];
-        $y = (!isset($year) || (int)$year === 0) ? "NULL" : (int)$year;
-        $s = (!isset($sport) || (int)$sport === 0) ? "NULL" : (int)$sport;
         
-        $result = $connection->query(query: "CALL SquadreList($y, $s);");
+        $result = $connection->execute_query(
+            query: "CALL `SquadreList`(?, ?);",
+            params: [ $year, $sport, ],
+        );
         if (!$result)
         {
             $connection->next_result();
@@ -83,7 +90,9 @@ class Squadra extends NomeIdSemplice
                 id_parrocchia: $row["id_parrocchia"],
                 
                 sport: $row["nome_sport"],
-                id_sport: $row["id_sport"]
+                id_sport: $row["id_sport"],
+
+                referenti: array_key_exists(key: 'referenti', array: $row) ? $row['referenti'] : null,
             );
         }
         $result->close();
@@ -137,7 +146,7 @@ class Squadra extends NomeIdSemplice
         return (bool)$result && $connection->affected_rows === 1;
     }
 
-    public static function Load(\mysqli $connection, int $id) : ?self
+    public static function ById(\mysqli $connection, int $id) : ?self
     {
         if (!$connection || $id === 0)
         {
@@ -154,7 +163,7 @@ class Squadra extends NomeIdSemplice
         $squadra = null;
         if ($row = $result->fetch_assoc())
         {
-            $squadra = new Squadra(
+            $squadra = new self(
                 id: $row["id"],
                 nome: $row["nome"],
 
@@ -163,8 +172,12 @@ class Squadra extends NomeIdSemplice
 
                 parrocchia: $row["parrocchia"],
                 id_parrocchia: $row["id_parrocchia"],
+
                 sport: $row["sport"],
-                id_sport: $row["id_sport"]);
+                id_sport: $row["id_sport"],
+
+                referenti: array_key_exists(key: 'referenti', array: $row) ? $row['referenti'] : null,
+            );
         }
         $connection->next_result();
         return $squadra;
@@ -177,15 +190,46 @@ class Squadra extends NomeIdSemplice
         int $sport, 
         string $membri, 
         int $edizione,
-    ) : bool {
+        ?string $coach = null,
+        ?int $id = null,
+    ): bool 
+    {
         if (!$connection || $edizione === 0)
             return false;
         $nome = $connection->real_escape_string(string: $nome);
         $membri = $connection->real_escape_string(string: $membri);
 
-        $result = $connection->query(query: "CALL CreaSquadra('$nome', $parrocchia, $sport, '$membri', $edizione)");
-        if (!$result)
+        if (empty($id))
         {
+            // Creating the team
+            $result = $connection->execute_query(
+                query: "CALL `CreaSquadra`(?, ?, ?, ?, ?, ?)", 
+                params: [
+                    $nome,
+                    $parrocchia,
+                    $sport,
+                    $membri,
+                    $edizione,
+                    $coach,
+                ],
+            );
+        } else {
+            // Editing the team
+            $result = $connection->execute_query(
+                query: "CALL `ModificaSquadra`(?, ?, ?, ?, ?, ?)", 
+                params: [
+                    $id,
+                    $nome,
+                    $parrocchia,
+                    $sport,
+                    $membri,
+                    $coach,
+                ],
+            );
+        }
+        if (!$result || $result->num_rows === 0)
+        {
+            $connection->next_result();
             return false;
         }
 
@@ -199,35 +243,11 @@ class Squadra extends NomeIdSemplice
         return $ret;
     }
 
-    public static function Edit(
-        \mysqli $connection, 
-        int $id,
-        string $nome, 
-        int $parrocchia,
-        int $sport,
-        string $membri) : bool
-    {
-        if (!$connection || $id === 0)
-            return false;
-        $nome = $connection->real_escape_string(string: $nome);
-        $membri = $connection->real_escape_string(string: $membri);
-        
-        $result = $connection->query(query: "CALL ModificaSquadra($id, '$nome', $parrocchia, $sport, '$membri')");
-        if (!$result)
-        {
-            return false;
-        }
-        
-        $ret = false;
-        if ($row = $result->fetch_assoc())
-        {
-            $ret = isset($row["Result"]) && $row["Result"] != "0";
-        }
-        $result->close();
-        $connection->next_result();
-        return $ret;
-    }
-
+    /**
+     * returns a dictionary of the type
+     * MemberId => MemberName
+     * @return 
+     */
     public function MembriFull(): array {
         $a = [];
         $names = explode(separator: ',', string: $this->Membri);

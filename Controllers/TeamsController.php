@@ -39,10 +39,12 @@ class TeamsController extends Controller
     }
 
     public function new(
+        ?int $id = null,
         ?string $name = null,
         ?int $church = null,
         ?int $sport = null,
         ?int $edition = null,
+        ?string $coach = null,
         array $members = [],
     ): int {
         $staff = $this->RequireStaff();
@@ -63,6 +65,10 @@ class TeamsController extends Controller
         {
             return $this->NotFound();
         }
+        if ($edition instanceof Edizione)
+        {
+            $edition = $edition->Id;
+        }
 
         if (self::IsPost())
         {
@@ -76,20 +82,34 @@ class TeamsController extends Controller
                 parrocchia: $church, 
                 sport: $sport, 
                 membri: implode(separator: ', ', array: $members), 
-                edizione: $edition
+                edizione: $edition,
+                id: $id,
             );
-            if ($res) {
-                $this->Message(message: Message::Success(content: 'Squadra creata correttamente'));
+            if ($res)
+            {
+                if (empty($id))
+                {
+                    $this->Message(message: Message::Success(content: 'Squadra creata correttamente'));
+                } else {   
+                    $this->Message(message: Message::Success(content: 'Squadra MODIFICATA correttamente'));
+                }
                 return $this->index(church: $church);
             }
             
-            $this->Message(message: Message::Error(content: 'Non è stato possibile creare la squadra'));
+            if (empty($id))
+            {
+                $this->Message(message: Message::Error(content: 'Non è stato possibile creare la squadra'));
+            } else {   
+                $this->Message(message: Message::Error(content: 'Non è stato possibile MODIFICARE la squadra'));
+            }
         }
 
         return $this->Render(
             view: 'Teams/create',
             title: 'Crea squadra',
             data: [
+                'id' => $id,
+
                 'parrocchia' => $church,
                 'parrocchie' => Parrocchia::All(connection: $this->DB),
 
@@ -98,6 +118,52 @@ class TeamsController extends Controller
 
                 'sport' => Sport::All(connection: $this->DB),
                 'iscritti' => Iscrizione::All(connection: $this->DB),
+
+                'membri' => [],
+                'coach' => $coach,
+            ],
+        );
+    }
+
+    public function edit(
+        ?int $id = null,
+    ): int
+    {
+        $this->RequireStaff();
+        if (empty($id))
+        {
+            return $this->BadRequest();
+        }
+
+        $team = Squadra::ById(connection: $this->DB, id: $id);
+        if ($team === null)
+        {
+            return $this->NotFound();
+        }
+
+        $edition = Edizione::Current(connection: $this->DB);
+        if (!isset($edition))
+        {
+            return $this->NotFound();
+        }
+
+        return $this->Render(
+            view: 'Teams/create',
+            title: 'Crea squadra',
+            data: [
+                'id' => $team->Id,
+
+                'parrocchia' => $team->Parrocchia->Id,
+                'parrocchie' => Parrocchia::All(connection: $this->DB),
+
+                'edizione' => $edition->Id,
+                'edizioni' => Edizione::All(connection: $this->DB),
+
+                'sport' => Sport::All(connection: $this->DB),
+                'iscritti' => Iscrizione::All(connection: $this->DB),
+
+                'membri' => array_keys(array: $team->MembriFull()),
+                'coach' => $team->Referenti,
             ],
         );
     }

@@ -49,12 +49,11 @@ trait Squadra
 
     protected function teams_info(): ApiCall
     {
-        return new ApiCall(
-            query: 'SELECT * FROM `squadre_attuali`',
+        return new ApiCall(query: 'CALL `SquadreList(YEAR(CURRENT_DATE), NULL);',
             row_parser: function (array $row): array {
-                return [
+                $base = [
                     'Name' => $row['nome'],
-                    'Id' => (int)$row['id'],
+                    'Id' => (int)$row['id_squadra'],
                     
                     'Church' => $row['parrocchia'],
                     'ChurchId' => (int)$row['id_parrocchia'],
@@ -62,9 +61,17 @@ trait Squadra
                     'Sport' => $row['sport'],
                     'SportId' => (int)$row['id_sport'],
     
-                    'MemberCount' => (int)$row['membri']
+                    'MemberCount' => (int)($row['totale_membri'] ?? 0),
                 ];
+
+                if (array_key_exists(key: 'referenti', array: $row) && is_string(value: $row['referenti']))
+                {
+                    $base['Coach'] = $row['referenti'];
+                }
+
+                return $base;
             },
+            is_procedure: true,
         );
     }
 }
