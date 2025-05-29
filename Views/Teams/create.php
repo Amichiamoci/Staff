@@ -42,8 +42,8 @@ $iscritti_per_parrocchia = array_reduce(
         <select
             required
             class="form-control"
-            id="parrocchia" 
-            name="parrocchia"
+            id="church" 
+            name="church"
         >
             <?php foreach ($parrocchie as $p) { ?>
                 <option value="<?= $p->Id ?>" <?= ($p->Id === $parrocchia) ? 'selected' : '' ?>>
@@ -51,7 +51,7 @@ $iscritti_per_parrocchia = array_reduce(
                 </option>
             <?php } ?>
         </select>
-        <label for="parrocchia">Parrocchia</label>
+        <label for="church">Parrocchia</label>
         <div class="invalid-feedback">
             Per favore, scegli una tra le parrocchie proposte
         </div>
@@ -109,10 +109,8 @@ $iscritti_per_parrocchia = array_reduce(
             style="resize: none;"
             rows="3"
             placeholder="Nome1 Cognome1, Nome2 Cognome2"
-        >
-            <?= (isset($coach) && is_string(value: $coach)) ? htmlspecialchars(string: $coach) : '' ?>
-        </textarea>
-        <label for="coach">Referenti squadra</label>
+        ><?= (isset($coach) && is_string(value: $coach)) ? htmlspecialchars(string: $coach) : '' ?></textarea>
+        <label for="coach">Referenti squadra (elencare separati da virgola o andando a capo)</label>
         <div class="invalid-feedback">
             Per favore, indica dei referenti
         </div>

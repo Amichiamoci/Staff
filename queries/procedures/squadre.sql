@@ -13,7 +13,7 @@ BEGIN
     DECLARE id INT DEFAULT 0;
     
     INSERT INTO `squadre` (`nome`, `parrocchia`, `sport`, `edizione`, `referenti`) VALUES 
-    (nome, parrocchia, sport, edizione, referenti);
+    (nome, parrocchia, sport, edizione, TRIM(referenti));
     
     SET id = LAST_INSERT_ID();
 
@@ -57,7 +57,7 @@ proc_body:BEGIN
     SET `squadre`.`nome` = nome,
         `squadre`.`parrocchia` = parrocchia,
         `squadre`.`sport` = sport,
-        `squadre`.`referenti` = referenti
+        `squadre`.`referenti` = TRIM(referenti)
     WHERE `squadre`.`id` = id;
     
     -- Cancello tutti i membri che non fanno piu' parte
