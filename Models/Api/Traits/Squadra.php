@@ -58,7 +58,7 @@ trait Squadra
                     'Church' => $row['parrocchia'],
                     'ChurchId' => (int)$row['id_parrocchia'],
     
-                    'Sport' => $row['sport'],
+                    'Sport' => $row['nome_sport'],
                     'SportId' => (int)$row['id_sport'],
     
                     'MemberCount' => (int)($row['totale_membri'] ?? 0),
