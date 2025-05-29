@@ -28,6 +28,7 @@ $iscritti_per_parrocchia = array_reduce(
             class="form-control" 
             id="name" 
             name="name"
+            value="<?=is_string(value: $nome) ? htmlspecialchars(string: $nome) : '' ?>"
         >
         <label for="name">Nome</label>
         <div class="invalid-feedback">
@@ -70,7 +71,10 @@ $iscritti_per_parrocchia = array_reduce(
         >
             <option value="">Scegli uno sport</option>
             <?php foreach ($sport as $s) { ?>
-                <option value="<?= $s->Id ?>">
+                <option 
+                    value="<?= $s->Id ?>"
+                    <?= $s->Id === $sport_squadra ? 'selected' : '' ?>
+                >
                     <?= htmlspecialchars(string: $s->Nome) ?>
                 </option>
             <?php } ?>

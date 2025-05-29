@@ -110,6 +110,7 @@ class TeamsController extends Controller
             data: [
                 'id' => $id,
                 'nome' => $name,
+                'sport_squadra' => $sport,
 
                 'parrocchia' => $church,
                 'parrocchie' => Parrocchia::All(connection: $this->DB),
@@ -150,10 +151,11 @@ class TeamsController extends Controller
 
         return $this->Render(
             view: 'Teams/create',
-            title: 'Crea squadra',
+            title: 'Modifica squadra',
             data: [
                 'id' => $team->Id,
                 'nome' => $team->Nome,
+                'sport_squadra' => $team->Sport->Id,
 
                 'parrocchia' => $team->Parrocchia->Id,
                 'parrocchie' => Parrocchia::All(connection: $this->DB),

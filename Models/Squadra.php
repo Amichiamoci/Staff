@@ -153,7 +153,7 @@ class Squadra extends NomeIdSemplice
             return null;
         }
 
-        $result = $connection->query(query: "CALL GetSquadra($id);");
+        $result = $connection->query(query: "CALL `GetSquadra`($id);");
         if (!$result || $result->num_rows === 0)
         {
             $connection->next_result();
