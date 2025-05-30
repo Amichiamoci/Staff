@@ -94,7 +94,7 @@ $squadre_per_sport = array_reduce(
                     <div class="card-body p-1">
 
                         <?php if (is_string(value: $squadra->Referenti)) { ?>
-                            <h4>
+                            <h4 class="ms-1">
                                 Referenti
                             </h4>
                             <p class="ms-2">
@@ -115,12 +115,12 @@ $squadre_per_sport = array_reduce(
                             </p>
                         <?php } ?>
 
-                        <h4>
+                        <h4 class="ms-1">
                             Membri
                         </h4>
                         <ul class="list-group list-group-flush">
                             <?php foreach ($squadra->MembriFull() as $id_anagrafica => $nome) { ?>
-                                <li class="list-group-item">
+                                <li class="list-group-item pt-0 border-0">
                                     <a 
                                         href="<?= $B ?>/staff/edit_anagrafica?id=<?= $id_anagrafica ?>"
                                         class="text-reset link-underline link-underline-opacity-0"
