@@ -53,7 +53,8 @@ if (!isset($staff) || !($staff instanceof StaffBase)) {
                 
                 <?php if (count(value: $staff->Commissioni) > 0) { ?>
                     <dt class="col-sm-4">
-                        <?= count(value: $staff->Commissioni) ?> Commissioni
+                        <?= count(value: $staff->Commissioni) ?> 
+                        <abbr title="Commissioni">Comm...</abbr>
                     </dt>
                     <dd class="col-sm-8 mb-0">
                         <ul class="list-group list-group-flush p-0 m-0">
