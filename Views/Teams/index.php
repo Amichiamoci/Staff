@@ -97,7 +97,7 @@ $squadre_per_sport = array_reduce(
                             <h4>
                                 Referenti
                             </h4>
-                            <p class="ms-1">
+                            <p class="ms-2">
                                 <?php foreach (
                                     explode(
                                         separator: ',', 
@@ -107,7 +107,9 @@ $squadre_per_sport = array_reduce(
                                             subject: $squadra->Referenti,
                                         ),
                                     ) as $referente) { 
+                                        if (trim(string: $referente) === '') continue;
                                 ?>
+
                                     <?= htmlspecialchars(string: trim(string: $referente)) ?><br>
                                 <?php } ?>
                             </p>
