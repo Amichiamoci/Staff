@@ -24,7 +24,6 @@ class ProblemaIscrizione
 
 
     public ?string $Email;
-    public ?string $VerificaEmail;
     public ?string $Telefono;
 
     public function __construct(
@@ -42,7 +41,6 @@ class ProblemaIscrizione
         ?string $eta = null,
         ?string $taglia = null,
         ?string $email = null,
-        ?string $verifica_email = null,
         ?string $telefono = null,
     ) {
         $this->Id = (int)$id;
@@ -59,15 +57,17 @@ class ProblemaIscrizione
         $this->Eta = $eta;
         $this->Taglia = $taglia;
         $this->Email = $email;
-        $this->VerificaEmail = $verifica_email;
         $this->Telefono = $telefono;
     }
 
     public static function Parrocchia(
         \mysqli $connection, 
-        int $year, int $parrocchia
-    ): array {
-        if (!$connection) {
+        int $year, 
+        int $parrocchia,
+    ): array
+    {
+        if (!$connection)
+        {
             return [];
         }
         $query = "CALL `ProblemiParrocchia`($parrocchia, $year)";
@@ -95,7 +95,6 @@ class ProblemaIscrizione
                 eta: $row['eta'],
                 taglia: $row['maglia'],
                 email: $row['email'],
-                verifica_email: $row['email_verify'],
                 telefono: $row['telefono'],
             );
         }
@@ -107,7 +106,6 @@ class ProblemaIscrizione
     {
         $filtered = array_filter(
             array: [
-                // $this->CodiceDocumento,
                 $this->Documento,
                 $this->ScadenzaDocumento,
                 $this->Certificato,
