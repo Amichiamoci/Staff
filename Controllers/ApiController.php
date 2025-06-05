@@ -5,8 +5,13 @@ namespace Amichiamoci\Controllers;
 use Amichiamoci\Models\Api\Call as ApiCall;
 use Amichiamoci\Models\Api\Token as ApiToken;
 use Amichiamoci\Models\Message;
+use Amichiamoci\Models\Api\Traits\Anagrafica as AnagraficaTrait;
+use Amichiamoci\Models\Api\Traits\Parrocchia as ParrocchiaTrait;
+use Amichiamoci\Models\Api\Traits\Staff as StaffTrait;
+use Amichiamoci\Models\Api\Traits\Squadra as SquadraTrait;
+use Amichiamoci\Models\Api\Traits\Torneo as TorneoTrait;
+use Amichiamoci\Models\Api\Traits\Partita as PartitaTrait;
 use Amichiamoci\Utils\Security;
-use Reflection;
 use ReflectionClass;
 
 class ApiController extends Controller
@@ -65,8 +70,12 @@ class ApiController extends Controller
         {
             return $this->Json(
                 object: [
-                    'message' => 'Invalid resource',
-                    'resource' => $resource,
+                    'Message' => 'Invalid resource (null)',
+                    'Stack' => [
+                        __METHOD__,
+                    ],
+                    'Line' => __LINE__, 
+                    'File' => __FILE__,
                 ],
                 status_code: 400,
             );
@@ -77,7 +86,12 @@ class ApiController extends Controller
         {
             return $this->Json(
                 object: [
-                    'message' => "Header 'App-Bearer' missing",
+                    'Message' => "Header 'App-Bearer' missing",
+                    'Stack' => [
+                        __METHOD__,
+                    ],
+                    'Line' => __LINE__,
+                    'File' => __FILE__,
                 ],
                 status_code: 400,
             );
@@ -89,14 +103,31 @@ class ApiController extends Controller
             ip: Security::GetIpAddress(),
         )) {
             return $this->Json(
-                object: ['message' => 'Invalid bearer token'],
+                object: [
+                    'Message' => 'Invalid bearer token',
+                    'Stack' => [
+                        __METHOD__,
+                    ],
+                    'Line' => __LINE__,
+                    'File' => __FILE__,
+                ],
                 status_code: 401,
             );
         }
 
         if (!array_key_exists(key: $resource, array: $this->avaible_methods))
         {
-            return $this->NotFound();
+            return $this->Json(
+                object: [
+                    'Message' => "Action '$resource' not found",
+                    'Stack' => [
+                        __METHOD__,
+                    ],
+                    'Line' => __LINE__,
+                    'File' => __FILE__,
+                ],
+                status_code: 404,
+            );
         }
 
         // Get the parameters for the query
@@ -114,17 +145,24 @@ class ApiController extends Controller
             if (!isset($result))
             {
                 return $this->Json(
-                    object: ['message' => 'Could not obtain result from action'],
+                    object: [
+                        'Message' => 'Could not obtain result from action',
+                        'Stack' => [
+                            __METHOD__,
+                        ],
+                        'Line' => __LINE__,
+                        'File' => __FILE__,
+                    ],
                     status_code: 500,
                 );
             }
         } catch (\Throwable $ex) {
             return $this->Json(
                 object: [
-                    'message' => $ex->getMessage(),
-                    'stack' => $ex->getTrace(),
-                    'line' => $ex->getLine(),
-                    'file' => $ex->getFile(),
+                    'Message' => $ex->getMessage(),
+                    'Stack' => $ex->getTrace(),
+                    'Line' => $ex->getLine(),
+                    'File' => $ex->getFile(),
                 ],
                 status_code: 500,
             );
@@ -152,7 +190,8 @@ class ApiController extends Controller
                 continue;
             }
 
-            $arr[substr(string: $key, offset: strlen(string: 'Data-Param-'))] = $value;
+            $base_name = substr(string: $key, offset: strlen(string: 'Data-Param-'));
+            $arr[str_replace(search: '-', replace: '_', subject: $base_name)] = $value;
         }
         return $arr;
     }
@@ -161,11 +200,8 @@ class ApiController extends Controller
         'teams-members' => 'teams_members',
         'teams-info' => 'teams_info',
 
-        'church' => 'church',
-        'churches' => 'churches',
         'staff-list' => 'staff_list',
-
-        'managed-anagraphicals' => 'managed_anagraphicals',
+        'get-user-claims' => 'get_user_claims',
 
         'today-matches-of' => 'today_matches_of',
         'today-matches-sport' => 'today_matches_sport',
@@ -179,547 +215,21 @@ class ApiController extends Controller
         'new-match-result' => 'add_result',
         'delete-match-result' => 'delete_result',
 
+        'church' => 'church',
+        'churches' => 'churches',
         'leaderboard' => 'leaderboard',
+
+        'document-types' => 'document_types',
+        'managed-anagraphicals' => 'managed_anagraphicals',
+        'subscribe' => 'subscribe',
+        'anagraphical' => 'anagraphical',
     ];
-    private function teams_members(): ApiCall
-    {
-        return new ApiCall(
-            query: 'SELECT * FROM `distinte`',
-            row_parser: function (array $row): array {
-                $semi_parsed =  [
-                    'Id' => (int)$row['id'],
-                    'TeamId' => (int)$row['squadra_id'],
-                    'SubscriptionId' => (int)$row['iscrizione'],
-                    'FullName' => $row['chi'],
-                    'Sex' => is_string(value: $row['sesso']) ? $row['sesso'] : '?',
-                    'Problems' => []
-                ];
     
-                // Other problems
-                if (is_string(value: $row['tutore_problem']))
-                {
-                    $semi_parsed['Problems'][] = 'Tutore ' . $row['tutore_problem'];
-                }
-                if (is_string(value: $row['certificato_problem']))
-                {
-                    $semi_parsed['Problems'][] = $row['certificato_problem'];
-                }
-    
-                // Document related problems
-                if (is_string(value: $row['doc_problem']))
-                {
-                    $semi_parsed['Problems'][] = $row['doc_problem'];
-                }
-                //if (is_string($row['doc_code_problem']))
-                //{
-                //    $semi_parsed['Problems'][] = $row['doc_code_problem'];
-                //}
-                //if (is_string($row['scadenza_problem']))
-                //{
-                //    $semi_parsed['Problems'][] = $row['scadenza_problem'];
-                //}
-                return $semi_parsed;
-            },
-        );
-    }
+    use AnagraficaTrait;
 
-    private function teams_info(): ApiCall
-    {
-        return new ApiCall(
-            query: 'SELECT * FROM `squadre_attuali`',
-            row_parser: function (array $row): array {
-                return [
-                    'Name' => $row['nome'],
-                    'Id' => (int)$row['id'],
-                    
-                    'Church' => $row['parrocchia'],
-                    'ChurchId' => (int)$row['id_parrocchia'],
-    
-                    'Sport' => $row['sport'],
-                    'SportId' => (int)$row['id_sport'],
-    
-                    'MemberCount' => (int)$row['membri']
-                ];
-            },
-        );
-    }
+    use ParrocchiaTrait, StaffTrait;
 
-    private function church(int $Id): ApiCall
-    {
-        return new ApiCall(
-            query: "SELECT * FROM `parrocchie` WHERE `id` = $Id",
-            row_parser: function (array $r): array {
-                return [
-                    'Id' => (int)$r['id'],
-                    'Name' => $r['nome'],
-    
-                    'Address' => is_string(value: $r['indirizzo']) && strlen(string: $r['indirizzo']) > 0 ? $r['indirizzo'] : null,
-                    'Website' => is_string(value: $r['website']) && strlen(string: $r['website']) > 0 ? $r['website'] : null,
-                ];
-            }
-        );
-    }
+    use SquadraTrait;
 
-    private function churches(): ApiCall
-    {
-        return new ApiCall(
-            query: "SELECT * FROM `parrocchie`",
-            row_parser: function (array $r): array {
-                return [
-                    'Id' => (int)$r['id'],
-                    'Name' => $r['nome'],
-    
-                    'Address' => is_string(value: $r['indirizzo']) && strlen(string: $r['indirizzo']) > 0 ? $r['indirizzo'] : null,
-                    'Website' => is_string(value: $r['website']) && strlen(string: $r['website']) > 0 ? $r['website'] : null,
-                ];
-            }
-        );
-    }
-
-    private function staff_list(): ApiCall
-    {
-        return new ApiCall(
-            query: 'SELECT * FROM `staffisti_attuali`',
-            row_parser: function (array $r): array {
-                return [
-                    'Name' => $r['chi'],
-                    'ChurchId' => (int)$r['id_parrocchia'],
-                    
-                    'Phone' => is_string(value: $r['telefono']) && strlen(string: $r['telefono']) > 0 ? $r['telefono'] : null,
-                    'Email' => is_string(value: $r['email']) && strlen(string: $r['email']) > 0 ? $r['email'] : null,
-                ];
-            }
-        );
-    }
-
-    private function managed_anagraphicals(string $Email): ApiCall
-    {
-        $email = $this->DB->escape_string($Email);
-        $query = 
-            "SELECT * " .
-            "FROM `anagrafiche_con_iscrizioni_correnti` " .
-            "WHERE LOWER(TRIM(`email`)) = LOWER(TRIM('$email')) OR LOWER(TRIM(`email_tutore`)) = LOWER(TRIM('$email'))";
-        return new ApiCall(
-            query: $query,
-            row_parser: function(array $r): array {
-                return [
-                    'Id' => (int)$r['id'],
-                    'Name' => $r['nome'],
-                    'Surname' => $r['cognome'],
-                    
-                    'Phone' => is_string(value: $r['telefono']) && strlen(string: $r['telefono']) > 0 ? $r['telefono'] : null,
-                    'Email' => is_string(value: $r['email']) && strlen(string: $r['email']) > 0 ? $r['email'] : null,
-                    
-                    'TaxCode' => $r['cf'],
-                    'BirthDate' => $r['data_nascita_italiana'],
-                    
-                    'Document' => [
-                        'TypeId' => (int)$r['tipo_documento'],
-                        'TypeName' => $r['nome_tipo_documento'],
-                        'Code' => $r['codice_documento'],
-                        'Message' => $r['scadenza_problem'],
-                    ],
-    
-                    'MedicalCertificate' => $r['stato_certificato'],
-                    'SubscriptionStatus' => $r['codice_iscrizione'],
-                    'ShirtSize' => $r['maglia'],
-    
-                    'Church' => $r['parrocchia'],
-                    'ChurchId' => (int)$r['id_parrocchia'],
-                ];
-            }
-        );
-    }
-
-    private function today_matches_of(string $Email): ApiCall
-    {
-        $email = $this->DB->escape_string($Email);
-        $query = "SELECT * FROM `partite_oggi_persona` WHERE LOWER(TRIM(`email`)) = LOWER(TRIM('$email'))";
-        return new ApiCall(
-            query: $query,
-            row_parser: function(array $r): array {
-                $arr = [
-                    'WhoPlays' => $r['nome'] . ' ' . $r['cognome'],
-                    'Email' => $r['email'],
-                    'PlayerId' => (int)$r['id'],
-                    'NeedsMedicalCertificate' => (bool)($r['necessita_certificato'] == 1),
-    
-                    'Id' => (int)$r['id_partita'],
-    
-                    'TournamentName' => $r['torneo'],
-                    'TournamentId' => (int)$r['codice_torneo'],
-    
-                    'SportName' => $r['sport'],
-                    'SportId' => (int)$r['codice_sport'],
-    
-                    'Date' => $r['data'],
-                    'Time' => $r['orario'],
-    
-                    'HomeTeam' => [
-                        'Name' => $r['squadra_casa'],
-                        'Id' => (int)$r['squadra_casa_id'],
-                        
-                        'Sport' => $r['sport'],
-                        'SportId' => (int)$r['codice_sport'],
-    
-                        'Church' => $r['nome_parrocchia_casa'],
-                        'ChurchId' => (int)$r['id_parrocchia_casa'],
-                    ],
-                    'GuestTeam' => [
-                        'Name' => $r['squadra_ospite'],
-                        'Id' => (int)$r['squadra_ospite_id'],
-                        
-                        'Sport' => $r['sport'],
-                        'SportId' => (int)$r['codice_sport'],
-    
-                        'Church' => $r['nome_parrocchia_ospite'],
-                        'ChurchId' => (int)$r['id_parrocchia_ospite'],
-                    ],
-                    'HomeScore' => null,
-                    'GuestScore' => null,
-                    'Scores' => [
-                        'Id' => [],
-                        'Home' => [],
-                        'Guest' => [],
-                    ],
-                ];
-    
-                if (is_string(value: $r['nome_campo']) && isset($r['id_campo']))
-                {
-                    $arr['Field'] = [
-                        'Name' => $r['nome_campo'],
-                        'Id' => (int)$r['id_campo'],
-                        'Address' => $r['indirizzo_campo'],
-                        'Latitude' => isset($r['latitudine_campo']) ? (float)$r['latitudine_campo'] : null,
-                        'Longitude' => isset($r['longitudine_campo']) ? (float)$r['longitudine_campo'] : null,
-                    ];
-                }
-    
-                return $arr;
-            }
-        );
-    }
-
-    private function today_matches_sport(string $Sport): ApiCall
-    {
-        $area = $this->DB->escape_string($Sport);
-        $query = "SELECT * FROM `partite_oggi` WHERE UPPER(`area_sport`) = UPPER('$area')";
-        return new ApiCall(
-            query: $query,
-            row_parser: function(array $r): array {
-                $arr = [
-                    'Id' => (int)$r['id'],
-    
-                    'TournamentName' => $r['nome_torneo'],
-                    'TournamentId' => (int)$r['torneo'],
-    
-                    'SportName' => $r['sport'],
-                    'SportId' => (int)$r['codice_sport'],
-    
-                    'Date' => $r['data'],
-                    'Time' => $r['orario'],
-    
-                    'HomeTeam' => [
-                        'Name' => $r['squadra_casa'],
-                        'Id' => (int)$r['squadra_casa_id'],
-                        
-                        'Sport' => $r['sport'],
-                        'SportId' => (int)$r['codice_sport'],
-    
-                        'Church' => $r['nome_parrocchia_casa'],
-                        'ChurchId' => (int)$r['id_parrocchia_casa'],
-                    ],
-                    'GuestTeam' => [
-                        'Name' => $r['squadra_ospite'],
-                        'Id' => (int)$r['squadra_ospite_id'],
-                        
-                        'Sport' => $r['sport'],
-                        'SportId' => (int)$r['codice_sport'],
-    
-                        'Church' => $r['nome_parrocchia_ospite'],
-                        'ChurchId' => (int)$r['id_parrocchia_ospiti'],
-                    ],
-    
-                    'HomeScore' => null,
-                    'GuestScore' => null,
-                    'Scores' => [
-                        'Id' => is_string(value: $r['id_punteggi']) ? 
-                            array_map(
-                                callback: function (string $s): int { return (int)$s; },
-                                array: explode(separator: '|', string: $r['id_punteggi'])
-                            ) : [],
-                        'Home' => is_string(value: $r['punteggi_casa']) ? 
-                            explode(separator: '|', string: $r['punteggi_casa']) : [],
-                        'Guest' => is_string(value: $r['punteggi_ospiti']) ?
-                            explode(separator: '|', string: $r['punteggi_ospiti']) : [],
-                    ],
-                ];
-    
-                if (is_string(value: $r['nome_campo']) && isset($r['id_campo']))
-                {
-                    $arr['Field'] = [
-                        'Name' => $r['nome_campo'],
-                        'Id' => (int)$r['id_campo'],
-                        'Address' => $r['indirizzo_campo'],
-                        'Latitude' => isset($r['latitudine_campo']) ? (float)$r['latitudine_campo'] : null,
-                        'Longitude' => isset($r['longitudine_campo']) ? (float)$r['longitudine_campo'] : null,
-                    ];
-                }
-    
-                return $arr;
-            }
-        );
-    }
-
-    private function today_and_yesterday_matchest(): ApiCall
-    {
-        return new ApiCall(
-            query: "SELECT * FROM `partite_oggi_ieri`",
-            row_parser: function($r): array {
-                $arr = [
-                    'Id' => (int)$r['id'],
-    
-                    'TournamentName' => $r['nome_torneo'],
-                    'TournamentId' => (int)$r['torneo'],
-    
-                    'SportName' => $r['sport'],
-                    'SportId' => (int)$r['codice_sport'],
-    
-                    'Date' => $r['data'],
-                    'Time' => $r['orario'],
-    
-                    'HomeTeam' => [
-                        'Name' => $r['squadra_casa'],
-                        'Id' => (int)$r['squadra_casa_id'],
-                        
-                        'Sport' => $r['sport'],
-                        'SportId' => (int)$r['codice_sport'],
-    
-                        'Church' => $r['nome_parrocchia_casa'],
-                        'ChurchId' => (int)$r['id_parrocchia_casa'],
-                    ],
-                    'GuestTeam' => [
-                        'Name' => $r['squadra_ospite'],
-                        'Id' => (int)$r['squadra_ospite_id'],
-                        
-                        'Sport' => $r['sport'],
-                        'SportId' => (int)$r['codice_sport'],
-    
-                        'Church' => $r['nome_parrocchia_ospite'],
-                        'ChurchId' => (int)$r['id_parrocchia_ospiti'],
-                    ],
-    
-                    'HomeScore' => null,
-                    'GuestScore' => null,
-                    'Scores' => [
-                        'Id' => is_string(value: $r['id_punteggi']) ? 
-                            array_map(
-                                callback: function (string $s): int { return (int)$s; },
-                                array: explode(separator: '|', string: $r['id_punteggi'])
-                            ) : [],
-                        'Home' => is_string(value: $r['punteggi_casa']) ? 
-                            explode(separator: '|', string: $r['punteggi_casa']) : [],
-                        'Guest' => is_string(value: $r['punteggi_ospiti']) ?
-                            explode(separator: '|', string: $r['punteggi_ospiti']) : [],
-                    ],
-                ];
-    
-                if (is_string(value: $r['nome_campo']) && isset($r['id_campo']))
-                {
-                    $arr['Field'] = [
-                        'Name' => $r['nome_campo'],
-                        'Id' => (int)$r['id_campo'],
-                        'Address' => $r['indirizzo_campo'],
-                        'Latitude' => isset($r['latitudine_campo']) ? (float)$r['latitudine_campo'] : null,
-                        'Longitude' => isset($r['longitudine_campo']) ? (float)$r['longitudine_campo'] : null,
-                    ];
-                }
-    
-                return $arr;
-            }
-        );
-    }
-
-    private function tournament(int $Id): ApiCall
-    {
-        return new ApiCall(
-            query: "SELECT * FROM `tornei_attivi` WHERE `id` = $Id",
-            row_parser: function (array $r): array {
-                return [
-                    'Id' => (int)$r['id'],
-                    'Name' => $r['nome'],
-    
-                    'Sport' => $r['sport'],
-                    'SportId' => (int)$r['codice_sport'],
-    
-                    'Type' => $r['tipo'],
-    
-                    'Teams' => array_map(callback: function($s): string {
-                        return trim(string: $s);
-                    }, array: explode(separator: ',', string: $r['squadre'])),
-                ];
-            }
-        );
-    }
-
-    private function tournament_matches(int $Id): ApiCall
-    {
-        return new ApiCall(
-            query: "SELECT * FROM `partite_completo` WHERE `torneo` = $Id",
-            row_parser: function($r): array {
-                $arr = [
-                    'Id' => (int)$r['id'],
-    
-                    'TournamentName' => $r['nome_torneo'],
-                    'TournamentId' => (int)$r['torneo'],
-    
-                    'SportName' => $r['sport'],
-                    'SportId' => (int)$r['codice_sport'],
-    
-                    'Date' => $r['data'],
-                    'Time' => $r['orario'],
-    
-                    'HomeTeam' => [
-                        'Name' => $r['squadra_casa'],
-                        'Id' => (int)$r['squadra_casa_id'],
-                        
-                        'Sport' => $r['sport'],
-                        'SportId' => (int)$r['codice_sport'],
-    
-                        'Church' => $r['nome_parrocchia_casa'],
-                        'ChurchId' => (int)$r['id_parrocchia_casa'],
-                    ],
-                    'GuestTeam' => [
-                        'Name' => $r['squadra_ospite'],
-                        'Id' => (int)$r['squadra_ospite_id'],
-                        
-                        'Sport' => $r['sport'],
-                        'SportId' => (int)$r['codice_sport'],
-    
-                        'Church' => $r['nome_parrocchia_ospite'],
-                        'ChurchId' => (int)$r['id_parrocchia_ospiti'],
-                    ],
-    
-                    'HomeScore' => null,
-                    'GuestScore' => null,
-                    'Scores' => [
-                        'Id' => is_string(value: $r['id_punteggi']) ? 
-                            array_map(
-                                callback: function (string $s): int { return (int)$s; },
-                                array: explode(separator: '|', string: $r['id_punteggi'])
-                            ) : [],
-                        'Home' => is_string(value: $r['punteggi_casa']) ? 
-                            explode(separator: '|', string: $r['punteggi_casa']) : [],
-                        'Guest' => is_string(value: $r['punteggi_ospiti']) ?
-                            explode(separator: '|', string: $r['punteggi_ospiti']) : [],
-                    ],
-                ];
-    
-                if (is_string(value: $r['nome_campo']) && isset($r['id_campo']))
-                {
-                    $arr['Field'] = [
-                        'Name' => $r['nome_campo'],
-                        'Id' => (int)$r['id_campo'],
-                        'Address' => $r['indirizzo_campo'],
-                        'Latitude' => isset($r['latitudine_campo']) ? (float)$r['latitudine_campo'] : null,
-                        'Longitude' => isset($r['longitudine_campo']) ? (float)$r['longitudine_campo'] : null,
-                    ];
-                }
-    
-                return $arr;
-            }
-        );
-    }
-
-    private function tournament_leaderboard(int $Id): ApiCall
-    {
-        return new ApiCall(
-            query: "SELECT * FROM `classifica_torneo` WHERE `id_torneo` = $Id ORDER BY CAST(`punteggio` AS UNSIGNED) DESC",
-            row_parser: function(array $r): array {
-                return [
-                    'Name' => $r['nome_squadra'],
-                    'Id' => (int)$r['id_squadra'],
-                    
-                    'Church' => $r['nome_parrocchia'],
-                    'ChurchId' => (int)$r['id_parrocchia'],
-    
-                    'Sport' => $r['nome_sport'],
-                    'SportId' => (int)$r['id_sport'],
-    
-                    'TournamentName' => $r['nome_torneo'],
-                    'TournamentId' => (int)$r['id_torneo'],
-    
-                    'Points' => isset($r['punteggio']) ? (int)$r['punteggio'] : null,
-                    'MatchesToPlay' => isset($r['partite_da_giocare']) ? (int)$r['partite_da_giocare'] : null,
-                    'PlannedMatches' => isset($r['partite_previste']) ? (int)$r['partite_previste'] : null,
-                ];
-            }
-        );
-    }
-
-    private function tournament_sport(string $Sport): ApiCall
-    {
-        $area = $this->DB->escape_string($Sport);
-        return new ApiCall(
-            query: "SELECT * FROM `tornei_attivi` WHERE UPPER(`area`) = UPPER('$area')",
-            row_parser: function (array $r): array {
-                return [
-                    'Id' => (int)$r['id'],
-                    'Name' => $r['nome'],
-    
-                    'Sport' => $r['sport'],
-                    'SportId' => (int)$r['codice_sport'],
-    
-                    'Type' => $r['tipo'],
-    
-                    'Teams' => array_map(callback: function ($s): string {
-                        return trim(string: $s);
-                    }, array: explode(separator: ',', string: $r['squadre'])),
-                ];
-            }
-        );
-    }
-
-    private function add_result(int $Id, string $Home, string $Guest): ApiCall
-    {
-        $home = $this->DB->escape_string($Home);
-        $guest = $this->DB->escape_string($Guest);
-        $query = "CALL `CreaPunteggioCompleto`($Id, TRIM('$home'), TRIM('$guest'));";
-        return new ApiCall(
-            query: $query,
-            row_parser: function (array $r) use($home, $guest): array {
-                return [
-                    'Id' => (int)$r['id'],
-                    'Home' => $home,
-                    'Guest' => $guest,
-                ];
-            },
-            is_procedure: true,
-        );
-    }
-
-    private function delete_result(int $Id): ApiCall
-    {
-        return new ApiCall(
-            query: "DELETE FROM `punteggi` WHERE `id` = $Id",
-        );
-    }
-
-    private function leaderboard(): ApiCall
-    {
-        return new ApiCall(
-            query: "SELECT * FROM `classifica_parrocchie`",
-            row_parser: function (array $r): array {
-                return [
-                    'Id' => (int)$r['id'],
-                    'Name' => $r['nome'],
-                    'Address' => is_string(value: $r['indirizzo']) && strlen(string: $r['indirizzo']) > 0 ? $r['indirizzo'] : null,
-                    'Website' => is_string(value: $r['website']) && strlen(string: $r['website']) > 0 ? $r['website'] : null,
-               
-                    'Score' => (int)$r['punteggio'],
-                    'Position' => (int)$r['posizione'],
-                ];
-            }
-        );
-    }
+    use TorneoTrait, PartitaTrait;
 }

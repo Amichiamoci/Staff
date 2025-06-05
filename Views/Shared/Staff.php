@@ -26,7 +26,7 @@ if (!isset($staff) || !($staff instanceof StaffBase)) {
             <?php } ?>
 
             <dl class="row">
-                <dt class="col-sm-4  text-nowrap">
+                <dt class="col-sm-4 text-nowrap">
                     <?php if ($staff->Referente) { ?>
                         <strong>Referente</strong>
                     <?php } else { ?>
@@ -51,18 +51,26 @@ if (!isset($staff) || !($staff instanceof StaffBase)) {
                     </dd>
                 <?php } ?>
                 
-                <dt class="col-sm-4">
-                    Commissioni (<?= count(value: $staff->Commissioni) ?>)
-                </dt>
-                <dd class="col-sm-8">
-                    <ul class="list-group-flush p-0">
-                        <?php foreach ($staff->Commissioni as $commissione)  { ?>
-                            <li class="list-group-item">
-                                <?= htmlspecialchars(string: $commissione) ?>
-                            </li>
-                        <?php } ?>
-                    </ul>
-                </dd>
+                <?php if (count(value: $staff->Commissioni) > 0) { ?>
+                    <dt class="col-sm-4">
+                        <?= count(value: $staff->Commissioni) ?> 
+                        <abbr title="Commissioni">Comm...</abbr>
+                    </dt>
+                    <dd class="col-sm-8 mb-0">
+                        <ul class="list-group list-group-flush p-0 m-0">
+                            <?php foreach ($staff->Commissioni as $commissione)  { ?>
+                                <li class="list-group-item p-0 border-0">
+                                    <?= htmlspecialchars(string: $commissione) ?>
+                                </li>
+                            <?php } ?>
+                        </ul>
+                    </dd>
+                <?php } else { ?>
+                    <p class="col-12 text-warning m-0">
+                        <strong>Nessuna commissione!</strong><br>
+                        Buuuuu
+                    </p>
+                <?php } ?>
             </dl>
         <?php } ?>
     </div>

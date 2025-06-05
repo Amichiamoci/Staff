@@ -21,14 +21,14 @@ BEGIN
         `ProblemaTaglia` (i.`taglia_maglietta`) AS "maglia",
 
         `ProblemaEmail` (a.`email`) AS "email",
-        `EmailVerified` (a.`email`) AS "email_verify",
+        -- `EmailVerified` (a.`email`) AS "email_verify",
         `ProblemaTelefono` (a.`telefono`) AS "telefono"
     FROM `iscritti` i
         INNER JOIN `anagrafiche` a ON i.`dati_anagrafici` = a.`id`
         INNER JOIN `edizioni` e ON i.`edizione` = e.`id`
     WHERE i.`parrocchia` = parrocchia_id AND e.`anno` = anno
     HAVING 
-        -- doc_code IS NOT NULL OR 
+        -- We show the row only if there are important errors
         doc IS NOT NULL OR 
         scadenza IS NOT NULL OR
         certificato IS NOT NULL OR
@@ -36,10 +36,7 @@ BEGIN
         eta IS NOT NULL OR
         maglia IS NOT NULL OR 
         email IS NOT NULL
-        -- email_verify IS NOT NULL OR 
-        -- Email verification problem is a warning, is shown only if there are other errors
-        -- telefono IS NOT NULL
-        ;
+    ;
 END ; //
 
 DELIMITER ;

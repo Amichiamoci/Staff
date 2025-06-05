@@ -9,7 +9,7 @@ class AnagraficaConIscrizione extends Anagrafica
     public static function All(\mysqli $connection, ?callable $filter = null): array
     {
         if (!$connection) return [];
-        $query = "CALL IscrizioniList(NULL, NULL)";
+        $query = "SELECT * FROM `anagrafiche_con_iscrizioni_correnti`";
         
         $result = $connection->query(query: $query);
         if (!$result) {
@@ -29,7 +29,7 @@ class AnagraficaConIscrizione extends Anagrafica
 
     public static function FromChurchId(\mysqli $connection, int $church_id): array {
         if (!$connection) return [];
-        $query = "CALL `IscrizioniList`(YEAR(CURRENT_DATE), $church_id";
+        $query = "CALL `IscrizioniList`(YEAR(CURRENT_DATE), $church_id);";
         
         $result = $connection->query(query: $query);
         if (!$result) {
@@ -42,6 +42,7 @@ class AnagraficaConIscrizione extends Anagrafica
         {
             $arr[] = self::FromDbRow(row: $row);
         }
+        $connection->next_result();
         return $arr;
     }
 
@@ -82,7 +83,8 @@ class AnagraficaConIscrizione extends Anagrafica
     protected static function FromDbRow(array $row): parent|self
     {
         $a = parent::FromDbRow(row: $row);
-        if (!array_key_exists(key: 'id_iscrizione', array: $row) || empty($row['id_iscrizione'])) {
+        if (!array_key_exists(key: 'id_iscrizione', array: $row) || empty($row['id_iscrizione']))
+        {
             return $a;
         }
         $ai = new self(
@@ -97,14 +99,15 @@ class AnagraficaConIscrizione extends Anagrafica
         $sourceReflection = new \ReflectionObject(object: $a);
         $destinationReflection = new \ReflectionObject(object: $ai);
         $sourceProperties = $sourceReflection->getProperties();
-        foreach ($sourceProperties as $sourceProperty) {
+        foreach ($sourceProperties as $sourceProperty)
+        {
             $sourceProperty->setAccessible(true);
             $name = $sourceProperty->getName();
             $value = $sourceProperty->getValue($a);
             if ($destinationReflection->hasProperty(name: $name)) {
                 $propDest = $destinationReflection->getProperty(name: $name);
                 $propDest->setAccessible(accessible: true);
-                $propDest->setValue($ai, value: $value);
+                $propDest->setValue($ai, $value); // do not add named parameters
             } else {
                 $ai->$name = $value;
             }

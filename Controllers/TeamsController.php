@@ -11,7 +11,8 @@ use Amichiamoci\Models\Message;
 
 class TeamsController extends Controller
 {
-    public function index(?int $church = null, ?int $year = null): int {
+    public function index(?int $church = null, ?int $year = null): int
+    {
         if (empty($year)) {
             $year = (int)date(format: "Y");
         }
@@ -38,30 +39,41 @@ class TeamsController extends Controller
     }
 
     public function new(
+        ?int $id = null,
         ?string $name = null,
         ?int $church = null,
         ?int $sport = null,
         ?int $edition = null,
+        ?string $coach = null,
         array $members = [],
     ): int {
         $staff = $this->RequireStaff();
-        if (!isset($church) && isset($staff)) {
+        if (!isset($church) && isset($staff))
+        {
             $church = $staff->Parrocchia->Id;
         }
-        if (empty($church)) {
+        if (empty($church))
+        {
             return $this->BadRequest();
         }
 
-        if (!isset($edition)) {
+        if (!isset($edition))
+        {
             $edition = Edizione::Current(connection: $this->DB);
         }
-        if (!isset($edition)) {
+        if (!isset($edition))
+        {
             return $this->NotFound();
+        }
+        if ($edition instanceof Edizione)
+        {
+            $edition = $edition->Id;
         }
 
         if (self::IsPost())
         {
-            if (empty($name) || empty($sport)) {
+            if (empty($name) || empty($sport))
+            {
                 return $this->BadRequest();
             }
             $res = Squadra::Create(
@@ -69,15 +81,38 @@ class TeamsController extends Controller
                 nome: $name, 
                 parrocchia: $church, 
                 sport: $sport, 
-                membri: implode(separator: ' ', array: $members), 
-                edizione: $edition
+                membri: implode(separator: ', ', array: $members), 
+                edizione: $edition,
+                coach: $coach,
+                id: $id,
             );
+            if ($res)
+            {
+                if (empty($id))
+                {
+                    $this->Message(message: Message::Success(content: 'Squadra creata correttamente'));
+                } else {   
+                    $this->Message(message: Message::Success(content: 'Squadra MODIFICATA correttamente'));
+                }
+                return $this->index(church: $church);
+            }
+            
+            if (empty($id))
+            {
+                $this->Message(message: Message::Error(content: 'Non è stato possibile creare la squadra'));
+            } else {   
+                $this->Message(message: Message::Error(content: 'Non è stato possibile MODIFICARE la squadra'));
+            }
         }
 
         return $this->Render(
             view: 'Teams/create',
             title: 'Crea squadra',
             data: [
+                'id' => $id,
+                'nome' => $name,
+                'sport_squadra' => $sport,
+
                 'parrocchia' => $church,
                 'parrocchie' => Parrocchia::All(connection: $this->DB),
 
@@ -86,6 +121,54 @@ class TeamsController extends Controller
 
                 'sport' => Sport::All(connection: $this->DB),
                 'iscritti' => Iscrizione::All(connection: $this->DB),
+
+                'membri' => [],
+                'coach' => $coach,
+            ],
+        );
+    }
+
+    public function edit(
+        ?int $id = null,
+    ): int
+    {
+        $this->RequireStaff();
+        if (empty($id))
+        {
+            return $this->BadRequest();
+        }
+
+        $team = Squadra::ById(connection: $this->DB, id: $id);
+        if ($team === null)
+        {
+            return $this->NotFound();
+        }
+
+        $edition = Edizione::Current(connection: $this->DB);
+        if (!isset($edition))
+        {
+            return $this->NotFound();
+        }
+
+        return $this->Render(
+            view: 'Teams/create',
+            title: 'Modifica squadra',
+            data: [
+                'id' => $team->Id,
+                'nome' => $team->Nome,
+                'sport_squadra' => $team->Sport->Id,
+
+                'parrocchia' => $team->Parrocchia->Id,
+                'parrocchie' => Parrocchia::All(connection: $this->DB),
+
+                'edizione' => $edition->Id,
+                'edizioni' => Edizione::All(connection: $this->DB),
+
+                'sport' => Sport::All(connection: $this->DB),
+                'iscritti' => Iscrizione::All(connection: $this->DB),
+
+                'membri' => array_keys(array: $team->MembriFull()),
+                'coach' => $team->Referenti,
             ],
         );
     }

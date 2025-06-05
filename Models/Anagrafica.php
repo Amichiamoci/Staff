@@ -14,7 +14,7 @@ class Anagrafica extends AnagraficaBase
     public string $Sex = "?";
 
     public TipoDocumento $DocumentType;
-    public string $DocumentCode = "";
+    public ?string $DocumentCode = null;
     public string $DocumentExpiration = "";
     public string $DocumentFileName = "";
     
@@ -27,9 +27,9 @@ class Anagrafica extends AnagraficaBase
         ?string $email,
         string $cf, 
         int $doc_type, 
-        string $doc_code, 
+        ?string $doc_code, 
         string $doc_expires, 
-        string $nome_file, 
+        ?string $nome_file = null, 
         bool $abort_if_existing = false,
         ?bool &$already_existing = null,
     ) : int {
@@ -138,31 +138,42 @@ class Anagrafica extends AnagraficaBase
             eta: $row["eta"]
         );
         $a->FiscalCode = $row["cf"];
-        if (array_key_exists(key: 'data_nascita_italiana', array: $row) && is_string(value: $row['data_nascita_italiana'])) {
+        if (
+            array_key_exists(key: 'data_nascita_italiana', array: $row) && 
+            is_string(value: $row['data_nascita_italiana'])
+        ) {
             $a->BirthDay = $row['data_nascita_italiana'];
         } else {
             $a->BirthDay = $row['data_nascita'];
         }
         $a->From = $row["luogo_nascita"];
-        if (array_key_exists(key: 'sesso', array: $row) && is_string(value: $row['sesso'])) {
+        if (array_key_exists(key: 'sesso', array: $row) && is_string(value: $row['sesso']))
+        {
             $a->Sex = $row['sesso'];
         }
-        if (array_key_exists(key: 'email', array: $row) && is_string(value: $row['email'])) {
+        if (array_key_exists(key: 'email', array: $row) && is_string(value: $row['email']))
+        {
             $a->Email = $row['email'];
         }
-        if (array_key_exists(key: 'telefono', array: $row) && is_string(value: $row['telefono'])) {
+        if (array_key_exists(key: 'telefono', array: $row) && is_string(value: $row['telefono']))
+        {
             $a->Phone = $row['telefono'];
         }
 
-        $a->DocumentCode = $row["codice_documento"];
+        if (array_key_exists(key: 'codice_documento', array: $row) && is_string(value: $row['codice_documento']))
+        {
+            $a->DocumentCode = $row["codice_documento"];
+        }
         $a->DocumentType = new TipoDocumento(
             id: (int)$row["tipo_documento"],
             nome: array_key_exists(key: 'tipo_documento_nome', array: $row) ? $row['tipo_documento_nome'] : 'Documento' 
         );
-        if (array_key_exists(key: 'scadenza', array: $row) && is_string(value: $row['scadenza'])) {
+        if (array_key_exists(key: 'scadenza', array: $row) && is_string(value: $row['scadenza']))
+        {
             $a->DocumentExpiration = $row['scadenza'];
         }
-        if (array_key_exists(key: 'documento', array: $row) && is_string(value: $row['documento'])) {
+        if (array_key_exists(key: 'documento', array: $row) && is_string(value: $row['documento']))
+        {
             $a->DocumentFileName = $row['documento'];
         }
         return $a;

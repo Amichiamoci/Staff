@@ -495,7 +495,7 @@ class UserController extends Controller {
                 (puoi quindi non scegliere questa) e, anno per anno, registrarti come staffista all'edizione corrente.
             </p>
             <p>
-                In caso di problemi contatta tempestivamente gli staffisti adiniti alla gestione del portale.
+                In caso di problemi contatta tempestivamente gli staffisti adibiti alla gestione del portale.
             </p>
             <br>
             <p style="font-size: smaller; user-select: none;">

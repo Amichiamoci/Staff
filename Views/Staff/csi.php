@@ -29,8 +29,8 @@
             <td> <strong>COGNOME</strong> </td>
             <td> <strong>NOME</strong> </td>
             <td> <strong>SESSO</strong> </td>
-            <td> <strong>NATO IL</strong> </td>
             <td> <strong>LUOGO NASCITA</strong> </td>
+            <td> <strong>NATO IL</strong> </td>
             <td> <strong>Telefono</strong> </td>
             <td> <strong>Email</strong> </td>
         </tr>

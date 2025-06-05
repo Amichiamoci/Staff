@@ -170,44 +170,36 @@ class Iscrizione extends NomeIdSemplice
     public static function UpdateCertificato(
         \mysqli $connection, 
         int $id, 
-        string $certificato
+        string $certificato,
     ) : bool {
         if (!$connection)
             return false;
+        if (empty($certificato) || strlen(string: trim(string: $certificato)) === 0)
+        {
+            $certificato = null;
+        }
         $query = "UPDATE `iscritti` SET `certificato_medico` = ? WHERE `id` = ?";
-        $stmt = $connection->prepare(query: $query);
-        if (!$stmt) 
-            return false;
-        if (!$stmt->bind_param("si", $certificato, $id))
-            return false;
-        if (!$stmt->execute())
-            return false;
-        return $stmt->affected_rows === 1;
+        $result = $connection->execute_query(query: $query, params: [
+            $certificato,
+            $id,
+        ]);
+        return (bool)$result;
+        // return $result !== false && $connection->affected_rows >= 1;
     }
 
     public function Update(\mysqli $connection): bool
     {
         if (!$connection)
             return false;
-        $query = "UPDATE `iscritti`
-        SET `taglia_maglietta` = ?, `tutore` = ?, `parrocchia` = ? 
-        WHERE `id` = ?";
-        $stmt = $connection->prepare(query: $query);
-        if (!$stmt)
-            return false;
-        if ($this->IdTutore == 0)
-            $this->IdTutore = null;
-        if (!$stmt->bind_param("siii", 
-            $this->Taglia, 
-            $this->IdTutore, 
-            $this->Parrocchia->Id, 
-            $this->Id)
-        ) {
-            return false;
-        }
-        if (!$stmt->execute())
-            return false;
-        return $stmt->affected_rows === 1;
+        $query = "UPDATE `iscritti` SET `taglia_maglietta` = ?, `tutore` = ?, `parrocchia` = ? WHERE `id` = ?";
+        $result = $connection->execute_query(query: $query, params: [
+            $this->Taglia->value,
+            $this->IdTutore,
+            $this->Parrocchia->Id,
+            $this->Id,
+        ]);
+        // return $result !== false && $connection->affected_rows >= 1;
+        return (bool)$result;
     }
 
     public static function Delete(\mysqli $connection, int $id): bool
@@ -227,16 +219,12 @@ class Iscrizione extends NomeIdSemplice
             return null;
         $query = "SELECT `nome`, `sesso`, `email` 
         FROM `non_iscritti` 
-        WHERE `anno` = ? AND `email` IS NOT NULL";
-        $result = $connection->execute_query($query, array($year));
+        WHERE `anno` = $year AND `email` IS NOT NULL";
+        $result = $connection->query(query: $query);
         if (!$result)
             return [];
 
-        $arr = [];
-        while ($row = $result->fetch_array())
-            $arr[] = $row;
-        
-        return $arr;
+        return $result->fetch_all(mode: \MYSQL_ASSOC);
     }
     
     public static function UnreferencedCertificates(\mysqli $connection): array

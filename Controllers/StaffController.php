@@ -26,16 +26,25 @@ class StaffController extends Controller
         ?int $church = null,
         ?int $year = null,
     ): int {
-        if (empty($year)) {
+        if (empty($year))
+        {
             $year = (int)date(format: "Y");
         }
         
         $staff = $this->RequireStaff();
-        if (!isset($church) && isset($staff)) {
+        if (!isset($church) && isset($staff))
+        {
             $church = $staff->Parrocchia->Id;
         }
-        if (empty($church)) {
+        if (empty($church))
+        {
             return $this->BadRequest();
+        }
+
+        $church_object = Parrocchia::ById(connection: $this->DB, id: $church);
+        if ($church_object === null)
+        {
+            return $this->NotFound();
         }
 
         return $this->Render(
@@ -47,7 +56,12 @@ class StaffController extends Controller
                     year: $year, 
                     parrocchia: $church
                 ),
+                'iscritti' => AnagraficaConIscrizione::FromChurchId(
+                    connection: $this->DB, 
+                    church_id: $church,
+                ),
                 'id_parrocchia' => $church,
+                'nome_parrocchia' => $church_object->Nome,
                 'anno' => $year,
                 'parrocchie' => Parrocchia::All(connection: $this->DB),
                 'edizioni' => Edizione::All(connection: $this->DB),
@@ -285,7 +299,7 @@ class StaffController extends Controller
         string $cognome = '',
         string $cf = '',
         int $doc_type = 1,
-        string $doc_code = '',
+        ?string $doc_code = null,
         string $doc_expires = '',
         string $email = '',
         string $compleanno = '',
@@ -307,7 +321,7 @@ class StaffController extends Controller
                 empty($nome) ||
                 empty($cognome) ||
                 empty($cf) ||
-                empty($doc_code) ||
+                // empty($doc_code) ||
                 empty($doc_expires) ||
                 empty($email) ||
                 empty($provenienza) ||
@@ -421,7 +435,8 @@ class StaffController extends Controller
     }
 
     public function iscrivi(
-        ?int $id = null,
+        ?int $id = null, // Anagraphical id
+        ?int $id_iscrizione = null, // Are we editing the subscription?
 
         ?int $tutore = null,
         ?int $parrocchia = null,
@@ -429,18 +444,21 @@ class StaffController extends Controller
         ?int $edizione = null,
     ): int {
         $this->RequireLogin();
-        if (empty($id)) {
+        if (empty($id))
+        {
             return $this->BadRequest();
         }
 
         $a = AnagraficaBase::ById(connection: $this->DB, id: $id);
-        if (!isset($a)) {
+        if ($a === null)
+        {
             return $this->NotFound();
         }
 
         if (self::IsPost())
         {
-            if (empty($parrocchia) || empty($taglia)) {
+            if (empty($parrocchia) || empty($taglia))
+            {
                 return $this->BadRequest();
             }
             if (empty($edizione))
@@ -448,8 +466,11 @@ class StaffController extends Controller
                 $edizione = Edizione::Current(connection: $this->DB)->Id;
             }
 
+            //
+            // Handle the submitted files
+            //
             $files = File::UploadingFiles(form_name: 'certificato');
-            $files = array_filter(array: $files, callback: function(array $file): bool {
+            $files = array_filter(array: $files, callback: function (array $file): bool {
                 return File::IsUploadOk(file: $file);
             });
             $actual_path = null;
@@ -468,17 +489,49 @@ class StaffController extends Controller
                 $actual_path = File::UploadDocumentsMerge(files: $files, final_name: $target_file_name);
             }
 
-            $res = Iscrizione::Create(
-                connection: $this->DB, 
-                id_anagrafica: $id, 
-                tutore: $tutore, 
-                certificato: empty($actual_path) ? 
-                    null : 
-                    File::AbsoluteToDbPath(server_path: $actual_path), 
-                parrocchia: $parrocchia, 
-                taglia: Taglia::from(value: $taglia), 
-                edizione: $edizione,
-            );
+            //
+            // Handle the submitted data
+            //
+            if (!empty($id_iscrizione))
+            {
+                // We are editing a subscription
+                $iscrizione = Iscrizione::ById(connection: $this->DB, id: $id_iscrizione);
+                if ($iscrizione === null)
+                {
+                    return $this->NotFound();
+                }
+
+                $iscrizione->Parrocchia->Id = $parrocchia;
+                $iscrizione->IdTutore = empty($tutore) ? null : $tutore;
+                $iscrizione->Taglia = Taglia::from(value: $taglia);
+                $res = $iscrizione->Update(connection: $this->DB);
+
+                if ($res && !empty($actual_path))
+                {
+                    if (!Iscrizione::UpdateCertificato(
+                        connection: $this->DB, 
+                        id: $iscrizione->Id, 
+                        certificato: File::AbsoluteToDbPath(server_path: $actual_path))
+                    ) {
+                        $actual_path = null; // In order to show warning later
+                    }
+                }
+            } else {
+                // We are creating a subscription
+                $res = Iscrizione::Create(
+                    connection: $this->DB, 
+                    id_anagrafica: $id, 
+                    tutore: $tutore, 
+                    certificato: empty($actual_path) ? 
+                        null : 
+                        File::AbsoluteToDbPath(server_path: $actual_path), 
+                    parrocchia: $parrocchia, 
+                    taglia: Taglia::from(value: $taglia), 
+                    edizione: $edizione,
+                );
+            }
+
+            // How did the handling of the data go?
             if ($res) {
                 if (isset($actual_path)) {
                     $this->Message(message: Message::Success(
@@ -503,6 +556,11 @@ class StaffController extends Controller
                     return $a->Eta >= 18;
                 }),
                 'edizioni' => Edizione::All(connection: $this->DB),
+
+                'id_iscrizione' => $id_iscrizione,
+                'tutore' => $tutore,
+                'parrocchia' => $parrocchia,
+                'taglia' => $taglia,
             ]
         );
     }
@@ -510,12 +568,15 @@ class StaffController extends Controller
     public function delete_iscrizione(?int $id = null): int {
         $user = $this->RequireLogin();
         $staff = $this->RequireStaff();
-        if (self::IsPost()) {
+        if (self::IsPost())
+        {
             $target = Iscrizione::ById(connection: $this->DB, id: $id);
-            if (!isset($target)) {
+            if (!isset($target))
+            {
                 return $this->NotFound();
             }
-            if (!$user->IsAdmin && $target->Parrocchia->Id !== $staff->Parrocchia->Id) {
+            if (!$user->IsAdmin && $target->Parrocchia->Id !== $staff->Parrocchia->Id)
+            {
                 return $this->NotAuthorized();
             }
             if (Iscrizione::Delete(connection: $this->DB, id: $id)) {
@@ -525,6 +586,42 @@ class StaffController extends Controller
             }
         }
         return $this->anagrafiche();
+    }
+
+    public function modifica_iscrizione(?int $id = null): int
+    {
+        $this->RequireLogin();
+        if (empty($id))
+        {
+            return $this->BadRequest();
+        }
+
+        $iscrizione = Iscrizione::ById(connection: $this->DB, id: $id);
+        if ($iscrizione === null)
+        {
+            return $this->NotFound();
+        }
+        $a = AnagraficaBase::ById(connection: $this->DB, id: Iscrizione::IdAnagraficaAssociata(connection: $this->DB, id: $id));
+        // assert a !== null;
+
+        return $this->Render(
+            view: 'Staff/iscrivi',
+            title: 'Iscrivi '. $a->Nome . ' ' . $a->Cognome,
+            data: [
+                'target' => $a,
+                'taglie' => Taglia::All(),
+                'parrocchie' => Parrocchia::All(connection: $this->DB),
+                'adulti' => AnagraficaBase::All(connection: $this->DB, filter: function (AnagraficaBase $a): bool {
+                    return $a->Eta >= 18;
+                }),
+                'edizioni' => Edizione::All(connection: $this->DB),
+
+                'id_iscrizione' => $id,
+                'tutore' => $iscrizione->IdTutore,
+                'parrocchia' => $iscrizione->Parrocchia->Id,
+                'taglia' => $iscrizione->Taglia->value,
+            ]
+        );
     }
 
     public function edizione(

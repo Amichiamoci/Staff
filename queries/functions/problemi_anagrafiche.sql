@@ -10,7 +10,8 @@ BEGIN
     DECLARE doc_label VARCHAR(64) DEFAULT NULL;
 
     IF codice IS NULL THEN
-        RETURN 'Codice mancante!';
+        -- RETURN 'Codice mancante!';
+        RETURN NULL;
     END IF;
 
     SELECT t.`regex`, t.`label` INTO doc_regex, doc_label
@@ -99,7 +100,8 @@ RETURNS VARCHAR(128)
 DETERMINISTIC
 BEGIN
     IF telefono IS NULL THEN
-        RETURN 'Mancante!';
+        -- RETURN 'Mancante!';
+        RETURN NULL;
     END IF;
 
     IF NOT TRIM(telefono) REGEXP '[\+]{0,1}[0-9]+' THEN

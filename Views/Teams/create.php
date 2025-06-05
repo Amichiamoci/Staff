@@ -16,19 +16,27 @@ $iscritti_per_parrocchia = array_reduce(
     <?= htmlspecialchars(string: $title) ?>
 </h1>
 
-<form method="post">
+<form method="post" action="<?= $B ?>/teams/new">
+    <?php if (!empty($id)) { ?>
+        <input type="hidden" name="id" value="<?= (int)$id ?>">
+    <?php } ?>
+
     <div class="form-floating mb-3">
         <input 
             required
             type="text" 
+            maxlength="128"
             class="form-control" 
-            id="name" name="name">
+            id="name" 
+            name="name"
+            value="<?=is_string(value: $nome) ? htmlspecialchars(string: $nome) : '' ?>"
+        >
         <label for="name">Nome</label>
         <div class="invalid-feedback">
             Per favore, immetti un nome per la squadra
         </div>
         <div class="form-text user-select-none ms-2">
-            Non è necessario che includa sport o nome della parrocchia
+            NON è necessario che includa sport o nome della parrocchia
         </div>
     </div>
 
@@ -36,14 +44,16 @@ $iscritti_per_parrocchia = array_reduce(
         <select
             required
             class="form-control"
-            id="parrocchia" name="parrocchia">
+            id="church" 
+            name="church"
+        >
             <?php foreach ($parrocchie as $p) { ?>
                 <option value="<?= $p->Id ?>" <?= ($p->Id === $parrocchia) ? 'selected' : '' ?>>
                     <?= htmlspecialchars(string: $p->Nome) ?>
                 </option>
             <?php } ?>
         </select>
-        <label for="parrocchia">Parrocchia</label>
+        <label for="church">Parrocchia</label>
         <div class="invalid-feedback">
             Per favore, scegli una tra le parrocchie proposte
         </div>
@@ -57,16 +67,20 @@ $iscritti_per_parrocchia = array_reduce(
         <select
             required
             class="form-control"
-            id="sport" name="sport"
+            id="sport" 
+            name="sport"
         >
             <option value="">Scegli uno sport</option>
             <?php foreach ($sport as $s) { ?>
-                <option value="<?= $s->Id ?>">
+                <option 
+                    value="<?= $s->Id ?>"
+                    <?= $s->Id === $sport_squadra ? 'selected' : '' ?>
+                >
                     <?= htmlspecialchars(string: $s->Nome) ?>
                 </option>
             <?php } ?>
         </select>
-        <label for="sport">Parrocchia</label>
+        <label for="sport">Sport</label>
         <div class="invalid-feedback">
             Per favore, scegli uno  sport
         </div>
@@ -77,10 +91,12 @@ $iscritti_per_parrocchia = array_reduce(
             <select
                 required
                 class="form-control"
-                id="edition" name="edition">
+                id="edition" 
+                name="edition"
+            >
                 <?php foreach ($edizioni as $e) { ?>
                     <option value="<?= $e->Id ?>" <?= ($e->Id === $edizione) ? 'selected' : '' ?>>
-                        <?= $e->Year ?>
+                        <?= $e->Year ?>: <?= htmlspecialchars(string: $e->Motto) ?>
                     </option>
                 <?php } ?>
             </select>
@@ -90,15 +106,31 @@ $iscritti_per_parrocchia = array_reduce(
         <input type="hidden" name="edition" value="<?= $edizione ?>">
     <?php } ?>
 
+    <div class="form-floating mb-3">
+        <textarea
+            class="form-control"
+            id="coach"
+            name="coach"
+            style="resize: none;"
+            rows="3"
+            placeholder="Nome1 Cognome1, Nome2 Cognome2"
+        ><?= (isset($coach) && is_string(value: $coach)) ? htmlspecialchars(string: $coach) : '' ?></textarea>
+        <label for="coach">Referenti squadra (elencare separati da virgola o andando a capo)</label>
+        <div class="invalid-feedback">
+            Per favore, indica dei referenti
+        </div>
+    </div>
+
     <h3>
         Membri
     </h3>
     <ul class="list-group overflow-y-scroll mb-3" style="max-height: 300px;">
-        <?php foreach (array_keys($iscritti_per_parrocchia) as $id_parrocchia) { ?>
+        <?php foreach (array_keys(array: $iscritti_per_parrocchia) as $id_parrocchia) { ?>
             <li class="list-group-item user-select-none" id="church-<?= $id_parrocchia ?>">
                 <strong>
                     <?= htmlspecialchars(
-                        string: $iscritti_per_parrocchia[$id_parrocchia][0]->Parrocchia->Nome) ?>
+                        string: $iscritti_per_parrocchia[$id_parrocchia][0]->Parrocchia->Nome) 
+                    ?>
                 </strong>
             </li>
             <?php foreach ($iscritti_per_parrocchia[$id_parrocchia] as $iscritto) { ?>
@@ -107,8 +139,14 @@ $iscritti_per_parrocchia = array_reduce(
                         <input 
                             type="checkbox"
                             class="form-check-input"  
-                            name="members[]" id="member-<?= $iscritto->Id ?>" 
-                            value="<?= $iscritto->Id ?>">
+                            name="members[]" 
+                            id="member-<?= $iscritto->Id ?>" 
+                            value="<?= $iscritto->Id ?>"
+                            <?= 
+                                in_array(needle: $iscritto->Id, haystack: $membri) ?
+                                'checked' : '' 
+                            ?>
+                        >
                         <label for="member-<?= $iscritto->Id ?>" class="form-check-label">
                             <?= htmlspecialchars(string: $iscritto->Nome) ?>
                         </label>

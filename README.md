@@ -19,7 +19,7 @@ Impostare le seguenti variabili d'ambiente:
 - `ADMIN_PASSWORD`: opzionale, ha effetto solo al primo avvio
 - `SITE_NAME`: opzionale, default `Amichiamoci`
 - `MAIN_SITE_URL`: opzionale, default <https://www.amichiamoci.it>
-- `RECAPTCHA_PUBLIC_KEY`: opzionale, chiavi Recaptcha v3 per proteggere la agina di login
+- `RECAPTCHA_PUBLIC_KEY`: opzionale, chiavi Recaptcha v3 per proteggere la pagina di login
 - `RECAPTCHA_SECRET_KEY`: opzionale
 - `DOMAIN`: opzionale, l'host al quale sarà accessibile il portale
 - `POWERED_BY`: opzionale, link che compare nel footer, default <https://github.com/Amichiamoci/Staff>

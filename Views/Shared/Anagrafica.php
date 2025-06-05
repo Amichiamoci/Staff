@@ -127,8 +127,14 @@ use Amichiamoci\Utils\File;
                     href="<?= File::GetExportUrl(path: $anagrafica->DocumentFileName) ?>"
                     download
                     class="link-underline link-underline-opacity-0 text-reset font-monospace"
-                    title="Scarica il documento">
-                    <?= htmlspecialchars(string: $anagrafica->DocumentCode) ?>
+                    title="Scarica il documento"
+                >
+                    <?php if (isset($anagrafica->DocumentCode)) { ?>
+                        <?= htmlspecialchars(string: $anagrafica->DocumentCode) ?>
+                    <?php } else { ?>
+                        <i class="bi bi-check"></i>
+                        Presente
+                    <?php } ?>
                 </a>
             </dd>
             <dt class="col-sm-4 text-nowrap">
@@ -184,7 +190,8 @@ use Amichiamoci\Utils\File;
                     <a 
                         href="<?= $B ?>/church?id=<?= $anagrafica->Iscrizione->Parrocchia->Id ?>"
                         class="link-underline link-underline-opacity-0 link-secondary"
-                        title="Vedi la parrocchia">
+                        title="Vedi la parrocchia"
+                    >
                         <?= htmlspecialchars(string: $anagrafica->Iscrizione->Parrocchia->Nome) ?>
                     </a>
                 </dd>
@@ -211,7 +218,8 @@ use Amichiamoci\Utils\File;
                             href="<?= File::GetExportUrl(path: $anagrafica->Iscrizione->Certificato) ?>"
                             download
                             class="link-underline link-underline-opacity-0 text-success"
-                            title="Scarica il documento">
+                            title="Scarica il documento"
+                        >
                             <i class="bi bi-check"></i>
                             Presente
                         </a>

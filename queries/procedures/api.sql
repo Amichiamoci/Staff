@@ -25,4 +25,28 @@ BEGIN
     SELECT @id AS "id";
 END; //
 
+DROP PROCEDURE IF EXISTS `GetAppUserClaims` //
+CREATE PROCEDURE `GetAppUserClaims`(
+    IN email VARCHAR(128)
+)
+BEGIN
+    SET @is_staff = FALSE;
+    SET @is_admin = FALSE;
+
+    IF EXISTS(SELECT * FROM `staff_attuali` WHERE LOWER(`staff_attuali`.`email`) = LOWER(email)) THEN
+        SET @is_staff = TRUE;
+    END IF;
+    
+    IF EXISTS(
+        SELECT * 
+        FROM `users_extended` u 
+            INNER JOIN `anagrafiche` a ON a.`id` = u.`anagrafica_id`
+        WHERE u.`is_admin` AND NOT u.`is_blocked` AND LOWER(a.`email`) = LOWER(email)
+    ) THEN
+        SET @is_admin = TRUE;
+    END IF;
+
+    SELECT @is_staff AS "referee", @is_admin AS "admin";
+END; //
+
 DELIMITER ;
