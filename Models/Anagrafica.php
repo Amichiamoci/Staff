@@ -48,7 +48,7 @@ class Anagrafica extends AnagraficaBase
                 $doc_type,
                 $doc_code,
                 $doc_expires,
-                $nome_file,
+                $nome_file ?? '',
                 $abort_if_existing ? '1' : '0'
             ]);
         
