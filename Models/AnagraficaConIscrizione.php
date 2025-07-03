@@ -13,7 +13,6 @@ class AnagraficaConIscrizione extends Anagrafica
         
         $result = $connection->query(query: $query);
         if (!$result) {
-            $connection->next_result();
             return [];
         }
 
@@ -132,5 +131,32 @@ class AnagraficaConIscrizione extends Anagrafica
             self::UnreferencedDocuments(connection: $connection),
             Iscrizione::UnreferencedCertificates(connection: $connection),
         );
+    }
+
+    public static function DoubleSubscriptions(\mysqli $connection): array
+    {
+        if (!$connection)
+            return [];
+        $query = "
+        SELECT a.*
+        FROM anagrafiche_con_iscrizioni_correnti a
+        WHERE  EXISTS (
+            SELECT *
+            FROM anagrafiche_con_iscrizioni_correnti a2
+            WHERE a2.id = a.id AND a2.id_iscrizione <> a.id_iscrizione
+        );
+        ";
+
+        $result = $connection->query(query: $query);
+        if (!$result) {
+            return [];
+        }
+        
+        $arr = [];
+        while($row = $result->fetch_assoc())
+        {
+            $arr[] = self::FromDbRow(row: $row);
+        }
+        return $arr;
     }
 }

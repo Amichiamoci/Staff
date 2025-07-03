@@ -101,6 +101,24 @@ class StaffController extends Controller
         );
     }
 
+    public function double_subscriptions(): int
+    {
+        $this->RequireLogin(require_admin: true);
+
+        return $this->Json(object: 
+            array_values(array: array_map(
+                callback: function (AnagraficaConIscrizione $a): array {
+                    return [
+                        'id' => $a->Id,
+                        'name' => $a->Nome . ' ' . $a->Cognome,
+                        'church' => $a->Iscrizione->Parrocchia->Nome,
+                    ];
+                }, 
+                array: AnagraficaConIscrizione::DoubleSubscriptions(connection: $this->DB)
+            ))
+        );
+    }
+
     public function all(): int {
         $this->RequireStaff();
         return $this->Render(

@@ -9,7 +9,7 @@ BEGIN
     DECLARE doc_regex VARCHAR(64) DEFAULT NULL;
     DECLARE doc_label VARCHAR(64) DEFAULT NULL;
 
-    IF codice IS NULL THEN
+    IF codice IS NULL OR TRIM(codice) = '' THEN
         -- RETURN 'Codice mancante!';
         RETURN NULL;
     END IF;
@@ -81,7 +81,7 @@ RETURNS VARCHAR(128)
 DETERMINISTIC
 BEGIN
 
-    IF email IS NULL THEN
+    IF email IS NULL OR TRIM(email) = '' THEN
         RETURN 'Mancante!';
     END IF;
 
@@ -99,7 +99,7 @@ CREATE FUNCTION `ProblemaTelefono` (telefono VARCHAR(16))
 RETURNS VARCHAR(128)
 DETERMINISTIC
 BEGIN
-    IF telefono IS NULL THEN
+    IF telefono IS NULL OR TRIM(telefono) = '' THEN
         -- RETURN 'Mancante!';
         RETURN NULL;
     END IF;
