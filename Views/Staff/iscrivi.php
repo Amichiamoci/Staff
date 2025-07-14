@@ -92,8 +92,7 @@ if (empty($taglia))
 
     <?php if ($target->Eta < 18) { ?>
         <div class="form-floating mb-3">
-            <select
-                required
+            <select <?php /*required*/ ?>
                 class="form-control"
                 id="tutore" 
                 name="tutore"
