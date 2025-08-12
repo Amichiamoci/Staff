@@ -11,7 +11,7 @@ $squadre_per_sport = array_reduce(
     initial: [],
 );
 ?>
-<?php if ($user->IsAdmin) { ?>
+<?php if ($user->IsAdmin || $staff !== null) { ?>
     <div class="input-group mb-2">
         <select id="parrocchia-selector" class="form-control">
             <?php foreach ($parrocchie as $parrocchia) { ?>
