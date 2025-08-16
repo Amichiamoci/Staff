@@ -97,7 +97,7 @@ if (empty($taglia))
                 id="tutore" 
                 name="tutore"
             >
-                <option value="">Scegli</option>
+                <option value="0">Scegli</option>
                 <?php foreach ($adulti as $a) { ?>
                     <option value="<?= $a->Id ?>"
                         <?= (!empty($tutore) && $a->Id === $tutore) ? 'selected' : '' ?>
