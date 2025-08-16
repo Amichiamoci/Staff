@@ -539,7 +539,7 @@ class StaffController extends Controller
                 $res = Iscrizione::Create(
                     connection: $this->DB, 
                     id_anagrafica: $id, 
-                    tutore: $tutore, 
+                    tutore: empty($tutore) ? null : $tutore, 
                     certificato: empty($actual_path) ? 
                         null : 
                         File::AbsoluteToDbPath(server_path: $actual_path), 
