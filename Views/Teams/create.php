@@ -157,7 +157,7 @@ $iscritti_per_parrocchia = array_reduce(
     </ul>
 
     <div class="col-12 mt-2">
-        <button class="btn btn-primary" type="submit">
+        <button class="btn btn-primary" type="submit" disabled>
             Crea
         </button>
     </div>
