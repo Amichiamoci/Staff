@@ -139,7 +139,7 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
                                                 return; // Already loaded
                                             }
 
-                                            const resp = await fetch(`/sport/fields`, { method: 'GET'});
+                                            const resp = await fetch(`<?= $B ?>/sport/fields`, { method: 'GET'});
                                             if (!resp.ok) {
                                                 return;
                                             }
