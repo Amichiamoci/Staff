@@ -7,7 +7,7 @@ trait Partita
 {
     protected function today_matches_of(string $Email): ApiCall
     {
-        $email = $this->DB->escape_string($Email);
+        $email = $this->DB->escape_string(string: $Email);
         $query = "SELECT * FROM `partite_oggi_persona` WHERE LOWER(TRIM(`email`)) = LOWER(TRIM('$email'))";
         return new ApiCall(
             query: $query,
@@ -20,34 +20,34 @@ trait Partita
     
                     'Id' => (int)$r['id_partita'],
     
-                    'TournamentName' => $r['torneo'],
-                    'TournamentId' => (int)$r['codice_torneo'],
+                    'TournamentName' => $r['nome_torneo'],
+                    'TournamentId' => (int)$r['id_torneo'],
     
-                    'SportName' => $r['sport'],
-                    'SportId' => (int)$r['codice_sport'],
+                    'SportName' => $r['nome_sport'],
+                    'SportId' => (int)$r['id_sport'],
     
                     'Date' => $r['data'],
                     'Time' => $r['orario'],
     
                     'HomeTeam' => [
-                        'Name' => $r['squadra_casa'],
-                        'Id' => (int)$r['squadra_casa_id'],
+                        'Name' => $r['casa'],
+                        'Id' => (int)$r['id_casa'],
                         
-                        'Sport' => $r['sport'],
-                        'SportId' => (int)$r['codice_sport'],
+                        'Sport' => $r['nome_sport'],
+                        'SportId' => (int)$r['id_sport'],
     
                         'Church' => $r['nome_parrocchia_casa'],
                         'ChurchId' => (int)$r['id_parrocchia_casa'],
                     ],
                     'GuestTeam' => [
-                        'Name' => $r['squadra_ospite'],
-                        'Id' => (int)$r['squadra_ospite_id'],
+                        'Name' => $r['ospiti'],
+                        'Id' => (int)$r['id_ospiti'],
                         
-                        'Sport' => $r['sport'],
-                        'SportId' => (int)$r['codice_sport'],
+                        'Sport' => $r['nome_sport'],
+                        'SportId' => (int)$r['id_sport'],
     
-                        'Church' => $r['nome_parrocchia_ospite'],
-                        'ChurchId' => (int)$r['id_parrocchia_ospite'],
+                        'Church' => $r['nome_parrocchia_ospiti'],
+                        'ChurchId' => (int)$r['id_parrocchia_ospiti'],
                     ],
                     'HomeScore' => null,
                     'GuestScore' => null,
@@ -76,72 +76,13 @@ trait Partita
 
     protected function today_matches_sport(string $Sport): ApiCall
     {
-        $area = $this->DB->escape_string($Sport);
+        $area = $this->DB->escape_string(string: $Sport);
         $query = "SELECT * FROM `partite_oggi` WHERE UPPER(`area_sport`) = UPPER('$area')";
         return new ApiCall(
             query: $query,
             row_parser: function(array $r): array {
-                $arr = [
-                    'Id' => (int)$r['id'],
-    
-                    'TournamentName' => $r['nome_torneo'],
-                    'TournamentId' => (int)$r['torneo'],
-    
-                    'SportName' => $r['sport'],
-                    'SportId' => (int)$r['codice_sport'],
-    
-                    'Date' => $r['data'],
-                    'Time' => $r['orario'],
-    
-                    'HomeTeam' => [
-                        'Name' => $r['squadra_casa'],
-                        'Id' => (int)$r['squadra_casa_id'],
-                        
-                        'Sport' => $r['sport'],
-                        'SportId' => (int)$r['codice_sport'],
-    
-                        'Church' => $r['nome_parrocchia_casa'],
-                        'ChurchId' => (int)$r['id_parrocchia_casa'],
-                    ],
-                    'GuestTeam' => [
-                        'Name' => $r['squadra_ospite'],
-                        'Id' => (int)$r['squadra_ospite_id'],
-                        
-                        'Sport' => $r['sport'],
-                        'SportId' => (int)$r['codice_sport'],
-    
-                        'Church' => $r['nome_parrocchia_ospite'],
-                        'ChurchId' => (int)$r['id_parrocchia_ospiti'],
-                    ],
-    
-                    'HomeScore' => null,
-                    'GuestScore' => null,
-                    'Scores' => [
-                        'Id' => is_string(value: $r['id_punteggi']) ? 
-                            array_map(
-                                callback: function (string $s): int { return (int)$s; },
-                                array: explode(separator: '|', string: $r['id_punteggi'])
-                            ) : [],
-                        'Home' => is_string(value: $r['punteggi_casa']) ? 
-                            explode(separator: '|', string: $r['punteggi_casa']) : [],
-                        'Guest' => is_string(value: $r['punteggi_ospiti']) ?
-                            explode(separator: '|', string: $r['punteggi_ospiti']) : [],
-                    ],
-                ];
-    
-                if (is_string(value: $r['nome_campo']) && isset($r['id_campo']))
-                {
-                    $arr['Field'] = [
-                        'Name' => $r['nome_campo'],
-                        'Id' => (int)$r['id_campo'],
-                        'Address' => $r['indirizzo_campo'],
-                        'Latitude' => isset($r['latitudine_campo']) ? (float)$r['latitudine_campo'] : null,
-                        'Longitude' => isset($r['longitudine_campo']) ? (float)$r['longitudine_campo'] : null,
-                    ];
-                }
-    
-                return $arr;
-            }
+                return self::parse_partita(r: $r);
+            },
         );
     }
 
@@ -149,75 +90,80 @@ trait Partita
     {
         return new ApiCall(
             query: "SELECT * FROM `partite_oggi_ieri`",
-            row_parser: function($r): array {
-                $arr = [
-                    'Id' => (int)$r['id'],
-    
-                    'TournamentName' => $r['nome_torneo'],
-                    'TournamentId' => (int)$r['torneo'],
-    
-                    'SportName' => $r['sport'],
-                    'SportId' => (int)$r['codice_sport'],
-    
-                    'Date' => $r['data'],
-                    'Time' => $r['orario'],
-    
-                    'HomeTeam' => [
-                        'Name' => $r['squadra_casa'],
-                        'Id' => (int)$r['squadra_casa_id'],
-                        
-                        'Sport' => $r['sport'],
-                        'SportId' => (int)$r['codice_sport'],
-    
-                        'Church' => $r['nome_parrocchia_casa'],
-                        'ChurchId' => (int)$r['id_parrocchia_casa'],
-                    ],
-                    'GuestTeam' => [
-                        'Name' => $r['squadra_ospite'],
-                        'Id' => (int)$r['squadra_ospite_id'],
-                        
-                        'Sport' => $r['sport'],
-                        'SportId' => (int)$r['codice_sport'],
-    
-                        'Church' => $r['nome_parrocchia_ospite'],
-                        'ChurchId' => (int)$r['id_parrocchia_ospiti'],
-                    ],
-    
-                    'HomeScore' => null,
-                    'GuestScore' => null,
-                    'Scores' => [
-                        'Id' => is_string(value: $r['id_punteggi']) ? 
-                            array_map(
-                                callback: function (string $s): int { return (int)$s; },
-                                array: explode(separator: '|', string: $r['id_punteggi'])
-                            ) : [],
-                        'Home' => is_string(value: $r['punteggi_casa']) ? 
-                            explode(separator: '|', string: $r['punteggi_casa']) : [],
-                        'Guest' => is_string(value: $r['punteggi_ospiti']) ?
-                            explode(separator: '|', string: $r['punteggi_ospiti']) : [],
-                    ],
-                ];
-    
-                if (is_string(value: $r['nome_campo']) && isset($r['id_campo']))
-                {
-                    $arr['Field'] = [
-                        'Name' => $r['nome_campo'],
-                        'Id' => (int)$r['id_campo'],
-                        'Address' => $r['indirizzo_campo'],
-                        'Latitude' => isset($r['latitudine_campo']) ? (float)$r['latitudine_campo'] : null,
-                        'Longitude' => isset($r['longitudine_campo']) ? (float)$r['longitudine_campo'] : null,
-                    ];
-                }
-    
-                return $arr;
-            }
+            row_parser: function(array $r): array {
+                return self::parse_partita(r: $r);
+            },
         );
+    }
+
+    private static function parse_partita(array $r): array
+    {
+        $arr = [
+            'Id' => (int)$r['id'],
+
+            'TournamentName' => $r['nome_torneo'],
+            'TournamentId' => (int)$r['id_torneo'],
+
+            'SportName' => $r['nome_sport'],
+            'SportId' => (int)$r['id_sport'],
+
+            'Date' => $r['data'],
+            'Time' => $r['orario'],
+
+            'HomeTeam' => [
+                'Name' => $r['casa'],
+                'Id' => (int)$r['id_casa'],
+                
+                'Sport' => $r['nome_sport'],
+                'SportId' => (int)$r['id_sport'],
+
+                'Church' => $r['nome_parrocchia_casa'],
+                'ChurchId' => (int)$r['id_parrocchia_casa'],
+            ],
+            'GuestTeam' => [
+                'Name' => $r['ospiti'],
+                'Id' => (int)$r['id_ospiti'],
+                
+                'Sport' => $r['nome_sport'],
+                'SportId' => (int)$r['id_sport'],
+
+                'Church' => $r['nome_parrocchia_ospite'],
+                'ChurchId' => (int)$r['id_parrocchia_ospiti'],
+            ],
+
+            'HomeScore' => null,
+            'GuestScore' => null,
+            'Scores' => [
+                'Id' => is_string(value: $r['id_punteggi']) ? 
+                    array_map(
+                        callback: function (string $s): int { return (int)$s; },
+                        array: explode(separator: '|', string: $r['id_punteggi'])
+                    ) : [],
+                'Home' => is_string(value: $r['punteggi_casa']) ? 
+                    explode(separator: '|', string: $r['punteggi_casa']) : [],
+                'Guest' => is_string(value: $r['punteggi_ospiti']) ?
+                    explode(separator: '|', string: $r['punteggi_ospiti']) : [],
+            ],
+        ];
+
+        if (is_string(value: $r['nome_campo']) && isset($r['id_campo']))
+        {
+            $arr['Field'] = [
+                'Name' => $r['nome_campo'],
+                'Id' => (int)$r['id_campo'],
+                'Address' => $r['indirizzo_campo'],
+                'Latitude' => isset($r['latitudine_campo']) ? (float)$r['latitudine_campo'] : null,
+                'Longitude' => isset($r['longitudine_campo']) ? (float)$r['longitudine_campo'] : null,
+            ];
+        }
+
+        return $arr;
     }
 
     protected function add_result(int $Id, string $Home, string $Guest): ApiCall
     {
-        $home = $this->DB->escape_string($Home);
-        $guest = $this->DB->escape_string($Guest);
+        $home = $this->DB->escape_string(string: $Home);
+        $guest = $this->DB->escape_string(string: $Guest);
         $query = "CALL `CreaPunteggioCompleto`($Id, TRIM('$home'), TRIM('$guest'));";
         return new ApiCall(
             query: $query,

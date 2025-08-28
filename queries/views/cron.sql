@@ -20,7 +20,7 @@ SELECT
     p.`ospiti`,
     p.`id_ospiti`,
     p.`id_parrocchia_ospiti`,
-    p2.`nome` AS "nome_parrocchia_ospite",
+    p2.`nome` AS "nome_parrocchia_ospiti",
 
     -- Orari partite
     p.`orario`,
@@ -61,7 +61,7 @@ SELECT
 
     -- Orari partite
     GROUP_CONCAT(
-        IF (p.`orario` IS NULL, '?', p.`orario`) SEPARATOR '|'
+        IFNULL(p.`orario`, '?') SEPARATOR '|'
     ) AS "orari_partite",
 
     -- Torneo partite
@@ -71,16 +71,16 @@ SELECT
 
     -- Molte informazioni sul luogo delle partite
     GROUP_CONCAT(
-        IF (p.`nome_campo` IS NULL, '?', p.`nome_campo`) SEPARATOR '|'
+        IFNULL(p.`nome_campo`, '?') SEPARATOR '|'
     ) AS "nomi_campi",
     GROUP_CONCAT(
-        IF (p.`indirizzo_campo` IS NULL, '?', p.`indirizzo_campo`) SEPARATOR '|'
+        IFNULL(p.`indirizzo_campo`, '?') SEPARATOR '|'
     ) AS "indirizzi_campi",
     GROUP_CONCAT(
-        IF (p.`latitudine_campo` IS NULL, '?', p.`latitudine_campo`) SEPARATOR '|'
+        IFNULL(p.`latitudine_campo`, '?') SEPARATOR '|'
     ) AS "lat_campi",
     GROUP_CONCAT(
-        IF (p.`longitudine_campo` IS NULL, '?', p.`longitudine_campo`) SEPARATOR '|'
+        IFNULL(p.`longitudine_campo`, '?') SEPARATOR '|'
     ) AS "lon_campi",
 
     MIN(p.`necessita_certificato`) AS "necessita_certificato"
