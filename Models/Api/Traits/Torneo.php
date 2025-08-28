@@ -41,32 +41,32 @@ trait Torneo
                     'Id' => (int)$r['id'],
     
                     'TournamentName' => $r['nome_torneo'],
-                    'TournamentId' => (int)$r['torneo'],
+                    'TournamentId' => (int)$r['id_torneo'],
     
-                    'SportName' => $r['sport'],
-                    'SportId' => (int)$r['codice_sport'],
+                    'SportName' => $r['nome_sport'],
+                    'SportId' => (int)$r['id_sport'],
     
                     'Date' => $r['data'],
                     'Time' => $r['orario'],
     
                     'HomeTeam' => [
-                        'Name' => $r['squadra_casa'],
-                        'Id' => (int)$r['squadra_casa_id'],
+                        'Name' => $r['casa'],
+                        'Id' => (int)$r['id_casa'],
                         
-                        'Sport' => $r['sport'],
-                        'SportId' => (int)$r['codice_sport'],
+                        'Sport' => $r['nome_sport'],
+                        'SportId' => (int)$r['id_sport'],
     
                         'Church' => $r['nome_parrocchia_casa'],
                         'ChurchId' => (int)$r['id_parrocchia_casa'],
                     ],
                     'GuestTeam' => [
-                        'Name' => $r['squadra_ospite'],
-                        'Id' => (int)$r['squadra_ospite_id'],
+                        'Name' => $r['ospiti'],
+                        'Id' => (int)$r['id_ospiti'],
                         
-                        'Sport' => $r['sport'],
-                        'SportId' => (int)$r['codice_sport'],
+                        'Sport' => $r['nome_sport'],
+                        'SportId' => (int)$r['id_sport'],
     
-                        'Church' => $r['nome_parrocchia_ospite'],
+                        'Church' => $r['nome_parrocchia_ospiti'],
                         'ChurchId' => (int)$r['id_parrocchia_ospiti'],
                     ],
     
