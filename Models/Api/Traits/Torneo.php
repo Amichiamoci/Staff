@@ -5,25 +5,30 @@ use Amichiamoci\Models\Api\Call as ApiCall;
 
 trait Torneo
 {
+    private static function parse_tornei_attivi(array $r): array
+    {
+        return [
+            'Id' => (int)$r['id'],
+            'Name' => $r['nome'],
+
+            'Sport' => $r['nome_sport'],
+            'SportId' => (int)$r['id_sport'],
+
+            'Type' => $r['nome_tipo'],
+
+            'Teams' => array_map(callback: function (string $s): string {
+                return trim(string: $s);
+            }, array: explode(separator: ',', string: $r['nomi_squadre'])),
+        ];
+    }
+
     protected function tournament(int $Id): ApiCall
     {
         return new ApiCall(
             query: "SELECT * FROM `tornei_attivi` WHERE `id` = $Id",
             row_parser: function (array $r): array {
-                return [
-                    'Id' => (int)$r['id'],
-                    'Name' => $r['nome'],
-    
-                    'Sport' => $r['sport'],
-                    'SportId' => (int)$r['codice_sport'],
-    
-                    'Type' => $r['tipo'],
-    
-                    'Teams' => array_map(callback: function($s): string {
-                        return trim(string: $s);
-                    }, array: explode(separator: ',', string: $r['squadre'])),
-                ];
-            }
+                return self::parse_tornei_attivi(r: $r);
+            },
         );
     }
 
@@ -124,23 +129,11 @@ trait Torneo
 
     protected function tournament_sport(string $Sport): ApiCall
     {
-        $area = $this->DB->escape_string($Sport);
+        $area = $this->DB->escape_string(string: $Sport);
         return new ApiCall(
             query: "SELECT * FROM `tornei_attivi` WHERE UPPER(`area_sport`) = UPPER('$area')",
             row_parser: function (array $r): array {
-                return [
-                    'Id' => (int)$r['id'],
-                    'Name' => $r['nome'],
-    
-                    'Sport' => $r['sport'],
-                    'SportId' => (int)$r['codice_sport'],
-    
-                    'Type' => $r['tipo'],
-    
-                    'Teams' => array_map(callback: function ($s): string {
-                        return trim(string: $s);
-                    }, array: explode(separator: ',', string: $r['squadre'])),
-                ];
+                return self::parse_tornei_attivi(r: $r);
             }
         );
     }
