@@ -35,7 +35,7 @@ trait Torneo
     protected function tournament_matches(int $Id): ApiCall
     {
         return new ApiCall(
-            query: "SELECT * FROM `partite_completo` WHERE `torneo` = $Id",
+            query: "SELECT * FROM `partite_completo` WHERE `id_torneo` = $Id",
             row_parser: function($r): array {
                 $arr = [
                     'Id' => (int)$r['id'],
