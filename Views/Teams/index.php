@@ -67,12 +67,12 @@ $squadre_per_sport = array_reduce(
                             <?= htmlspecialchars(string: $squadra->Nome) ?>
                         </strong>
                         <a 
-                            <?php /* 
                             href="<?= $B ?>/teams/edit?id=<?= $squadra->Id ?>"
                             class="link-underline link-underline-opacity-0 link-primary text-end"
-                            */ ?>
+                            <?php /* 
                             href="javascript:alert('Non più possibile!')"
                             class="link-underline link-underline-opacity-0 link-secondary text-end"
+                            */ ?>
                             title="Modifica <?= htmlspecialchars(string: $squadra->Nome) ?>"
                         >
                             <i class="bi bi-pencil-square"></i>
