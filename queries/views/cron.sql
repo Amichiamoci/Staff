@@ -10,6 +10,7 @@ SELECT
     a.`email`,
 
     p.`id` AS "id_partita",
+    s.`id` AS "id_squadra",
     
     -- Squadre
     p.`casa`,
@@ -56,8 +57,8 @@ SELECT
     p.`email`,
     
     -- Squadre
-    GROUP_CONCAT(p.`casa` SEPARATOR '|') AS "nomi_squadre",
-    GROUP_CONCAT(p.`ospiti` SEPARATOR '|') AS "nomi_avversari",
+    GROUP_CONCAT(IF (p.`id_squadra` = p.`id_casa`, p.`casa`, p.`ospiti`) SEPARATOR '|') AS "nomi_squadre",
+    GROUP_CONCAT(IF (p.`id_squadra` = p.`id_casa`, p.`ospiti`, p.`casa`) SEPARATOR '|') AS "nomi_avversari",
 
     -- Orari partite
     GROUP_CONCAT(
