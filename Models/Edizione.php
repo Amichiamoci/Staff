@@ -137,4 +137,22 @@ class Edizione
 
         return $this;
     }
+
+    public static function EtaPartecipanti(\mysqli $connection, int $id): array
+    {
+        if (!$connection)
+            return [];
+        $query = "SELECT * FROM `eta_iscritti_edizione` WHERE id = ?";
+        
+        $result = $connection->execute_query(query: $query, params: [$id]);
+        if (!$result)
+            return [];
+
+        $arr = [];
+        while ($row = $result->fetch_assoc())
+        {
+            $arr[(int)$row['eta']] = (int)$arr['partecipanti'];
+        }
+        return $arr;
+    }
 }

@@ -74,6 +74,27 @@ class HomeController extends Controller
         );
     }
 
+    public function ages(?int $edition = null): int
+    {
+        $this->RequireLogin();
+        if (empty($edition))
+        {
+            $edition = Edizione::Current(connection: $this->DB);
+            if (isset($edition))
+            {
+                $edition = $edition->Id;
+                return $this->NotFound();
+            }
+        }
+        if (empty($edition))
+        {
+            return $this->NotFound();
+        }
+
+        $ages = Edizione::EtaPartecipanti(connection: $this->DB, id: $edition);
+        return $this->Json(object: $ages);
+    }
+
     public function cron(): int {
         $this->RequireLogin(require_admin: true);
         $crons = [

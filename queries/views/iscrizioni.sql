@@ -88,3 +88,15 @@ FROM `iscritti` i
 	INNER JOIN `edizioni` e ON e.`id` = i.`edizione`
 GROUP BY e.`anno`, i.`parrocchia`, i.`taglia_maglietta`
 ORDER BY e.`anno` DESC, COUNT(DISTINCT i.`id`) DESC;
+
+CREATE OR REPLACE VIEW `eta_iscritti_edizione` AS
+SELECT 
+	e.`id`,
+	e.`anno`, 
+	a.`eta` - (YEAR(CURRENT_DATE) - e.`anno`) AS "eta", 
+    COUNT(DISTINCT a.`id`) AS "partecipanti"
+FROM `iscritti` i
+	INNER JOIN `anagrafiche_espanse` a ON a.`id` = i.`dati_anagrafici`
+	INNER JOIN `edizioni` e ON e.`id` = i.`edizione`
+GROUP BY e.`id`, a.`eta` - (YEAR(CURRENT_DATE) - e.`anno`)
+ORDER BY e.`anno` DESC, COUNT(DISTINCT a.`id`) DESC;
