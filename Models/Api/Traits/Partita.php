@@ -193,7 +193,7 @@ trait Partita
                 return [
                     'Id' => (int)$r['id'],
                     'Name' => $r['nome'],
-                    'Address' => $r['indirizzo'],
+                    'Address' => !empty($r['indirizzo']) ? $r['indirizzo'] : null,
                     'Latitude' => isset($r['latitudine']) ? (float)$r['latitudine'] : null,
                     'Longitude' => isset($r['longitudine']) ? (float)$r['longitudine'] : null,
                 ];
