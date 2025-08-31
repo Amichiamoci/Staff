@@ -151,7 +151,7 @@ class Edizione
         $arr = [];
         while ($row = $result->fetch_assoc())
         {
-            $arr[(int)$row['eta']] = (int)$arr['partecipanti'];
+            $arr[(int)$row['eta']] = (int)$row['partecipanti'];
         }
         return $arr;
     }
