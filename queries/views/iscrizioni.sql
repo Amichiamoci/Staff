@@ -93,10 +93,10 @@ CREATE OR REPLACE VIEW `eta_iscritti_edizione` AS
 SELECT 
 	e.`id`,
 	e.`anno`, 
-	a.`eta` - (YEAR(CURRENT_DATE) - e.`anno`) AS "eta", 
+	a.`eta` + CAST(e.anno AS SIGNED INT) - YEAR(CURRENT_DATE) AS "eta", 
     COUNT(DISTINCT a.`id`) AS "partecipanti"
 FROM `iscritti` i
 	INNER JOIN `anagrafiche_espanse` a ON a.`id` = i.`dati_anagrafici`
 	INNER JOIN `edizioni` e ON e.`id` = i.`edizione`
-GROUP BY e.`id`, a.`eta` - (YEAR(CURRENT_DATE) - e.`anno`)
+GROUP BY e.`id`, a.`eta` + CAST(e.anno AS SIGNED INT) - YEAR(CURRENT_DATE)
 ORDER BY e.`anno` DESC, COUNT(DISTINCT a.`id`) DESC;
