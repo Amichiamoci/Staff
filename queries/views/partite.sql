@@ -96,3 +96,19 @@ CREATE OR REPLACE VIEW `partite_da_giocare_oggi` AS
 SELECT p.*
 FROM `partite_da_giocare` p
 WHERE p.`data` = CURRENT_DATE;
+
+-- 
+-- Fields of active matches
+--
+
+CREATE OR REPLACE VIEW `campi_partite_attive` AS
+SELECT 
+    c.*,
+    ST_Y(c.`posizione`) AS "latitudine",
+    ST_X(c.`posizione`) AS "longitudine"
+FROM `campi` c
+WHERE EXISTS (
+    SELECT * 
+    FROM `partite_tornei_attivi` p
+    WHERE p.`id_campo` = c.`id`
+);

@@ -184,4 +184,19 @@ trait Partita
             query: "DELETE FROM `punteggi` WHERE `id` = $Id",
         );
     }
+
+    protected function all_fields(): ApiCall
+    {
+        return new ApiCall(
+            query:"SELECT * FROM `campi_partite_attive`",
+            row_parser: function (array $r): array {
+                return [
+                    'Id' => (int)$r['id'],
+                    'Address' => $r['indirizzo'],
+                    'Latitude' => isset($r['latitudine']) ? (float)$r['latitudine'] : null,
+                    'Longitude' => isset($r['longitudine']) ? (float)$r['longitudine'] : null,
+                ];
+            },
+        );
+    }
 }
