@@ -192,6 +192,7 @@ trait Partita
             row_parser: function (array $r): array {
                 return [
                     'Id' => (int)$r['id'],
+                    'Name' => $r['nome'],
                     'Address' => $r['indirizzo'],
                     'Latitude' => isset($r['latitudine']) ? (float)$r['latitudine'] : null,
                     'Longitude' => isset($r['longitudine']) ? (float)$r['longitudine'] : null,
