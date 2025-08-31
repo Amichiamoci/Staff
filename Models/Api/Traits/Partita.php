@@ -127,7 +127,7 @@ trait Partita
                 'Sport' => $r['nome_sport'],
                 'SportId' => (int)$r['id_sport'],
 
-                'Church' => $r['nome_parrocchia_ospite'],
+                'Church' => $r['nome_parrocchia_ospiti'],
                 'ChurchId' => (int)$r['id_parrocchia_ospiti'],
             ],
 
