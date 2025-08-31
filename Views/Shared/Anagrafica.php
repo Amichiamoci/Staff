@@ -254,7 +254,7 @@ use Amichiamoci\Utils\File;
                     </dd>
 
                 <?php } ?>
-            <?php } else { ?>
+            <?php } else { /*?>
                 <dt class="col-sm-4 text-nowrap">
                     <i class="bi bi-person-plus"></i>
                     Iscrivi
@@ -267,7 +267,7 @@ use Amichiamoci\Utils\File;
                         Clicca qui
                     </a>
                 </dd>
-            <?php } ?>
+            <?php */ } ?>
         </dl>
     </div>
 </div>
