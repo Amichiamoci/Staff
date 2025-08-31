@@ -218,6 +218,7 @@ class ApiController extends Controller
         'church' => 'church',
         'churches' => 'churches',
         'leaderboard' => 'leaderboard',
+        'all-fields' => 'all_fields',
 
         'document-types' => 'document_types',
         'managed-anagraphicals' => 'managed_anagraphicals',
