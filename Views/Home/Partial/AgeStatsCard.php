@@ -1,7 +1,7 @@
 <div class="card">
     <div class="card-header user-select-none">
         <div class="input-group">
-            <select id="stats-age-year" class="form-control mb-1" title="Edizione">
+            <select id="stats-age-edition" class="form-control mb-1" title="Edizione">
                 <?php foreach ($editions as $edition) { ?>
                     <option value="<?= $edition->Id ?>">
                         <?= $edition->Year ?>
