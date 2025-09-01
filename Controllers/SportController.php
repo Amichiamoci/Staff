@@ -194,12 +194,14 @@ class SportController extends Controller
     {
         $this->RequireStaff();
         $matches = Partita::Settimana(connection: $this->DB);
+        $fields = Campo::All(connection: $this->DB);
 
         return $this->Render(
             view: 'Sport/matches',
             title: 'Partite degli ultimi 7 giorni',
             data: [
                 'partite' => $matches,
+                'campi' => $fields,
             ]
         );
     }
