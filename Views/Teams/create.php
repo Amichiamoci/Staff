@@ -160,6 +160,7 @@ $iscritti_per_parrocchia = array_reduce(
         <button 
             class="btn btn-primary" 
             type="submit" 
+            disabled
         >
             
             <?php if (empty($id)) { ?>
