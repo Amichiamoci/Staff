@@ -10,7 +10,6 @@ use Amichiamoci\Models\Punteggio;
 use Amichiamoci\Models\Sport;
 use Amichiamoci\Models\TipoTorneo;
 use Amichiamoci\Models\Torneo;
-use Dotenv\Parser\Parser;
 
 class SportController extends Controller
 {
