@@ -189,11 +189,21 @@ class SportController extends Controller
         return $this->index();
     }
 
-    /*
-    public function matches(?string $date): int {
+    
+    public function matches(): int
+    {
+        $this->RequireStaff();
+        $matches = Partita::Settimana(connection: $this->DB);
 
+        return $this->Render(
+            view: 'Sport/matches',
+            title: 'Partite degli ultimi 7 giorni',
+            data: [
+                'partite' => $matches,
+            ]
+        );
     }
-    */
+    
 
     /**
      * Generate (and link) the necessary instances of Torneo to fill up an entire sport

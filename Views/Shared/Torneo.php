@@ -273,5 +273,23 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
                 </div>
             </div>
         <?php } ?>
+
+        <?php 
+        if (
+            count(value: $torneo->IdPartite) > 0 && 
+            (!isset($hide_edit_icon) || $hide_edit_icon !== 'yes')
+        ) { ?>
+            <div class="row">
+                <div class="col">
+                    <a
+                        href="<?= $B ?>/sport/tournament?id=<?= $torneo->Id ?>"
+                        title="Aggiungi un risultato a una partita"
+                        class="btn btn-outline-primary"
+                    >
+                        Inserisci risultato
+                    </a>
+                </div>
+            </div>
+        <?php } ?>
     </div>
 </div>

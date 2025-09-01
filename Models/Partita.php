@@ -193,6 +193,14 @@ class Partita implements DbEntity
         );
     }
 
+    public static function Settimana(\mysqli $connection): array
+    {
+        return self::ArrayQueryHandler(
+            connection: $connection, 
+            query: "SELECT * FROM `partite_settimana`" 
+        );
+    }
+
     public static function ImpostaCampo(\mysqli $connection, int $partita, ?int $campo): bool
     {
         if (!$connection)

@@ -87,13 +87,11 @@
                                     Tutti i Tornei
                                 </a>
                             </li>
-                            <!--
                             <li>
                                 <a class="dropdown-item" href="<?= $B ?>/sport/matches">
-                                    Partite della settimana
+                                    Partite e risultati
                                 </a>
                             </li>
-                            -->
                             <?php if ($user->IsAdmin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'))) { ?>
                                 <li>
                                     <hr class="dropdown-divider">
