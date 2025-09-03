@@ -29,13 +29,13 @@
     <div class="card-body">
         <div class="card-title text-center">
             <a href="<?= $B ?>/church?id=<?= $partita->Casa->Parrocchia->Id ?>"
-                title="Vai alla parrocchia"
+                title="<?= htmlspecialchars(string: $partita->Casa->Parrocchia->Nome) ?>"
                 class="text-reset fw-bold"
                 target="_blank"
             ><?= htmlspecialchars(string: $partita->Casa->Nome) ?></a>
             vs
             <a href="<?= $B ?>/church?id=<?= $partita->Ospiti->Parrocchia->Id ?>"
-                title="Vai alla parrocchia"
+                title="<?= htmlspecialchars(string: $partita->Ospiti->Parrocchia->Nome) ?>"
                 class="text-reset fw-bold"
                 target="_blank"
             ><?= htmlspecialchars(string: $partita->Ospiti->Nome) ?></a>
@@ -59,9 +59,10 @@
                         class="form-control match-date-selector"
                         data-match="<?= $partita->Id ?>"
                         value="<?= $partita->Data ? htmlspecialchars(string: $partita->Data) : '' ?>"
-                        min="<?=date(format: 'Y') ?>-09-01"
-                        max="<?=date(format: 'Y') ?>-10-31"
-                        title="Imposta la data della partita">  
+                        min="<?= date(format: 'Y') ?>-09-01"
+                        max="<?= date(format: 'Y') ?>-10-31"
+                        title="Imposta la data della partita"
+                    >  
                 <?php } else { ?>
                     <?php if (isset($partita->Data)) { ?>   
                         <?= htmlspecialchars(string: $partita->Data) ?> 
@@ -86,7 +87,8 @@
                         min="12:00"
                         max="23:00"
                         step="300"
-                        title="Imposta l'orario della partita">  
+                        title="Imposta l'orario della partita"
+                    >  
                 <?php } else { ?>
                     <?php if (isset($partita->Orario)) { ?>   
                         <?= htmlspecialchars(string: $partita->Orario) ?> 
