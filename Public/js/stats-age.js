@@ -21,10 +21,10 @@
         {
             type: 'pie',
             data: {
-                labels: data.map(row => row.eta),
+                labels: data.map(row => row.eta + ' anni'),
                 datasets: [
                     { 
-                        label: 'Età', 
+                        label: 'Iscritti', 
                         data: data.map(row => row.numero) 
                     }
                 ]

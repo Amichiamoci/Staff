@@ -300,12 +300,12 @@ function matches_emails(): void {
     $emails_sent = 0;
     $email_to_send_total = count(value: $players_and_emails);
 
-    foreach($players_and_emails as $mail_to_send)
+    // For debugging: we don't want to send real emails when testing
+    $email_cron_override = Security::LoadEnvironmentOfFromFile(var: 'CRON_CAPTURE_OUTGOING_ADDRESS');
+
+    foreach ($players_and_emails as $mail_to_send)
     {
         $to = $mail_to_send['email'];
-
-        // For debugging: we don't want to send real emails when testing
-        $email_cron_override = Security::LoadEnvironmentOfFromFile(var: 'CRON_CAPTURE_OUTGOING_ADDRESS');
         if (isset($email_cron_override))
         {
             $to = $email_cron_override;

@@ -144,7 +144,12 @@ class Email
             content: $body, 
             id: $id
         ));
-        $email_sent = $mail->send();
+
+        try {
+            $email_sent = $mail->send();
+        } catch (\Exception) {
+            $email_sent = false;
+        }
         
         if (!$email_sent && $connection)
         {

@@ -53,6 +53,7 @@ FROM `anagrafiche` a
 
 CREATE OR REPLACE VIEW `chi_gioca_oggi` AS
 SELECT 
+    p.`id`,
 	p.`nome`,
     p.`email`,
     
