@@ -1,10 +1,9 @@
-./db
-Uploads
-!Uploads/.htaccess
+data
 ./.github
 ./.vscode
 ./composer.lock
-./README.md
+*.md
 ./vendor
 ./.git
 .env
+.gitignore

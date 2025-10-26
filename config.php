@@ -1,6 +1,8 @@
 <?php
 setlocale(LC_ALL, 'ita', 'it_IT.utf8');
 
+require_once __DIR__ . '/vendor/autoload.php';
+
 use Amichiamoci\Utils\Security;
 use Dotenv\Dotenv;
 use Monolog\Level;
@@ -16,6 +18,11 @@ $MYSQL_USER = Security::LoadEnvironmentOfFromFile(var: 'MYSQL_USER', default: 'a
 $MYSQL_PASSWORD = Security::LoadEnvironmentOfFromFile(var: 'MYSQL_PASSWORD');
 $MYSQL_DB = Security::LoadEnvironmentOfFromFile(var: 'MYSQL_DB');
 
+if (!array_key_exists(key: 'HTTP_HOST', array: $_SERVER)) {
+    // When running via CLI, set a default host
+    $_SERVER['HTTP_HOST'] = 'localhost';
+}
+
 define(
     constant_name: "SITE_NAME", 
     value: Security::LoadEnvironmentOfFromFile(var: "SITE_NAME", default: 'Amichiamoci'));
@@ -27,15 +34,15 @@ define(constant_name: 'POWERED_BY', value: 'https://github.com/Amichiamoci/Staff
 //
 // Detect if the app is running in a subfolder (DOCUMENT_ROOT != __DIR__) in this file
 //
-if ($_SERVER['DOCUMENT_ROOT'] !== __DIR__)
-{
-    define(
-        constant_name: 'INSTALLATION_PATH',
-        value: substr(string: __DIR__, offset: strlen(string: $_SERVER['DOCUMENT_ROOT']))
-    );
-} else {
-    define(constant_name: 'INSTALLATION_PATH', value: '');
+function get_installation_path(): string {
+    if ($_SERVER['DOCUMENT_ROOT'] !== __DIR__)
+    {
+        return substr(string: __DIR__, offset: strlen(string: $_SERVER['DOCUMENT_ROOT']));
+    }
+    return '';
 }
+
+define(constant_name: 'INSTALLATION_PATH', value: get_installation_path());
 
 
 // Public key, private key will only be loaded when used
@@ -49,7 +56,7 @@ define(
 
 define(
     constant_name: 'SERVER_UPLOAD_PATH', 
-    value: $_SERVER['DOCUMENT_ROOT'] . INSTALLATION_PATH . DIRECTORY_SEPARATOR . 'Uploads');
+    value: $_SERVER['DOCUMENT_ROOT'] . INSTALLATION_PATH . DIRECTORY_SEPARATOR . 'data');
 define(
     constant_name: 'SERVER_UPLOAD_TMP', 
     value: SERVER_UPLOAD_PATH . DIRECTORY_SEPARATOR . 'tmp');
@@ -60,6 +67,8 @@ define(
 
 $log = new Logger(name: 'Request logger');
 $log->pushHandler(
-    handler: new StreamHandler(stream: SERVER_UPLOAD_PATH . DIRECTORY_SEPARATOR . 'requests.log', 
-    level: Level::Warning)
+    handler: new StreamHandler(
+        stream: SERVER_UPLOAD_PATH . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR .  'requests.log', 
+        level: Level::Info,
+    )
 );

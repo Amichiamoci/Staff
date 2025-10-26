@@ -146,7 +146,10 @@ class Router {
 
     public function SetDbConnection(\mysqli $connection): bool {
         $this->connection = $connection;
-        return $this->connection->set_charset(charset: "utf8mb4");
+        return 
+            $this->connection->set_charset(charset: "utf8mb4") 
+            # && (bool)$this->connection->query(query: "SET collation_connection = 'utf8mb4_unicode_ci'")
+        ;
     }
 
     public function SetUser(User $user): void {

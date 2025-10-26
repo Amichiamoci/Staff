@@ -18,7 +18,16 @@ CREATE TABLE IF NOT EXISTS `tipi_documento` (
   `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `label` VARCHAR(64) DEFAULT NULL,
   `regex` VARCHAR(128) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+INSERT INTO `tipi_documento` (`label`, `regex`) VALUES 
+("Carta d'Identità", '(C[A-Z][0-9]{5}[A-Z]{2})|([A-Z]{2}[0-9]{7})'),
+('Patente di guida', '[A-Z]{2}[0-9]{7}[A-Z]'),
+('Passaporto', '[A-Z]{2}[0-9]{7}'),
+('Patente nautica', NULL),
+('Tessera universitaria', '[0-9]{1,}'),
+('Documento generico', NULL)
+;
 
 DROP TABLE IF EXISTS  `anagrafiche`;
 CREATE TABLE IF NOT EXISTS `anagrafiche` (
@@ -40,7 +49,7 @@ CREATE TABLE IF NOT EXISTS `anagrafiche` (
 
   UNIQUE KEY `codice_fiscale` (`codice_fiscale`) USING BTREE,
   FOREIGN KEY (`tipo_documento`) REFERENCES `tipi_documento` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 
 --
@@ -51,7 +60,7 @@ DROP TABLE IF EXISTS `commissioni`;
 CREATE TABLE IF NOT EXISTS `commissioni` (
   `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `nome` VARCHAR(256) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 DROP TABLE IF EXISTS `parrocchie`;
 CREATE TABLE IF NOT EXISTS `parrocchie` (
@@ -59,7 +68,9 @@ CREATE TABLE IF NOT EXISTS `parrocchie` (
   `nome` VARCHAR(256) NOT NULL,
   `indirizzo` VARCHAR(256) DEFAULT NULL,
   `website` VARCHAR(128) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+INSERT INTO `parrocchie` (`nome`) VALUES ('Diocesi (parrocchia generica)');
 
 DROP TABLE IF EXISTS `staffisti`;
 CREATE TABLE IF NOT EXISTS `staffisti` (
@@ -71,7 +82,7 @@ CREATE TABLE IF NOT EXISTS `staffisti` (
   FOREIGN KEY (`dati_anagrafici`) REFERENCES `anagrafiche` (`id`),
   FOREIGN KEY (`parrocchia`) REFERENCES `parrocchie` (`id`),
   FOREIGN KEY (`id_utente`) REFERENCES `utenti` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 DROP TABLE IF EXISTS `ruoli_staff`;
 CREATE TABLE IF NOT EXISTS `ruoli_staff` (
@@ -84,7 +95,7 @@ CREATE TABLE IF NOT EXISTS `ruoli_staff` (
   FOREIGN KEY (`commissione`) REFERENCES `commissioni` (`id`),
   FOREIGN KEY (`staffista`) REFERENCES `staffisti` (`id`),
   FOREIGN KEY (`edizione`) REFERENCES `edizioni` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 
 --
@@ -96,7 +107,7 @@ CREATE TABLE IF NOT EXISTS `sport` (
   `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `nome` VARCHAR(256) NOT NULL,
   `area` VARCHAR(16) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 DROP TABLE IF EXISTS `squadre`;
 CREATE TABLE IF NOT EXISTS `squadre` (
@@ -110,14 +121,18 @@ CREATE TABLE IF NOT EXISTS `squadre` (
   FOREIGN KEY (`parrocchia`) REFERENCES `parrocchie` (`id`),
   FOREIGN KEY (`sport`) REFERENCES `sport` (`id`),
   FOREIGN KEY (`edizione`) REFERENCES `edizioni` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 DROP TABLE IF EXISTS `tipi_torneo`;
 CREATE TABLE IF NOT EXISTS `tipi_torneo` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `nome` VARCHAR(64) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+INSERT INTO `tipi_torneo` (`id`, `nome`) VALUES 
+(1, 'Italiana (girone)'),
+(2, 'Eliminazione Diretta');
 
 DROP TABLE IF EXISTS `tornei`;
 CREATE TABLE IF NOT EXISTS `tornei` (
@@ -132,7 +147,7 @@ CREATE TABLE IF NOT EXISTS `tornei` (
   FOREIGN KEY (`tipo_torneo`) REFERENCES `tipi_torneo` (`id`),
   FOREIGN KEY (`edizione`) REFERENCES `edizioni` (`id`),
   FOREIGN KEY (`successore`) REFERENCES `tornei`(`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 DROP TABLE IF EXISTS `squadre_iscritti`;
 CREATE TABLE IF NOT EXISTS `squadre_iscritti` (
@@ -142,7 +157,7 @@ CREATE TABLE IF NOT EXISTS `squadre_iscritti` (
   PRIMARY KEY (`squadra`, `iscritto`),
   FOREIGN KEY (`squadra`) REFERENCES `squadre` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (`iscritto`) REFERENCES `iscritti` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 
 DROP TABLE IF EXISTS `campi`;
@@ -151,7 +166,7 @@ CREATE TABLE IF NOT EXISTS `campi` (
   `nome` VARCHAR(128) NOT NULL,
   `indirizzo` VARCHAR(256) NOT NULL,
   `posizione` POINT DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 DROP TABLE IF EXISTS `partite`;
 CREATE TABLE IF NOT EXISTS `partite` (
@@ -169,7 +184,7 @@ CREATE TABLE IF NOT EXISTS `partite` (
   FOREIGN KEY (`squadra_ospite`) REFERENCES `squadre` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (`torneo`) REFERENCES `tornei` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (`a_tavolino`) REFERENCES `squadre` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 DROP TABLE IF EXISTS `punteggi`;
 CREATE TABLE IF NOT EXISTS `punteggi` (
@@ -179,7 +194,7 @@ CREATE TABLE IF NOT EXISTS `punteggi` (
   `guest` VARCHAR(8) NOT NULL,
 
   FOREIGN KEY (`partita`) REFERENCES `partite` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 DROP TABLE IF EXISTS `partecipaz_squad_torneo`;
 CREATE TABLE IF NOT EXISTS `partecipaz_squad_torneo` (
@@ -189,7 +204,7 @@ CREATE TABLE IF NOT EXISTS `partecipaz_squad_torneo` (
   PRIMARY KEY (`torneo`,`squadra`),
   FOREIGN KEY (`squadra`) REFERENCES `squadre` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (`torneo`) REFERENCES `tornei` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 
 --
@@ -203,7 +218,7 @@ CREATE TABLE IF NOT EXISTS `utenti` (
   `password` VARCHAR(256) NOT NULL,
   `is_admin` BOOLEAN NOT NULL DEFAULT FALSE,
   `is_blocked` BOOLEAN NOT NULL DEFAULT FALSE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 DROP TABLE IF EXISTS `sessioni`;
 CREATE TABLE IF NOT EXISTS `sessioni` (
@@ -215,7 +230,7 @@ CREATE TABLE IF NOT EXISTS `sessioni` (
   `time_start` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   
   FOREIGN KEY (`user_id`) REFERENCES `utenti` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 DROP TABLE IF EXISTS `email`;
 CREATE TABLE IF NOT EXISTS `email` (
@@ -226,7 +241,7 @@ CREATE TABLE IF NOT EXISTS `email` (
   `sent` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `opened` TIMESTAMP NULL DEFAULT NULL,
   `ricevuta` BOOLEAN NOT NULL DEFAULT TRUE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 DROP TABLE IF EXISTS `token`;
 CREATE TABLE IF NOT EXISTS `token` (
@@ -241,7 +256,7 @@ CREATE TABLE IF NOT EXISTS `token` (
   `requesting_browser` VARCHAR(128) DEFAULT NULL,
   
   FOREIGN KEY (`user_id`) REFERENCES `utenti` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 --
 -- Area Iscrizioni
@@ -254,7 +269,9 @@ CREATE TABLE IF NOT EXISTS `edizioni` (
   `motto` VARCHAR(256) DEFAULT NULL,
   `path_immagine` VARCHAR(256) DEFAULT NULL,
   `autore_logo` VARCHAR(256) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+INSERT INTO `edizioni` (`anno`) VALUES (YEAR(CURRENT_DATE));
 
 DROP TABLE IF EXISTS `punteggio_parrocchia`;
 CREATE TABLE IF NOT EXISTS `punteggio_parrocchia` (
@@ -265,7 +282,7 @@ CREATE TABLE IF NOT EXISTS `punteggio_parrocchia` (
   PRIMARY KEY (`parrocchia`, `edizione`),
   FOREIGN KEY (`edizione`) REFERENCES `edizioni` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (`parrocchia`) REFERENCES `parrocchie` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 DROP TABLE IF EXISTS `iscritti`;
 CREATE TABLE IF NOT EXISTS `iscritti` (
@@ -281,7 +298,7 @@ CREATE TABLE IF NOT EXISTS `iscritti` (
   FOREIGN KEY (`tutore`) REFERENCES `anagrafiche` (`id`),
   FOREIGN KEY (`parrocchia`) REFERENCES `parrocchie` (`id`),
   FOREIGN KEY (`edizione`) REFERENCES `edizioni` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 
 DROP TABLE IF EXISTS `partecipaz_staff_ediz`;
@@ -294,14 +311,14 @@ CREATE TABLE IF NOT EXISTS `partecipaz_staff_ediz` (
 
   FOREIGN KEY (`staff`) REFERENCES `staffisti` (`id`),
   FOREIGN KEY (`edizione`) REFERENCES `edizioni` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 DROP TABLE IF EXISTS `api_token`;
 CREATE TABLE IF NOT EXISTS `api_token` (
   `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `name` VARCHAR(256) NOT NULL,
   `key` VARCHAR(128) NOT NULL UNIQUE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 DROP TABLE IF EXISTS `api_usage`;
 CREATE TABLE IF NOT EXISTS `api_usage` (
@@ -312,7 +329,7 @@ CREATE TABLE IF NOT EXISTS `api_usage` (
 
   PRIMARY KEY (`token_id`, `ip_address`),
   FOREIGN KEY (`token_id`) REFERENCES `api_token`(`id`) ON UPDATE CASCADE ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
 COMMIT;
 

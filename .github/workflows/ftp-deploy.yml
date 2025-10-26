@@ -6,12 +6,13 @@ on:
 name: FTP deploy to server
 jobs:
   ftp-deploy:
+    if: false
     name: FTP deploy
     runs-on: ubuntu-latest
     steps:
 
       - name: 🚚 Get latest code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with: 
           ref: ${{ github.head_ref }}
         
@@ -37,7 +38,7 @@ jobs:
         with:
           timeout_minutes: 5
           max_attempts: 5
-          command: composer update --no-interaction --no-progress
+          command: composer install --no-interaction --no-progress --optimize-autoloader --no-dev
         
       - name: Load DB data and website address in .env
         run: |
@@ -84,11 +85,11 @@ jobs:
             **/node_modules/**
             *.md
             composer.json
-            entrypoint.sh
+            composer.lock
             Dockerfile
             docker-compose.yml
             .dockerignore
-            build-starting-db.sh
+            *.sh
             **/queries/**
             **/.vscode/**
           

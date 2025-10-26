@@ -2,7 +2,5 @@ cron/*.txt
 .env
 vendor
 composer.lock
-.vscode
-db
-Uploads/*
-!Uploads/.htaccess
+data/*
+!data/.gitkeep

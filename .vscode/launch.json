@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug PHP and container",
+      "type": "php",
+      "request": "launch",
+      "port": 9003,
+      "pathMappings": {
+        "/app": "${workspaceFolder}"
+      },
+      "log": false,
+      "preLaunchTask": "Start container (Debugging)",
+      "postDebugTask": "Stop container"
+    },
+    {
+      "name": "Launch Production container",
+      "request": "launch",
+      "type": "node", 
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "Start container (Production)",
+      "postDebugTask": "Stop container"
+    }
+  ]
+}

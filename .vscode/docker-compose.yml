@@ -1,0 +1,69 @@
+name: amichiamoci
+
+services:
+  staff:
+    container_name: staff
+    build: 
+      context: ../
+      args:
+        DEBUG_APP: ${DEBUG_APP:-0}
+    profiles: [debug, prod]
+    restart: always
+    ports:
+      - 80:8080
+    environment:
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=root
+      - MYSQL_DB=amichiamoci
+      - MYSQL_HOST=mariadb
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=changeme
+      - CRON_ENABLE_HTTP=1
+      - ENABLE_API=1
+    env_file:
+      - ../.env
+    volumes:
+       - ../data:/app/data:rw
+    networks:
+      - mariadb_network
+    depends_on:
+      - mariadb
+  
+  mariadb:
+    image: mariadb:12
+    container_name: mariadb
+    restart: always
+    environment:
+      - MYSQL_DATABASE=amichiamoci
+      - MYSQL_ROOT_PASSWORD=root
+      - TZ=Europe/Rome
+    networks:
+      - mariadb_network
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin:apache
+    container_name: phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mariadb
+      PMA_PORT: 3306
+      PMA_SSL_VERIFY: 0
+      TZ: Europe/Rome
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - mariadb_network
+    ports:
+      - 9000:80
+    volumes:
+      - pma_sessions:/sessions
+
+networks:
+  mariadb_network: 
+    driver: bridge
+
+volumes:
+  mariadb_data:
+  pma_sessions:
+  
