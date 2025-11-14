@@ -4,6 +4,7 @@ namespace Amichiamoci\Routing;
 use Amichiamoci\Controllers\Controller;
 use Amichiamoci\Models\User;
 use Amichiamoci\Models\Staff;
+use Amichiamoci\Utils\Security;
 use Monolog\Level;
 use Monolog\Logger;
 
@@ -125,9 +126,11 @@ class Router {
             path: $uri,
         );
 
+        $client_ip = Security::GetIpAddress();
+
         try {
             $status_code = call_user_func_array(callback: [$controller_instance, $action], args: $method_params);
-            $this->Logger->log(level: Level::Info, message: "[$status_code] $uri");
+            $this->Logger->log(level: Level::Info, message: "[$client_ip] [$status_code] [$controller::$action] $uri");
         } catch (\Throwable $ex) {
             if (headers_sent()) {
                 // Cannot send an other HTTP status code, just print the error
@@ -140,7 +143,7 @@ class Router {
                 staff: $this->staff,
                 path: $uri,
             ))->InternalErrorHandler(ex: $ex);
-            $this->Logger->log(level: Level::Warning, message: "[$result] $uri");
+            $this->Logger->log(level: Level::Warning, message: "[$client_ip] [$result] $uri");
         }
     }
 

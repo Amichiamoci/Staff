@@ -12,14 +12,17 @@ RUN apk add --no-cache \
     icu-dev \
     zlib-dev libzip-dev \
     freetype-dev jpeg-dev libpng-dev libwebp-dev libjpeg-turbo-dev \
-    mariadb-dev
+    mariadb-dev \
+    oniguruma-dev
 
 # Install php extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp && \
     docker-php-ext-configure intl && \
-    docker-php-ext-install -j$(nproc) gd intl zip mysqli
+    docker-php-ext-install -j$(nproc) gd intl zip mysqli mbstring && \
+    docker-php-ext-enable mbstring
 
 FROM base AS php_ready
+ARG DEBUG_APP=0
 
 RUN apk add --no-cache \
     nginx curl \
@@ -33,7 +36,6 @@ RUN mkdir -p /run/nginx /app /app/data
 WORKDIR /app
 VOLUME [ "/app/data" ]
 
-ARG DEBUG_APP=0
 RUN if [ "$DEBUG_APP" = "1" ]; then \
       apk add --no-cache --update linux-headers autoconf g++ make; \
       pecl install xdebug && docker-php-ext-enable xdebug; \
@@ -64,6 +66,17 @@ RUN composer install \
     --optimize-autoloader \
     $([ "$DEBUG_APP" = "1" ] && echo "--no-dev")
 
+FROM alpine AS docs
+ARG DEBUG_APP=0
+
+RUN apk add --no-cache doxygen graphviz
+RUN mkdir -p /amichiamoci /amichiamoci/docs /amichiamoci/docs/html
+WORKDIR /amichiamoci
+COPY . .
+RUN if [ "$DEBUG_APP" = "1" ]; then \
+      doxygen; \
+    fi;
+
 FROM php_ready
 
 COPY --chown=www-data ./docker/entrypoint.sh .
@@ -71,6 +84,7 @@ RUN chmod +x ./entrypoint.sh
 
 COPY --chown=www-data --from=php_deps /app/vendor ./vendor
 COPY --chown=www-data . .
+COPY --chown=www-data --from=docs /amichiamoci/docs/html ./docs
 
 RUN chmod +x ./script/build-database.php
 RUN chmod +x ./script/cron.php

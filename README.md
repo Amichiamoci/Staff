@@ -35,7 +35,7 @@ Impostare le seguenti variabili d'ambiente:
 
 ## Installazione con Docker
 ```bash
-docker pull ghcr.io/amichiamoci/staff:latest
+docker pull amichiamoci/staff
 ```
 
 Avviare il contenitore e impostare le variabili d'ambiente allo stesso. all'avvio genererà il databse se non ne trova uno (il controllo è effettuato sull'esistenza di almeno un utente, non cancellarli mai tutti).
@@ -44,7 +44,7 @@ Avviare il contenitore e impostare le variabili d'ambiente allo stesso. all'avvi
 Il contenitore espone solo la porta `80`, ed il processo principale è eseguito dall'utente `www-data`
 
 ### Volumi
-Un solo volume è richiesto, e va montato a `/var/www/html/Uploads`. In esso sarà aggiunto un file `.htaccess` che farà in modo che i file non siano accessibili senza login: non cancellarlo!
+Un solo volume è richiesto, e va montato a `/app/data`.
 
 ### Segreti e dati sensibili
 I docker secrets sono supportati e consigliati per le variabili più importanti (come password o token)

@@ -7,7 +7,7 @@ use Amichiamoci\Utils\Security;
 use Dotenv\Dotenv;
 use Monolog\Level;
 use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
+use Monolog\Handler\RotatingFileHandler;
 
 $dotenv = Dotenv::createImmutable(paths: __DIR__);
 $dotenv->safeLoad();
@@ -67,8 +67,12 @@ define(
 
 $log = new Logger(name: 'Request logger');
 $log->pushHandler(
-    handler: new StreamHandler(
-        stream: SERVER_UPLOAD_PATH . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR .  'requests.log', 
+    handler: new RotatingFileHandler(
+        filename: SERVER_UPLOAD_PATH . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR .  'requests.log', 
         level: Level::Info,
+        maxFiles: (int)Security::LoadEnvironmentOfFromFile(
+            var: 'LOG_ROTATING_MAX_FILES', 
+            default: '14',
+        ),
     )
 );

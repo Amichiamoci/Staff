@@ -20,7 +20,7 @@ mkdir -p \
 chown -R www-data:www-data $APP_DATA
 
 until php "$APP_PATH/script/build-database.php"; do
-    echo "Retrying in 1 second..."
+    echo -e "Retrying in 1 second...\n\n"
     sleep 1
 done
 

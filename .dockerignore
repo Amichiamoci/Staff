@@ -2,8 +2,8 @@ data
 ./.github
 ./.vscode
 ./composer.lock
-*.md
 ./vendor
 ./.git
 .env
 .gitignore
+docs
