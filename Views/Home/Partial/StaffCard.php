@@ -9,10 +9,10 @@ if (isset($staff) && $staff instanceof Staff) {
                 <strong>
                     <?= htmlspecialchars(string: $staff->Nome) ?>
                 </strong>
-                <a 
-                    href="<?= $P ?>/staff/me" 
+                <a  href="<?= $P ?>/staff/me" 
                     class="link-underline link-underline-opacity-0 link-primary"
-                    title="Modifica i miei dati">
+                    title="Modifica i miei dati"
+                >
                     <i class="bi bi-pencil-square"></i>
                 </a>
             </div>
@@ -26,10 +26,10 @@ if (isset($staff) && $staff instanceof Staff) {
                     <?php } ?>
                 </dt>
                 <dd class="col-sm-8">
-                    <a 
-                        href="<?= $P ?>/church?id=<?= $staff->Parrocchia->Id ?>"
+                    <a  href="<?= $P ?>/church?id=<?= $staff->Parrocchia->Id ?>"
                         class="link-underline-opacity-0 link-secondary"
-                        title="Vedi la parrocchia">
+                        title="Vedi la parrocchia"
+                    >
                         <?= htmlspecialchars(string: $staff->Parrocchia->Nome) ?>
                     </a>
                 </dd>
@@ -61,10 +61,10 @@ if (isset($staff) && $staff instanceof Staff) {
                     Non ti sei ancora registrato per
                     <?= SITE_NAME ?> <?= date(format: "Y") ?>, fallo subito!
                 </p>
-                <a
-                    href="<?= $P ?>/staff/get_involved"
+                <a  href="<?= $P ?>/staff/get_involved"
                     class="btn btn-primary btn-lg"
-                    title="Partecipa">
+                    title="Partecipa"
+                >
                     Partecipa ad
                     <?= SITE_NAME ?> <?= date(format: "Y") ?>
                 </a>
@@ -86,8 +86,7 @@ if (isset($staff) && $staff instanceof Staff) {
                 Se hai partecipato alla manifestazione in passato ti dovrebbe bastare la
                 procedura seguente per diventare uno staffista.
             </p>
-            <a 
-                href="<?= $P ?>/staff/me" 
+            <a  href="<?= $P ?>/staff/me" 
                 class="link-underline link-underline-opacity-0 link-primary"
                 title="Diventa staff"
             >

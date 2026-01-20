@@ -38,8 +38,8 @@ extends Controller
         if (empty($year))
             $year = (int)date(format: "Y");
         
-        if (!isset($church) && $this->Staff !== null)
-            $church = $this->Staff->Parrocchia->Id;
+        if (!isset($church) && $this->Staff() !== null)
+            $church = $this->Staff()->Parrocchia->Id;
 
         if (empty($church))
             return $this->BadRequest();
@@ -76,8 +76,8 @@ extends Controller
         if (empty($year))
             $year = (int)date(format: "Y");
         
-        if (!isset($church) && $this->Staff !== null)
-            $church = $this->Staff->Parrocchia->Id;
+        if (!isset($church) && $this->Staff() !== null)
+            $church = $this->Staff()->Parrocchia->Id;
 
         if (empty($church))
             return $this->BadRequest();
@@ -260,12 +260,12 @@ extends Controller
 
         if ($this->IsPost())
         {
-            if ($this->Staff === null || empty($edition) || empty($t_shirt))
+            if ($this->Staff() === null || empty($edition) || empty($t_shirt))
                 return $this->BadRequest();
 
             $res = Staff::Partecipa(
                 connection: $this->DB, 
-                staff: $this->Staff->Id, 
+                staff: $this->Staff()->Id, 
                 edizione: $edition, 
                 maglia: $t_shirt, 
                 commissioni: $roles, 
@@ -593,7 +593,7 @@ extends Controller
             if (!isset($target))
                 return $this->NotFound();
 
-            if (!$this->User->Admin && $target->Parrocchia->Id !== $this->Staff->Parrocchia->Id)
+            if (!$this->User->Admin && $target->Parrocchia->Id !== $this->Staff()->Parrocchia->Id)
                 return $this->NotAuthorized();
             
             if (Iscrizione::Delete(connection: $this->DB, id: $id)) {

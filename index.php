@@ -19,6 +19,7 @@ use Amichiamoci\Controllers\TeamsController;
 
 use Amichiamoci\Utils\Security;
 use Amichiamoci\Models\User;
+use Amichiamoci\Models\Staff;
 
 use Richie314\SimpleMvc\Routers\Router;
 use Richie314\SimpleMvc\Http\StatusCode;
@@ -92,6 +93,12 @@ if ($user !== null)
             $user->PutAdditionalInSession();
         }
     }
+
+    if (!empty($user->IdStaff))
+    {
+        $staff = Staff::ById(connection: $connection, id: $user->IdStaff);
+        $router->SetDefaultVariable(key: 'staff', value: $staff);
+    }
 }
 
 $uri = $_SERVER['REQUEST_URI'];
@@ -99,6 +106,6 @@ $client_ip = UtilsSecurity::GetIpAddress();
 
 $result = $router->dispatch(uri: $uri);
 if (StatusCode::IsError(statusCode: $result))
-    $log->warning(message: "[$client_ip] [$result->value] $uri");
+    $log->warning(message: "[$client_ip] [$result] $uri");
 else
-    $log->info(message: "[$client_ip] [$result->value] $uri");
+    $log->info(message: "[$client_ip] [$result] $uri");

@@ -7,13 +7,13 @@ require_once dirname(path: __DIR__) . '/vendor/autoload.php';
 require_once dirname(path: __DIR__) . '/config.php';
 
 use Amichiamoci\Utils\Email;
-use Amichiamoci\Utils\Link;
 use Amichiamoci\Utils\Security;
 
-if (PHP_SAPI !== 'cli')
-{
+if (PHP_SAPI !== 'cli' && 
+    Security::LoadEnvironmentOfFromFile(var: 'CRON_ENABLE_HTTP', default: 0) != 1
+) {
     echo 'Job not allowed.' . PHP_EOL;
-    echo 'Activate them via setting the variable CRON_ENABLE_HTTP to 1' . PHP_EOL;
+    echo 'Activate them by setting the variable CRON_ENABLE_HTTP to 1' . PHP_EOL;
     exit;
 }
 

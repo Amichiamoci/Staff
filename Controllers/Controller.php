@@ -2,19 +2,30 @@
 namespace Amichiamoci\Controllers;
 
 use Richie314\SimpleMvc\Controllers\Controller as BaseController;
+use Richie314\SimpleMvc\Http\Method;
 
 use Amichiamoci\Models\Message;
 use Amichiamoci\Models\MessageType;
 use Amichiamoci\Models\Staff;
 use Amichiamoci\Models\User;
-use Richie314\SimpleMvc\Http\Method;
-use Richie314\SimpleMvc\Http\StatusCode;
 
 class Controller
 extends BaseController
 {
-    protected ?Staff $Staff = null;
-    private array $AlertsToDisplay = [];
+    protected function Staff(): ?Staff
+    {
+        if (!array_key_exists(key: 'staff', array: $this->ViewBag))
+            $this->ViewBag['staff'] = null;
+
+        return $this->ViewBag['staff'];
+    }
+    protected function Alerts(): array
+    {
+        if (!array_key_exists(key: 'alerts', array: $this->ViewBag))
+            $this->ViewBag['alerts'] = [];
+
+        return $this->ViewBag['alerts'];
+    }
 
     protected function getUser(): ?User
     {
@@ -40,25 +51,17 @@ extends BaseController
         );
         $user = $controller->getUser();
 
-        if ($controller->Staff === null &&
-            $user->HasAdditionalData() &&
-            !empty($user->IdStaff)
-        ) {
-            $controller->Staff = Staff::ById(connection: $controller->DB, id: $user->IdStaff);
-        }
-
-        if ($controller->Staff !== null)
+        if ($controller->Staff() !== null)
         {
-            if (
-                $commissione !== null && 
-                !$controller->Staff->InCommissione(commissione: $commissione)
+            if ($commissione !== null && 
+                !$controller->Staff()->InCommissione(commissione: $commissione)
             ) {
                 $controller->NotAuthorized(
                     message: "Accesso consentito solo agli staffisti della commissione $commissione o agli amministratori");
                 exit;
             }
 
-            return $controller->Staff;
+            return $controller->Staff();
         }
 
         if ($user->Admin)
@@ -79,33 +82,10 @@ extends BaseController
         if ($message === null)
             return;
         
-        if (is_string(value: $message)) {
+        if (is_string(value: $message))
             $message = new Message(type: MessageType::Info, content: $message);
-        }
-        $this->AlertsToDisplay[] = $message;
-    }
-
-    /**
-     * @inheritDoc Richie314\SimpleMvc\Controllers\Controller\Render
-     */
-    protected function Render(
-        string $view, 
-        array $data = [], 
-        string $title = '',
-        StatusCode|int $statusCode = StatusCode::Ok,
-        ?string $cutomLayout = null,
-    ): StatusCode {
-
-        return parent::Render(
-            view: $view, 
-            data: array_merge($data, [
-                'staff' => $this->Staff,
-                'alerts' => $this->AlertsToDisplay,
-            ]), 
-            title: $title, 
-            statusCode: $statusCode, 
-            cutomLayout: $cutomLayout,
-        );
+        
+        $this->Alerts()[] = $message;
     }
 
     protected function IsPost(): bool

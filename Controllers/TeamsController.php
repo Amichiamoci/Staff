@@ -23,8 +23,8 @@ extends Controller
         if (empty($year))
             $year = (int)date(format: "Y");
         
-        if (!isset($church) && $this->Staff !== null)
-            $church = $this->Staff->Parrocchia->Id;
+        if (!isset($church) && $this->Staff() !== null)
+            $church = $this->Staff()->Parrocchia->Id;
 
         if (empty($church))
             return $this->BadRequest();
@@ -57,8 +57,8 @@ extends Controller
         array $members = [],
     ): StatusCode
     {
-        if (!isset($church) && $this->Staff !== null)
-            $church = $this->Staff->Parrocchia->Id;
+        if (!isset($church) && $this->Staff() !== null)
+            $church = $this->Staff()->Parrocchia->Id;
         if (empty($church))
             return $this->BadRequest();
 
@@ -189,8 +189,8 @@ extends Controller
         if (empty($year))
             $year = (int)date(format: "Y");
         
-        if (!isset($church) && $this->Staff !== null)
-            $church = $this->Staff->Parrocchia->Id;
+        if (!isset($church) && $this->Staff() !== null)
+            $church = $this->Staff()->Parrocchia->Id;
         if (empty($church))
             return $this->BadRequest();
 
