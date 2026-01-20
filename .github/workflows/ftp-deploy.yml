@@ -6,7 +6,6 @@ on:
 name: FTP deploy to server
 jobs:
   ftp-deploy:
-    if: true
     name: FTP deploy
     runs-on: ubuntu-latest
     steps:
@@ -26,11 +25,11 @@ jobs:
           update: true
         
       - name: Cache php libraries
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: cache
         with:
           path: ./vendor/
-          key: ${{ runner.os }}-php84-vendor-${{ hashFiles('./composer.json') }}
+          key: ${{ runner.os }}-php-84-vendor-${{ hashFiles('./composer.json') }}
         
       - name: Install php Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
