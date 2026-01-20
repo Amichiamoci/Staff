@@ -72,7 +72,7 @@ jobs:
           BRANCH: ${{ github.ref_name }}
       
       - name: Copy .htaccess
-        run: cp ./docker/apache.htacess ./.htaccess
+        run: cp ./docker/apache.htaccess ./.htaccess
 
       - name: 📂 Sync files
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
