@@ -26,7 +26,7 @@ use Richie314\SimpleMvc\Utils\Security as UtilsSecurity;
 
 $router = new Router(
     pathPrefix: INSTALLATION_PATH, 
-    applicationInstallationPath: INSTALLATION_PATH,
+    applicationInstallationPath: $_SERVER['DOCUMENT_ROOT'] . INSTALLATION_PATH,
 );
 $router->AddController(controller: HomeController::class,  route_base: '/');
 $router->AddController(controller: UserController::class,  route_base: '/user');
