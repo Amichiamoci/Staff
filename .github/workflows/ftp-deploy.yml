@@ -70,6 +70,9 @@ jobs:
           fi
         env:
           BRANCH: ${{ github.ref_name }}
+      
+      - name: Copy .htaccess
+        run: cp docker/.htacess ./.htaccess
 
       - name: 📂 Sync files
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -84,8 +87,6 @@ jobs:
             **/.git*/**
             **/node_modules/**
             *.md
-            composer.json
-            composer.lock
             Dockerfile
             docker-compose.yml
             .dockerignore

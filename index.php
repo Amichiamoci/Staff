@@ -24,7 +24,10 @@ use Richie314\SimpleMvc\Routers\Router;
 use Richie314\SimpleMvc\Http\StatusCode;
 use Richie314\SimpleMvc\Utils\Security as UtilsSecurity;
 
-$router = new Router(pathPrefix: INSTALLATION_PATH);
+$router = new Router(
+    pathPrefix: INSTALLATION_PATH, 
+    applicationInstallationPath: INSTALLATION_PATH,
+);
 $router->AddController(controller: HomeController::class,  route_base: '/');
 $router->AddController(controller: UserController::class,  route_base: '/user');
 $router->AddController(controller: FileController::class,  route_base: '/file');
