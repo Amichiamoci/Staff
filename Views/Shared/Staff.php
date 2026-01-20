@@ -19,7 +19,7 @@ if (!isset($staff) || !($staff instanceof StaffBase)) {
 
         <?php if ($staff instanceof Staff) { ?>
 
-            <?php if ($user->IsAdmin && !empty($staff->CodiceFiscale)) { ?>
+            <?php if ($user->Admin && !empty($staff->CodiceFiscale)) { ?>
                 <h6 class="card-subtitle mb-2 user-select-none text-secondary font-monospace">
                     <?= htmlspecialchars(string: $staff->CodiceFiscale) ?>
                 </h6>
@@ -34,10 +34,10 @@ if (!isset($staff) || !($staff instanceof StaffBase)) {
                     <?php } ?>
                 </dt>
                 <dd class="col-sm-8">
-                    <a 
-                        href="<?= $B ?>/church?id=<?= $staff->Parrocchia->Id ?>"
+                    <a  href="<?= $P ?>/church?id=<?= $staff->Parrocchia->Id ?>"
                         class="link-underline-opacity-0 link-secondary"
-                        title="Vedi la parrocchia">
+                        title="Vedi la parrocchia"
+                    >
                         <?= htmlspecialchars(string: $staff->Parrocchia->Nome) ?>
                     </a>
                 </dd>

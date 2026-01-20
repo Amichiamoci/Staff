@@ -2,7 +2,7 @@
 use Amichiamoci\Models\ProblemaIscrizione;
 ?>
 
-<?php if ($user->IsAdmin) { ?>
+<?php if ($user->Admin) { ?>
     <div class="input-group mb-2">
         <select id="parrocchia-selector" class="form-control">
             <?php foreach ($parrocchie as $parrocchia) { ?>
@@ -60,10 +60,10 @@ use Amichiamoci\Models\ProblemaIscrizione;
                             <i class="bi bi-gender-female text-end"></i>
                         <?php } ?>
 
-                        <a 
-                            href="<?= $B ?>/staff/edit_anagrafica?id=<?= $problema->Id ?>"
+                        <a  href="<?= $P ?>/staff/edit_anagrafica?id=<?= $problema->Id ?>"
                             class="link-underline link-underline-opacity-0 link-primary text-end"
-                            title="Modifica <?= htmlspecialchars(string: $problema->Nome) ?>">
+                            title="Modifica <?= htmlspecialchars(string: $problema->Nome) ?>"
+                        >
                             <i class="bi bi-pencil-square"></i>
                         </a>
                     </div>
@@ -75,10 +75,10 @@ use Amichiamoci\Models\ProblemaIscrizione;
                                 </dt>
                                 <dd class="col-sm-8 text-danger">
                                     <?= htmlspecialchars(string: $problema->Documento) ?>
-                                    <a 
-                                        class="link-primary link-underline link-underline-opacity-0"
+                                    <a  class="link-primary link-underline link-underline-opacity-0"
                                         title="Aggiungi documento"
-                                        href="<?= $B ?>/staff/edit_anagrafica?id=<?= $problema->Id ?>">
+                                        href="<?= $P ?>/staff/edit_anagrafica?id=<?= $problema->Id ?>"
+                                    >
                                         Inserisci
                                     </a>
                                 </dd>
@@ -107,10 +107,10 @@ use Amichiamoci\Models\ProblemaIscrizione;
                                 </dt>
                                 <dd class="col-sm-8 text-danger">
                                     <?= htmlspecialchars(string: $problema->Tutore) ?>
-                                    <a 
-                                        class="link-primary link-underline link-underline-opacity-0"
+                                    <a  class="link-primary link-underline link-underline-opacity-0"
                                         title="Aggiungi certificato"
-                                        href="<?= $B ?>/staff/modifica_iscrizione?id=<?= $problema->Iscrizione ?>">
+                                        href="<?= $P ?>/staff/modifica_iscrizione?id=<?= $problema->Iscrizione ?>"
+                                    >
                                         Inserisci
                                     </a>
                                 </dd>
@@ -129,10 +129,10 @@ use Amichiamoci\Models\ProblemaIscrizione;
                                 </dt>
                                 <dd class="col-sm-8 text-danger">
                                     <?= htmlspecialchars(string: $problema->Certificato) ?>
-                                    <a 
-                                        class="link-primary link-underline link-underline-opacity-0"
+                                    <a  class="link-primary link-underline link-underline-opacity-0"
                                         title="Aggiungi certificato"
-                                        href="<?= $B ?>/staff/modifica_iscrizione?id=<?= $problema->Iscrizione ?>">
+                                        href="<?= $P ?>/staff/modifica_iscrizione?id=<?= $problema->Iscrizione ?>"
+                                    >
                                         Inserisci
                                     </a>
                                 </dd>
@@ -154,20 +154,12 @@ use Amichiamoci\Models\ProblemaIscrizione;
                                 <dd class="col-sm-8 text-warning">
                                     <?= htmlspecialchars(string: $problema->Email) ?>
                                     <br>
-                                    <a 
-                                        class="link-primary link-underline link-underline-opacity-0"
+                                    <a  class="link-primary link-underline link-underline-opacity-0"
                                         title="Aggiungi email"
-                                        href="<?= $B ?>/staff/edit_anagrafica?id=<?= $problema->Id ?>">
+                                        href="<?= $P ?>/staff/edit_anagrafica?id=<?= $problema->Id ?>"
+                                    >
                                         Aggiungi
                                     </a>
-                                </dd>
-                            <?php } ?>
-                            <?php if (isset($problema->VerificaEmail)) { ?>
-                                <dt class="col-sm-4 text-nowrap">
-                                    Email
-                                </dt>
-                                <dd class="col-sm-8 text-warning">
-                                    <?= htmlspecialchars(string: $problema->VerificaEmail) ?>
                                 </dd>
                             <?php } ?>
                             <?php if (isset($problema->Telefono)) { ?>
@@ -193,11 +185,12 @@ use Amichiamoci\Models\ProblemaIscrizione;
 
 <div class="container m-1">
     <div class="form-floating overflow-hidden">
-        <input type="search" 
+        <input  type="search" 
                 id="anagrafiche-search" 
                 class="form-control anagrafiche-search-input"                
                 list="anagrafiche-data-list"
-                title="Cerca persona">
+                title="Cerca persona"
+        >
         <label for="search">Cerca nome, cognome, email o numero di telefono</label>
     </div>
 

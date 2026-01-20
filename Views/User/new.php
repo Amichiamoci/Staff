@@ -8,9 +8,11 @@
             required
             type="text" 
             class="form-control" 
-            id="email" name="email" 
+            id="email" 
+            name="email" 
             placeholder="abc@site.tld"
-            value="<?= empty($email) ? '' : htmlspecialchars(string: $email) ?>">
+            value="<?= empty($email) ? '' : htmlspecialchars(string: $email) ?>"
+        >
         <label for="email">Email</label>
         <div class="invalid-feedback">
             Per favore, immetti un'email

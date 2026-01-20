@@ -23,7 +23,7 @@ if ($is_editing) {
     method="post" 
     id="anagrafica-form" 
     enctype="multipart/form-data"
-    action="<?= $B ?>/staff/new_anagrafica"
+    action="<?= $P ?>/staff/new_anagrafica"
 >
 
     <?php if ($is_editing) { ?>
@@ -215,5 +215,5 @@ if ($is_editing) {
     </div>
 </form>
 
-<script src="<?= $B ?>/Public/js/codicefiscale.js" defer></script>
-<script src="<?= $B ?>/Public/js/anagrafica.js" defer></script>
+<script src="<?= $P ?>/Public/js/codicefiscale.js" defer></script>
+<script src="<?= $P ?>/Public/js/anagrafica.js" defer></script>

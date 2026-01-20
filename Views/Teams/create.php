@@ -16,7 +16,7 @@ $iscritti_per_parrocchia = array_reduce(
     <?= htmlspecialchars(string: $title) ?>
 </h1>
 
-<form method="post" action="<?= $B ?>/teams/new">
+<form method="post" action="<?= $P ?>/teams/new">
     <?php if (!empty($id)) { ?>
         <input type="hidden" name="id" value="<?= (int)$id ?>">
     <?php } ?>
@@ -86,7 +86,7 @@ $iscritti_per_parrocchia = array_reduce(
         </div>
     </div>
 
-    <?php if ($user->IsAdmin) { ?>
+    <?php if ($user->Admin) { ?>
         <div class="form-floating mb-3">
             <select
                 required
@@ -162,7 +162,6 @@ $iscritti_per_parrocchia = array_reduce(
             type="submit" 
             disabled
         >
-            
             <?php if (empty($id)) { ?>
                 Crea
             <?php } else { ?>

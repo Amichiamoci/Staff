@@ -1,11 +1,41 @@
 <?php
 
-require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/Routes.php';
+/*
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+*/
 
+require_once __DIR__ . '/config.php';
+
+use Amichiamoci\Controllers\ApiController;
+use Amichiamoci\Controllers\EmailController;
+use Amichiamoci\Controllers\HomeController;
+use Amichiamoci\Controllers\UserController;
+use Amichiamoci\Controllers\FileController;
+use Amichiamoci\Controllers\SportController;
+use Amichiamoci\Controllers\StaffController;
+use Amichiamoci\Controllers\TeamsController;
+
+use Amichiamoci\Utils\Security;
 use Amichiamoci\Models\User;
-use Amichiamoci\Models\Staff;
+
+use Richie314\SimpleMvc\Routers\Router;
+use Richie314\SimpleMvc\Http\StatusCode;
+use Richie314\SimpleMvc\Utils\Security as UtilsSecurity;
+
+$router = new Router(pathPrefix: INSTALLATION_PATH);
+$router->AddController(controller: HomeController::class,  route_base: '/');
+$router->AddController(controller: UserController::class,  route_base: '/user');
+$router->AddController(controller: FileController::class,  route_base: '/file');
+$router->AddController(controller: StaffController::class, route_base: '/staff');
+$router->AddController(controller: TeamsController::class, route_base: '/teams');
+$router->AddController(controller: SportController::class, route_base: '/sport');
+$router->AddController(controller: EmailController::class, route_base: '/email');
+
+// This controller is not present by default
+if (Security::ApiEnabled())
+    $router->AddController(controller: ApiController::class, route_base: '/api');
 
 set_error_handler(callback: function(\Throwable|int $ex, ?string $msg = null): void {
     if ($ex instanceof \Throwable) {
@@ -30,13 +60,6 @@ set_exception_handler(callback: function(\Throwable $ex): void {
     <?php
 });
 
-$uri = $_SERVER['REQUEST_URI'];
-
-if (!isset($router))
-{
-    throw new \Exception(message: 'Could not find the router instance!');
-}
-
 // Establish db connection
 $connection = new \mysqli(
     hostname: $MYSQL_HOST, 
@@ -52,7 +75,7 @@ unset($MYSQL_HOST, $MYSQL_USER, $MYSQL_PASSWORD, $MYSQL_DB);
 
 // Load user data
 $user = User::LoadFromSession();
-if (isset($user))
+if ($user !== null)
 {
     $router->SetUser(user: $user);
     $user->UpdateLogTs();
@@ -66,16 +89,13 @@ if (isset($user))
             $user->PutAdditionalInSession();
         }
     }
-
-    // Load staff data
-    if ($user->HasAdditionalData() && isset($user->IdStaff))
-    {
-        $staff = Staff::ById(connection: $connection, id: $user->IdStaff);
-        if (isset($staff))
-        {
-            $router->SetStaff(staff: $staff);
-        }
-    }
 }
 
-$router->dispatch(uri: $uri);
+$uri = $_SERVER['REQUEST_URI'];
+$client_ip = UtilsSecurity::GetIpAddress();
+
+$result = $router->dispatch(uri: $uri);
+if (StatusCode::IsError(statusCode: $result))
+    $log->warning(message: "[$client_ip] [$result->value] $uri");
+else
+    $log->info(message: "[$client_ip] [$result->value] $uri");

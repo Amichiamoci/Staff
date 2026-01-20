@@ -3,15 +3,15 @@
     if (!($partita instanceof Partita)) {
         throw new \Exception(message: 'Invalid variable $partita');
     }
-    $can_edit = $user->IsAdmin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'));
+    $can_edit = $user->Admin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'));
 ?>
 
 <div class="card" id="match-<?= $partita->Id ?>">
-    <?php if ($user->IsAdmin) { ?>
+    <?php if ($user->Admin) { ?>
         <div class="card-header font-monospace">
             #<?= $partita->Id ?>
 
-            <form action="<?= $B ?>/sport/match_delete" method="post" class="d-inline">
+            <form action="<?= $P ?>/sport/match_delete" method="post" class="d-inline">
                 <input type="hidden" name="match" value="<?= $partita->Id ?>">
                 <button 
                     type="submit"
@@ -28,13 +28,13 @@
     <?php } ?>
     <div class="card-body">
         <div class="card-title text-center">
-            <a href="<?= $B ?>/church?id=<?= $partita->Casa->Parrocchia->Id ?>"
+            <a  href="<?= $P ?>/church?id=<?= $partita->Casa->Parrocchia->Id ?>"
                 title="<?= htmlspecialchars(string: $partita->Casa->Parrocchia->Nome) ?>"
                 class="text-reset fw-bold"
                 target="_blank"
             ><?= htmlspecialchars(string: $partita->Casa->Nome) ?></a>
             vs
-            <a href="<?= $B ?>/church?id=<?= $partita->Ospiti->Parrocchia->Id ?>"
+            <a  href="<?= $P ?>/church?id=<?= $partita->Ospiti->Parrocchia->Id ?>"
                 title="<?= htmlspecialchars(string: $partita->Ospiti->Parrocchia->Nome) ?>"
                 class="text-reset fw-bold"
                 target="_blank"

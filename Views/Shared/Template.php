@@ -11,9 +11,9 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net/" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net/">
     
-    <link rel="icon" href="<?= $B ?>/Public/images/icon.png" type="image/png">
-    <link rel="shortcut icon" href="<?= $B ?>/Public/images/icon.png" type="image/png">
-    <link rel="manifest" href="<?= $B ?>/web_manifest">
+    <link rel="icon" href="<?= $P ?>/Public/images/icon.png" type="image/png">
+    <link rel="shortcut icon" href="<?= $P ?>/Public/images/icon.png" type="image/png">
+    <link rel="manifest" href="<?= $P ?>/web_manifest">
 
     <link 
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" 
@@ -24,7 +24,7 @@
         href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
         rel="stylesheet"
         crossorigin="anonymous">
-    <script>const BasePath = '<?= $B ?>';</script>
+    <script>const BasePath = '<?= $P ?>';</script>
 </head>
 <body class="d-flex flex-column min-vh-100">
     <header>
@@ -44,7 +44,8 @@
         crossorigin="anonymous"></script>
 
     <div class="container">
-        <?php foreach ($alerts as $message) { ?>
+        <?php if (isset($alerts))
+        foreach ($alerts as $message) { ?>
             <?php require __DIR__ . '/Message.php'; ?>
         <?php } ?>
         <main class="pb-3">
@@ -57,7 +58,8 @@
             data-btn-to-top="true"
             style="bottom: 20px; right: 20px;"
             title="Torna su"
-            id="scroll-top">
+            id="scroll-top"
+    >
         <i class="bi bi-arrow-up"></i>
     </button>
 
@@ -72,8 +74,8 @@
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 
         crossorigin="anonymous"></script>
-    <script src="<?= $B ?>/Public/js/darkmode.js"></script>
-    <script src="<?= $B ?>/Public/js/jQuery.bsConfirm.js"></script>
+    <script src="<?= $P ?>/Public/js/darkmode.js"></script>
+    <script src="<?= $P ?>/Public/js/jQuery.bsConfirm.js"></script>
     <script>
         //
         // Form validation
@@ -118,6 +120,6 @@
             $('[data-confirm]').bsConfirm();
         });
     </script>
-    <script src="<?= $B ?>/Public/js/match-handling.js" defer></script>
+    <script src="<?= $P ?>/Public/js/match-handling.js" defer></script>
 </body>
 </html>

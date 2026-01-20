@@ -2,6 +2,10 @@
 
 namespace Amichiamoci\Controllers;
 
+use Richie314\SimpleMvc\Http\StatusCode;
+use Richie314\SimpleMvc\Controllers\Attributes\RequireLogin;
+use Richie314\SimpleMvc\Http\Method;
+
 use Amichiamoci\Models\Anagrafica;
 use Amichiamoci\Models\AnagraficaConIscrizione;
 use Amichiamoci\Models\Edizione;
@@ -11,9 +15,11 @@ use Amichiamoci\Models\Staff;
 use Amichiamoci\Utils\Cookie;
 use Amichiamoci\Utils\Security;
 
-class HomeController extends Controller
+class HomeController
+extends Controller
 {
-    public function web_manifest(): int {
+    public function web_manifest(): StatusCode
+    {
         return $this->Json(object: [
             'name' => SITE_NAME,
             'short_name' => SITE_NAME,
@@ -31,8 +37,9 @@ class HomeController extends Controller
         ]);
     }
 
-    public function index(): int {
-        $this->RequireLogin();
+    #[RequireLogin]
+    public function index(): StatusCode
+    {
         return $this->Render(
             view: 'Home/index',
             title: 'Portale',
@@ -44,18 +51,20 @@ class HomeController extends Controller
         );
     }
 
-    public function stats(): int {
-        $this->RequireLogin();
+    #[RequireLogin]
+    public function stats(): StatusCode
+    {
         return $this->Json(
             object: Anagrafica::GroupFrom(connection: $this->DB)
         );
     }
 
-    public function church_stats(?int $year = null): int
+    #[RequireLogin]
+    public function church_stats(?int $year = null): StatusCode
     {
-        $this->RequireLogin();
         if (empty($year))
             $year = (int)date(format: 'Y');
+
         return $this->Json(
             object: AnagraficaConIscrizione::GroupByChurch(
                 connection: $this->DB, 
@@ -64,19 +73,24 @@ class HomeController extends Controller
         );
     }
 
-    public function t_shirts(int $church, ?int $year = null): int {
-        $this->RequireLogin();
-        if (!isset($year)) {
+    #[RequireLogin]
+    public function t_shirts(int $church, ?int $year = null): StatusCode
+    {
+        if (empty($year))
             $year = (int)date(format: "Y");
-        }
+
         return $this->Json(
-            object: Staff::MaglieDellaParrocchia(connection: $this->DB, parrocchia: $church, anno: $year)
+            object: Staff::MaglieDellaParrocchia(
+                connection: $this->DB, 
+                parrocchia: $church, 
+                anno: $year,
+            )
         );
     }
 
-    public function ages(?int $edition = null): int
+    #[RequireLogin]
+    public function ages(?int $edition = null): StatusCode
     {
-        $this->RequireLogin();
         if (empty($edition))
         {
             $edition = Edizione::Current(connection: $this->DB);
@@ -87,16 +101,15 @@ class HomeController extends Controller
             }
         }
         if (empty($edition))
-        {
             return $this->NotFound();
-        }
 
         $ages = Edizione::EtaPartecipanti(connection: $this->DB, id: $edition);
         return $this->Json(object: $ages);
     }
 
-    public function cron(): int {
-        $this->RequireLogin(require_admin: true);
+    #[RequireLogin(requireAdmin: true)]
+    public function cron(): StatusCode
+    {
         $crons = [
             [
                 'name' => 'Compleanni',
@@ -135,15 +148,15 @@ class HomeController extends Controller
         ?string $username = null, 
         #[\SensitiveParameter] ?string $password = null,
         ?string $g_recaptcha_response = null,
-    ): int {
-        if ($this->IsLoggedIn()) {
+    ): StatusCode
+    {
+        if ($this->User !== null)
             return $this->Redirect(url: INSTALLATION_PATH . '/');
-        }
 
         $message = '';
 
         if (
-            self::IsPost() && 
+            $this->RequestMethod == Method::Post && 
             !empty($username) &&
             !empty($password)
         ) {
@@ -193,20 +206,18 @@ class HomeController extends Controller
         );
     }
     
-    public function church(?int $id = null, ?int $year = null): int {
-        $this->RequireLogin();
-        if (!isset($id)) {
+    #[RequireLogin]
+    public function church(?int $id = null, ?int $year = null): StatusCode
+    {
+        if (empty($id))
             return $this->BadRequest();
-        }
 
-        if (!isset($year)) {
+        if (!isset($year))
             $year = (int)date(format: 'Y');
-        }
 
         $church = Parrocchia::ById(connection: $this->DB, id: $id);
-        if (!isset($church)) {
+        if ($church === null)
             return $this->NotFound();
-        }
 
         $staffs = Staff::FromParrocchia(connection: $this->DB, id: $id, anno: $year);
         //$iscritti = Iscrizione::FromParrocchia($this->DB, id: $id);

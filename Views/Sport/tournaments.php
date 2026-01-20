@@ -12,11 +12,14 @@ $tornei_per_sport = array_reduce(
 );
 ?>
 
-<?php if ($user->IsAdmin) { ?>
+<?php if ($user->Admin) { ?>
     <div class="input-group mb-2">
         <select id="anno-selector" class="form-control">
             <?php foreach ($edizioni as $e) { ?>
-                <option value="<?= $e->Year ?>" <?= ($e->Year === $anno) ? 'selected' : '' ?>>
+                <option 
+                    value="<?= $e->Year ?>"
+                    <?= ($e->Year === $anno) ? 'selected' : '' ?>
+                >
                     <?= $e->Year ?>
                 </option>
             <?php } ?>

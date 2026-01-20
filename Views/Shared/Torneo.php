@@ -14,16 +14,16 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
             <?= htmlspecialchars(string: $torneo->Nome) ?>
         </strong>
         <?php if (!isset($hide_edit_icon) || $hide_edit_icon !== 'yes') { ?>
-            <a 
-                href="<?= $B ?>/sport/tournament?id=<?= $torneo->Id ?>"
+            <a  href="<?= $P ?>/sport/tournament?id=<?= $torneo->Id ?>"
                 class="link-underline link-underline-opacity-0 link-primary text-end"
-                title="Modifica il torneo">
+                title="Modifica il torneo"
+            >
                 <i class="bi bi-pencil-square"></i>
             </a>
         <?php } ?>
-        <?php if ($user->IsAdmin) { ?>
+        <?php if ($user->Admin) { ?>
             <form 
-                action="<?= $B ?>/sport/tournament_delete" 
+                action="<?= $P ?>/sport/tournament_delete" 
                 method="post"
                 class="d-inline p-0"
             >
@@ -66,7 +66,7 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
                 <?php if (count(value: $torneo->IdPartite) > 0) { ?>
                     <?= count(value: $torneo->IdPartite) ?> partite previste
                 <?php } else { ?>
-                    <?php if ($user->IsAdmin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'))) { ?>
+                    <?php if ($user->Admin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'))) { ?>
                         <button
                             type="button"
                             data-bs-toggle="modal" 
@@ -78,7 +78,8 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
                         <div class="modal fade" id="modal-calendario-<?= $torneo->Id ?>" 
                             tabindex="-1" 
                             aria-hidden="true"
-                            aria-labelledby="modal-calendario-<?= $torneo->Id ?>-label">
+                            aria-labelledby="modal-calendario-<?= $torneo->Id ?>-label"
+                        >
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -92,7 +93,7 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
                                             Le date delle partite andranno inserite a mano successivamente.<br>
                                             Ora verranno solo generati gli accoppiamenti tra le squadre.
                                         </p>
-                                        <form method="POST" action="<?= $B ?>/sport/tournament_generate_calendar">
+                                        <form method="POST" action="<?= $P ?>/sport/tournament_generate_calendar">
                                             <input type="hidden" name="id" value="<?= $torneo->Id ?>" required>
                                             <div class="form-floating mb-2">
                                                 <select 
@@ -120,7 +121,8 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
                                                         class="form-check-input" 
                                                         type="checkbox" 
                                                         value="two-ways-<?= $torneo->Id ?>" 
-                                                        id="two-ways-<?= $torneo->Id ?>" name="two_ways">
+                                                        id="two-ways-<?= $torneo->Id ?>" name="two_ways"
+                                                    >
                                                     <label class="form-check-label" for="admin">
                                                         Andata e ritorno
                                                     </label>
@@ -139,7 +141,7 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
                                                 return; // Already loaded
                                             }
 
-                                            const resp = await fetch(`<?= $B ?>/sport/fields`, { method: 'GET'});
+                                            const resp = await fetch(`<?= $P ?>/sport/fields`, { method: 'GET'});
                                             if (!resp.ok) {
                                                 return;
                                             }
@@ -172,14 +174,14 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
                 <ul class="list-group-flush p-0 m-0">
                     <?php foreach ($torneo->ListaSquadre as $id => $nome) { ?>
                         <li class="list-group-item">
-                            <a 
-                                class="link-underline link-underline-opacity-0 text-reset"
-                                href="<?= $B ?>/teams/view?id=<?= $id ?>"
-                                title="Vedi squadra">
+                            <a  class="link-underline link-underline-opacity-0 text-reset"
+                                href="<?= $P ?>/teams/view?id=<?= $id ?>"
+                                title="Vedi squadra"
+                            >
                                 <?= htmlspecialchars(string: $nome) ?>
                             </a>
-                            <?php if ($user->IsAdmin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'))) { ?>
-                                <form action="<?= $B ?>/sport/tournament_remove_team" method="post" class="d-inline p-0">
+                            <?php if ($user->Admin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'))) { ?>
+                                <form action="<?= $P ?>/sport/tournament_remove_team" method="post" class="d-inline p-0">
                                     <input type="hidden" name="tournament" value="<?= $torneo->Id ?>" required>
                                     <input type="hidden" name="team" value="<?= $id ?>" required>
                                     <button 
@@ -188,7 +190,8 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
                                         title="Rimuovi squadra dal torneo"
                                         data-confirm="Sei sicuro di voler rimuovere la squadra '<?= htmlspecialchars(string: $nome) ?>' dal torneo?"
                                         data-confirm-btn="Sì, rimuovi"
-                                        data-cancel-btn="No, lascia così">
+                                        data-cancel-btn="No, lascia così"
+                                    >
                                         <i class="bi bi-x-lg"></i>
                                     </button>
                                 </form>
@@ -198,7 +201,7 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
                 </ul>
             </dd>
         </dl>
-        <?php if ($user->IsAdmin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'))) { ?>
+        <?php if ($user->Admin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'))) { ?>
             <div class="row">
                 <div class="col">
                     <button
@@ -207,13 +210,15 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
                         data-bs-target="#modal-torneo-<?= $torneo->Id ?>"
                         data-sport="<?= $torneo->Sport->Id ?>"
                         data-year="<?= $torneo->Edizione->Year ?>"
-                        class="btn btn-outline-primary">
+                        class="btn btn-outline-primary"
+                    >
                         Aggiungi squadra
                     </button>
                     <div class="modal fade" id="modal-torneo-<?= $torneo->Id ?>" 
                         tabindex="-1" 
                         aria-hidden="true"
-                        aria-labelledby="modal-torneo-<?= $torneo->Id ?>-label">
+                        aria-labelledby="modal-torneo-<?= $torneo->Id ?>-label"
+                    >
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -223,7 +228,7 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <form method="POST" action="<?= $B ?>/sport/tournament_add_team">
+                                    <form method="POST" action="<?= $P ?>/sport/tournament_add_team">
                                         <input type="hidden" name="tournament" value="<?= $torneo->Id ?>">
                                         <div class="form-floating mb-2">
                                             <select 
@@ -231,7 +236,8 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
                                                 id="add-team-<?= $torneo->Id ?>"
                                                 title="La squadra da aggiungere"
                                                 class="form-control"
-                                                required>
+                                                required
+                                            >
                                                 <option value="">Caricamento delle squadre...</option>
                                             </select>
                                             <label for="add-team-<?= $torneo->Id ?>">Squadra</label>
@@ -251,7 +257,7 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
                                         const year = button.data('year'), sport = button.data('sport');
                                         const modal = $(this);
 
-                                        const resp = await fetch(`<?= $B ?>/teams/sport?year=${year}&sport=${sport}`, { method: 'GET'});
+                                        const resp = await fetch(`<?= $P ?>/teams/sport?year=${year}&sport=${sport}`, { method: 'GET'});
                                         if (!resp.ok) {
                                             return;
                                         }
@@ -281,8 +287,7 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
         ) { ?>
             <div class="row">
                 <div class="col">
-                    <a
-                        href="<?= $B ?>/sport/tournament?id=<?= $torneo->Id ?>"
+                    <a  href="<?= $P ?>/sport/tournament?id=<?= $torneo->Id ?>"
                         title="Aggiungi un risultato a una partita"
                         class="btn btn-outline-primary"
                     >

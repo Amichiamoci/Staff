@@ -24,7 +24,7 @@
             -
             <?= htmlspecialchars(string: $token->Nome) ?>
 
-            <form action="<?= $B ?>/api/delete_token" method="post" class="p-0 d-inline">
+            <form action="<?= $P ?>/api/delete_token" method="post" class="p-0 d-inline">
                 <input type="hidden" name="id" value="<?= $token->Id ?>">
                 <button
                     type="submit"
@@ -41,7 +41,7 @@
     <?php } ?>
 </ul>
 
-<form action="<?= $B ?>/api/admin" method="post" class="m-2 p-2 border border-1 rounded">
+<form action="<?= $P ?>/api/admin" method="post" class="m-2 p-2 border border-1 rounded">
     <h3>
         Genera nuovo token
     </h3>

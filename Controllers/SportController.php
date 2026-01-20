@@ -11,11 +11,16 @@ use Amichiamoci\Models\Sport;
 use Amichiamoci\Models\TipoTorneo;
 use Amichiamoci\Models\Torneo;
 
-class SportController extends Controller
-{
-    public function fields(): int {
-        $this->RequireLogin();
+use Amichiamoci\Controllers\Attributes\RequireStaff;
+use Richie314\SimpleMvc\Controllers\Attributes\RequireLogin;
+use Richie314\SimpleMvc\Http\StatusCode;
 
+#[RequireLogin]
+class SportController
+extends Controller
+{
+    public function fields(): StatusCode
+    {
         return $this->Json(
             object: array_values(array: array_map(
                 callback: function (Campo $c): array {
@@ -29,12 +34,10 @@ class SportController extends Controller
         );
     }
 
-    public function index(?int $year = null): int {
-        $this->RequireLogin();
-        
-        if (empty($year)) {
+    public function index(?int $year = null): StatusCode
+    {
+        if (empty($year))
             $year = (int)date(format: 'Y');
-        }
 
         $tournaments = Torneo::FromYear(connection: $this->DB, year: $year);
         return $this->Render(
@@ -49,16 +52,14 @@ class SportController extends Controller
         );
     }
 
-    public function tournament(?int $id = null): int {
-        $this->RequireLogin();
-        if (!isset($id)) {
+    public function tournament(?int $id = null): StatusCode
+    {
+        if (empty($id))
             return $this->BadRequest();
-        }
         
         $torneo = Torneo::ById(connection: $this->DB, id: $id);
-        if (!isset($torneo)) {
+        if ($torneo === null)
             return $this->NotFound();
-        }
 
         $partite = Partita::Torneo(connection: $this->DB, torneo: $torneo);
         return $this->Render(
@@ -73,12 +74,13 @@ class SportController extends Controller
         );
     }
 
-    public function tournament_add_team(?int $tournament, ?int $team): int {
-        $this->RequireStaff();
-        if (empty($tournament) || empty($team)) {
+    #[RequireStaff]
+    public function tournament_add_team(?int $tournament, ?int $team): StatusCode
+    {
+        if (empty($tournament) || empty($team))
             return $this->BadRequest();
-        }
-        if (self::IsPost())
+
+        if ($this->IsPost())
         {
             $res = Torneo::SubscribeTeam(connection: $this->DB, torneo: $tournament, squadra: $team);
             if ($res) {
@@ -87,15 +89,17 @@ class SportController extends Controller
                 $this->Message(message: Message::Error(content: 'Non è stato possibile iscrivere la squadra al torneo'));
             }
         }
+
         return $this->tournament(id: $tournament);
     }
 
-    public function tournament_remove_team(?int $tournament, ?int $team): int {
-        $this->RequireStaff();
-        if (empty($tournament) || empty($team)) {
+    #[RequireStaff]
+    public function tournament_remove_team(?int $tournament, ?int $team): StatusCode
+    {
+        if (empty($tournament) || empty($team))
             return $this->BadRequest();
-        }
-        if (self::IsPost())
+
+        if ($this->IsPost())
         {
             $res = Torneo::UnSubscribeTeam(connection: $this->DB, torneo: $tournament, squadra: $team);
             if ($res) {
@@ -104,14 +108,21 @@ class SportController extends Controller
                 $this->Message(message: Message::Error(content: 'È avvenuto un errore'));
             }
         }
+
         return $this->tournament(id: $tournament);
     }
 
-    public function tournament_generate_calendar(?int $id, bool $two_ways = false, ?int $field = null): int
+    #[RequireStaff]
+    public function tournament_generate_calendar(
+        ?int $id, 
+        bool $two_ways = false, 
+        ?int $field = null,
+    ): StatusCode
     {
-        $this->RequireStaff();
-        if (empty($field)) $field = null;
-        if (self::IsPost())
+        if (empty($field))
+            $field = null;
+
+        if ($this->IsPost())
         {
             $res = Torneo::GenerateCalendar(
                 connection: $this->DB, 
@@ -119,6 +130,7 @@ class SportController extends Controller
                 two_ways: $two_ways, 
                 default_field: $field
             );
+
             if ($res) {
                 $this->Message(message: Message::Success(content: 'Calendario generato'));
             } else {
@@ -129,18 +141,23 @@ class SportController extends Controller
         return $this->tournament(id: $id);
     }
 
+    #[RequireStaff]
     public function tournament_create(
         ?int $edition = null,
         ?int $sport = null,
         ?int $type = null,
         ?string $name = null,
-    ): int {
-        $this->RequireStaff();
-        if (self::IsPost())
+    ): StatusCode
+    {
+        if ($this->IsPost())
         {
-            if (empty($edition) || empty($sport) || empty($type) || empty($name)) {
+            if (empty($edition) || 
+                empty($sport) || 
+                empty($type) || 
+                empty($name)
+            )
                 return $this->BadRequest();
-            }
+
             $id = Torneo::Create(
                 connection: $this->DB, 
                 sport: $sport, 
@@ -148,7 +165,9 @@ class SportController extends Controller
                 tipo: $type, 
                 edizione: $edition
             );
-            if (isset($id)) {
+            
+            if ($id !== null)
+            {
                 $this->Message(message: Message::Success(
                     content: 'Torneo creato correttamente'));
                 return $this->tournament(id: $id);
@@ -156,6 +175,7 @@ class SportController extends Controller
             $this->Message(message: Message::Error(
                 content: 'Non è stato possibile creare il torneo'));
         }
+
         return $this->Render(
             view: 'Sport/tournament_create',
             title: 'Nuovo torneo',
@@ -167,15 +187,14 @@ class SportController extends Controller
         );
     }
 
+    #[RequireLogin(requireAdmin: true)]
     public function tournament_delete(
         ?int $id,
-    ): int {
-        $this->RequireLogin(require_admin: true);
-
+    ): StatusCode
+    {
         $tournament = Torneo::ById(connection: $this->DB, id: $id);
-        if (!isset($tournament)) {
+        if ($tournament === null)
             return $this->NotFound();
-        }
 
         if (Torneo::Delete(connection: $this->DB, id: $id)) {
             $this->Message(message: Message::Success(
@@ -188,10 +207,9 @@ class SportController extends Controller
         return $this->index();
     }
 
-    
-    public function matches(): int
+    #[RequireStaff]
+    public function matches(): StatusCode
     {
-        $this->RequireStaff();
         $matches = Partita::Settimana(connection: $this->DB);
         $fields = Campo::All(connection: $this->DB);
 
@@ -210,26 +228,23 @@ class SportController extends Controller
      * Generate (and link) the necessary instances of Torneo to fill up an entire sport
      * @param mixed $id the id of the sport
      */
-    public function plan(?int $id = null, ?int $year = null): int
+    #[RequireStaff]
+    public function plan(?int $id = null, ?int $year = null): StatusCode
     {
-        $this->RequireStaff();
-        if (empty($id)) {
+        if (empty($id))
             return $this->BadRequest();
-        }
-        if (empty($year)) {
+        if (empty($year)) 
             $year = (int)date(format: 'Y');
-        }
 
         $sport = Sport::ById(connection: $this->DB, id: $id);
-        if (!isset($sport)) {
+        if (!isset($sport))
             return $this->NotFound();
-        }
-        $edition = Edizione::FromYear(connection: $this->DB, year: $year);
-        if (!isset($edition)) {
-            return $this->NotFound();
-        }
 
-        if (self::IsPost())
+        $edition = Edizione::FromYear(connection: $this->DB, year: $year);
+        if (!isset($edition))
+            return $this->NotFound();
+
+        if ($this->IsPost())
         {
             // TODO: check for active tournaments for this sport inside the edition
 
@@ -245,129 +260,84 @@ class SportController extends Controller
         );
     }
 
-    public function match_field(?int $match, string|int|null $field = null): int
+    #[RequireStaff(commissione: 'Tornei')]
+    public function match_field(?int $match, string|int|null $field = null): StatusCode
     {
-        $user = $this->RequireLogin();
-        $staff = $this->RequireStaff();
-        if ((!isset($staff) || !$staff->InCommissione(commissione: 'Tornei')) && !$user->IsAdmin)
-        {
-            return $this->Json(object: [
-                'result' => 'fail',
-                'message' => 'Non autorizzato: solo chi è in commissione Tornei può impostare il campo di gioco',
-            ], status_code: 401);
-        }
-
-        if (!isset($match)) {
+        if (empty($match))
             return $this->Json(object: [
                 'result' => 'fail',
                 'message' => 'Partita non specificata',
-            ], status_code: 400);
-        }
+            ], statusCode: StatusCode::BadGateway);
 
         if (is_string(value: $field))
-        {
             $field = ($field === '') ? null : (int)$field;
-        }
 
         if (!Partita::ImpostaCampo(connection: $this->DB, partita: $match, campo: $field))
-        {
             return $this->Json(object: [
                 'result' => 'fail',
                 'message' => 'Impossibile aggiornare il campo della partita specificata',
-            ], status_code: 500);
-        }
+            ], statusCode: StatusCode::ServerError);
 
         return $this->Json(object: [
             'result' => 'success',
         ]);
     }
-    public function match_time(?int $match, ?string $time = null): int
-    {
-        $user = $this->RequireLogin();
-        $staff = $this->RequireStaff();
-        if ((!isset($staff) || !$staff->InCommissione(commissione: 'Tornei')) && !$user->IsAdmin)
-        {
-            return $this->Json(object: [
-                'result' => 'fail',
-                'message' => 'Non autorizzato: solo chi è in commissione Tornei può impostare l\'orario della partita',
-            ], status_code: 401);
-        }
 
-        if (!isset($match)) {
+    #[RequireStaff(commissione: 'Tornei')]
+    public function match_time(?int $match, ?string $time = null): StatusCode
+    {
+        if (empty($match))
             return $this->Json(object: [
                 'result' => 'fail',
                 'message' => 'Partita non specificata',
-            ], status_code: 400);
-        }
+            ], statusCode: StatusCode::BadRequest);
 
         if ($time === '')
-        {
             $time = null;
-        }
 
         if (!Partita::ImpostaOrario(connection: $this->DB, partita: $match, orario: $time))
-        {
             return $this->Json(object: [
                 'result' => 'fail',
                 'message' => 'Impossibile aggiornare l\'orario della partita specificata',
-            ], status_code: 500);
-        }
+            ], statusCode: StatusCode::ServerError);
 
         return $this->Json(object: [
             'result' => 'success',
         ]);
     }
 
-    public function match_date(?int $match, ?string $date = null): int
+    #[RequireStaff(commissione: 'Tornei')]
+    public function match_date(?int $match, ?string $date = null): StatusCode
     {
-        $user = $this->RequireLogin();
-        $staff = $this->RequireStaff();
-        if ((!isset($staff) || !$staff->InCommissione(commissione: 'Tornei')) && !$user->IsAdmin)
-        {
-            return $this->Json(object: [
-                'result' => 'fail',
-                'message' => 'Non autorizzato: solo chi è in commissione Tornei può impostare la data della partita',
-            ], status_code: 401);
-        }
-
-        if (!isset($match)) {
+        if (empty($match)) 
             return $this->Json(object: [
                 'result' => 'fail',
                 'message' => 'Partita non specificata',
-            ], status_code: 400);
-        }
+            ], statusCode: StatusCode::BadRequest);
 
         if ($date === '')
-        {
             $date = null;
-        }
 
         if (!Partita::ImpostaData(connection: $this->DB, partita: $match, data: $date))
-        {
             return $this->Json(object: [
                 'result' => 'fail',
                 'message' => 'Impossibile aggiornare la data della partita specificata',
-            ], status_code: 500);
-        }
+            ], statusCode: StatusCode::ServerError);
 
         return $this->Json(object: [
             'result' => 'success',
         ]);
     }
 
-    public function match_delete(?int $match): int
+    #[RequireLogin(requireAdmin: true)]
+    public function match_delete(?int $match): StatusCode
     {
-        $this->RequireLogin(require_admin: true);
         if (empty($match))
-        {
             return $this->BadRequest();
-        }
 
         $partita = Partita::ById(connection: $this->DB, id: $match);
-        if (!isset($partita))
-        {
+        if ($partita === null)
             return $this->NotFound();
-        }
 
         if (Partita::Delete(connection: $this->DB, id: $match))
         {
@@ -379,25 +349,20 @@ class SportController extends Controller
         return $this->tournament(id: $partita->Torneo);
     }
 
-    public function match_add_score(?int $match): int
+    public function match_add_score(?int $match): StatusCode
     {
-        $this->RequireLogin();
         if (empty($match))
-        {
             return $this->Json(object: [
                 'result' => 'fail',
                 'message' => 'Richiesta non valida',
-            ], status_code: 400);
-        }
+            ], statusCode: StatusCode::BadRequest);
 
         $id = Partita::PunteggioVuoto(connection: $this->DB, match: $match);
         if (empty($id))
-        {
             return $this->Json(object: [
                 'result' => 'fail',
                 'message' => 'Impossibile aggiungere il nuovo punteggio al database',
-            ], status_code: 500);
-        }
+            ], statusCode: StatusCode::ServerError);
 
         return $this->Json(object: [
             'result' => 'success',
@@ -405,25 +370,20 @@ class SportController extends Controller
         ]);
     }
 
-    public function match_remove_score(?int $score): int
+    public function match_remove_score(?int $score): StatusCode
     {
-        $this->RequireLogin();
         if (empty($score))
-        {
             return $this->Json(object: [
                 'result' => 'fail',
                 'message' => 'Richiesta non valida',
-            ], status_code: 400);
-        }
+            ], statusCode: StatusCode::BadRequest);
 
         $id = Punteggio::Delete(connection: $this->DB, id: $score);
         if (empty($id))
-        {
             return $this->Json(object: [
                 'result' => 'fail',
                 'message' => 'Impossibile rimuovere il risultato',
-            ], status_code: 500);
-        }
+            ], statusCode: StatusCode::ServerError);
 
         return $this->Json(object: [
             'result' => 'success',
@@ -434,23 +394,20 @@ class SportController extends Controller
         ?int $score, 
         ?string $home, 
         ?string $guest,
-    ): int {
-        $this->RequireLogin();
+    ): StatusCode
+    {
         if (empty($score) || !isset($home) || !isset($guest))
-        {
             return $this->Json(object: [
                 'result' => 'fail',
                 'message' => 'Richiesta non valida',
-            ], status_code: 400);
-        }
+            ], statusCode: StatusCode::BadRequest);
 
         if (!Punteggio::Edit(connection: $this->DB, id: $score, casa: $home, ospiti: $guest))
-        {
             return $this->Json(object: [
                 'result' => 'fail',
                 'message' => 'Impossibile modificare il risultato',
-            ], status_code: 500);
-        }
+            ], statusCode: StatusCode::ServerError);
+
         return $this->Json(object: [
             'result' => 'success',
         ]);

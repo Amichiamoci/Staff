@@ -1,4 +1,4 @@
-<?php if ($user->IsAdmin) { ?>
+<?php if ($user->Admin) { ?>
     <div class="input-group mb-2">
         <select id="anno-selector" class="form-control">
             <?php foreach ($edizioni as $e) { ?>
@@ -43,7 +43,7 @@
                     <?= htmlspecialchars(string: $punteggio->Parrocchia->Nome) ?>
                 </td>
                 <td>
-                    <?php if ($user->IsAdmin) { ?>
+                    <?php if ($user->Admin) { ?>
                         <input 
                             type="number" 
                             data-church="<?= $punteggio->Parrocchia->Id ?>"

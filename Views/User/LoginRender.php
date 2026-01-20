@@ -9,10 +9,10 @@ if (!($login instanceof UserActivity)) {
     <i class="fa fa-check-circle checkicon"></i>
     <div class="ms-2">
         <h6 class="mb-0">
-            <a 
-                href="<?= $B ?>/user/username?u=<?= htmlspecialchars(string: $login->UserName) ?>"
+            <a  href="<?= $P ?>/user/username?u=<?= htmlspecialchars(string: $login->UserName) ?>"
                 class="link-underline link-underline-opacity-0 text-reset"
-                title="Vedi utente">
+                title="Vedi utente"
+            >
                 <?= htmlspecialchars(string: $login->UserName) ?>
             </a>
         </h6>
@@ -45,9 +45,10 @@ if (!($login instanceof UserActivity)) {
             <?= htmlspecialchars(string: $login->Flag) ?>
         </output>
         <?php if (isset($login->Ip)) { ?>
-            <a href="https://www.infobyip.com/ip-<?= htmlspecialchars(string: $login->Ip) ?>.html" 
+            <a  href="https://www.infobyip.com/ip-<?= htmlspecialchars(string: $login->Ip) ?>.html" 
                 class="text-reset link-underline link-underline-opacity-0"
-                target="blank">
+                target="blank"
+            >
                 <?= htmlspecialchars(string: $login->Ip) ?>
                 <i class="bi bi-box-arrow-up-right"></i>
             </a>

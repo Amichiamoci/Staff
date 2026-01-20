@@ -25,7 +25,8 @@ use Amichiamoci\Utils\File;
                 href="<?= File::GetExportUrl(path: $file) ?>"
                 class="link-secondary link-underline link-underline-opacity-0 font-monospace"
                 title="Scarica il file"
-                download>
+                download
+            >
                 <?= htmlspecialchars(string: $file) ?>
             </a>
         </li>

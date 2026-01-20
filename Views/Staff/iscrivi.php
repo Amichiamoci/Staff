@@ -22,11 +22,11 @@ if (empty($taglia))
 <form 
     method="post"
     enctype="multipart/form-data"
-    action="<?= $B ?>/staff/iscrivi"
+    action="<?= $P ?>/staff/iscrivi"
 >
     <input type="hidden" name="id" required value="<?= $target->Id?>">
 
-    <?php if ($user->IsAdmin) { ?>
+    <?php if ($user->Admin) { ?>
         <div class="form-floating mb-3">
             <select
                 required

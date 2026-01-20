@@ -2,14 +2,19 @@
 
 namespace Amichiamoci\Controllers;
 
+use Richie314\SimpleMvc\Controllers\Attributes\RequireLogin;
+use Richie314\SimpleMvc\Http\StatusCode;
+
 use Amichiamoci\Models\Email;
 use Amichiamoci\Models\Message;
 use Amichiamoci\Utils\Email as EmailSender;
 
-class EmailController extends Controller {
-    public function index(): int
+class EmailController
+extends Controller
+{
+    #[RequireLogin(requireAdmin: true)]
+    public function index(): StatusCode
     {
-        $this->RequireLogin(require_admin: true);
         return $this->Render(
             view: 'Email/index',
             data: ['emails' => Email::All(connection: $this->DB)],
@@ -17,13 +22,12 @@ class EmailController extends Controller {
         );
     }
 
-    public function view(?int $id): int
+    #[RequireLogin(requireAdmin: true)]
+    public function view(?int $id): StatusCode
     {
-        $this->RequireLogin(require_admin: true);
         $email = Email::ById(connection: $this->DB, id: $id);
-        if (!isset($email)) {
+        if ($email === null)
             return $this->NotFound();
-        }
 
         return $this->Render(
             view: 'Email/view',
@@ -37,10 +41,10 @@ class EmailController extends Controller {
         );
     }
 
-    public function heartbeat(?int $id): int {
-        if (!isset($id)) {
+    public function heartbeat(?int $id): StatusCode
+    {
+        if (empty($id))
             return $this->NotFound();
-        }
 
         Email::HeartBeat(connection: $this->DB, id: $id);
         
@@ -50,19 +54,17 @@ class EmailController extends Controller {
         );
     }
 
+    #[RequireLogin(requireAdmin: true)]
     public function send(
         ?string $to = null,
         ?string $subject = null,
         ?string $body = null
-    ): int {
-        $this->RequireLogin(require_admin: true);
-
-        if (self::IsPost())
+    ): StatusCode
+    {
+        if ($this->IsPost())
         {
             if (empty($to) || empty($subject) || empty($body))
-            {
                 return $this->BadRequest();
-            }
 
             $res = EmailSender::Send(
                 to: $to,

@@ -12,7 +12,7 @@ if (!isset($target) || !($target instanceof Amichiamoci\Models\User)) {
         <div class="card-title font-monospace user-select-none">
             <?= htmlspecialchars(string: $target->Name) ?>
         </div>
-        <?php if ($target->IsAdmin) { ?>
+        <?php if ($target->Admin) { ?>
             <h6 class="card-subtitle mb-2 user-select-none text-body-secondary">
                 Amministratore
             </h6>
@@ -31,10 +31,12 @@ if (!isset($target) || !($target instanceof Amichiamoci\Models\User)) {
             >
                 Cambia password
             </button>
-            <div class="modal fade" id="modal-change-password" 
+            <div class="modal fade" 
+                id="modal-change-password" 
                 tabindex="-1" 
                 aria-hidden="true"
-                aria-labelledby="modal-change-password-label">
+                aria-labelledby="modal-change-password-label"
+            >
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -44,14 +46,15 @@ if (!isset($target) || !($target instanceof Amichiamoci\Models\User)) {
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
                         </div>
                         <div class="modal-body">
-                            <form method="POST" action="<?= $B ?>/user/update">
+                            <form method="POST" action="<?= $P ?>/user/update">
                                 <div class="form-floating mb-2">
                                     <input 
                                         required
                                         type="text" class="form-control" 
                                         id="new_username" name="new_username" 
                                         placeholder="Nome utente"
-                                        value="<?= htmlspecialchars(string: $user->Name) ?>">
+                                        value="<?= htmlspecialchars(string: $user->Name) ?>"
+                                    >
                                     <label for="new_username">Nome utente</label>
                                     <div class="invalid-feedback">
                                         Per favore, immetti un nuovo nome utente
@@ -63,7 +66,8 @@ if (!isset($target) || !($target instanceof Amichiamoci\Models\User)) {
                                         type="password" class="form-control" 
                                         id="current_password" name="current_password" 
                                         placeholder="Password"
-                                        autocomplete="off">
+                                        autocomplete="off"
+                                    >
                                     <label for="current_password">Password attuale</label>
                                     <div class="invalid-feedback">
                                         Per favore, immetti la tua password
@@ -74,7 +78,8 @@ if (!isset($target) || !($target instanceof Amichiamoci\Models\User)) {
                                         type="password" class="form-control" 
                                         id="new_password" name="new_password" 
                                         placeholder="Password"
-                                        autocomplete="off">
+                                        autocomplete="off"
+                                    >
                                     <label for="new_password">Nuova password</label>
                                     <div class="invalid-feedback">
                                         Per favore, immetti una nuova password password
@@ -93,24 +98,24 @@ if (!isset($target) || !($target instanceof Amichiamoci\Models\User)) {
                 </div>
             </div>
 
-            <a href="<?= $B ?>/user/logout" class="btn btn-primary" role="button">
+            <a href="<?= $P ?>/user/logout" class="btn btn-primary" role="button">
                 Esci
             </a>
         <?php } ?>
 
 
-        <?php if ($user->IsAdmin) { ?>
+        <?php if ($user->Admin) { ?>
             <div class="input-group m-1">
-                <a href="<?= $B ?>/user/ban?target_id=<?= $target->Id ?>" class="btn btn-outline-secondary" role="button">
+                <a href="<?= $P ?>/user/ban?target_id=<?= $target->Id ?>" class="btn btn-outline-secondary" role="button">
                     Blocca
                 </a>
-                <a href="<?= $B ?>/user/restore?target_id=<?= $target->Id ?>" class="btn btn-outline-secondary" role="button">
+                <a href="<?= $P ?>/user/restore?target_id=<?= $target->Id ?>" class="btn btn-outline-secondary" role="button">
                     Riabilita
                 </a>
             </div>
             
             <?php if ($user->Id !== $target->Id) { ?>
-                <form action="<?= $B ?>/user/delete" method="POST" class="d-inline-block m-1">
+                <form action="<?= $P ?>/user/delete" method="POST" class="d-inline-block m-1">
                     <input type="hidden" name="target_id" value="<?= $target->Id ?>">
                     <button 
                         type="submit"
@@ -123,7 +128,7 @@ if (!isset($target) || !($target instanceof Amichiamoci\Models\User)) {
                         Elimina utente
                     </button>
                 </form>
-                <form action="<?= $B ?>/user/reset" method="POST" class="d-inline-block m-1">
+                <form action="<?= $P ?>/user/reset" method="POST" class="d-inline-block m-1">
                     <input type="hidden" name="target_id" value="<?= $target->Id ?>">
                     <button 
                         type="submit"

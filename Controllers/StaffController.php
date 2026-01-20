@@ -18,34 +18,35 @@ use Amichiamoci\Models\StaffBase;
 use Amichiamoci\Models\TesseramentoCSI;
 use Amichiamoci\Models\TipoDocumento;
 use Amichiamoci\Models\Taglia;
-use Amichiamoci\Utils\File;
 
-class StaffController extends Controller
+use Amichiamoci\Utils\File;
+use Amichiamoci\Controllers\Attributes\RequireStaff;
+use Richie314\SimpleMvc\Controllers\Attributes\RequireLogin;
+use Richie314\SimpleMvc\Http\StatusCode;
+
+
+#[RequireLogin]
+class StaffController
+extends Controller
 {
+    #[RequireStaff]
     public function index(
         ?int $church = null,
         ?int $year = null,
-    ): int {
+    ): StatusCode
+    {
         if (empty($year))
-        {
             $year = (int)date(format: "Y");
-        }
         
-        $staff = $this->RequireStaff();
-        if (!isset($church) && isset($staff))
-        {
-            $church = $staff->Parrocchia->Id;
-        }
+        if (!isset($church) && $this->Staff !== null)
+            $church = $this->Staff->Parrocchia->Id;
+
         if (empty($church))
-        {
             return $this->BadRequest();
-        }
 
         $church_object = Parrocchia::ById(connection: $this->DB, id: $church);
         if ($church_object === null)
-        {
             return $this->NotFound();
-        }
 
         return $this->Render(
             view: 'Staff/index',
@@ -69,19 +70,17 @@ class StaffController extends Controller
         );
     }
 
-    public function problems(?int $church = null, ?int $year = null): int
+    #[RequireStaff]
+    public function problems(?int $church = null, ?int $year = null): StatusCode
     {
-        if (empty($year)) {
+        if (empty($year))
             $year = (int)date(format: "Y");
-        }
         
-        $staff = $this->RequireStaff();
-        if (!isset($church) && isset($staff)) {
-            $church = $staff->Parrocchia->Id;
-        }
-        if (empty($church)) {
+        if (!isset($church) && $this->Staff !== null)
+            $church = $this->Staff->Parrocchia->Id;
+
+        if (empty($church))
             return $this->BadRequest();
-        }
 
         return $this->Json(object: 
             array_values(array: array_map(
@@ -101,10 +100,9 @@ class StaffController extends Controller
         );
     }
 
-    public function double_subscriptions(): int
+    #[RequireLogin(requireAdmin: true)]
+    public function double_subscriptions(): StatusCode
     {
-        $this->RequireLogin(require_admin: true);
-
         return $this->Json(object: 
             array_values(array: array_map(
                 callback: function (AnagraficaConIscrizione $a): array {
@@ -119,8 +117,9 @@ class StaffController extends Controller
         );
     }
 
-    public function all(): int {
-        $this->RequireStaff();
+    #[RequireStaff]
+    public function all(): StatusCode
+    {
         return $this->Render(
             view: 'Staff/all',
             data: ['staffs' => StaffBase::All(connection: $this->DB)],
@@ -128,8 +127,9 @@ class StaffController extends Controller
         );
     }
 
-    public function current(): int {
-        $this->RequireStaff();
+    #[RequireStaff]
+    public function current(): StatusCode
+    {
         return $this->Render(
             view: 'Staff/all',
             data: ['staffs' => Staff::All(connection: $this->DB)],
@@ -137,9 +137,8 @@ class StaffController extends Controller
         );
     }
 
-    public function view(?int $id): int
+    public function view(?int $id): StatusCode
     {
-        $this->RequireLogin();
         if (empty($id)) {
             return $this->BadRequest();
         }
@@ -156,8 +155,9 @@ class StaffController extends Controller
         );
     }
 
-    public function anagrafiche(?int $year = null): int {
-        $this->RequireLogin();
+
+    public function anagrafiche(?int $year = null): StatusCode
+    {
         if (!isset($year) || $year === 0) {    
             return $this->Render(
                 view: 'Staff/anagrafiche',
@@ -172,8 +172,8 @@ class StaffController extends Controller
         );
     }
 
-    public function csi(): int {
-        $this->RequireLogin();
+    public function csi(): StatusCode
+    {
         return $this->Render(
             view: 'Staff/csi',
             title: 'Tesseramenti CSI',
@@ -184,20 +184,21 @@ class StaffController extends Controller
     public function me(
         ?int $anagrafica = null,
         ?int $parrocchia = null,
-    ): int {
-        $user = $this->RequireLogin();
-        
-        if ($this->IsPost() && !empty($parrocchia)) {
-            if (isset($user->IdStaff)) {
+    ): StatusCode
+    {        
+        if ($this->IsPost() && !empty($parrocchia))
+        {
+            if (isset($this->getUser()->IdStaff))
+            {
                 // Update existing record
 
                 $res = Staff::ChangeParrocchia(
                     connection: $this->DB, 
-                    staff: $user->IdStaff, 
+                    staff: $this->getUser()->IdStaff, 
                     parrocchia: $parrocchia
                 );
                 if ($res) {
-                    $staff = $this->RequireStaff();
+                    $staff = self::RequireStaff(controller: $this);
                     $staff->Parrocchia->Id = $parrocchia;
                 }
             } else {
@@ -206,17 +207,17 @@ class StaffController extends Controller
                 $staff_id = Staff::Create(
                     connection: $this->DB, 
                     id_anagrafica: $anagrafica, 
-                    user: $user->Id, 
+                    user: $this->User->Id, 
                     parrocchia: $parrocchia
                 );
                 $res = isset($staff_id);
                 if ($res) {
                     // Load the new data in the existing session
-                    $user->IdStaff = $staff_id;
-                    $user->IdAnagrafica = $anagrafica;
-                    $user->RealName = Anagrafica::NomeDaId(connection: $this->DB, id: $anagrafica);
-                    $user->PutAdditionalInSession();
-                    $this->RequireStaff();
+                    $this->getUser()->IdStaff = $staff_id;
+                    $this->getUser()->IdAnagrafica = $anagrafica;
+                    $this->getUser()->RealName = Anagrafica::NomeDaId(connection: $this->DB, id: $anagrafica);
+                    $this->getUser()->PutAdditionalInSession();
+                    self::RequireStaff(controller: $this);
                 }
             }
 
@@ -243,27 +244,28 @@ class StaffController extends Controller
         );
     }
 
+    #[RequireStaff]
     public function get_involved(
         ?int $edition = null,
         array $roles = [],
         bool $church_manager = false,
         ?string $t_shirt = null,
-    ): int {
-        $user = $this->RequireLogin();
-        $staff = $this->RequireStaff();
-
+    ): StatusCode
+    {
         $current_edition = Edizione::Current(connection: $this->DB);
-        if (!isset($current_edition) && !$user->IsAdmin) {
+        if (!isset($current_edition) && !$this->User->Admin)
+        {
             return $this->BadRequest();
         }
 
-        if (self::IsPost()) {
-            if (!isset($staff) || empty($edition) || empty($t_shirt)) {
+        if ($this->IsPost())
+        {
+            if ($this->Staff === null || empty($edition) || empty($t_shirt))
                 return $this->BadRequest();
-            }
+
             $res = Staff::Partecipa(
                 connection: $this->DB, 
-                staff: $staff->Id, 
+                staff: $this->Staff->Id, 
                 edizione: $edition, 
                 maglia: $t_shirt, 
                 commissioni: $roles, 
@@ -328,12 +330,12 @@ class StaffController extends Controller
 
         // Is editing?
         ?int $id = null,
-    ): int {
-        $this->RequireLogin();
+    ): StatusCode
+    {
 
         $types = TipoDocumento::All(connection: $this->DB);
 
-        if (self::IsPost())
+        if ($this->IsPost())
         {
             if (
                 empty($nome) ||
@@ -431,8 +433,8 @@ class StaffController extends Controller
 
     public function edit_anagrafica(
         ?int $id = null
-    ): int {
-        $this->RequireLogin();
+    ): StatusCode
+    {
         if (!isset($id))
             return $this->BadRequest();
         
@@ -460,8 +462,8 @@ class StaffController extends Controller
         ?int $parrocchia = null,
         ?string $taglia = null,
         ?int $edizione = null,
-    ): int {
-        $this->RequireLogin();
+    ): StatusCode
+    {
         if (empty($id))
         {
             return $this->BadRequest();
@@ -473,16 +475,13 @@ class StaffController extends Controller
             return $this->NotFound();
         }
 
-        if (self::IsPost())
+        if ($this->IsPost())
         {
             if (empty($parrocchia) || empty($taglia))
-            {
                 return $this->BadRequest();
-            }
+
             if (empty($edizione))
-            {
                 $edizione = Edizione::Current(connection: $this->DB)->Id;
-            }
 
             //
             // Handle the submitted files
@@ -550,7 +549,8 @@ class StaffController extends Controller
             }
 
             // How did the handling of the data go?
-            if ($res) {
+            if ($res)
+            {
                 if (isset($actual_path)) {
                     $this->Message(message: Message::Success(
                         content: $a->Nome . ' correttamente iscritto'));
@@ -560,6 +560,7 @@ class StaffController extends Controller
                 }
                 return $this->index();
             }
+
             $this->Message(message: Message::Error(content: 'Errore durante l\'iscrizione'));
         }
 
@@ -583,43 +584,41 @@ class StaffController extends Controller
         );
     }
 
-    public function delete_iscrizione(?int $id = null): int {
-        $user = $this->RequireLogin();
-        $staff = $this->RequireStaff();
-        if (self::IsPost())
+    #[RequireStaff]
+    public function delete_iscrizione(?int $id = null): StatusCode
+    {
+        if ($this->IsPost())
         {
             $target = Iscrizione::ById(connection: $this->DB, id: $id);
             if (!isset($target))
-            {
                 return $this->NotFound();
-            }
-            if (!$user->IsAdmin && $target->Parrocchia->Id !== $staff->Parrocchia->Id)
-            {
+
+            if (!$this->User->Admin && $target->Parrocchia->Id !== $this->Staff->Parrocchia->Id)
                 return $this->NotAuthorized();
-            }
+            
             if (Iscrizione::Delete(connection: $this->DB, id: $id)) {
                 $this->Message(message: Message::Success(content: 'Iscrizione cancellata'));
             } else {
                 $this->Message(message: Message::Error(content: 'Non è stato possibile cancellare l\'iscrizione'));
             }
         }
+
         return $this->anagrafiche();
     }
 
-    public function modifica_iscrizione(?int $id = null): int
+    public function modifica_iscrizione(?int $id = null): StatusCode
     {
-        $this->RequireLogin();
         if (empty($id))
-        {
             return $this->BadRequest();
-        }
 
         $iscrizione = Iscrizione::ById(connection: $this->DB, id: $id);
         if ($iscrizione === null)
-        {
             return $this->NotFound();
-        }
-        $a = AnagraficaBase::ById(connection: $this->DB, id: Iscrizione::IdAnagraficaAssociata(connection: $this->DB, id: $id));
+
+        $a = AnagraficaBase::ById(
+            connection: $this->DB, 
+            id: Iscrizione::IdAnagraficaAssociata(connection: $this->DB, id: $id)
+        );
         // assert a !== null;
 
         return $this->Render(
@@ -645,14 +644,15 @@ class StaffController extends Controller
     public function edizione(
         ?int $anno = null,
         ?string $motto = null,
-    ): int {
-        $user = $this->RequireLogin();
+    ): StatusCode
+    {
         $all = Edizione::All(connection: $this->DB);
 
-        if (self::IsPost() && $user->IsAdmin) {
-            if (empty($anno) || empty($motto)) {
+        if ($this->IsPost() && $this->User->Admin)
+        {
+            if (empty($anno) || empty($motto))
                 return $this->BadRequest();
-            }
+
             $anno = (int)$anno;
 
             $existing = array_filter(array: $all, callback: function (Edizione $e) use($anno): bool {
@@ -682,13 +682,10 @@ class StaffController extends Controller
         );
     }
 
-    public function t_shirts(?int $year = null): int
+    public function t_shirts(?int $year = null): StatusCode
     {
-        $this->RequireLogin();
-
-        if (empty($year)) {
+        if (empty($year)) 
             $year = (int)date(format: 'Y');
-        }
 
         return $this->Render(
             view: 'Staff/t-shirts',
@@ -703,12 +700,10 @@ class StaffController extends Controller
         );
     }
 
-    public function church_leaderboard(?int $year = null): int
+    public function church_leaderboard(?int $year = null): StatusCode
     {
-        $this->RequireLogin();
-        if (!isset($year)) {
+        if (!isset($year))
             $year = (int)date(format: 'Y');
-        }
 
         return $this->Render(
             view: 'Staff/leaderboard',
@@ -721,13 +716,13 @@ class StaffController extends Controller
         );
     }
 
+    #[RequireLogin(requireAdmin: true)]
     public function church_leaderboard_edit(
         ?int $edition,
         ?int $church,
         ?string $score,
-    ): int {
-        $this->RequireLogin(require_admin: true);
-
+    ): StatusCode
+    {
         if (!PunteggioParrocchia::Insert(
             connection: $this->DB, 
             edizione: $edition, 
@@ -736,7 +731,7 @@ class StaffController extends Controller
         ) {
             return $this->Json(object: [
                 'message' => 'Non è stato possibile aggiornare il punteggio',
-            ], status_code: 500);
+            ], statusCode: StatusCode::ServerError);
         }
 
         return $this->Json(object: [

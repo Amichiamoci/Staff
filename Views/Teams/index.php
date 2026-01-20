@@ -11,7 +11,7 @@ $squadre_per_sport = array_reduce(
     initial: [],
 );
 ?>
-<?php if ($user->IsAdmin || $staff !== null) { ?>
+<?php if ($user->Admin || $staff !== null) { ?>
     <div class="input-group mb-2">
         <select id="parrocchia-selector" class="form-control">
             <?php foreach ($parrocchie as $parrocchia) { ?>
@@ -67,7 +67,7 @@ $squadre_per_sport = array_reduce(
                             <?= htmlspecialchars(string: $squadra->Nome) ?>
                         </strong>
                         <a 
-                            href="<?= $B ?>/teams/edit?id=<?= $squadra->Id ?>"
+                            href="<?= $P ?>/teams/edit?id=<?= $squadra->Id ?>"
                             class="link-underline link-underline-opacity-0 link-primary text-end"
                             <?php /* 
                             href="javascript:alert('Non più possibile!')"
@@ -77,8 +77,8 @@ $squadre_per_sport = array_reduce(
                         >
                             <i class="bi bi-pencil-square"></i>
                         </a>
-                        <?php if ($user->IsAdmin) { ?>
-                            <form action="<?= $B ?>/teams/delete" method="post" class="d-inline">
+                        <?php if ($user->Admin) { ?>
+                            <form action="<?= $P ?>/teams/delete" method="post" class="d-inline">
                                 <input type="hidden" name="id" value="<?= $squadra->Id ?>" required>
                                 <input type="hidden" name="year" value="<?= $anno ?>">
                                 <input type="hidden" name="church" value="<?= $id_parrocchia ?>">
@@ -96,7 +96,6 @@ $squadre_per_sport = array_reduce(
                         <?php } ?>
                     </div>
                     <div class="card-body p-1">
-
                         <?php if (is_string(value: $squadra->Referenti)) { ?>
                             <h4 class="ms-1">
                                 Referenti
@@ -126,7 +125,7 @@ $squadre_per_sport = array_reduce(
                             <?php foreach ($squadra->MembriFull() as $id_anagrafica => $nome) { ?>
                                 <li class="list-group-item pt-0 border-0">
                                     <a 
-                                        href="<?= $B ?>/staff/edit_anagrafica?id=<?= $id_anagrafica ?>"
+                                        href="<?= $P ?>/staff/edit_anagrafica?id=<?= $id_anagrafica ?>"
                                         class="text-reset link-underline link-underline-opacity-0"
                                         title="Modifica i dati"
                                     >

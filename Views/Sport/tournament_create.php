@@ -7,7 +7,7 @@ use Amichiamoci\Models\TipoTorneo;
 </h1>
 
 <form 
-    action="<?= $B ?>/sport/tournament_create" 
+    action="<?= $P ?>/sport/tournament_create" 
     method="post"
 >
     <div class="form-floating mb-3">
@@ -76,7 +76,8 @@ use Amichiamoci\Models\TipoTorneo;
             id="name" 
             class="form-control" 
             required
-            maxlength="128">
+            maxlength="128"
+        >
         <label for="name">Nome</label>
         <div class="invalid-feedback">
             Per favore, indica un nome

@@ -2,6 +2,10 @@
 
 namespace Amichiamoci\Controllers;
 
+use Richie314\SimpleMvc\Controllers\Attributes\RequireLogin;
+use Richie314\SimpleMvc\Http\StatusCode;
+use ReflectionClass;
+
 use Amichiamoci\Models\Api\Call as ApiCall;
 use Amichiamoci\Models\Api\Token as ApiToken;
 use Amichiamoci\Models\Message;
@@ -12,13 +16,13 @@ use Amichiamoci\Models\Api\Traits\Squadra as SquadraTrait;
 use Amichiamoci\Models\Api\Traits\Torneo as TorneoTrait;
 use Amichiamoci\Models\Api\Traits\Partita as PartitaTrait;
 use Amichiamoci\Utils\Security;
-use ReflectionClass;
 
-class ApiController extends Controller
+class ApiController
+extends Controller
 {
-    public function delete_token(?int $id = null): int
+    #[RequireLogin(requireAdmin: true)]
+    public function delete_token(?int $id = null): StatusCode
     {
-        $this->RequireLogin(require_admin: true);
         if (empty($id))
         {
             return $this->admin();
@@ -33,12 +37,13 @@ class ApiController extends Controller
 
         return $this->admin();
     }
-    public function admin(?string $token_name = null): int
+
+    #[RequireLogin(requireAdmin: true)]
+    public function admin(?string $token_name = null): StatusCode
     {
-        $this->RequireLogin(require_admin: true);
         $generated_key = null;
 
-        if (self::IsPost() && isset($token_name))
+        if ($this->IsPost() && isset($token_name))
         {
             $new_token = ApiToken::New(connection: $this->DB, name: $token_name);
             if (isset($new_token))
@@ -65,7 +70,8 @@ class ApiController extends Controller
         );
     }
 
-    public function index(?string $resource = null): int {
+    public function index(?string $resource = null): StatusCode
+    {
         if (!isset($resource))
         {
             return $this->Json(
@@ -77,7 +83,7 @@ class ApiController extends Controller
                     'Line' => __LINE__, 
                     'File' => __FILE__,
                 ],
-                status_code: 400,
+                statusCode: StatusCode::BadRequest,
             );
         }
 
@@ -93,7 +99,7 @@ class ApiController extends Controller
                     'Line' => __LINE__,
                     'File' => __FILE__,
                 ],
-                status_code: 400,
+                statusCode: StatusCode::BadRequest,
             );
         }
 
@@ -111,7 +117,7 @@ class ApiController extends Controller
                     'Line' => __LINE__,
                     'File' => __FILE__,
                 ],
-                status_code: 401,
+                statusCode: StatusCode::NotAuthorized,
             );
         }
 
@@ -126,7 +132,7 @@ class ApiController extends Controller
                     'Line' => __LINE__,
                     'File' => __FILE__,
                 ],
-                status_code: 404,
+                statusCode: StatusCode::NotFound,
             );
         }
 
@@ -153,7 +159,7 @@ class ApiController extends Controller
                         'Line' => __LINE__,
                         'File' => __FILE__,
                     ],
-                    status_code: 500,
+                    statusCode: StatusCode::ServerError,
                 );
             }
         } catch (\Throwable $ex) {
@@ -164,7 +170,7 @@ class ApiController extends Controller
                     'Line' => $ex->getLine(),
                     'File' => $ex->getFile(),
                 ],
-                status_code: 500,
+                statusCode: StatusCode::ServerError,
             );
         }
 

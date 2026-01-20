@@ -10,7 +10,7 @@ if (isset($staff) && $staff instanceof Staff) {
                     <?= htmlspecialchars(string: $staff->Nome) ?>
                 </strong>
                 <a 
-                    href="<?= $B ?>/staff/me" 
+                    href="<?= $P ?>/staff/me" 
                     class="link-underline link-underline-opacity-0 link-primary"
                     title="Modifica i miei dati">
                     <i class="bi bi-pencil-square"></i>
@@ -27,7 +27,7 @@ if (isset($staff) && $staff instanceof Staff) {
                 </dt>
                 <dd class="col-sm-8">
                     <a 
-                        href="<?= $B ?>/church?id=<?= $staff->Parrocchia->Id ?>"
+                        href="<?= $P ?>/church?id=<?= $staff->Parrocchia->Id ?>"
                         class="link-underline-opacity-0 link-secondary"
                         title="Vedi la parrocchia">
                         <?= htmlspecialchars(string: $staff->Parrocchia->Nome) ?>
@@ -62,7 +62,7 @@ if (isset($staff) && $staff instanceof Staff) {
                     <?= SITE_NAME ?> <?= date(format: "Y") ?>, fallo subito!
                 </p>
                 <a
-                    href="<?= $B ?>/staff/get_involved"
+                    href="<?= $P ?>/staff/get_involved"
                     class="btn btn-primary btn-lg"
                     title="Partecipa">
                     Partecipa ad
@@ -87,7 +87,7 @@ if (isset($staff) && $staff instanceof Staff) {
                 procedura seguente per diventare uno staffista.
             </p>
             <a 
-                href="<?= $B ?>/staff/me" 
+                href="<?= $P ?>/staff/me" 
                 class="link-underline link-underline-opacity-0 link-primary"
                 title="Diventa staff"
             >

@@ -27,15 +27,15 @@ use Amichiamoci\Utils\File;
                 <i class="bi bi-gender-female text-end"></i>
             <?php } ?>
 
-            <a 
-                href="<?= $B ?>/staff/edit_anagrafica?id=<?= $anagrafica->Id ?>"
+            <a  href="<?= $P ?>/staff/edit_anagrafica?id=<?= $anagrafica->Id ?>"
                 class="link-underline link-underline-opacity-0 link-primary text-end"
-                title="Modifica <?= htmlspecialchars(string: $anagrafica->Nome) ?>">
+                title="Modifica <?= htmlspecialchars(string: $anagrafica->Nome) ?>"
+            >
                 <i class="bi bi-pencil-square"></i>
             </a>
         </div>
 
-        <?php if ($user->IsAdmin) { ?>
+        <?php if ($user->Admin) { ?>
             <h6 class="card-subtitle mb-2 user-select-none text-secondary font-monospace">
                 <?= htmlspecialchars(string: $anagrafica->FiscalCode) ?>
             </h6>
@@ -84,9 +84,9 @@ use Amichiamoci\Utils\File;
                         Mancante!
                     </strong>
                 <?php } else { ?>
-                    <a 
-                        href="mailto:<?= htmlspecialchars(string: $anagrafica->Email) ?>"
-                        class="link-underline link-underline-opacity-0 text-reset text-nowrap overflow-x-auto">
+                    <a  href="mailto:<?= htmlspecialchars(string: $anagrafica->Email) ?>"
+                        class="link-underline link-underline-opacity-0 text-reset text-nowrap overflow-x-auto"
+                    >
                         <?= htmlspecialchars(string: $anagrafica->Email) ?>
                     </a>
                 <?php } ?>
@@ -98,9 +98,9 @@ use Amichiamoci\Utils\File;
                     Telefono
                 </dt>
                 <dd class="col-sm-8">
-                    <a 
-                        href="tel:<?= htmlspecialchars(string: $anagrafica->Phone) ?>"
-                        class="link-underline link-underline-opacity-0 text-reset">
+                    <a  href="tel:<?= htmlspecialchars(string: $anagrafica->Phone) ?>"
+                        class="link-underline link-underline-opacity-0 text-reset"
+                    >
                         <?= htmlspecialchars(string: $anagrafica->Phone) ?>
                     </a>
                 </dd>
@@ -110,9 +110,9 @@ use Amichiamoci\Utils\File;
                     WhatsApp
                 </dt>
                 <dd class="col-sm-8">
-                    <a 
-                        href="<?= Link::Number2WhatsApp(number: $anagrafica->Phone) ?>"
-                        class="link-underline link-underline-opacity-0 text-reset">
+                    <a  href="<?= Link::Number2WhatsApp(number: $anagrafica->Phone) ?>"
+                        class="link-underline link-underline-opacity-0 text-reset"
+                    >
                         <?= htmlspecialchars(string: $anagrafica->Phone) ?>
                     </a>
                 </dd>
@@ -123,8 +123,7 @@ use Amichiamoci\Utils\File;
                 <?= htmlspecialchars(string: $anagrafica->DocumentType->Nome) ?>
             </dt>
             <dd class="col-sm-8">
-                <a 
-                    href="<?= File::GetExportUrl(path: $anagrafica->DocumentFileName) ?>"
+                <a  href="<?= File::GetExportUrl(path: $anagrafica->DocumentFileName) ?>"
                     download
                     class="link-underline link-underline-opacity-0 text-reset font-monospace"
                     title="Scarica il documento"
@@ -165,8 +164,8 @@ use Amichiamoci\Utils\File;
                     <span class="font-monospace">
                         <?= $anagrafica->Iscrizione->Id ?>
                     </span>
-                    <?php if ($user->IsAdmin || (isset($staff) && $staff->Parrocchia->Id === $anagrafica->Iscrizione->Parrocchia->Id)) { ?>
-                        <form action="<?= $B ?>/staff/delete_iscrizione" method="post" class="d-inline">
+                    <?php if ($user->Admin || (isset($staff) && $staff->Parrocchia->Id === $anagrafica->Iscrizione->Parrocchia->Id)) { ?>
+                        <form action="<?= $P ?>/staff/delete_iscrizione" method="post" class="d-inline">
                             <input type="hidden" name="id" value="<?= $anagrafica->Iscrizione->Id ?>">
                             <button 
                                 type="submit"
@@ -187,8 +186,7 @@ use Amichiamoci\Utils\File;
                     Parrocchia
                 </dt>
                 <dd class="col-sm-8">
-                    <a 
-                        href="<?= $B ?>/church?id=<?= $anagrafica->Iscrizione->Parrocchia->Id ?>"
+                    <a  href="<?= $P ?>/church?id=<?= $anagrafica->Iscrizione->Parrocchia->Id ?>"
                         class="link-underline link-underline-opacity-0 link-secondary"
                         title="Vedi la parrocchia"
                     >
@@ -214,8 +212,7 @@ use Amichiamoci\Utils\File;
                 </dt>
                 <dd class="col-sm-8">
                     <?php if (isset($anagrafica->Iscrizione->Certificato)) { ?>
-                        <a 
-                            href="<?= File::GetExportUrl(path: $anagrafica->Iscrizione->Certificato) ?>"
+                        <a  href="<?= File::GetExportUrl(path: $anagrafica->Iscrizione->Certificato) ?>"
                             download
                             class="link-underline link-underline-opacity-0 text-success"
                             title="Scarica il documento"
@@ -238,10 +235,10 @@ use Amichiamoci\Utils\File;
                     </dt>
                     <dd class="col-sm-8">
                         <?php if (!empty($anagrafica->Iscrizione->IdTutore)) { ?>
-                            <a 
-                                href="<?= $B ?>/staff/edit_anagrafica?id=<?= $anagrafica->Iscrizione->IdTutore ?>"
+                            <a  href="<?= $P ?>/staff/edit_anagrafica?id=<?= $anagrafica->Iscrizione->IdTutore ?>"
                                 class="link-underline link-underline-opacity-0 text-success"
-                                title="Vedi il tutore">
+                                title="Vedi il tutore"
+                            >
                                 <i class="bi bi-check"></i>
                                 Presente
                             </a>
@@ -254,20 +251,20 @@ use Amichiamoci\Utils\File;
                     </dd>
 
                 <?php } ?>
-            <?php } else { /*?>
+            <?php } else { ?>
                 <dt class="col-sm-4 text-nowrap">
                     <i class="bi bi-person-plus"></i>
                     Iscrivi
                 </dt>
                 <dd class="col-sm-8">
-                    <a 
-                        href="<?= $B ?>/staff/iscrivi?id=<?= $anagrafica->Id ?>"
+                    <a  href="<?= $P ?>/staff/iscrivi?id=<?= $anagrafica->Id ?>"
                         class="btn btn-secondary"
-                        title="Iscrivi alla manifestazione">
+                        title="Iscrivi alla manifestazione"
+                    >
                         Clicca qui
                     </a>
                 </dd>
-            <?php */ } ?>
+            <?php } ?>
         </dl>
     </div>
 </div>

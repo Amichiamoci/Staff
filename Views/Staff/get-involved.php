@@ -2,7 +2,7 @@
     Partecipa all'edizione corrente di <?= SITE_NAME ?>
 </h1>
 <form method="post">
-    <?php if ($user->IsAdmin) { ?>
+    <?php if ($user->Admin) { ?>
         <div class="form-floating mb-3">
             <select
                 required
@@ -55,7 +55,8 @@
                         class="form-check-input"  
                         name="roles[]" id="role-<?= $commissione->Id ?>" 
                         value="<?= $commissione->Id ?>"
-                        <?= ($user->IsAdmin && $commissione->Nome === 'App e sito') ? 'checked' : '' ?>>
+                        <?= ($user->Admin && $commissione->Nome === 'App e sito') ? 'checked' : '' ?>
+                    >
                     <label for="role-<?= $commissione->Id ?>" class="form-check-label">
                         <?= htmlspecialchars(string: $commissione->Nome) ?>
                     </label>

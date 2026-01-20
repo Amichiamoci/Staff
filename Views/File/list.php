@@ -34,7 +34,8 @@ function display_tree(
             <div id="<?= $id ?>-body" 
                 class="accordion-collapse collapse <?= ($open ? "show" : "") ?>" 
                 aria-labelledby="accordion-header" 
-                data-parent="#<?= $id ?>">
+                data-parent="#<?= $id ?>"
+            >
                 <div class="accordion-body">
                     <ul class="list-group">
                         <?php foreach ($t as $key => $value) { ?>

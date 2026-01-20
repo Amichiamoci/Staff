@@ -18,7 +18,7 @@ use Amichiamoci\Models\Edizione;
         </li>
     <?php } ?>
 </ul>
-<?php if ($user->IsAdmin) { ?>
+<?php if ($user->Admin) { ?>
     <hr>
     <p>
         Aggiungi una nuova edizione o modifica una esistente
@@ -30,7 +30,8 @@ use Amichiamoci\Models\Edizione;
             <select
                 required
                 class="form-control"
-                id="anno" name="anno">
+                id="anno" name="anno"
+            >
                 <option value="">Scegli un anno</option>
                 <?php 
                     $current_year = (int)date(format: "Y");
@@ -55,7 +56,8 @@ use Amichiamoci\Models\Edizione;
                 class="form-control"
                 id="motto" name="motto"
                 size="35"
-                maxlength="256">
+                maxlength="256"
+            >
             <label for="motto">Motto</label>
             <div class="invalid-feedback">
                 Per favore, scrivi un motto di massimo 256 caratteri

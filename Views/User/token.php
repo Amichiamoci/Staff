@@ -15,7 +15,8 @@
                 class="form-control" 
                 id="secret" name="secret" 
                 placeholder="..."
-                autocomplete="off">
+                autocomplete="off"
+            >
             <label for="secret">Codice</label>
             <div class="invalid-feedback">
                 Per favore, immetti il codice ricevuto per mail
@@ -29,7 +30,8 @@
             type="password" 
             class="form-control" 
             id="password" name="password"
-            minlength="8">
+            minlength="8"
+        >
         <label for="password">Nuova Password</label>
         <div class="invalid-feedback">
             Per favore, immetti una password valida
@@ -39,7 +41,8 @@
     <div class="col-12 mt-2">
         <button 
             class="btn btn-primary g-recaptcha" 
-            type="submit">
+            type="submit"
+        >
             Aggiorna password
         </button>
     </div>

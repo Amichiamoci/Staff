@@ -78,7 +78,8 @@
                 src="data:image/png;base64,<?= base64_encode(
                     string: file_get_contents(filename: dirname(path: __DIR__, levels: 2) . "/Public/images/banner.png")) ?>"
                 alt="Logo <?= htmlspecialchars(string: $site_name) ?>"
-                title="<?= htmlspecialchars(string: $site_name) ?>">
+                title="<?= htmlspecialchars(string: $site_name) ?>"
+            >
         </div>
         <div class="content">
             <?= $content ?>
@@ -95,7 +96,7 @@
             </p>
             <?php if (isset($email_id) && $email_id !== 0) { ?>
                 <img 
-                    src="https://<?= DOMAIN . $B ?>/email/heartbeat?id=<?= $email_id ?>" 
+                    src="https://<?= DOMAIN . $P ?>/email/heartbeat?id=<?= $email_id ?>" 
                     width="1" height="1" 
                     style="width: 1px; height: 1px;"
                     loading="eager">

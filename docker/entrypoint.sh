@@ -2,7 +2,7 @@
 
 set -e
 
-APP_PATH=/app
+APP_PATH=/amichiamoci
 
 APP_DATA=$APP_PATH/data
 DOCUMENTS_DIR=$APP_DATA/documenti

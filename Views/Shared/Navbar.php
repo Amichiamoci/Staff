@@ -3,11 +3,12 @@
 ?>
 <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3">
     <div class="container-fluid">
-        <a class="navbar-brand" href="<?= $B ?>/">
-            <img src="<?= $B ?>/Public/images/banner.png" 
-                height="48"
-                alt="Logo di Amichiamoci" title="Vai alla pagina principale" 
-                class="d-inline-block align-text-top"/>
+        <a class="navbar-brand" href="<?= $P ?>/">
+            <img src="<?= $P ?>/Public/images/banner.png" 
+                 height="48"
+                 alt="Logo di Amichiamoci" title="Vai alla pagina principale" 
+                 class="d-inline-block align-text-top"
+            />
         </a>
         <button class="navbar-toggler" 
                 type="button"
@@ -16,15 +17,16 @@
                 data-target="#navbar-collapse"
                 data-bs-target="#navbar-collapse" 
                 aria-expanded="false" aria-label="Toggle navigation"
-            >
-                <i class="bi bi-list text-secondary" style="pointer-events: none;"></i>
+        >
+            <i class="bi bi-list text-secondary" style="pointer-events: none;"></i>
         </button>
         <div id="navbar-collapse"
-            class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+             class="navbar-collapse collapse d-sm-inline-flex justify-content-between"
+        >
             <ul class="navbar-nav flex-grow-1">
                 <?php if (isset($user)) { ?>
                     <li class="nav-item dropdown">
-                        <a class="nav-link text-reset dropdown-toggle"
+                        <a  class="nav-link text-reset dropdown-toggle"
                             href="#" 
                             id="subscriptionDropdownMenuLink" 
                             role="button" 
@@ -34,19 +36,19 @@
                             Iscrizioni
                         </a>
                         <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="subscriptionDropdownMenuLink">
-                            <?php if ($user->IsAdmin || isset($staff)) { ?>
+                            <?php if ($user->Admin || isset($staff)) { ?>
                                 <li>
-                                    <a class="dropdown-item" href="<?= $B ?>/staff/index">
+                                    <a class="dropdown-item" href="<?= $P ?>/staff/index">
                                         La mia parrocchia
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="<?= $B ?>/teams">
+                                    <a class="dropdown-item" href="<?= $P ?>/teams">
                                         Le squadre
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="<?= $B ?>/teams/new">
+                                    <a class="dropdown-item" href="<?= $P ?>/teams/new">
                                         Crea squadra
                                     </a>
                                 </li>
@@ -55,24 +57,24 @@
                                 </li>
                             <?php } ?>
                             <li>
-                                <a class="dropdown-item" href="<?= $B ?>/staff/anagrafiche?year=<?= date(format: "Y") ?>">
+                                <a class="dropdown-item" href="<?= $P ?>/staff/anagrafiche?year=<?= date(format: "Y") ?>">
                                     Tutti gli iscritti
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="<?= $B ?>/staff/anagrafiche">
+                                <a class="dropdown-item" href="<?= $P ?>/staff/anagrafiche">
                                     Tutte le anagrafiche
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="<?= $B ?>/staff/new_anagrafica">
+                                <a class="dropdown-item" href="<?= $P ?>/staff/new_anagrafica">
                                     Nuova anagrafica
                                 </a>
                             </li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link text-reset dropdown-toggle"
+                        <a  class="nav-link text-reset dropdown-toggle"
                             href="#" 
                             id="matchesDropdownMenuLink" 
                             role="button" 
@@ -83,21 +85,21 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="matchesDropdownMenuLink">
                             <li>
-                                <a class="dropdown-item" href="<?= $B ?>/sport">
+                                <a class="dropdown-item" href="<?= $P ?>/sport">
                                     Tutti i Tornei
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="<?= $B ?>/sport/matches">
+                                <a class="dropdown-item" href="<?= $P ?>/sport/matches">
                                     Partite e risultati
                                 </a>
                             </li>
-                            <?php if ($user->IsAdmin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'))) { ?>
+                            <?php if ($user->Admin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'))) { ?>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="<?= $B ?>/sport/tournament_create">
+                                    <a class="dropdown-item" href="<?= $P ?>/sport/tournament_create">
                                         Nuovo torneo
                                     </a>
                                 </li>
@@ -105,7 +107,7 @@
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link text-reset dropdown-toggle"
+                        <a  class="nav-link text-reset dropdown-toggle"
                             href="#" 
                             id="userDropdownMenuLink" 
                             role="button" 
@@ -116,40 +118,40 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="userDropdownMenuLink">
                             <li>
-                                <a class="dropdown-item" href="<?= $B ?>/user/me">
+                                <a class="dropdown-item" href="<?= $P ?>/user/me">
                                     Menù Utente
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="<?= $B ?>/staff">
+                                <a class="dropdown-item" href="<?= $P ?>/staff">
                                     Menù Staff
                                 </a>
                             </li>
-                            <?php if ($user->IsAdmin) { ?>
+                            <?php if ($user->Admin) { ?>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="<?= $B ?>/user/all">
+                                    <a class="dropdown-item" href="<?= $P ?>/user/all">
                                         Tutti gli utenti
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="<?= $B ?>/user/new">
+                                    <a class="dropdown-item" href="<?= $P ?>/user/new">
                                         Nuovo utente
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="<?= $B ?>/user/activity">
+                                    <a class="dropdown-item" href="<?= $P ?>/user/activity">
                                         Accessi
                                     </a>
                                 </li>
                             <?php } ?>
                         </ul>
                     </li>
-                    <?php if ($user->IsAdmin) { ?>
+                    <?php if ($user->Admin) { ?>
                         <li class="nav-item dropdown">
-                            <a class="nav-link text-reset dropdown-toggle"
+                            <a  class="nav-link text-reset dropdown-toggle"
                                 href="#" 
                                 id="emailDropdownMenuLink" 
                                 role="button" 
@@ -160,12 +162,12 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="emailDropdownMenuLink">
                                 <li>
-                                    <a class="dropdown-item" href="<?= $B ?>/email">
+                                    <a class="dropdown-item" href="<?= $P ?>/email">
                                         Lista email
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="<?= $B ?>/email/send">
+                                    <a class="dropdown-item" href="<?= $P ?>/email/send">
                                         Invia Email
                                     </a>
                                 </li>
@@ -173,12 +175,12 @@
                                     <hr class="dropdown-divider">
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="<?= $B ?>/file/list">
+                                    <a class="dropdown-item" href="<?= $P ?>/file/list">
                                         Tutti gli uploads
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="<?= $B ?>/file/unreferenced">
+                                    <a class="dropdown-item" href="<?= $P ?>/file/unreferenced">
                                         File non usati
                                     </a>
                                 </li>
@@ -187,7 +189,7 @@
                                         <hr class="dropdown-divider">
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="<?= $B ?>/api/admin">
+                                        <a class="dropdown-item" href="<?= $P ?>/api/admin">
                                             Api
                                         </a>
                                     </li>
@@ -196,7 +198,7 @@
                         </li>
                     <?php } ?>
                     <li class="nav-item dropdown">
-                        <a class="nav-link text-reset dropdown-toggle"
+                        <a  class="nav-link text-reset dropdown-toggle"
                             href="#" 
                             id="listsDropdownMenuLink" 
                             role="button" 
@@ -207,38 +209,44 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="listsDropdownMenuLink">
                             <li>
-                                <a class="dropdown-item" 
-                                    href="<?= $B ?>/staff/all">
+                                <a  class="dropdown-item" 
+                                    href="<?= $P ?>/staff/all"
+                                >
                                     Tutti gli Staff
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" 
-                                    href="<?= $B ?>/staff/current">
+                                <a  class="dropdown-item" 
+                                    href="<?= $P ?>/staff/current"
+                                >
                                     Staff per il <?= date(format: "Y") ?>
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" 
-                                    href="<?= $B ?>/staff/csi">
+                                <a  class="dropdown-item" 
+                                    href="<?= $P ?>/staff/csi"
+                                >
                                     Tesseramenti per C.S.I.
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" 
-                                    href="<?= $B ?>/staff/t_shirts">
+                                <a  class="dropdown-item" 
+                                    href="<?= $P ?>/staff/t_shirts"
+                                >
                                     Tutte le maglie
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" 
-                                    href="<?= $B ?>/staff/church_leaderboard">
+                                <a  class="dropdown-item" 
+                                    href="<?= $P ?>/staff/church_leaderboard"
+                                >
                                     Classifica parrocchiale
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" 
-                                    href="<?= $B ?>/staff/edizione">
+                                <a  class="dropdown-item" 
+                                    href="<?= $P ?>/staff/edizione"
+                                >
                                     Tutte le edizioni
                                 </a>
                             </li>
@@ -247,7 +255,7 @@
                 <?php } ?>
                 
                 <li class="nav-item dropdown">
-                    <a class="nav-link text-reset dropdown-toggle"
+                    <a  class="nav-link text-reset dropdown-toggle"
                         href="#" 
                         id="themeDropdownMenuLink" 
                         role="button" 
@@ -258,7 +266,7 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="themeDropdownMenuLink">
                         <li>
-                            <a class="dropdown-item" 
+                            <a  class="dropdown-item" 
                                 href="#" 
                                 data-bs-theme-value="light"
                                 title="Imposta il tema chiaro"
@@ -268,7 +276,7 @@
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item" 
+                            <a  class="dropdown-item" 
                                 href="#" 
                                 data-bs-theme-value="dark"
                                 title="Imposta il tema scuro"
@@ -282,7 +290,7 @@
             </ul>
 
             <?php if (isset($user)) { ?>
-                <a href="<?= $B ?>/user/me" 
+                <a  href="<?= $P ?>/user/me" 
                     class="nav-link text-reset"
                     title="Vai alla pagina del profilo"
                 >

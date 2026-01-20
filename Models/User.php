@@ -1,11 +1,16 @@
 <?php
 namespace Amichiamoci\Models;
-use Amichiamoci\Utils\Cookie;
-use Amichiamoci\Utils\Email;
-use Amichiamoci\Utils\Security;
-use Amichiamoci\Models\Templates\DbEntity;
 
-class User implements DbEntity
+use Amichiamoci\Utils\Cookie;
+use Amichiamoci\Utils\Security;
+
+use Amichiamoci\Models\Templates\DbEntity;
+use Richie314\SimpleMvc\Users\User as BaseUser;
+
+
+class User
+extends BaseUser
+implements DbEntity
 {
     public static string $COOKIE_NAME = "LoginSession";
     public static string $USER_NAME = "user_name";
@@ -19,12 +24,9 @@ class User implements DbEntity
     public static string $ID_STAFF = "id_staff";
 
     
-    public int $Id;
-    public string $Name;
     public int $LoginTime = 0;
     public string $SessionFlag = "";
     public int $SessionDbId = 0;
-    public bool $IsAdmin = false;
     public bool $IsBanned = false;
 
     // Additional data
@@ -42,7 +44,10 @@ class User implements DbEntity
     ) {
         $this->Id = (int)$id;
         $this->Name = $name;
-        if (isset($login_time)) {
+        $this->Admin = $admin;
+
+        if ($login_time !== null)
+        {
             if ($login_time instanceof \DateTime) {
                 $this->LoginTime = $login_time->getTimestamp();
             } elseif (is_string(value: $login_time)) {
@@ -51,7 +56,6 @@ class User implements DbEntity
                 $this->LoginTime = $login_time;
             }
         }
-        $this->IsAdmin = $admin;
         $this->IsBanned = $is_blocked;
     }
     public function Logout() : bool

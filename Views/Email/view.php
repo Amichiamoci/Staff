@@ -9,7 +9,8 @@
     Email a 
     <a 
         href="mailto:<?= htmlspecialchars(string: $email->Receiver) ?>"
-        class="link-underline link-underline-opacity-0 text-reset font-monospace">
+        class="link-underline link-underline-opacity-0 text-reset font-monospace"
+    >
         <?= htmlspecialchars(string: $email->Receiver) ?>
     </a>
 </h2>
@@ -47,7 +48,8 @@
     style="width: 100%;min-height: 450px;height: auto;max-height: 80vh;" 
     class="border border-1"
     id="iframe"
-    title="Visualizzazione dell'email"></iframe>
+    title="Visualizzazione dell'email"
+></iframe>
 <!-- We cannot just HTML escape the content and put it here! -->
 <script>
     (() => {

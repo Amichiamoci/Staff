@@ -8,9 +8,11 @@
             required
             type="text" 
             class="form-control" 
-            id="username" name="username" 
+            id="username" 
+            name="username" 
             placeholder="..."
-            value="<?= empty($username) ? '' : htmlspecialchars(string: $username) ?>">
+            value="<?= empty($username) ? '' : htmlspecialchars(string: $username) ?>"
+        >
         <label for="username">Utente</label>
         <div class="invalid-feedback">
             Per favore, immetti un utente
@@ -19,18 +21,21 @@
     <div class="form-floating">
         <input 
             required
-            type="password" class="form-control" 
-            id="password" name="password" 
+            type="password" 
+            class="form-control" 
+            id="password" 
+            name="password" 
             placeholder="Password"
-            value="<?= empty($password) ? '' : htmlspecialchars(string: $password) ?>">
+            value="<?= empty($password) ? '' : htmlspecialchars(string: $password) ?>"
+        >
         <label for="password">Password</label>
         <div class="invalid-feedback">
             Per favore, immetti una password
         </div>
         <div class="form-text">
-            Password dimenticata? Clicca
-            <a 
-                href="<?= $B ?>/user/password_recover" 
+            Password dimenticata?
+            Clicca
+            <a  href="<?= $P ?>/user/password_recover" 
                 class="link-underline link-underline-opacity-0 link-primary"
                 title="Recupera la password">
                 qui

@@ -10,9 +10,8 @@
                         #<?= $user_info->Id ?>
                     </span>
                     &nbsp;
-                    <a 
-                        title="Vedi nel dettaglio"
-                        href="<?= $B ?>/user/view?id=<?= $user_info->Id ?>"
+                    <a  title="Vedi nel dettaglio"
+                        href="<?= $P ?>/user/view?id=<?= $user_info->Id ?>"
                         class="text-reset link-underline link-underline-opacity-0"
                     >
                         <?= htmlspecialchars(string: $user_info->Name) ?>
@@ -22,10 +21,10 @@
                 <div class="card-body">
                     <?php if (!empty($user_info->RealName) && !empty($user_info->IdStaff)) { ?>
                         <h5 class="card-title mb-2">
-                            <a 
-                                href="<?= $B ?>/staff/view?id=<?= $user_info->IdStaff ?>" 
+                            <a  href="<?= $P ?>/staff/view?id=<?= $user_info->IdStaff ?>" 
                                 class="text-reset link-underline-opacity-0" 
-                                title="Vai">
+                                title="Vai"
+                            >
                                 <?= htmlspecialchars(string: $user_info->RealName) ?>
                             </a>
                         </h5>

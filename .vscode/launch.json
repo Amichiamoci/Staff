@@ -7,7 +7,7 @@
       "request": "launch",
       "port": 9003,
       "pathMappings": {
-        "/app": "${workspaceFolder}"
+        "/amichiamoci": "${workspaceFolder}"
       },
       "log": false,
       "preLaunchTask": "Start container (Debugging)",

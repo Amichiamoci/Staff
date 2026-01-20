@@ -17,9 +17,9 @@
             <ul class="list-group">
                 <?php foreach ($staffs as $s) { ?>
                     <li class="list-group-item">
-                        <a
-                            href="<?= $B ?>/staff/view?id=<?= $s->Id ?>"
-                            class="link-secondary link-underline link-underline-opacity-0">
+                        <a  href="<?= $P ?>/staff/view?id=<?= $s->Id ?>"
+                            class="link-secondary link-underline link-underline-opacity-0"
+                        >
                             <?= htmlspecialchars(string: $s->Nome) ?>
                         </a>
                         <?php if ($s->Referente) { ?>

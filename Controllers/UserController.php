@@ -7,34 +7,41 @@ use Amichiamoci\Models\Message;
 use Amichiamoci\Models\MessageType;
 use Amichiamoci\Models\Token;
 use Amichiamoci\Models\User;
+
 use Amichiamoci\Utils\Cookie;
 use Amichiamoci\Utils\Email;
 use Amichiamoci\Utils\Security;
 
-class UserController extends Controller {
-    public function logout(): int
+use Richie314\SimpleMvc\Controllers\Attributes\RequireLogin;
+use Richie314\SimpleMvc\Http\StatusCode;
+
+class UserController
+extends Controller
+{
+    #[RequireLogin]
+    public function logout(): StatusCode
     {
-        $this->RequireLogin()->Logout();
+        $this->getUser()->Logout();
         Cookie::DeleteIfExists(name: "login_forward");
         return $this->Redirect(url: INSTALLATION_PATH . '/');
     }
 
-    public function delete(?int $target_id): int {
-        $this->RequireLogin(require_admin: true);
-
-        if (!isset($target_id)) {
+    #[RequireLogin(requireAdmin: true)]
+    public function delete(?int $target_id): StatusCode
+    {
+        if (!isset($target_id))
             return $this->NotFound();
-        }
         
         $user = User::ById(connection: $this->DB, id: $target_id);
-        if (!isset($user)) {
+        if (!isset($user))
             return $this->NotFound();
-        }
 
-        if (User::Delete(connection: $this->DB, target: $target_id)) {
+        if (User::Delete(connection: $this->DB, target: $target_id))
+        {
             $this->Message(message: new Message(type: MessageType::Success, content: 'Utente cancellato'));
             return $this->all();
         }
+
         $this->Message(message: new Message(type: MessageType::Error, content: 'Qualcosa è andato storto'));
         return $this->view(id: $target_id);
     }
@@ -60,28 +67,26 @@ class UserController extends Controller {
         return $mail_body;
     }
 
-    public function reset(?int $target_id): int {
-        $this->RequireLogin(require_admin: true);
-        
-        if (empty($target_id)) {
+    #[RequireLogin(requireAdmin: true)]
+    public function reset(?int $target_id): StatusCode
+    {
+        if (empty($target_id))
             return $this->BadRequest();
-        }
 
         $target = User::ById(connection: $this->DB, id: $target_id);
-        if (!isset($target)) {
+        if (!isset($target)) 
             return $this->NotFound();
-        }
 
-        if (self::IsPost()) {
+        if ($this->IsPost())
+        {
             $new_password = Security::RandomPassword();
 
             $result = $target->ForceSetNewPassword(
                 connection: $this->DB, 
                 new_password: $new_password
             );
-            if (!$result) {
+            if (!$result)
                 return $this->InternalError();
-            }
 
             $email = Email::GetByUserId(connection: $this->DB, user: $target->Id);
             $result = isset($email);
@@ -108,28 +113,31 @@ class UserController extends Controller {
                 $this->Message(message: Message::Warn(content: "Comunica all'utente la seguente password: $new_password"));
             }
         }
+
         return $this->view(id: $target_id);
     }
 
-    public function ban(?int $target_id): int {
-        $this->RequireLogin(require_admin: true);
-        
+    #[RequireLogin(requireAdmin: true)]
+    public function ban(?int $target_id): StatusCode
+    {
         if (User::Ban(connection: $this->DB, id: $target_id)) {
             $this->Message(message: new Message(type: MessageType::Success, content: 'Utente bloccato'));
         } else {
             $this->Message(message: new Message(type: MessageType::Error, content: 'Qualcosa è andato storto'));
         }
+        
         return $this->view(id: $target_id);
     }
 
-    public function restore(?int $target_id): int {
-        $this->RequireLogin(require_admin: true);
-        
+    #[RequireLogin(requireAdmin: true)]
+    public function restore(?int $target_id): StatusCode
+    {
         if (User::Restore(connection: $this->DB, id: $target_id)) {
             $this->Message(message: new Message(type: MessageType::Success, content: 'Utente sbloccato'));
         } else {
             $this->Message(message: new Message(type: MessageType::Error, content: 'Qualcosa è andato storto'));
         }
+        
         return $this->view(id: $target_id);
     }
 
@@ -241,11 +249,13 @@ class UserController extends Controller {
     public function password_recover(
         ?string $username = null,
         ?string $g_recaptcha_response = null,
-    ): int {
-        if (self::IsLoggedIn()) {
+    ): StatusCode {
+        if ($this->User !== null)
+        {
             $this->Message(message: Message::Warn(content: 'Perché recuperare la tua password se sei già loggato?'));
         }
-        if (self::IsPost())
+
+        if ($this->IsPost())
         {
             $token = $this->password_recover_logic(
                 username: $username, 
@@ -263,6 +273,7 @@ class UserController extends Controller {
                     "Nel caso l'account non esistesse, o la richiesta risultati sospetta, nulla accadrà."
             );
         }
+
         return $this->Render(
             view: 'User/password-recover',
             title: 'Recupera la tua password',
@@ -308,12 +319,13 @@ class UserController extends Controller {
         ?string $value = null, 
         ?string $secret = null,
         #[\SensitiveParameter] ?string $password = null,
-    ): int
+    ): StatusCode
     {
-        if (!isset($value) || strlen(string: $value) === 0) {
+        if (!isset($value) || strlen(string: $value) === 0)
             return $this->BadRequest();
-        }
-        if (self::IsPost()) {
+
+        if ($this->IsPost())
+        {
             if (
                 !isset($secret) || 
                 !isset($password) ||
@@ -352,6 +364,7 @@ class UserController extends Controller {
                 }
             }
         }
+
         return $this->Render(
             view: 'User/token',
             title: 'Reimposta la password',
@@ -362,13 +375,15 @@ class UserController extends Controller {
         );
     }
 
+    #[RequireLogin]
     public function update(
         ?string $new_username, 
         #[\SensitiveParameter] ?string $current_password, 
         #[\SensitiveParameter] ?string $new_password = null,
-    ): int {
-        $user = $this->RequireLogin();
-        if (self::IsPost() && !empty($new_username) && !empty($current_password))
+    ): StatusCode
+    {
+        $user = $this->getUser();
+        if ($this->IsPost() && !empty($new_username) && !empty($current_password))
         {
             if ($user->Name !== $new_username)
             {
@@ -395,21 +410,22 @@ class UserController extends Controller {
                 }
             }
         }
+
         return $this->me();
     }
 
-    public function view(?int $id): int {
-        if (!isset($id)) {
+    #[RequireLogin]
+    public function view(?int $id): StatusCode
+    {
+        if (!isset($id))
             return $this->BadRequest();
-        }
         
-        $user = $this->RequireLogin();
+        $user = $this->User;
         $target = User::ById(connection: $this->DB, id: $id);
-        if (!isset($target)) {
+        if (!isset($target))
             return $this->NotFound();
-        }
 
-        if ($target->Id !== $user->Id && !$user->IsAdmin) { 
+        if ($target->Id !== $user->Id && !$user->Admin) { 
             // Admins can view personal pages of others
             return $this->NotAuthorized();
         }
@@ -424,10 +440,12 @@ class UserController extends Controller {
             ],
         );
     }
-    public function username(?string $u): int {
-        if (!isset($u)) {
+
+    #[RequireLogin]
+    public function username(?string $u): StatusCode
+    {
+        if (!isset($u))
             return $this->BadRequest();
-        }
 
         $target = User::ByName(connection: $this->DB, username: $u);
         if (!isset($target)) {
@@ -435,16 +453,19 @@ class UserController extends Controller {
         } else {
             $id = $target->Id;
         }
+
         return $this->view(id: $id);
     }
 
-    public function me(): int {
-        $user = $this->RequireLogin();
-        return $this->view(id: $user->Id);
+    #[RequireLogin]
+    public function me(): StatusCode
+    {
+        return $this->view(id: $this->User->Id);
     }
 
-    public function all(): int {
-        $this->RequireLogin(require_admin: true);
+    #[RequireLogin(requireAdmin: true)]
+    public function all(): StatusCode
+    {
         return $this->Render(
             view: 'User/all', 
             title: 'Utenti',
@@ -452,8 +473,9 @@ class UserController extends Controller {
         );
     }
 
-    public function activity(): int {
-        $this->RequireLogin(require_admin: true);
+    #[RequireLogin(requireAdmin: true)]
+    public function activity(): StatusCode
+    {
         return $this->Render(
             view: 'User/activity',
             title: 'Attività utenti',
@@ -512,13 +534,14 @@ class UserController extends Controller {
         return $mail_body;
     }
 
+    #[RequireLogin(requireAdmin: true)]
     public function new(
         ?string $email = null, 
         bool $admin = false,
-    ): int
+    ): StatusCode
     {
-        $this->RequireLogin(require_admin: true);
-        if ($this->IsPost() && !empty($email)) {
+        if ($this->IsPost() && !empty($email))
+        {
             $password = Security::RandomPassword();
             $user_name = explode(separator: '@', string: $email)[0];
 

@@ -76,7 +76,8 @@
     type="button"
     onclick="exportTables()"
     class="btn btn-outline-primary mt-2"
-    title="Esporta tabella">
+    title="Esporta tabella"
+>
     Esporta come foglio Excel &nbsp;
     <i class="bi bi-file-earmark-arrow-down"></i>
 </button>
