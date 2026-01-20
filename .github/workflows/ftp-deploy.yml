@@ -6,7 +6,7 @@ on:
 name: FTP deploy to server
 jobs:
   ftp-deploy:
-    if: false
+    if: true
     name: FTP deploy
     runs-on: ubuntu-latest
     steps:
