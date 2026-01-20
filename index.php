@@ -106,6 +106,6 @@ $client_ip = UtilsSecurity::GetIpAddress();
 
 $result = $router->dispatch(uri: $uri);
 if (StatusCode::IsError(statusCode: $result))
-    $log->warning(message: "[$client_ip] [$result] $uri");
+    $log->warning(message: "[$client_ip] [$result->value] $uri");
 else
-    $log->info(message: "[$client_ip] [$result] $uri");
+    $log->info(message: "[$client_ip] [$result->value] $uri");
