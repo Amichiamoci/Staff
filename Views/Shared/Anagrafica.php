@@ -1,9 +1,11 @@
 <?php
-if (!isset($anagrafica) || !($anagrafica instanceof Amichiamoci\Models\Anagrafica)) {
-    throw new \Exception(message: '$anagrafica variable not set!');
-}
 use Amichiamoci\Utils\Link;
 use Amichiamoci\Utils\File;
+use Amichiamoci\Models\Anagrafica;
+use Amichiamoci\Models\AnagraficaConIscrizione;
+
+if (!isset($anagrafica) || !($anagrafica instanceof Anagrafica))
+    throw new \Exception(message: '$anagrafica variable not set!');
 ?>
 
 <div class="card" 
@@ -155,7 +157,7 @@ use Amichiamoci\Utils\File;
                 <?php } ?>
             </dd>
 
-            <?php if ($anagrafica instanceof Amichiamoci\Models\AnagraficaConIscrizione)  { ?>
+            <?php if ($anagrafica instanceof AnagraficaConIscrizione)  { ?>
                 <dt class="col-sm-4 text-nowrap">
                     <i class="bi bi-list-ol"></i>
                     Iscrizione

@@ -29,7 +29,7 @@ jobs:
         id: cache
         with:
           path: ./vendor/
-          key: ${{ runner.os }}-php-8.4-vendor-${{ hashFiles('./composer.json') }}
+          key: ${{ runner.os }}-php84-vendor-${{ hashFiles('./composer.lock') }}
         
       - name: Install php Dependencies
         if: steps.cache.outputs.cache-hit != 'true'

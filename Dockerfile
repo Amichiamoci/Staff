@@ -39,7 +39,7 @@ VOLUME [ "/amichiamoci/data" ]
 RUN if [ "$DEBUG_APP" = "1" ]; then \
       apk add --no-cache --update linux-headers autoconf g++ make; \
       pecl install xdebug && docker-php-ext-enable xdebug; \
-      apk remove g++ make autoconf linux-headers; \
+      apk del g++ make autoconf linux-headers; \
     fi; \
     echo "DEBUG_APP=$DEBUG_APP" > .env
 

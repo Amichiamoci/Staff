@@ -1,7 +1,6 @@
 cron/*.txt
 .env
 vendor
-composer.lock
 data/*
 !data/.gitkeep
 docs

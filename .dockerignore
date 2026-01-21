@@ -1,7 +1,6 @@
 data
 ./.github
 ./.vscode
-./composer.lock
 ./vendor
 ./.git
 .env

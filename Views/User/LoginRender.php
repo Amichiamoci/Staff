@@ -1,9 +1,8 @@
 <?php
 use Amichiamoci\Models\UserActivity;
 
-if (!($login instanceof UserActivity)) {
+if (!($login instanceof UserActivity))
     throw new \Exception(message: 'Variabile $login non corretta');
-}
 ?>
 <div class="d-flex flex-row align-items-center">
     <i class="fa fa-check-circle checkicon"></i>

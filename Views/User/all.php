@@ -2,7 +2,7 @@
     Lista utenti
 </h1>
 <div class="row">
-    <?php foreach($users as $user_info) { ?>
+    <?php foreach ($users as $user_info) { ?>
         <div class="col col-xs-12 col-sm-6 col-md-4 col-xl-3" id="user-<?= $user_info->Id ?>">
             <div class="card m-1">
                 <div class="card-header">
@@ -29,7 +29,7 @@
                             </a>
                         </h5>
                     <?php } ?>
-                    <?php if ($user_info->IsAdmin) { ?>
+                    <?php if ($user_info->Admin) { ?>
                         <h6 class="card-subtitle mb-2 user-select-none text-secondary">
                             Amministratore
                         </h6>

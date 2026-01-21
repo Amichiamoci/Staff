@@ -1,7 +1,8 @@
 <?php 
-if (!isset($target) || !($target instanceof Amichiamoci\Models\User)) {
+use Amichiamoci\Models\User;
+
+if (!isset($target) || !($target instanceof User)) 
     throw new Exception(message: '$target variable not set!');
-}
 ?>
 
 <div class="card m-1">
@@ -151,7 +152,9 @@ if (!isset($target) || !($target instanceof Amichiamoci\Models\User)) {
     </div>
     <ul class="list list-inline mt-3 card-body">
         <?php foreach ($activity as $login) { ?>
-            <li class="d-flex justify-content-between m-2 border border-1 p-1" style="max-width: 800px;">
+            <li class="d-flex justify-content-between m-2 border border-1 p-1" 
+                style="max-width: 800px;"
+            >
                 <?php require __DIR__ . '/LoginRender.php'; ?>
             </li>
         <?php } ?>
