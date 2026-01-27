@@ -16,7 +16,7 @@ jobs:
           ref: ${{ github.head_ref }}
 
       - name: Setup Doxygen
-        run: sed -i 's/^OUTPUT_DIRECTORY[[:space:]]*=[[:space:]]*docs$/OUTPUT_DIRECTORY = docs_tmp' ./Doxyfile
+        run: sed -i 's/^OUTPUT_DIRECTORY[[:space:]]*=[[:space:]]*docs$/OUTPUT_DIRECTORY = docs_tmp/' ./Doxyfile
       
       - name: Generate Doxygen Documentation
         uses: mattnotmitt/doxygen-action@1.12.0
