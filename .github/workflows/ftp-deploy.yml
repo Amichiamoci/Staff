@@ -15,16 +15,14 @@ jobs:
         with: 
           ref: ${{ github.head_ref }}
 
+      - name: Setup Doxygen
+        run: sed -i 's/^OUTPUT_DIRECTORY[[:space:]]*=[[:space:]]*docs$/OUTPUT_DIRECTORY = docs_tmp' ./Doxyfile
+      
       - name: Generate Doxygen Documentation
         uses: mattnotmitt/doxygen-action@1.12.0
 
       - name: Rename output folder
-        run: |
-          cp ./docs ./docs_tmp
-          rm -rf ./docs
-          mkdir ./docs
-          mv ./docs_tmp/html ./docs
-          rm -rf ./docs_tmp
+        run: mv ./docs_tmp/html ./docs
         
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
