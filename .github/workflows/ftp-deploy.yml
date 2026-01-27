@@ -51,7 +51,6 @@ jobs:
           echo -e "SMTP_PORT=${{ vars.SMTP_PORT }}" >> ".env"
           echo -e "SMTP_USER=${{ secrets.SMTP_USER }}" >> ".env"
           echo -e "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}" >> ".env"
-          echo -e "CRON_ENABLE_HTTP=false" >> ".env"
         
       - name: Calculate Deploy Path and Variables
         id: deploy-path

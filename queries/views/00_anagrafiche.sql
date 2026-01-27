@@ -29,3 +29,13 @@ SELECT
 FROM `anagrafiche` a
 GROUP BY UPPER(a.`luogo_nascita`)
 ORDER BY COUNT(a.`id`) DESC; 
+
+CREATE OR REPLACE VIEW `email_duplicate` AS
+SELECT a.`email`, 
+	COUNT(DISTINCT a.`id`) AS "totale", 
+    GROUP_CONCAT(DISTINCT a.`id` SEPARATOR ', ') AS "id_anagrafiche",
+    GROUP_CONCAT(DISTINCT CONCAT(a.`nome`, ' ', a.`cognome`) SEPARATOR ', ') AS "nomi_anagrafiche"
+FROM `anagrafiche` a
+GROUP BY a.`email`
+HAVING COUNT(DISTINCT a.`id`) > 1
+ORDER BY COUNT(DISTINCT(a.`id`)) DESC;

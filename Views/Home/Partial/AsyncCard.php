@@ -38,8 +38,7 @@ if (!isset($card_name))
     <div class="card-body">
         <div class="card-title">
             <?php if (isset($card_link)) { ?>
-                <a 
-                    href="<?= $P . $card_link ?>"
+                <a  href="<?= $P . $card_link ?>"
                     class="link-underline link-underline-opacity-0 text-reset"
                 >
                     <strong>

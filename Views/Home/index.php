@@ -34,5 +34,10 @@
         <div class="col col-xs-6 col-sm-4 mb-2">
             <?php require_once __DIR__ . '/Partial/FromStatsCard.php'; ?>
         </div>
+        <?php if ($user->Admin) { ?>
+            <div class="col col-xs-6 col-sm-4 mb-2">
+                <?php require_once __DIR__ . '/Partial/EmailDuplicatesCard.php'; ?>
+            </div>
+        <?php } ?>
     </div>
 </div>

@@ -59,6 +59,14 @@ extends Controller
         );
     }
 
+    #[RequireLogin(requireAdmin: true)]
+    public function duplicate_emails(): StatusCode
+    {
+        return $this->Json(
+            object: Anagrafica::DulicateEmails(connection: $this->DB)
+        );
+    }
+
     #[RequireLogin]
     public function church_stats(?int $year = null): StatusCode
     {

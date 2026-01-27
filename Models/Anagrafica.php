@@ -253,4 +253,43 @@ class Anagrafica extends AnagraficaBase
 
         return array_values(array: array_diff($existing_files, $arr));
     }
+
+    public static function DulicateEmails(\mysqli $connection): array
+    {
+        if (!$connection) return [];
+
+        $query = "SELECT * FROM `email_duplicate`";
+        $result = $connection->query(query: $query);
+        if (!$result) {
+            return [];
+        }
+
+        $arr = [];
+        while ($row = $result->fetch_assoc())
+        {
+            $ids = explode(separator: ', ', string: $row['id_anagrafiche']);
+            $names = explode(separator: ', ', string: $row['nomi_anagrafiche']);
+
+            if (count(value: $ids) !== count(value: $names) || 
+                (int)$row['totale'] !== count(value: $ids)
+            ) {
+                continue;
+            }
+
+            $anagrafiche = [];
+            for ($i = 0; $i < count(value: $ids); $i++) {
+                $anagrafiche[] = [
+                    'id' => (int)$ids[$i],
+                    'name' => $names[$i],
+                ];
+            }
+
+            $arr[] = [
+                'email' => $row['email'],
+                'total' => (int)$row['totale'],
+                'who' => $anagrafiche,
+            ];
+        }
+        return $arr;
+    }
 }
