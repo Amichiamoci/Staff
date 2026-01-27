@@ -10,7 +10,12 @@
 <script>
     function email_duplicates_js_decoder(i) {
         const li = document.createElement('li');
-        li.className = 'list-group-item text-warning';
+        li.className = 'list-group-item';
+        if (i.total > 2)
+            li.classList.add('text-danger');
+        else
+            li.classList.add('text-warning');
+        
         li.innerText = `${i.email} (${i.total}):`;
 
         const inner_ul = document.createElement('ul');
@@ -27,6 +32,7 @@
             a_el.innerText = a.name;
             a_el.className = 'link-underline-opacity-0 text-reset me-1';
             inner_li.appendChild(a_el);
+            inner_ul.appendChild(inner_li);
         }
 
         return li;
