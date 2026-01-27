@@ -17,6 +17,7 @@
 
         const summary = document.createElement('summary');
         summary.innerText = `${i.email} (${i.total})`;
+        summary.className = 'text-truncate';    
         if (i.total > 2)
             summary.classList.add('text-danger');
         else
