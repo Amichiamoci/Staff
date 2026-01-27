@@ -22,7 +22,7 @@ jobs:
         uses: mattnotmitt/doxygen-action@1.12.0
 
       - name: Rename output folder
-        run: mv ./docs_tmp/html ./docs
+        run: cp ./docs_tmp/html ./docs
         
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
