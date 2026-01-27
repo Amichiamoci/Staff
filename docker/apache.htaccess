@@ -2,9 +2,18 @@
     Require all denied
 </FilesMatch>
 
-#
-# Rewrite everythign that is not a file towards index.php
-#
 RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
+
+# Map static resources to Public/ directory
+RewriteRule ^(css|js|images)/(.*)$ Public/$1/$2 [L,NC]
+
+# Skip rewrite if request is for an existing file or directory
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Skip rewrite if request starts with Public/ or docs/ (case-insensitive)
+RewriteCond %{REQUEST_URI} !^/(Public|docs)/ [NC]
+
+# Everything else goes to index.php
 RewriteRule ^(.*)$ index.php [QSA,L]

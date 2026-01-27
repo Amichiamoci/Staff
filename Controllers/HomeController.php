@@ -29,7 +29,7 @@ extends Controller
             'description' => 'Portale staff',
             'icons' => [
                 [
-                    'src' => INSTALLATION_PATH . '/Public/images/icon.png',
+                    'src' => INSTALLATION_PATH . '/images/icon.png',
                     'type' => 'image/png',
                     'sizes' => '256x256',
                 ]

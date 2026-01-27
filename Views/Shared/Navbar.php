@@ -4,7 +4,7 @@
 <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3">
     <div class="container-fluid">
         <a class="navbar-brand" href="<?= $P ?>/">
-            <img src="<?= $P ?>/Public/images/banner.png" 
+            <img src="<?= $P ?>/images/banner.png" 
                  height="48"
                  alt="Logo di Amichiamoci" title="Vai alla pagina principale" 
                  class="d-inline-block align-text-top"
@@ -153,14 +153,14 @@
                         <li class="nav-item dropdown">
                             <a  class="nav-link text-reset dropdown-toggle"
                                 href="#" 
-                                id="emailDropdownMenuLink" 
+                                id="serverDropdownMenuLink" 
                                 role="button" 
                                 data-bs-toggle="dropdown" 
                                 aria-expanded="false"
                             >
                                 Server
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="emailDropdownMenuLink">
+                            <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="serverDropdownMenuLink">
                                 <li>
                                     <a class="dropdown-item" href="<?= $P ?>/email">
                                         Lista email
@@ -182,6 +182,14 @@
                                 <li>
                                     <a class="dropdown-item" href="<?= $P ?>/file/unreferenced">
                                         File non usati
+                                    </a>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="<?= $P ?>/docs/index.html">
+                                        Documentazione
                                     </a>
                                 </li>
                                 <?php if (Security::ApiEnabled()) { ?>

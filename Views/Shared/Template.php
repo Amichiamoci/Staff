@@ -11,8 +11,8 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net/" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net/">
     
-    <link rel="icon" href="<?= $P ?>/Public/images/icon.png" type="image/png">
-    <link rel="shortcut icon" href="<?= $P ?>/Public/images/icon.png" type="image/png">
+    <link rel="icon" href="<?= $P ?>/images/icon.png" type="image/png">
+    <link rel="shortcut icon" href="<?= $P ?>/images/icon.png" type="image/png">
     <link rel="manifest" href="<?= $P ?>/web_manifest">
 
     <link 
@@ -74,8 +74,8 @@
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 
         crossorigin="anonymous"></script>
-    <script src="<?= $P ?>/Public/js/darkmode.js"></script>
-    <script src="<?= $P ?>/Public/js/jQuery.bsConfirm.js"></script>
+    <script src="<?= $P ?>/js/darkmode.js"></script>
+    <script src="<?= $P ?>/js/jQuery.bsConfirm.js"></script>
     <script>
         //
         // Form validation
@@ -120,6 +120,6 @@
             $('[data-confirm]').bsConfirm();
         });
     </script>
-    <script src="<?= $P ?>/Public/js/match-handling.js" defer></script>
+    <script src="<?= $P ?>/js/match-handling.js" defer></script>
 </body>
 </html>
