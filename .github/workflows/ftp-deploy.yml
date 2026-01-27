@@ -20,7 +20,8 @@ jobs:
 
       - name: Rename output folder
         run: |
-          mv ./docs ./docs_tmp
+          cp ./docs ./docs_tmp
+          rm -rf ./docs
           mkdir ./docs
           mv ./docs_tmp/html ./docs
           rm -rf ./docs_tmp
