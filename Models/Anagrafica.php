@@ -292,4 +292,22 @@ class Anagrafica extends AnagraficaBase
         }
         return $arr;
     }
+
+    public static function WithoutEmail(\mysqli $connection): array
+    {
+        if (!$connection) return [];
+
+        $query = "SELECT * FROM `anagrafiche_senza_email`";
+        $result = $connection->query(query: $query);
+        if (!$result)
+            return [];
+
+        // TODO: Improve code here
+        $arr = [];
+        while ($row = $result->fetch_assoc())
+        {
+            $arr[] = $row;
+        }
+        return $arr;
+    }
 }

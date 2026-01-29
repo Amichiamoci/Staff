@@ -38,6 +38,7 @@
             a_el.href = `<?= $P ?>/staff/edit_anagrafica?id=${a.id}`;
             a_el.innerText = a.name;
             a_el.className = 'link-underline-opacity-0 link-secondary p-0 m-0';
+            a_el.title = `Modifica i dati di ${a.name}`;
             inner_li.appendChild(a_el);
         }
 

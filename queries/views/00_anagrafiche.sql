@@ -41,3 +41,13 @@ WHERE a.`email` IS NOT NULL
 GROUP BY LOWER(TRIM(a.`email`))
 HAVING COUNT(a.`id`) > 1
 ORDER BY COUNT(a.`id`) DESC;
+
+CREATE OR REPLACE VIEW `anagrafiche_senza_email` AS
+SELECT
+    a.`id`,
+    CONCAT(a.`nome`, ' ', a.`cognome`) AS "nome_completo",
+    `SessoDaCF` (a.`codice_fiscale`) AS "sesso", 
+    `Eta` (a.`data_nascita`) AS "eta"
+FROM `anagrafiche` a
+WHERE a.`email` IS NULL OR TRIM(a.`email`) = ''
+ORDER BY a.`cognome`, a.`nome`;

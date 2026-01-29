@@ -68,6 +68,14 @@ extends Controller
     }
 
     #[RequireLogin]
+    public function no_email(): StatusCode
+    {
+        return $this->Json(
+            object: Anagrafica::WithoutEmail(connection: $this->DB)
+        );
+    }
+
+    #[RequireLogin]
     public function church_stats(?int $year = null): StatusCode
     {
         if (empty($year))

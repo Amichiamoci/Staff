@@ -51,6 +51,11 @@ if (!isset($card_name))
                 </strong>
             <?php } ?>
         </div>
+        <?php if (isset($card_subtitle)) { ?>
+            <div class="card-subtitle mb-2 text-muted">
+                <?= htmlspecialchars(string: $card_subtitle) ?>
+            </div>
+        <?php } ?>
         <ul class="list-group-flush p-0 overflow-y-auto" style="max-height: 250px;" id="<?= $card_name ?>-list"></ul>
     </div>
 </div>
@@ -100,6 +105,8 @@ if (!isset($card_name))
 unset($card_name);
 if (isset($card_title))
     unset($card_title);
+if (isset($card_subtitle))
+    unset($card_subtitle);
 if (isset($card_link))
     unset($card_link);
 if (isset($card_json_base))
