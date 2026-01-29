@@ -40,7 +40,7 @@
             </div>
         <?php } ?>
         <div class="col col-xs-6 col-sm-4 mb-2">
-            <?php require_once __DIR__ . '/Partial/NoEmailsCard.php'; ?>
+            <?php require_once __DIR__ . '/Partial/NoEmailCard.php'; ?>
         </div>
     </div>
 </div>
