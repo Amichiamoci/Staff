@@ -86,13 +86,10 @@ if ($user !== null)
     $user->PutLogTsInSession();
     $user->UploadDbLog(connection: $connection);
 
-    if (!$user->HasAdditionalData())
-    {
-        if ($user->LoadAdditionalData(connection: $connection))
-        {
-            $user->PutAdditionalInSession();
-        }
-    }
+    if (!$user->HasAdditionalData() && 
+        $user->LoadAdditionalData(connection: $connection)
+    )
+        $user->PutAdditionalInSession();
 
     if (!empty($user->IdStaff))
     {

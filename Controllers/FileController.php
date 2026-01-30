@@ -47,7 +47,7 @@ extends Controller
             $not_cancelled = [];
             foreach ($files as $file)
             {
-                if (!File::Delete(server_path: $file)) {
+                if (!File::Delete(file_path: $file)) {
                     $ok = false;
                     $not_cancelled[] = $file;
                 }

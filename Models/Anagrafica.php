@@ -236,7 +236,7 @@ class Anagrafica extends AnagraficaBase
         $arr = [];
         while ($row = $result->fetch_assoc())
         {
-            if (!File::Exists(db_path: $row['doc']))
+            if (!File::Exists(file_path: $row['doc']))
                 continue;
             $arr[] = $row['doc'];
         }

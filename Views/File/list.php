@@ -51,7 +51,7 @@ function display_tree(
                                 } else { ?>
                                     <?php 
                                         $path = $base_url . DIRECTORY_SEPARATOR . $value;
-                                        if (File::Exists(db_path: $path)) { ?>
+                                        if (File::Exists(file_path: $path)) { ?>
                                             <a 
                                                 href="<?= File::GetExportUrl(path: $path) ?>" 
                                                 class="font-monospace link-underline-1 link-secondary"
@@ -59,7 +59,7 @@ function display_tree(
                                             ><?= htmlspecialchars(string: $value) ?></a>
                                             <span class="user-select-none">
                                                 &nbsp;
-                                                (<?= File::Size(db_path: $path) ?>)
+                                                (<?= File::Size(file_path: $path) ?>)
                                             </span>
                                     <?php } else { ?>
                                         <span class="font-monospace">

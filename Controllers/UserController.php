@@ -8,12 +8,12 @@ use Amichiamoci\Models\MessageType;
 use Amichiamoci\Models\Token;
 use Amichiamoci\Models\User;
 
-use Amichiamoci\Utils\Cookie;
 use Amichiamoci\Utils\Email;
 use Amichiamoci\Utils\Security;
 
 use Richie314\SimpleMvc\Controllers\Attributes\RequireLogin;
 use Richie314\SimpleMvc\Http\StatusCode;
+use Richie314\SimpleMvc\Utils\Cookie;
 
 class UserController
 extends Controller
@@ -38,11 +38,11 @@ extends Controller
 
         if (User::Delete(connection: $this->DB, target: $target_id))
         {
-            $this->Message(message: new Message(type: MessageType::Success, content: 'Utente cancellato'));
+            $this->Message(message: Message::Success(content: 'Utente cancellato'));
             return $this->all();
         }
 
-        $this->Message(message: new Message(type: MessageType::Error, content: 'Qualcosa è andato storto'));
+        $this->Message(message: Message::Error(content: 'Qualcosa è andato storto'));
         return $this->view(id: $target_id);
     }
 
@@ -121,9 +121,9 @@ extends Controller
     public function ban(?int $target_id): StatusCode
     {
         if (User::Ban(connection: $this->DB, id: $target_id)) {
-            $this->Message(message: new Message(type: MessageType::Success, content: 'Utente bloccato'));
+            $this->Message(message: Message::Success(content: 'Utente bloccato'));
         } else {
-            $this->Message(message: new Message(type: MessageType::Error, content: 'Qualcosa è andato storto'));
+            $this->Message(message: Message::Error(content: 'Qualcosa è andato storto'));
         }
         
         return $this->view(id: $target_id);
@@ -133,9 +133,9 @@ extends Controller
     public function restore(?int $target_id): StatusCode
     {
         if (User::Restore(connection: $this->DB, id: $target_id)) {
-            $this->Message(message: new Message(type: MessageType::Success, content: 'Utente sbloccato'));
+            $this->Message(message: Message::Success(content: 'Utente sbloccato'));
         } else {
-            $this->Message(message: new Message(type: MessageType::Error, content: 'Qualcosa è andato storto'));
+            $this->Message(message: Message::Error(content: 'Qualcosa è andato storto'));
         }
         
         return $this->view(id: $target_id);

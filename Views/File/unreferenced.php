@@ -21,8 +21,7 @@ use Amichiamoci\Utils\File;
 <ul class="list-group m-2">
     <?php foreach ($files as $file) { ?>
         <li class="list-group-item">
-            <a 
-                href="<?= File::GetExportUrl(path: $file) ?>"
+            <a  href="<?= File::GetExportUrl(path: $file) ?>"
                 class="link-secondary link-underline link-underline-opacity-0 font-monospace"
                 title="Scarica il file"
                 download

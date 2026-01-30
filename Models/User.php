@@ -1,11 +1,11 @@
 <?php
 namespace Amichiamoci\Models;
 
-use Amichiamoci\Utils\Cookie;
 use Amichiamoci\Utils\Security;
-
 use Amichiamoci\Models\Templates\DbEntity;
+
 use Richie314\SimpleMvc\Users\User as BaseUser;
+use Richie314\SimpleMvc\Utils\Cookie;
 
 
 class User

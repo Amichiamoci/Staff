@@ -5,6 +5,7 @@ namespace Amichiamoci\Controllers;
 use Richie314\SimpleMvc\Http\StatusCode;
 use Richie314\SimpleMvc\Controllers\Attributes\RequireLogin;
 use Richie314\SimpleMvc\Http\Method;
+use Richie314\SimpleMvc\Utils\Cookie;
 
 use Amichiamoci\Models\Anagrafica;
 use Amichiamoci\Models\AnagraficaConIscrizione;
@@ -12,7 +13,6 @@ use Amichiamoci\Models\Edizione;
 use Amichiamoci\Models\User;
 use Amichiamoci\Models\Parrocchia;
 use Amichiamoci\Models\Staff;
-use Amichiamoci\Utils\Cookie;
 use Amichiamoci\Utils\Security;
 
 class HomeController

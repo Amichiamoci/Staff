@@ -240,7 +240,7 @@ class Iscrizione extends NomeIdSemplice
         $arr = [];
         while ($row = $result->fetch_assoc())
         {
-            if (!File::Exists(db_path: $row['cert']))
+            if (!File::Exists(file_path: $row['cert']))
                 continue;
             $arr[] = $row['cert'];
         }
