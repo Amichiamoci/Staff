@@ -116,21 +116,7 @@ function birthday_emails(): void
         $email = $person['email'];
         $subject = "Buon compleanno " . htmlspecialchars(string: $person['name']) . '!';
 
-        ob_start();
-        ?>
-            <h3>Tanti auguri a te</h3>
-            <h3>Tanti auguri a te</h3>
-            <h3>Tanti auguri a <?= htmlspecialchars(string: $person['name']) ?></h3>
-            <h3>Tanti auguri a te!</h3>
-
-            <p>
-                Ciao <?= htmlspecialchars(string: $person['name']) ?>, lo staff di 
-                <a href="<?= MAIN_SITE_URL ?>" target="_blank" class="link">Amichiamoci</a>
-                ti augura un buon compleanno, passa questo giorno al meglio.
-            </p>
-        <?php
-        $mail_text = ob_get_contents();
-        ob_end_clean();
+        $mail_text = Email::Birthday(name: $person['name']);
 
         // For debugging: we don't want to send real emails when testing
         $email_cron_override = Security::LoadEnvironmentOfFromFile(var: 'CRON_CAPTURE_OUTGOING_ADDRESS');

@@ -2,20 +2,16 @@
 namespace Amichiamoci\Utils;
 use PHPMailer\PHPMailer\PHPMailer;
 
-/*
-if (!defined(constant_name: 'SITE_NAME')) {
-    throw new \Exception(message: 'SITE_NAME was not defined!');
-}
-*/
-
 class Email
 {
-    public static function GetByUserName(\mysqli $connection, string $user) : string
+    public static function GetByUserName(
+        \mysqli $connection, 
+        string $user,
+    ): string
     {
-        if (!$connection || !isset($user) || empty($user))
-        {
+        if (!$connection || empty($user))
             return "";
-        }
+
         $query = "CALL GetAssociatedMailByUserName('" . $connection->real_escape_string(string: $user) . "')";
         $result = $connection->query(query: $query);
         $return = "";
@@ -38,12 +34,15 @@ class Email
         $connection->next_result();
         return $return;
     }
-    public static function GetByUserId(\mysqli $connection, int $user) : string
+
+    public static function GetByUserId(
+        \mysqli $connection, 
+        int $user,
+    ): string
     {
-        if (!$connection || !isset($user))
-        {
+        if (!$connection || $user <= 0)
             return "";
-        }
+
         $query = "CALL SelectAssociatedMail($user)";
         $result = $connection->query(query: $query);
         $return = "";
@@ -52,21 +51,20 @@ class Email
             if ($row = $result->fetch_assoc())
             {
                 if (isset($row["email"]))
-                {
                     $return = $row["email"];
-                }
             }
             $result->close();
         }
         $connection->next_result();
         return $return;
     }
+
     public static function Send(
         string $to, 
         string $subject, 
         string $body, 
         ?\mysqli $connection = null, 
-        bool $hide_output = false
+        bool $hide_output = false,
     ): bool {
         $sanitized_email = filter_var(value: $to, filter: FILTER_SANITIZE_EMAIL);
         $mail = new PHPMailer();
@@ -170,10 +168,26 @@ class Email
             'email_id' => $id,
             'site_name' => SITE_NAME,
             'site_url' => MAIN_SITE_URL,
-            'B' => INSTALLATION_PATH,
+            'P' => INSTALLATION_PATH,
         ]);
         ob_start();
         require dirname(path: __DIR__) . "/Views/Shared/Email.php";
+        $rendered_content = ob_get_contents();
+        ob_end_clean();
+        return $rendered_content;
+    }
+
+    public static function Birthday(
+        string $name,
+    ): string {
+        extract(array: [
+            'name' => $name,
+            'site_name' => SITE_NAME,
+            'site_url' => MAIN_SITE_URL,
+            'P' => INSTALLATION_PATH,
+        ]);
+        ob_start();
+        require dirname(path: __DIR__) . "/Views/Email/birthday.php";
         $rendered_content = ob_get_contents();
         ob_end_clean();
         return $rendered_content;
