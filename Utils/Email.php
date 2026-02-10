@@ -168,7 +168,7 @@ class Email
             'email_id' => $id,
             'site_name' => SITE_NAME,
             'site_url' => MAIN_SITE_URL,
-            'P' => INSTALLATION_PATH,
+            'P' => File::getInstallationPath(),
         ]);
         ob_start();
         require dirname(path: __DIR__) . "/Views/Shared/Email.php";
@@ -184,7 +184,7 @@ class Email
             'name' => $name,
             'site_name' => SITE_NAME,
             'site_url' => MAIN_SITE_URL,
-            'P' => INSTALLATION_PATH,
+            'P' => File::getInstallationPath(),
         ]);
         ob_start();
         require dirname(path: __DIR__) . "/Views/Email/birthday.php";
