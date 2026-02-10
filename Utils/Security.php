@@ -4,7 +4,8 @@ namespace Amichiamoci\Utils;
 use GuzzleHttp\Client as HttpClient;
 use Richie314\SimpleMvc\Utils\Security as BaseSecurity;
 
-class Security extends BaseSecurity
+class Security
+extends BaseSecurity
 {
     public static function ApiEnabled(): bool
     {

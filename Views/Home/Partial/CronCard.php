@@ -9,10 +9,10 @@
 ?>
 
 <script>
-    function cron_js_decoder(i) {
+    function cron_js_decoder(item) {
         const li = document.createElement('li');
         li.className = 'list-group-item';
-        li.innerText = `${i.name}: ${i.log}`;
+        li.innerText = `${item.Name}: ${item.LastRun}`;
         return li;
     }
 </script>

@@ -9,10 +9,12 @@ use Richie314\SimpleMvc\Utils\Cookie;
 
 use Amichiamoci\Models\Anagrafica;
 use Amichiamoci\Models\AnagraficaConIscrizione;
+use Amichiamoci\Models\Cron;
 use Amichiamoci\Models\Edizione;
 use Amichiamoci\Models\User;
 use Amichiamoci\Models\Parrocchia;
 use Amichiamoci\Models\Staff;
+use Amichiamoci\Utils\File;
 use Amichiamoci\Utils\Security;
 
 class HomeController
@@ -23,13 +25,13 @@ extends Controller
         return $this->Json(object: [
             'name' => SITE_NAME,
             'short_name' => SITE_NAME,
-            'start_url' => INSTALLATION_PATH . '/',
+            'start_url' => File::getInstallationPath() . '/',
             'display' => 'standalone',
             'background_color' => '#fff',
             'description' => 'Portale staff',
             'icons' => [
                 [
-                    'src' => INSTALLATION_PATH . '/images/icon.png',
+                    'src' => File::getInstallationPath() . '/images/icon.png',
                     'type' => 'image/png',
                     'sizes' => '256x256',
                 ]
@@ -126,38 +128,8 @@ extends Controller
     #[RequireLogin(requireAdmin: true)]
     public function cron(): StatusCode
     {
-        $crons = [
-            [
-                'name' => 'Compleanni',
-                'file' => 'birthdays.txt',
-            ],
-            [
-                'name' => 'Partite',
-                'file' => 'matches.txt',
-            ],
-        ];
-        $status = array_map(callback: function (array $a): array {
-            try {
-                $file_name = CRON_LOG_DIR . DIRECTORY_SEPARATOR . $a['file'];
-                if (!is_file(filename: $file_name)) {
-                    throw new \Exception(message: 'File non trovato');
-                }
-                $log = file_get_contents(filename: $file_name);
-                if (!$log) {
-                    $log = '?';
-                }
-                return [
-                    'name' => $a['name'], 
-                    'log' => $log,
-                ];
-            } catch (\Throwable $e) {
-                return [
-                    'name' => $a['name'], 
-                    'log' => $e->getMessage(),
-                ];
-            }
-        }, array: $crons);
-        return $this->Json(object: array_values(array: $status));
+        $crons = Cron::fetchAllFromDb(connection: $this->DB);
+        return $this->Json(object: $crons);
     }
 
     public function login(
@@ -167,7 +139,7 @@ extends Controller
     ): StatusCode
     {
         if ($this->User !== null)
-            return $this->Redirect(url: INSTALLATION_PATH . '/');
+            return $this->Redirect(url: File::getInstallationPath() . '/');
 
         $message = '';
 
@@ -193,13 +165,13 @@ extends Controller
                     user_ip: Security::GetIpAddress()
                 )) {
                     // Login successful
-                    $redirect_url = INSTALLATION_PATH . '/';
+                    $redirect_url = File::getInstallationPath() . '/';
                     if (Cookie::Exists(name: 'Redirect'))
                     {
                         $redirect_url = Cookie::Get(name: 'Redirect');
                         Cookie::Delete(name: 'Redirect');
                         if (empty($redirect_url)) {
-                            $redirect_url = INSTALLATION_PATH . '/';
+                            $redirect_url = File::getInstallationPath() . '/';
                         }
                     }
         

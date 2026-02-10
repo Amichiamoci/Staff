@@ -3,11 +3,16 @@
 ini_set(option: 'display_errors', value: '1');
 ini_set(option: 'display_startup_errors', value: '1');
 
-require_once dirname(path: __DIR__) . '/vendor/autoload.php';
 require_once dirname(path: __DIR__) . '/config.php';
 
 use Amichiamoci\Utils\Email;
 use Amichiamoci\Utils\Security;
+use Amichiamoci\Models\Cron;
+use Amichiamoci\Utils\File;
+
+use Monolog\Logger;
+use Monolog\Level;
+use Monolog\Handler\StreamHandler;
 
 if (PHP_SAPI !== 'cli' && 
     !((bool)Security::LoadEnvironmentOfFromFile(var: 'CRON_ENABLE_HTTP', default: 0))
@@ -19,83 +24,72 @@ if (PHP_SAPI !== 'cli' &&
 
 echo 'CRON job started' . PHP_EOL . PHP_EOL;
 
-$connection = new \mysqli(
-    hostname: $MYSQL_HOST, 
-    username: $MYSQL_USER, 
-    password: $MYSQL_PASSWORD, 
-    database: $MYSQL_DB,
-    port: $MYSQL_PORT
-);
-unset($MYSQL_HOST, $MYSQL_USER, $MYSQL_PASSWORD, $MYSQL_DB);
-if (!$connection) {
+if (!$connection)
+{
     echo 'Connection to db host failed: all operations aborted.' . PHP_EOL;
     exit;
 }
 
-function run_daily_operation(
-    string $name,
-    callable $function,
-    string $last_run_file,
-): void {
-    if (empty($name) || empty($last_run_file)) {
-        throw new \Exception(message: "Invalid paramters");
-    }
+$cron_logger = new Logger(name: 'Cron logger');
+$cron_logger->pushHandler(
+    handler: new StreamHandler(
+        stream: File::getLogDir() . DIRECTORY_SEPARATOR . 'cron.log', 
+        level: Level::Info,
+    )
+);
 
-    echo "Starting operation '$name'" . PHP_EOL;
-    if (!file_exists(filename: CRON_LOG_DIR)) {
-        mkdir(directory: CRON_LOG_DIR);
-    }
+function run_daily_operation(Cron $defaultCron): void {
+    global $connection, $cron_logger;
 
-    $file_path = CRON_LOG_DIR . DIRECTORY_SEPARATOR . $last_run_file;
-    $curr_date = date(format: "Y-m-d");
-    $file_just_created = false;
-    if (!file_exists(filename: $file_path))
+    $actualCron = Cron::fetchFromDb(
+        connection: $connection,
+        name: $defaultCron->Name,
+    );
+
+    if ($actualCron === null)
     {
-        echo "File '$file_path' not found. Creating now..." . PHP_EOL;
-        file_put_contents(filename: $file_path, data: $curr_date);
-        $file_just_created = true;
+        $defaultCron->createInDB(connection: $connection);
+        $actualCron = $defaultCron;
     }
 
-    $file_content = file_get_contents(filename: $file_path);
-    $file_date = date_create(datetime: date(format: 'Y-m-d', timestamp: strtotime(datetime: $file_content)));
-    if (!$file_date) {
-        echo 
-            "'$file_content' was not recognized as a valid date " . 
-            "(required format Y-m-d): operation aborted." . PHP_EOL . PHP_EOL;
+    if (!$actualCron->isDue())
+    {
+        $nextRun = clone $actualCron->LastRun;
+        $nextRun->add(interval: $actualCron->Interval);
+        $cron_logger->info(message: 
+            "Operation '" . $actualCron->Name . "' skipped: " .
+            "next run scheduled at " . $nextRun->format(format: 'd/m/Y H:i:s')
+        );
         return;
     }
+    echo "Running operation '" . $actualCron->Name . "'..." . PHP_EOL;
 
-    $diff = (int)date_diff(baseObject: $file_date, targetObject: new DateTime())->days;
-    if ($diff < 1 && !$file_just_created)
-    {
-        $italian_date = $file_date->format(format: 'd/m/Y');
-        echo "Operation skipped (last run on $italian_date: $diff days ago)." . PHP_EOL . PHP_EOL;
-        return;
-    }
-
+    $f = $actualCron->FunctionName;
     try {
-        $function();
+        $f();
     } catch (\Throwable $e) {
-        echo $e->getMessage() . PHP_EOL;
+        $cron_logger->error(message: $e->getMessage());
     }
 
-    file_put_contents(filename: $file_path, data: $curr_date);
-    echo PHP_EOL;
+    $actualCron->LastRun = new \DateTime();
+    $actualCron->updateLastRunInDb(connection: $connection);
 }
 
 
 function birthday_emails(): void
 {
-    global $connection;
-    if (!$connection) {
-        echo 'Connection to db lost' . PHP_EOL;
+    global $connection, $cron_logger;
+    if (!$connection)
+    {
+        $cron_logger->error(message: 'Connection to db lost');
         return;
     }
 
     $query = "SELECT `nome`, `email` FROM `compleanni_oggi` WHERE `email` IS NOT NULL";
     $result = $connection->query(query: $query);
-    if (!$result) {
-        echo 'Could not query the db' . PHP_EOL;
+    if (!$result)
+    {
+        $cron_logger->error(message: 'Could not query the db for birthday emails');
         return;
     }
     
@@ -119,11 +113,11 @@ function birthday_emails(): void
         $mail_text = Email::Birthday(name: $person['name']);
 
         // For debugging: we don't want to send real emails when testing
-        $email_cron_override = Security::LoadEnvironmentOfFromFile(var: 'CRON_CAPTURE_OUTGOING_ADDRESS');
-        if (isset($email_cron_override))
-        {
+        $email_cron_override = Security::LoadEnvironmentOfFromFile(
+            var: 'CRON_CAPTURE_OUTGOING_ADDRESS',
+        );
+        if (!empty($email_cron_override))
             $email = $email_cron_override;
-        }
 
         if (!Email::Send(
             to: $email, 
@@ -131,36 +125,32 @@ function birthday_emails(): void
             body: $mail_text, 
             connection: $connection)
         ) {
-            echo "Could not send email to $email." . PHP_EOL;
+            $cron_logger->warning(message: "Could not send birthday email to $email");
             continue;
         }
         $sent_emails++;
     }
 
-    echo "$sent_emails/$emails_to_send sent emails." . PHP_EOL;
+    $cron_logger->info(message: "Sent $sent_emails/$emails_to_send birthday emails.");
 }
 
 
 $operations = [
-    [
-        'name' => 'birthdays',
-        'function' => 'birthday_emails',
-        'last_run_file' => 'birthdays.txt',
-    ],
+    new Cron(
+        name: 'Birthday Emails',
+        functionName: 'birthday_emails',
+        lastRun: new DateTime(datetime: '2025-01-01'),
+        interval: new DateInterval(duration: 'P1D'),
+    )
 ];
 
 foreach ($operations as $operation)
 {
     try {
-        run_daily_operation(
-            name: $operation['name'], 
-            function: $operation['function'], 
-            last_run_file: $operation['last_run_file']
-        );
+        run_daily_operation(defaultCron: $operation);
     } catch (\Throwable $ex) {
         echo "Job interruped by exception: " . $ex->getMessage();
         echo PHP_EOL . PHP_EOL;
     }
 }
 echo 'Cron ended.' . PHP_EOL;
-echo 'See sent emails at http://' . DOMAIN . INSTALLATION_PATH . '/emails'. PHP_EOL;

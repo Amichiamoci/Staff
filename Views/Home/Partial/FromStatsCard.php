@@ -13,4 +13,4 @@
 </div>
 
 <?php require_once __DIR__ . '/chart.js.php'; ?>
-<script src="<?= $P ?>/Public/js/stats-from.js" defer></script>
+<script src="<?= $P ?>/js/stats-from.js" defer></script>

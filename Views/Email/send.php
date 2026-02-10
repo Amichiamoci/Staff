@@ -6,7 +6,8 @@
     <div class="form-floating mb-3">
         <input 
             required
-            type="email" class="form-control" 
+            type="email"
+            class="form-control" 
             id="to"
             name="to" 
         >
@@ -54,5 +55,6 @@
     src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js" 
     crossorigin="anonymous" 
     referrerpolicy="no-referrer"
-    defer></script>
-<script src="<?= $P ?>/Public/js/email.js" defer></script>
+    defer
+></script>
+<script src="<?= $P ?>/js/email.js" defer></script>

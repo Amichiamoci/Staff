@@ -44,6 +44,12 @@ if (isset($staff) && $staff instanceof Staff) {
 
                     <dt class="col-sm-4">
                         Commissioni
+                        <a  href="<?= $P ?>/staff/get_involved" 
+                            class="link-underline link-underline-opacity-0 link-primary"
+                            title="Cambia le commissioni a cui partecipi"
+                        >
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
                     </dt>
                     <dd class="col-sm-8">
                         <ul class="list-group-flush p-0">

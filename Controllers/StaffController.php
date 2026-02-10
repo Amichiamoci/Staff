@@ -254,9 +254,7 @@ extends Controller
     {
         $current_edition = Edizione::Current(connection: $this->DB);
         if (!isset($current_edition) && !$this->User->Admin)
-        {
             return $this->BadRequest();
-        }
 
         if ($this->IsPost())
         {
@@ -271,11 +269,10 @@ extends Controller
                 commissioni: $roles, 
                 is_referente: $church_manager
             );
-            if ($res) {
-                $this->Message(message: Message::Success(content: 'Partecipazione confermata'));
-            } else {
-                $this->Message(message: Message::Error(content: 'Qualcosa non ha funzionato :/'));
-            }
+            if ($res)
+                return $this->Redirect(url: File::getInstallationPath() . '/');
+            
+            $this->Message(message: Message::Error(content: 'Qualcosa non ha funzionato :/'));
         }
         return $this->Render(
             view: 'Staff/get-involved',
@@ -296,9 +293,7 @@ extends Controller
             return File::IsUploadOk(file: $file);
         });
         if (count(value: $files) === 0)
-        {
             return null;
-        }
 
         $target_file_name = 
             "documenti" . DIRECTORY_SEPARATOR . 
@@ -306,11 +301,9 @@ extends Controller
 
         $path = File::UploadDocumentsMerge(files: $files, final_name: $target_file_name);
         if (empty($path))
-        {
             return null;
-        }
 
-        return File::AbsoluteToDbPath(server_path: $path);
+        return File::VirtualPath(physical_path: $path);
     }
 
     public function new_anagrafica(
@@ -495,9 +488,7 @@ extends Controller
             {
                 $year = Edizione::ById(connection: $this->DB, id: $edizione);
                 if (!isset($year))
-                {
                     return $this->NotFound();
-                }
 
                 $target_file_name = 
                     "certificati" . DIRECTORY_SEPARATOR . 
@@ -514,9 +505,7 @@ extends Controller
                 // We are editing a subscription
                 $iscrizione = Iscrizione::ById(connection: $this->DB, id: $id_iscrizione);
                 if ($iscrizione === null)
-                {
                     return $this->NotFound();
-                }
 
                 $iscrizione->Parrocchia->Id = $parrocchia;
                 $iscrizione->IdTutore = empty($tutore) ? null : $tutore;
@@ -528,7 +517,7 @@ extends Controller
                     if (!Iscrizione::UpdateCertificato(
                         connection: $this->DB, 
                         id: $iscrizione->Id, 
-                        certificato: File::AbsoluteToDbPath(server_path: $actual_path))
+                        certificato: File::VirtualPath(physical_path: $actual_path))
                     ) {
                         $actual_path = null; // In order to show warning later
                     }
@@ -541,7 +530,7 @@ extends Controller
                     tutore: empty($tutore) ? null : $tutore, 
                     certificato: empty($actual_path) ? 
                         null : 
-                        File::AbsoluteToDbPath(server_path: $actual_path), 
+                        File::VirtualPath(physical_path: $actual_path), 
                     parrocchia: $parrocchia, 
                     taglia: Taglia::from(value: $taglia), 
                     edizione: $edizione,

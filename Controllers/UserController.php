@@ -4,12 +4,12 @@ namespace Amichiamoci\Controllers;
 
 use Amichiamoci\Models\Anagrafica;
 use Amichiamoci\Models\Message;
-use Amichiamoci\Models\MessageType;
 use Amichiamoci\Models\Token;
 use Amichiamoci\Models\User;
 
 use Amichiamoci\Utils\Email;
 use Amichiamoci\Utils\Security;
+use Amichiamoci\Utils\File;
 
 use Richie314\SimpleMvc\Controllers\Attributes\RequireLogin;
 use Richie314\SimpleMvc\Http\StatusCode;
@@ -23,7 +23,7 @@ extends Controller
     {
         $this->getUser()->Logout();
         Cookie::DeleteIfExists(name: "login_forward");
-        return $this->Redirect(url: INSTALLATION_PATH . '/');
+        return $this->Redirect(url: File::getInstallationPath() . '/');
     }
 
     #[RequireLogin(requireAdmin: true)]
@@ -187,6 +187,7 @@ extends Controller
 
     private function password_recover_send_mail(Token $token): bool
     {
+        $installation_url = DOMAIN . File::getInstallationPath();
         ob_start();
         ?>
         <p>
@@ -198,11 +199,11 @@ extends Controller
         </p>
         <div style="margin: 1em;" class="border">
             <a 
-                href="https://<?= DOMAIN . INSTALLATION_PATH ?>/user/token?value=<?= $token->Value ?>&secret=<?= $token->Secret ?>"
+                href="https://<?= $installation_url ?>/user/token?value=<?= $token->Value ?>&secret=<?= $token->Secret ?>"
                 class="no-underline"
                 title="Clicca qui">
                 <strong>
-                    https://<?= DOMAIN . INSTALLATION_PATH  ?>/user/token?value=<?= $token->Value ?>&secret=<?= $token->Secret ?>
+                    https://<?= $installation_url ?>/user/token?value=<?= $token->Value ?>&secret=<?= $token->Secret ?>
                 </strong>
             </a>
         </div>
@@ -488,6 +489,7 @@ extends Controller
         #[\SensitiveParameter] string $password, 
     ): string
     {
+        $installation_url = DOMAIN . File::getInstallationPath();
         ob_start();
         ?>
             <h3>Benvenuto/a</h3>
@@ -497,7 +499,7 @@ extends Controller
             <p>
                 È appena stato creato un utente sul portale con questa email.
                 Ti chiediamo di loggarti nella sezione 
-                <a href="https://<?= DOMAIN . INSTALLATION_PATH ?>" class="link">admin</a>
+                <a href="https://<?= $installation_url ?>" class="link">admin</a>
                 utilizzando come nome utente: 
                 <code style="font-family: monospace;"><?= htmlspecialchars(string: $user->Name) ?></code>
                 e come <strong>password: </strong>

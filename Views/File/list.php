@@ -1,5 +1,5 @@
 <h1>
-    Indice di <span class="font-monospace">Uploads</span>
+    Indice di <span class="font-monospace">/data</span>
 </h1>
 <?php
 use Amichiamoci\Utils\File;

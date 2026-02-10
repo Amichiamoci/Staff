@@ -72,11 +72,14 @@
 </h3>
 <pre><code class="language-html"><?= htmlspecialchars(string: $email->Content) ?></code></pre>  
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/html.min.js"></script>
+<?= define(constant_name: 'HLJS_VER', value: '11.11.1') ?>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/<?= HLJS_VER ?>/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/<?= HLJS_VER ?>/languages/html.min.js"></script>
 <script>
     (() => {
-        $('head').append( $('<link rel="stylesheet" type="text/css">').attr('href', 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css') );
+        const href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/<?= HLJS_VER ?>/styles/default.min.css';
+        $('head').append( $('<link rel="stylesheet" type="text/css">').attr('href', href) );
         hljs.highlightAll();
     })();
 </script>

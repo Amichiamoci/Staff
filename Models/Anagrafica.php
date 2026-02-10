@@ -229,9 +229,8 @@ class Anagrafica extends AnagraficaBase
 
         $query = 'SELECT DISTINCT(a.`documento`) AS "doc" FROM `anagrafiche` a WHERE a.`documento` IS NOT NULL';
         $result = $connection->query(query: $query);
-        if (!$result) {
+        if (!$result) 
             return [];
-        }
 
         $arr = [];
         while ($row = $result->fetch_assoc())
@@ -242,14 +241,7 @@ class Anagrafica extends AnagraficaBase
         }
         $result->close();
 
-        $existing_files = array_filter(
-            array: File::ListDirectory(dir: SERVER_UPLOAD_PATH . DIRECTORY_SEPARATOR . 'documenti'),
-            callback: function (string $key, string|array $value): bool {
-                return is_string(value: $value) && $key === $value;
-        }, mode: ARRAY_FILTER_USE_BOTH);
-        $existing_files = array_map(callback: function (string $key): string {
-            return DIRECTORY_SEPARATOR . 'documenti' . DIRECTORY_SEPARATOR . $key;
-        }, array: array_keys($existing_files));
+        $existing_files = File::SavedDocuments();
 
         return array_values(array: array_diff($existing_files, $arr));
     }

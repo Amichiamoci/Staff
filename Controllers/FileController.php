@@ -21,7 +21,9 @@ extends Controller
         if (File::IsExternalFile(filename: $name))
             return $this->Redirect(url: File::GetExportUrl(path: $name));
 
-        return $this->File(file_path: File::ServerPath(db_path: $name));
+        return $this->File(
+            file_path: File::PhysicalPath(virtual_path: $name),
+        );
     }
 
     #[RequireLogin(requireAdmin: true)]
@@ -37,17 +39,15 @@ extends Controller
     #[RequireLogin(requireAdmin: true)]
     public function unreferenced(): StatusCode
     {
-        $files = array_map(
-            callback: function(string $file): string { return SERVER_UPLOAD_PATH . $file; },
-            array: AnagraficaConIscrizione::UnreferencedFiles(connection: $this->DB)
-        );
+        $files = AnagraficaConIscrizione::UnreferencedFiles(connection: $this->DB);
         if ($this->IsPost())
         {
             $ok = true;
             $not_cancelled = [];
             foreach ($files as $file)
             {
-                if (!File::Delete(file_path: $file)) {
+                if (!File::Delete(file_path: $file))
+                {
                     $ok = false;
                     $not_cancelled[] = $file;
                 }
@@ -69,9 +69,7 @@ extends Controller
             view: 'File/unreferenced',
             title: 'Elimina file vecchi',
             data: [
-                'files' => array_map(callback: function(string $file): string {
-                    return File::AbsoluteToDbPath(server_path: $file);
-                }, array: $files),
+                'files' => $files,
             ],
         );
     }
