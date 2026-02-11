@@ -137,7 +137,7 @@ function birthday_emails(): void
 
 $operations = [
     new Cron(
-        name: 'Birthday Emails',
+        name: 'Email compleanni',
         functionName: 'birthday_emails',
         lastRun: new DateTime(datetime: '2025-01-01'),
         interval: new DateInterval(duration: 'P1D'),

@@ -12,7 +12,7 @@
     function cron_js_decoder(item) {
         const li = document.createElement('li');
         li.className = 'list-group-item';
-        li.innerText = `${item.Name}: ${item.LastRun}`;
+        li.innerText = `${item.name}: ${item.lastRun}`;
         return li;
     }
 </script>

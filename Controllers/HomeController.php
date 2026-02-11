@@ -129,7 +129,15 @@ extends Controller
     public function cron(): StatusCode
     {
         $crons = Cron::fetchAllFromDb(connection: $this->DB);
-        return $this->Json(object: $crons);
+        return $this->Json(object: array_map(
+            callback: function (Cron $cron): array {
+                return [
+                    'name' => $cron->Name,
+                    'lastRun' => $cron->LastRun->format(format: 'Y-m-d H:i:s'),
+                ];
+            },
+            array: $crons
+        ));
     }
 
     public function login(

@@ -72,6 +72,11 @@ class Cron
         return $cronJobs;
     }
 
+    private static function dateIntervalToHours(\DateInterval $interval): int
+    {
+        return ($interval->d * 24) + $interval->h + (int)($interval->i / 60);
+    }
+
     public function createInDB(\mysqli $connection): void
     {
         $connection->execute_query(
@@ -79,7 +84,7 @@ class Cron
             params: [
                 $this->Name,
                 $this->FunctionName,
-                (int)$this->Interval->format(format: 'H'),
+                self::dateIntervalToHours(interval: $this->Interval),
             ]
         );
     }
