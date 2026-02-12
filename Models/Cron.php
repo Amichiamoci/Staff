@@ -23,10 +23,17 @@ class Cron
         $this->Interval = $interval;
     }
 
-    public function isDue(): bool
+    /**
+     * Checks if the CRON is (or was) due now with a confidence of $expiryMinutes
+     * @param int $expiryMinutes Number of minutes to consider a CRON as "due" BEFORE its scheduled time. Default is 4 minutes.
+     * @return bool true if the CRON is due, false otherwise
+     */
+    public function isDue(int $expiryMinutes = 4): bool
     {
         $nextRun = clone $this->LastRun;
         $nextRun->add(interval: $this->Interval);
+        $nextRun->sub(interval: new \DateInterval(duration: 'PT' . $expiryMinutes . 'M'));
+
         $currentTime = new \DateTime();
         return $currentTime >= $nextRun;
     }
