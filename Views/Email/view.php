@@ -72,7 +72,9 @@
 </h3>
 <pre><code class="language-html"><?= htmlspecialchars(string: $email->Content) ?></code></pre>  
 
-<?= define(constant_name: 'HLJS_VER', value: '11.11.1') ?>
+<?php 
+    define(constant_name: 'HLJS_VER', value: '11.11.1');
+?>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/<?= HLJS_VER ?>/highlight.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/<?= HLJS_VER ?>/languages/html.min.js"></script>

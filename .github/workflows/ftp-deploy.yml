@@ -50,6 +50,7 @@ jobs:
         
       - name: Load DB data and website address in .env
         run: |
+          echo -e "DOMAIN=amichiamoci.it" > ".env"
           echo -e "MYSQL_HOST=${{ secrets.DB_ADDRESS }}" > ".env"
           echo -e "MYSQL_USER=${{ secrets.DB_USER }}" >> ".env"
           echo -e "MYSQL_PASSWORD=${{ secrets.DB_PASSWORD }}" >> ".env"
