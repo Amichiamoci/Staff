@@ -52,7 +52,7 @@ function run_daily_operation(Cron $defaultCron): void {
         $actualCron = $defaultCron;
     }
 
-    if (!$actualCron->isDue())
+    if (!$actualCron->isDue(expiryMinutes: 25))
     {
         $nextRun = clone $actualCron->LastRun;
         $nextRun->add(interval: $actualCron->Interval);
