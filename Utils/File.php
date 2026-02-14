@@ -184,6 +184,18 @@ extends BaseFile
         return parent::Delete(file_path: $physical_path);
     }
 
+    public static function Size(string $file_path): string
+    {
+        if (self::IsExternalFile(filename: $file_path))
+            return '';
+
+        $physical_path = self::PhysicalPath(virtual_path: $file_path);
+        if (!$physical_path) 
+            return '';
+
+        return parent::Size(file_path: $physical_path);
+    }
+
     public static function ListDirectory(string $dir): array
     {
         if (self::IsExternalFile(filename: $dir))
