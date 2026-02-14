@@ -42,5 +42,8 @@
         <div class="col col-xs-6 col-sm-4 mb-2">
             <?php require_once __DIR__ . '/Partial/NoEmailCard.php'; ?>
         </div>
+        <div class="col col-xs-6 col-sm-4 mb-2">
+            <?php require_once __DIR__ . '/Partial/EmailProvidersCard.php'; ?>
+        </div>
     </div>
 </div>

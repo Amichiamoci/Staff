@@ -212,20 +212,6 @@ class Iscrizione extends NomeIdSemplice
         $res = (bool)$connection->query(query: $query);
         return $res && $connection->affected_rows >= 1;
     }
-
-    public static function EmailNonSubscribed(\mysqli $connection, int $year): ?array
-    {
-        if (!$connection) 
-            return null;
-        $query = "SELECT `nome`, `sesso`, `email` 
-        FROM `non_iscritti` 
-        WHERE `anno` = $year AND `email` IS NOT NULL";
-        $result = $connection->query(query: $query);
-        if (!$result)
-            return [];
-
-        return $result->fetch_all(mode: \MYSQL_ASSOC);
-    }
     
     public static function UnreferencedCertificates(\mysqli $connection): array
     {

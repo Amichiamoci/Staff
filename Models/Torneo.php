@@ -46,23 +46,21 @@ class Torneo extends NomeIdSemplice
     }
 
     private static function ParseIdsAndNames(string|array|null $ids, string|array|null $names): array {
-        if (!isset($ids) || !isset($names)) {
+        if (!isset($ids) || !isset($names))
             return [];
-        }
+
         $arr = [];
 
-        if (is_string(value: $ids)) {
+        if (is_string(value: $ids))
             $ids = explode(separator: ',', string: $ids);
-        }
-        if (is_string(value: $names)) {
+
+        if (is_string(value: $names)) 
             $names = explode(separator: ',', string: $names);
-        }
 
         $length = min(count(value: $ids),  count(value: $names));
         for ($i = 0; $i < $length; $i++)
-        {
             $arr[(int)$ids[$i]] = trim(string: $names[$i]);
-        }
+
         return $arr;
     }
 
@@ -90,6 +88,7 @@ class Torneo extends NomeIdSemplice
     {
         if (!$connection)
             return [];
+
         $result = $connection->query(query: "SELECT * FROM `tornei_espanso`");
         if (!$result)
             return [];
@@ -99,9 +98,7 @@ class Torneo extends NomeIdSemplice
         {
             $t = self::ParseDbRow(row: $row);
             if (!isset($filter) || $filter($t))
-            {
                 $arr[] = $t;
-            }
         }
         return $arr;
     }
@@ -117,15 +114,15 @@ class Torneo extends NomeIdSemplice
     {
         if (!$connection)
             return [];
+
         $result = $connection->query(query: "SELECT * FROM `tornei_attivi`");
         if (!$result)
             return [];
 
         $arr = [];
         while ($row = $result->fetch_assoc())
-        {
             $arr[] = self::ParseDbRow(row: $row);
-        }
+
         return $arr;
     }
 
@@ -133,9 +130,15 @@ class Torneo extends NomeIdSemplice
     {
         if (!$connection)
             return null;
-        $result = $connection->query("SELECT * FROM `tornei_espanso` WHERE `id` = $id");
+
+        $result = $connection->execute_query(
+            query: "SELECT * FROM `tornei_espanso` WHERE `id` = ?",
+            params: [ $id ],
+        );
+
         if (!$result || $result->num_rows !== 1)
             return null;
+
         return self::ParseDbRow(row: $result->fetch_assoc());
     }
 
@@ -143,13 +146,17 @@ class Torneo extends NomeIdSemplice
     {
         if (!$connection)
             return false;
+
         try {
-            $query = "REPLACE INTO `partecipaz_squad_torneo` (`torneo`, `squadra`) VALUES ($torneo, $squadra)";
-            return (bool)$connection->query(query: $query);
+            return (bool)$connection->execute_query(
+                query: 'REPLACE INTO `partecipaz_squad_torneo` (`torneo`, `squadra`) VALUES (?, ?)',
+                params: [ $torneo, $squadra ],
+            );
         } catch (\Exception) {
             return false;
         }
     }
+
     /**
      * Does not check if the calendar has already been generated
      * @param \mysqli $connection
@@ -161,9 +168,12 @@ class Torneo extends NomeIdSemplice
     {
         if (!$connection)
             return false;
+        
         try {
-            $query = "DELETE FROM `partecipaz_squad_torneo` WHERE `torneo` = $torneo AND `squadra` = $squadra";
-            return (bool)$connection->query(query: $query);
+            return (bool)$connection->execute_query(
+                query: 'DELETE FROM `partecipaz_squad_torneo` WHERE `torneo` = ? AND `squadra` = ?',
+                params: [ $torneo, $squadra ],
+            );
         } catch (\Exception) {
             return false;
         }
@@ -189,16 +199,22 @@ class Torneo extends NomeIdSemplice
                 $tipo,
             ],
         );
-        if (!$result || $connection->affected_rows !== 1) {
+
+        if (!$result || $connection->affected_rows !== 1)
             return null;
-        }
+
         return $connection->insert_id;
     }
 
     public static function Delete(\mysqli $connection, int $id): bool {
         if (!$connection) 
             return false;
-        $result = $connection->query(query: "DELETE FROM `tornei` WHERE `id` = $id");
+
+        $result = $connection->execute_query(
+            query: "DELETE FROM `tornei` WHERE `id` = ?",
+            params: [ $id ],
+        );
+
         return (bool)$result && $connection->affected_rows >= 1;
     }
 
@@ -211,10 +227,16 @@ class Torneo extends NomeIdSemplice
     {
         if (!$connection)
             return false;
-        $query = "CALL `CreaCalendario`(?, ?, ?);";
-        $result = $connection->execute_query(query: $query, params: [
-            $torneo, (int)$two_ways, $default_field,
-        ]);
+        
+        $result = $connection->execute_query(
+            query: 'CALL `CreaCalendario`(?, ?, ?);', 
+            params: [
+                $torneo, 
+                (int)$two_ways, 
+                $default_field,
+            ],
+        );
+
         $connection->next_result();
         return (bool)$result;   
     }

@@ -204,23 +204,27 @@ class Anagrafica extends AnagraficaBase
 
     public static function GroupFrom(\mysqli $connection): array
     {
-        if (!$connection) return [];
-        $query = "SELECT * FROM `statistiche_nascita`";
+        if (!$connection) 
+            return [];
+        $query = "SELECT `luogo`, `nati` FROM `statistiche_nascita`";
 
         $result = $connection->query(query: $query);
-        if (!$result) {
+        if (!$result)
             return [];
-        }
 
-        $arr = [];
-        while ($row = $result->fetch_assoc())
-        {
-            $arr[] = [
-                'where' => $row['luogo'],
-                'count' => (int)$row['nati']
-            ];
-        }
-        return $arr;
+        return $result->fetch_all(mode: MYSQLI_ASSOC);
+    }
+
+    public static function EmailProviders(\mysqli $connection): array
+    {
+        if (!$connection)
+            return [];
+
+        $result = $connection->query(query: 'SELECT `provider`, `email` FROM `statistiche_email`');
+        if (!$result)
+            return [];
+
+        return $result->fetch_all(mode: MYSQLI_ASSOC);
     }
 
     public static function UnreferencedDocuments(\mysqli $connection): array
@@ -294,12 +298,6 @@ class Anagrafica extends AnagraficaBase
         if (!$result)
             return [];
 
-        // TODO: Improve code here
-        $arr = [];
-        while ($row = $result->fetch_assoc())
-        {
-            $arr[] = $row;
-        }
-        return $arr;
+        return $result->fetch_all(mode: MYSQLI_ASSOC);
     }
 }

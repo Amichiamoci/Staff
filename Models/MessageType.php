@@ -12,11 +12,11 @@ enum MessageType: string {
 
     public function Icon(): string {
         return match($this) {
-            self::Info => 'bi-info-circle',
-            self::Warning => 'bi-exclamation-triangle',
-            self::Success => 'bi-check-circle',
-            self::Error => 'bi-exclamation-octagon-fill',
-            self::Primary => 'bi-info-square-fill',
+            self::Info      => 'bi-info-circle',
+            self::Warning   => 'bi-exclamation-triangle',
+            self::Success   => 'bi-check-circle',
+            self::Error     => 'bi-exclamation-octagon-fill',
+            self::Primary   => 'bi-info-square-fill',
             self::Secondary => 'bi-info-square-fill',
         };
     }

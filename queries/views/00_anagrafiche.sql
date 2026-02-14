@@ -51,3 +51,27 @@ SELECT
 FROM `anagrafiche` a
 WHERE a.`email` IS NULL OR TRIM(a.`email`) = ''
 ORDER BY a.`cognome`, a.`nome`;
+
+CREATE OR REPLACE VIEW `statistiche_email` AS
+WITH email_uniche AS (
+    SELECT DISTINCT a.email
+    FROM `anagrafiche` a
+    WHERE a.email IS NOT NULL
+), email_providers AS (
+    SELECT 
+        `DominioEmail`(e.`email`) AS "provider",
+        COUNT(*) AS "email"
+    FROM `email_uniche` e
+    GROUP BY `DominioEmail`(e.`email`)
+    ORDER BY COUNT(*) DESC
+), totale_anagrafiche_senza_email AS (
+	SELECT 
+        'Nessuna email!' AS "provider",
+        COUNT(DISTINCT a.id) AS "email"
+    FROM `anagrafiche_senza_email` a
+)
+    SELECT e.*
+    FROM `email_providers` e
+UNION ALL
+    SELECT a.*
+    FROM `totale_anagrafiche_senza_email` a;

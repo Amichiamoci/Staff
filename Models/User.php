@@ -3,7 +3,7 @@ namespace Amichiamoci\Models;
 
 use Amichiamoci\Utils\Security;
 use Amichiamoci\Models\Templates\DbEntity;
-
+use Amichiamoci\Utils\File;
 use Richie314\SimpleMvc\Users\User as BaseUser;
 use Richie314\SimpleMvc\Utils\Cookie;
 
@@ -58,43 +58,54 @@ implements DbEntity
         }
         $this->IsBanned = $is_blocked;
     }
+    
     public function Logout() : bool
     {
         session_unset();
         session_destroy();
-        return Cookie::DeleteIfItIs(self::$COOKIE_NAME, (string)$this->Id);
+        return Cookie::DeleteIfItIs(name: self::$COOKIE_NAME, value: (string)$this->Id);
     }
+
     private static function SessionStart() : bool
     {
         return session_start(options: [
-            'name' => self::$COOKIE_NAME,
+            'name'            => self::$COOKIE_NAME,
             'cookie_lifetime' => '172800', // 48h
-            'cookie_domain' => DOMAIN,
-            'cookie_path' => defined(constant_name: 'INSTALLATION_PATH') ? INSTALLATION_PATH : '',
+            'cookie_domain'   => DOMAIN,
+            'cookie_path'     => File::getInstallationPath(),
             'cookie_httponly' => '1'
         ]);
     }
+
     private static function LogSessionStart(
         \mysqli $connection,
         int $id,
         string $flag,
         string $user_ip
-    ) : int {
-        $flag = $connection->real_escape_string(string: $flag);
-        $user_ip = $connection->real_escape_string(string: $user_ip);
-        $query = "CALL StartSession($id, '$flag', '$user_ip');";
-        $result = $connection->query(query: $query);
+    ) : int
+    {
+        if (!$connection)
+            return 0;
+
+        $result = $connection->execute_query(
+            query: 'CALL StartSession(?, ?, ?);',
+            params: [
+                $id,
+                $flag,
+                $user_ip,
+            ],
+        );
+
         if (!$result)
         {
             $connection->next_result();
-            //echo "Bad session query";
             return 0;
         }
+
         $ret = 0;
         if ($row = $result->fetch_assoc())
-        {
             $ret = (int)$row["session_id"];
-        }
+
         $result->close();
         $connection->next_result();
         return $ret;
@@ -105,25 +116,27 @@ implements DbEntity
         string $username,
         string $password,
         string $user_agent,
-        string $user_ip) : bool
+        string $user_ip,
+    ) : bool
     {
         if (!$connection || 
-            !isset($username) || empty($username) || 
-            !isset($password) || empty($password))
+            empty($username) || 
+            empty($password)
+        )
             return false;
-        if (!isset($user_agent)) $user_agent = "";
-        if (!isset($user_ip)) $user_ip = "";
 
         $query = "CALL `GetUserPassword`(?);";
         $result = $connection->execute_query(
             query: $query, 
             params: [ trim(string: $username) ]
         );
+
         if (!$result || $result->num_rows === 0)
         {
             $connection->next_result();
             return false;
         }
+        
         $passed = false;
         $id = 0;
         $admin = false;
@@ -139,20 +152,18 @@ implements DbEntity
         }
         $result->close();
         $connection->next_result();
+
         if (!$passed)
-        {
-            //echo "Password verify";
             return false;
-        }
+
         if (session_status() !== PHP_SESSION_ACTIVE)
         {
             if (!self::SessionStart())
-            {
-                //echo "Could not start session";
                 return false;
-            }
-            //echo "Session was not active but is now";
+            
+            // Session was not active but it is now
         }
+
         $flag = sha1(string: $user_agent . $user_ip);
         $_SESSION[self::$USER_ID] = $id;
         $_SESSION[self::$USER_NAME] = $username;
@@ -160,160 +171,188 @@ implements DbEntity
         $_SESSION[self::$USER_IS_ADMIN] = $admin;
         $_SESSION[self::$SESSION_FLAG] = $flag;
         $_SESSION[self::$SESSION_DB_ID] = self::LogSessionStart(connection: $connection, id: $id, flag: $flag, user_ip: $user_ip);
-        /*
-        if ($_SESSION[self::$SESSION_DB_ID] === 0)
-        {
-            echo "Session id appears to be 0";
-        }
-        */
+
         return $_SESSION[self::$SESSION_DB_ID] !== 0;
     }
 
     public static function LoadFromSession(): ?self
     {
         if (session_status() !== PHP_SESSION_ACTIVE && !self::SessionStart())
-        {
             return null;
-        }
+
         if (!isset($_SESSION[self::$USER_ID]) || empty($_SESSION[self::$USER_ID]) ||
             !isset($_SESSION[self::$USER_NAME]) || empty($_SESSION[self::$USER_NAME]) ||
             !isset($_SESSION[self::$SESSION_FLAG]) || empty($_SESSION[self::$SESSION_FLAG]) ||
             !isset($_SESSION[self::$SESSION_DB_ID]) || $_SESSION[self::$SESSION_DB_ID] == 0 ||
-            !isset($_SESSION[self::$LOGIN_TIME]))
-        {
+            !isset($_SESSION[self::$LOGIN_TIME])
+        )
             return null;
-        }
+
         $user = new self(
             id: $_SESSION[self::$USER_ID], 
             name: $_SESSION[self::$USER_NAME], 
             login_time: $_SESSION[self::$LOGIN_TIME], 
-            admin: isset($_SESSION[self::$USER_IS_ADMIN]) && (bool)$_SESSION[self::$USER_IS_ADMIN]);
+            admin: isset($_SESSION[self::$USER_IS_ADMIN]) && (bool)$_SESSION[self::$USER_IS_ADMIN],
+        );
         $user->SessionDbId = (int)$_SESSION[self::$SESSION_DB_ID];
         $user->SessionFlag = $_SESSION[self::$SESSION_FLAG];
 
         // Load optional paramters from db, if present
         if (isset($_SESSION[self::$ID_ANAGRAFICA]) && $_SESSION[self::$ID_ANAGRAFICA] != 0)
-        {
             $user->IdAnagrafica = (int)$_SESSION[self::$ID_ANAGRAFICA];
-        }
+
         if (isset($_SESSION[self::$ID_STAFF]) && $_SESSION[self::$ID_STAFF] != 0)
-        {
             $user->IdStaff = (int)$_SESSION[self::$ID_STAFF];
-        }
+
         if (isset($_SESSION[self::$GIVEN_NAME]) && !empty($_SESSION[self::$GIVEN_NAME]))
-        {
             $user->RealName = $_SESSION[self::$GIVEN_NAME];
-        }
 
         return $user;
     }
+
     public function LoadAdditionalData(\mysqli $connection): bool
     {
         if (!$connection || $this->Id === 0)
             return false;
-        $id = $this->Id;
-        $get_anagrafica_query = "CALL GetStaffFromUserId($id)";
-        $result = $connection->query(query: $get_anagrafica_query);
+
+        $result = $connection->execute_query(
+            query: 'CALL `GetStaffFromUserId`(?)',
+            params: [
+                $this->Id,
+            ],
+        );
+
         if (!$result)
         {
             $connection->next_result();
             return false;
         }
+        
         if ($anagrafica = $result->fetch_assoc())
         {
             $this->RealName = $anagrafica["nome"];
             $this->IdAnagrafica = (int)$anagrafica["id_anagrafica"];
             $this->IdStaff = (int)$anagrafica["staffista"];
         }
+
         $result->close();
         $connection->next_result();
         return $this->IdAnagrafica !== 0;
     }
+
     public function HasAdditionalData(): bool
     {
         return !empty($this->IdAnagrafica);
     }
+
     public function PutAdditionalInSession() : bool
     {
-        if (session_status() !== PHP_SESSION_ACTIVE || !$this->HasAdditionalData())
+        if (session_status() !== PHP_SESSION_ACTIVE || 
+            !$this->HasAdditionalData()
+        )
             return false;
+
         $_SESSION[self::$ID_ANAGRAFICA] = $this->IdAnagrafica;
         $_SESSION[self::$ID_STAFF] = $this->IdStaff;
         $_SESSION[self::$GIVEN_NAME] = $this->RealName;
+
         return true;
     }
+    
     public function TimeLogged() : int
     {
         return time() - $this->LoginTime;
     }
+
     public function TimeLoggedMessage(): string
     {
         $diff = (int)($this->TimeLogged() / 60);
-        if ($diff < 3) {
+        if ($diff < 3)
             return "adesso";
-        }
-        if ($diff < 120) {
+
+        if ($diff < 120)
             return "$diff minuti fa";
-        }
+
         $diff = (int)($diff / 60);
-        if ($diff < 24) {
+        if ($diff < 24)
             return "$diff ore fa";
-        }
+
         $diff = (int)($diff / 24);
-        if ($diff === 1) {
+        if ($diff === 1)
             return "ieri";
-        }
+
         return "$diff giorni fa";
     }
+
     public function UpdateLogTs(): void
     {
         $this->LoginTime = time();
     }
+
     public function PutLogTsInSession() : bool
     {
         if (session_status() !== PHP_SESSION_ACTIVE)
             return false;
+
         $_SESSION[self::$LOGIN_TIME] = $this->LoginTime;
         return $this->LoginTime !== 0;
     }
     public function UploadDbLog(\mysqli $connection): bool
     {
-        if (!$connection || $this->SessionDbId === 0 || strlen(string: $this->SessionFlag) === 0)
+        if (!$connection || 
+            $this->SessionDbId === 0 || 
+            strlen(string: $this->SessionFlag) === 0
+        )
             return false;
-        $id = $this->SessionDbId;
-        $query = "CALL UpdateSession($id)";
-        $result = (bool)$connection->query(query: $query);
+
+        $result = (bool)$connection->execute_query(
+            query: 'CALL `UpdateSession`(?)',
+            params: [ $this->SessionDbId ],
+        );
+
         $connection->next_result();
         return $result;
     }
 
-    private function TestPassword(\mysqli $connection, string $password) : bool
+    private function TestPassword(
+        \mysqli $connection, 
+        #[\SensitiveParameter] string $password,
+    ) : bool
     {
-        if (!$connection || !isset($password) || empty($password))
+        if (!$connection || empty($password))
             return false;
-        $query = "CALL `GetUserPasswordFromId`($this->Id)";
-        $result = $connection->query(query: $query);
+
+        $result = $connection->execute_query(
+            query: 'CALL `GetUserPasswordFromId`(?)',
+            params: [ $this->Id ],
+        );
+
         if (!$result)
         {
             $connection->next_result();
             return false;
         }
+
         $test_ok = false;
         if ($row = $result->fetch_assoc())
         {
             $hash = $row["password"];
             $test_ok = Security::TestPassword(password: $password, hash: $hash);
         }
+
         $result->close();
         $connection->next_result();
         return $test_ok;
     }
+
+
     public function ForceSetNewPassword(
         \mysqli $connection, 
         #[\SensitiveParameter] ?string $new_password,
     ): bool {
         if (!$connection || !isset($new_password) || strlen(string: $new_password) < 6)
             return false;
+
         $new_hash = Security::Hash(str: $new_password);
         
         $result = $connection->execute_query(
@@ -325,6 +364,7 @@ implements DbEntity
         $connection->next_result();
         return $ret;
     }
+
     public function ChangePassword(
         \mysqli $connection, 
         #[\SensitiveParameter] ?string $password, 
@@ -333,41 +373,49 @@ implements DbEntity
     {
         if (!$connection)
             return false;
+
         if (!$this->TestPassword(connection: $connection, password: $password))
-        {
             return false;
-        }
+        
         return self::ForceSetNewPassword(connection: $connection, new_password: $new_password);
     }
+
     public function ChangeUserName(
         \mysqli $connection, 
         #[\SensitiveParameter] string $password, 
         #[\SensitiveParameter] string $new_username,
     ): bool
     {
-        if (!$connection || !isset($new_username) || empty($new_username))
+        if (!$connection || empty($new_username))
             return false;
+
         if (!$this->TestPassword(connection: $connection, password: $password))
-        {
             return false;
-        }
-        $query = "CALL `SetUserName`($this->Id, '" . $connection->real_escape_string(string: $new_username) . "')";
-        $result = $connection->query(query: $query);
+
+        $result = $connection->execute_query(
+            query: 'CALL `SetUserName`(?, ?)',
+            params: [
+                $this->Id,
+                $new_username,
+            ],
+        );
+        
         $ret = false;
         if ($result)
         {
             if ($row = $result->fetch_assoc())
-            {
                 $ret = isset($row["result"]) && (int)$row["result"] !== 0;
-            }
+
             $result->close();
         }
+        
         $connection->next_result();
-        if ($ret) {
+        if ($ret) 
             $this->Name = $new_username;
-        }
+        
         return $ret;
     }
+
     public static function Create(
         \mysqli $connection,
         string $username, 
@@ -383,60 +431,64 @@ implements DbEntity
             return null;
         }
 
-        $query = "INSERT INTO `utenti` (`user_name`, `password`, `is_admin`) VALUES (?, ?, ?)";
         $hash = Security::Hash(str: $password);
+        $result = $connection->execute_query(
+            query: 'INSERT INTO `utenti` (`user_name`, `password`, `is_admin`) VALUES (?, ?, ?)', 
+            params: [
+                $username,
+                $hash,
+                $is_admin ? '1' : '0',
+            ],
+        );
 
-        $result = $connection->execute_query(query: $query, params: [
-            $username,
-            $hash,
-            $is_admin ? '1' : '0',
-        ]);
         if (!$result || $connection->affected_rows !== 1)
-        {
             return null;
-        }
 
         $id = (int)$connection->insert_id;
         if (empty($id))
-        {
             return null;
-        }
 
         return new self(
             id: $id, 
             name: $username, 
             login_time: 0, 
-            admin: $is_admin
+            admin: $is_admin,
         );
     }
+
     public static function Ban(\mysqli $connection, string|int|null $id) : bool
     {
-        if (!$connection || !isset($id))
+        if (!$connection || empty($id))
             return false;
-        $target = (int)$id;
-        if ($target === 0)
-            return false;
-        $query = "CALL `BanUser`($target)";
-        $result = (bool)$connection->query(query: $query);
+
+        $result = (bool)$connection->execute_query(
+            query: 'CALL `BanUser`(?)',
+            params: [ $id ],
+        );
+
         $connection->next_result();
         return $result;
     }
+
     public static function Restore(\mysqli $connection, string|int|null $id) : bool
     {
-        if (!$connection || !isset($id))
+        if (!$connection || empty($id))
             return false;
-        $target = (int)$id;
-        if ($target === 0)
-            return false;
-        $query = "CALL `RestoreUser`($target)";
-        $result = (bool)$connection->query(query: $query);
+
+        $result = (bool)$connection->execute_query(
+            query: 'CALL `RestoreUser`(?)',
+            params: [ $id ],
+        );
+
         $connection->next_result();
         return $result;
     }
+
     public static function Delete(\mysqli $connection, int $target) : bool
     {
         if (!$connection || $target === 0)
             return false;
+
         try {
             $ret = (bool)$connection->query(query: "CALL `DeleteUser`($target)");
             $ret = $ret && $connection->affected_rows > 0;
@@ -446,10 +498,12 @@ implements DbEntity
             return false;
         }
     }
+
     public function Label() : string
     {
         if (!empty($this->RealName))
             return $this->RealName;
+        
         return $this->Name;
     }
 
@@ -457,11 +511,11 @@ implements DbEntity
     {
         if (!$connection)
             return null;
+
         $result = $connection->query(query: "SELECT * FROM `utenti` WHERE `id` = $id");
         if (!$result || $result->num_rows === 0)
-        {
             return null;
-        }
+
         $row = $result->fetch_assoc();
         return new self(
             id: $id, 
@@ -476,14 +530,14 @@ implements DbEntity
     {
         if (!$connection)
             return null;
+
         $result = $connection->execute_query(
             query: "SELECT * FROM `utenti` WHERE `user_name` = ?",
-            params: [$username]
+            params: [ $username ]
         );
         if (!$result || $result->num_rows === 0)
-        {
             return null;
-        }
+
         $row = $result->fetch_assoc();
         return new self(
             id: $row['id'],
@@ -514,15 +568,16 @@ implements DbEntity
                 admin: $row["is_admin"],
                 is_blocked: $row["is_blocked"],
             );
-            if (!empty($row["staff_id"])) {
+
+            if (!empty($row["staff_id"])) 
                 $user->IdStaff = (int)$row["staff_id"];
-            }
-            if (!empty($row["anagrafica_id"])) {
+
+            if (!empty($row["anagrafica_id"]))
                 $user->IdAnagrafica = (int)$row["anagrafica_id"];
-            }
-            if (!empty($row["full_name"])) {
+
+            if (!empty($row["full_name"])) 
                 $user->RealName = $row["full_name"];
-            }
+
             $arr[] = $user;
         }
 
@@ -535,9 +590,8 @@ implements DbEntity
             return [];
 
         $result = $connection->query(query: "SELECT * FROM `users_activity` LIMIT 500");
-        if (!$result) {
+        if (!$result)
             return [];
-        }
 
         $arr = [];
         while ($row = $result->fetch_assoc())
@@ -550,9 +604,11 @@ implements DbEntity
                 ip: $row["device_ip"],
             );
         }
+
         $result->close();
         return $arr;
     }
+    
     public function LoginList(\mysqli $connection) : array 
     {
         if (!$connection)
@@ -562,9 +618,8 @@ implements DbEntity
             query: "SELECT * FROM `sessioni` WHERE `user_id` = ? ORDER BY `time_log` DESC",
             params: [$this->Id],
         );
-        if (!$result) {
+        if (!$result)
             return [];
-        }
         
         $arr = [];
         while ($row = $result->fetch_assoc())

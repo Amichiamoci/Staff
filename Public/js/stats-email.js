@@ -1,18 +1,18 @@
 (async function() {
-    const resp = await fetch(`${BasePath}/stats`);
+    const resp = await fetch(`${BasePath}/email_stats`);
     if (!resp.ok) {
         console.warn('Response not ok!');
         return;
     }
     const data = await resp.json();
     new Chart(
-        document.getElementById('stats-chart'),
+        document.getElementById('email-stats-chart'),
         {
             type: 'pie',
             data: {
-                labels: data.map(row => row.luogo),
+                labels: data.map(row => row.provider),
                 datasets: [
-                    { label: 'Anagrafiche', data: data.map(row => row.nati) }
+                    { label: 'Provider email', data: data.map(row => row.email) }
                 ]
             },
             options: {
@@ -23,7 +23,7 @@
                     },
                     title: {
                         display: false,
-                        text: 'Luoghi di nascita anagrafiche'
+                        text: 'Provider email delle anagrafiche'
                     }
                 }
             },

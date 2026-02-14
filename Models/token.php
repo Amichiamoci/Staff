@@ -22,12 +22,16 @@ class Token
     {
         if (!$connection)
             return false;
+
         $query = "UPDATE `token` SET `usage_date` = CURRENT_TIMESTAMP WHERE `value` = ?";
 
-        $result = $connection->execute_query(query: $query, params: [$this->Value]);
-        if (!$result || $connection->affected_rows !== 1) {
+        $result = $connection->execute_query(
+            query: $query, 
+            params: [$this->Value],
+        );
+
+        if (!$result || $connection->affected_rows !== 1)
             return false;
-        }
 
         $this->UsageDate = new \DateTime();
         return true;
@@ -52,11 +56,13 @@ class Token
         } else {
             $this->GenerationDate = new \DateTime(datetime: $generation_date);
         }
+
         if ($expiration_date instanceof \DateTime) {
             $this->ExpirationDate = $expiration_date;
         } else {
             $this->ExpirationDate = new \DateTime(datetime: $expiration_date);
         }
+        
         if (isset($usage_date))
         {
             if ($usage_date instanceof \DateTime) {
@@ -76,11 +82,15 @@ class Token
     {
         if (!$connection)
             return null;
-        $query = "SELECT * FROM `token` WHERE `value` = ? LIMIT 1";
-        $result = $connection->execute_query(query: $query, params: [$value]);
-        if (!$result || $result->num_rows !== 1) {
+
+        $result = $connection->execute_query(
+            query: 'SELECT * FROM `token` WHERE `value` = ? LIMIT 1', 
+            params: [ $value ],
+        );
+
+        if (!$result || $result->num_rows !== 1)
             return null;
-        }
+        
         $row = $result->fetch_assoc();
         return new self(
             value: $row['value'],
@@ -99,6 +109,7 @@ class Token
     {
         return hash(algo: 'sha256', data: $secret);
     }
+
     public function Matches(string $secret): bool
     {
         return 
@@ -133,9 +144,9 @@ class Token
             params: [$value, $secret, $user_id, $email, $requesting_ip, $requesting_browser]
         );
 
-        if (!$result || $connection->affected_rows !== 1) {
+        if (!$result || $connection->affected_rows !== 1) 
             return null;
-        }
+        
         return self::Load(connection: $connection, value: $value);
     }
 

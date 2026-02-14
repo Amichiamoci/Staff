@@ -30,24 +30,20 @@ class Parrocchia extends NomeIdSemplice
 
     public function Maglie(\mysqli $connection, int $year) : array
     {
-        if (!$connection || $this->Id === 0) {
+        if (!$connection || $this->Id === 0)
             return [];
-        }
 
-        $query = "SELECT * FROM `anni_parrocchie_taglie` WHERE `anno` = $year AND `parrocchia` = " . $this->Id;
-        $res = $connection->query(query: $query);
-        if (!$res) {
+        $query = "SELECT `taglia`, `numero` FROM `anni_parrocchie_taglie` WHERE `anno` = ? AND `parrocchia` = ?";
+        $res = $connection->execute_query(
+            query: $query, 
+            params: [
+                $year,
+                $this->Id,
+            ],
+        );
+        if (!$res) 
             return [];
-        }
 
-        $arr = [];
-        while ($row = $res->fetch_assoc())
-        {
-            $arr[] = [
-                'taglia' => $row['taglia'],
-                'numero' => (int)$row['numero'],
-            ];
-        }
-        return $arr;
+        return $res->fetch_all(mode: MYSQLI_ASSOC);
     }
 }

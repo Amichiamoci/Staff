@@ -61,6 +61,14 @@ extends Controller
         );
     }
 
+    #[RequireLogin]
+    public function email_stats(): StatusCode
+    {
+        return $this->Json(
+            object: Anagrafica::EmailProviders(connection: $this->DB)
+        );
+    }
+
     #[RequireLogin(requireAdmin: true)]
     public function duplicate_emails(): StatusCode
     {

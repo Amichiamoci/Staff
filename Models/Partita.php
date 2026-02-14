@@ -145,15 +145,11 @@ class Partita implements DbEntity
         
         $result = $connection->query(query: $query);
         if (!$result || $result->num_rows === 0)
-        {
             return [];
-        }
 
         $arr = [];
         while ($row = $result->fetch_assoc())
-        {
             $arr[] = self::ParseFromRow(row: $row);
-        }
         return $arr;
     }
 
@@ -184,9 +180,8 @@ class Partita implements DbEntity
     public static function Torneo(\mysqli $connection, int|Torneo $torneo): array
     {
         if ($torneo instanceof Torneo)
-        {
             $torneo = $torneo->Id;
-        }
+
         return self::ArrayQueryHandler(
             connection: $connection, 
             query: "SELECT * FROM `partite_completo` WHERE `id_torneo` = $torneo" 
@@ -206,10 +201,14 @@ class Partita implements DbEntity
         if (!$connection)
             return false;
         
-        $result = $connection->execute_query(query: 'UPDATE `partite` SET `campo` = ? WHERE `id` = ?', params: [
-            $campo,
-            $partita,
-        ]);
+        $result = $connection->execute_query(
+            query: 'UPDATE `partite` SET `campo` = ? WHERE `id` = ?', 
+            params: [
+                $campo,
+                $partita,
+            ],
+        );
+
         if (!$result)
             return false;
         return $connection->affected_rows === 1;
@@ -220,10 +219,14 @@ class Partita implements DbEntity
         if (!$connection)
             return false;
         
-        $result = $connection->execute_query(query: 'UPDATE `partite` SET `orario` = ? WHERE `id` = ?', params: [
-            $orario,
-            $partita,
-        ]);
+        $result = $connection->execute_query(
+            query: 'UPDATE `partite` SET `orario` = ? WHERE `id` = ?', 
+            params: [
+                $orario,
+                $partita,
+            ],
+        );
+
         if (!$result)
             return false;
         return $connection->affected_rows === 1;
@@ -234,10 +237,14 @@ class Partita implements DbEntity
         if (!$connection)
             return false;
         
-        $result = $connection->execute_query(query: 'UPDATE `partite` SET `data` = ? WHERE `id` = ?', params: [
-            $data,
-            $partita,
-        ]);
+        $result = $connection->execute_query(
+            query: 'UPDATE `partite` SET `data` = ? WHERE `id` = ?', 
+            params: [
+                $data,
+                $partita,
+            ],
+        );
+
         if (!$result)
             return false;
         return $connection->affected_rows === 1;
@@ -257,12 +264,12 @@ class Partita implements DbEntity
         if (!$connection)
             return null;
 
-        $result = $connection->query(query: "INSERT INTO `punteggi` (`partita`, `home`, `guest`) VALUES ($match, '', '')");
-        if (!$result || $connection->affected_rows !== 1)
-        {
-            return null;
-        }
+        $result = $connection->query(
+            query: "INSERT INTO `punteggi` (`partita`, `home`, `guest`) VALUES ($match, '', '')"
+        );
 
+        if (!$result || $connection->affected_rows !== 1)
+            return null;
         return $connection->insert_id;
     }
 }
