@@ -1,8 +1,10 @@
-<h1>
-    Indice di <span class="font-monospace">/data</span>
-</h1>
 <?php
 use Amichiamoci\Utils\File;
+?>
+<h1>
+    Indice di <span class="font-monospace"><?= DIRECTORY_SEPARATOR . File::VolumeName ?></span>
+</h1>
+<?php
 
 function display_tree(
     array $t, 

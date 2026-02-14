@@ -32,7 +32,7 @@ extends Controller
         return $this->Render(
             view: 'File/list',
             title: 'Lista dei File',
-            data: ['tree' => File::ListDirectory(dir: SERVER_UPLOAD_PATH)]
+            data: ['tree' => File::ListDirectory(dir: File::STAFF)]
         );
     }
 
