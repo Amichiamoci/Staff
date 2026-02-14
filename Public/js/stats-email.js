@@ -12,7 +12,7 @@
             data: {
                 labels: data.map(row => row.provider),
                 datasets: [
-                    { label: 'Provider email', data: data.map(row => row.email) }
+                    { label: 'Totale', data: data.map(row => row.email) }
                 ]
             },
             options: {
