@@ -53,9 +53,13 @@
                     <input 
                         type="checkbox"
                         class="form-check-input"  
-                        name="roles[]" id="role-<?= $commissione->Id ?>" 
+                        name="roles[]"
+                        id="role-<?= $commissione->Id ?>" 
                         value="<?= $commissione->Id ?>"
-                        <?= ($user->Admin && $commissione->Nome === 'App e sito') ? 'checked' : '' ?>
+                        <?= ($user->Admin && $commissione->Nome === 'App e sito') || 
+                            $staff->InCommissione(commissione: $commissione->Nome) ? 
+                            'checked' : ''
+                        ?>
                     >
                     <label for="role-<?= $commissione->Id ?>" class="form-check-label">
                         <?= htmlspecialchars(string: $commissione->Nome) ?>

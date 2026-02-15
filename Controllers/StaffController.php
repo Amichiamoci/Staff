@@ -139,14 +139,12 @@ extends Controller
 
     public function view(?int $id): StatusCode
     {
-        if (empty($id)) {
+        if (empty($id))
             return $this->BadRequest();
-        }
 
         $target = Staff::ById(connection: $this->DB, id: $id);
-        if (!isset($target)) {
+        if ($target === null) 
             return $this->NotFound();
-        }
 
         return $this->Render(
             view: 'Staff/view',
@@ -158,13 +156,13 @@ extends Controller
 
     public function anagrafiche(?int $year = null): StatusCode
     {
-        if (!isset($year) || $year === 0) {    
+        if (empty($year))
             return $this->Render(
                 view: 'Staff/anagrafiche',
                 title: 'Tutte le anagrafiche',
                 data: ['anagrafiche' => AnagraficaConIscrizione::All(connection: $this->DB)],
             );
-        }
+
         return $this->Render(
             view: 'Staff/anagrafiche',
             title: 'Iscritti per il ' . $year,
@@ -458,15 +456,11 @@ extends Controller
     ): StatusCode
     {
         if (empty($id))
-        {
             return $this->BadRequest();
-        }
 
         $a = AnagraficaBase::ById(connection: $this->DB, id: $id);
         if ($a === null)
-        {
             return $this->NotFound();
-        }
 
         if ($this->IsPost())
         {
@@ -579,7 +573,7 @@ extends Controller
         if ($this->IsPost())
         {
             $target = Iscrizione::ById(connection: $this->DB, id: $id);
-            if (!isset($target))
+            if ($target === null)
                 return $this->NotFound();
 
             if (!$this->User->Admin && $target->Parrocchia->Id !== $this->Staff()->Parrocchia->Id)
@@ -691,7 +685,7 @@ extends Controller
 
     public function church_leaderboard(?int $year = null): StatusCode
     {
-        if (!isset($year))
+        if (empty($year))
             $year = (int)date(format: 'Y');
 
         return $this->Render(
