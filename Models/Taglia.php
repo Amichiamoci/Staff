@@ -38,7 +38,7 @@ enum Taglia: string
 
         $result = $connection->execute_query(
             query: "CALL `ListaMaglie`(?, ?)",
-            params: [$year, $group],
+            params: [$year, $group ? 1 : 0],
         );
         if (!$result)
         {
