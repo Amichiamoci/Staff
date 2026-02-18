@@ -7,7 +7,9 @@
             <select
                 required
                 class="form-control"
-                id="edition" name="edition">
+                id="edition" 
+                name="edition"
+            >
                 <option value="">Scegli un'edizione</option>
                 <?php foreach ($edizioni as $edizione) { ?>
                     <option value="<?= $edizione->Id ?>"
@@ -29,10 +31,14 @@
         <select
             required
             class="form-control"
-            id="t_shirt" name="t_shirt">
+            id="t_shirt"
+            name="t_shirt"
+        >
             <option value="">Scegli una taglia</option>
             <?php foreach ($taglie as $taglia) { ?>
-                <option value="<?= htmlspecialchars(string: $taglia) ?>">
+                <option value="<?= htmlspecialchars(string: $taglia) ?>"
+                    <?= $staff->Taglia === $taglia ? 'selected' : '' ?>
+                >
                     <?= htmlspecialchars(string: $taglia) ?>
                 </option>
             <?php } ?>
@@ -70,7 +76,14 @@
     </ul>
 
     <div class="form-check">
-        <input class="form-check-input" type="checkbox" value="" id="church_manager" name="church_manager">
+        <input 
+            class="form-check-input"
+            type="checkbox"
+            value=""
+            id="church_manager"
+            name="church_manager"
+            <?= $staff->Referente ? 'checked' : '' ?>
+        >
         <label class="form-check-label" for="church_manager">
             Sarò referente parrocchiale
         </label>

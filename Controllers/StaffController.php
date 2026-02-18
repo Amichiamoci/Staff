@@ -677,8 +677,15 @@ extends Controller
                 'anno' => $year,
                 'edizioni' => Edizione::All(connection: $this->DB),
 
-                'riepilogo' => Taglia::Grouped(connection: $this->DB, year: $year),
-                'lista_completa' => Taglia::List(connection: $this->DB, year: $year),
+                'riepilogo' => Taglia::List(
+                    connection: $this->DB, 
+                    year: $year,
+                    group: true,
+                ),
+                'lista_completa' => Taglia::List(
+                    connection: $this->DB, 
+                    year: $year,
+                ),
             ],
         );
     }

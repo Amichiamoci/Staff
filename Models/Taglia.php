@@ -27,12 +27,19 @@ enum Taglia: string
         return in_array(needle: $s, haystack: self::All());
     }
 
-    public static function List(\mysqli $connection, int $year): array
+    public static function List(
+        \mysqli $connection, 
+        int $year, 
+        bool $group = false,
+    ): array
     {
         if (!$connection)
             return [];
 
-        $result = $connection->query(query: "CALL `ListaMaglie`($year, FALSE);");
+        $result = $connection->execute_query(
+            query: "CALL `ListaMaglie`(?, ?)",
+            params: [$year, $group],
+        );
         if (!$result)
         {
             $connection->next_result();
@@ -45,20 +52,4 @@ enum Taglia: string
         return $all;
     }
 
-    public static function Grouped(\mysqli $connection, int $year): array
-    {
-        if (!$connection)
-            return [];
-
-        $result = $connection->query("CALL `ListaMaglie`($year, TRUE);");
-        if (!$result) {
-            $connection->next_result();
-            return [];
-        }
-
-        $all = $result->fetch_all(MYSQLI_ASSOC);
-        $connection->next_result();
-
-        return $all;
-    }
 }
