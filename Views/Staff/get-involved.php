@@ -37,7 +37,7 @@
             <option value="">Scegli una taglia</option>
             <?php foreach ($taglie as $taglia) { ?>
                 <option value="<?= htmlspecialchars(string: $taglia) ?>"
-                    <?= $staff->Taglia === $taglia ? 'selected' : '' ?>
+                    <?= $staff->Taglia->value === $taglia ? 'selected' : '' ?>
                 >
                     <?= htmlspecialchars(string: $taglia) ?>
                 </option>
