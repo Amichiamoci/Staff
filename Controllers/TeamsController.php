@@ -13,7 +13,6 @@ use Amichiamoci\Controllers\Attributes\RequireStaff;
 use Richie314\SimpleMvc\Controllers\Attributes\RequireLogin;
 use Richie314\SimpleMvc\Http\StatusCode;
 
-#[RequireLogin]
 class TeamsController
 extends Controller
 {
@@ -211,6 +210,7 @@ extends Controller
         );
     }
 
+    #[RequireLogin]
     public function sport(?int $sport, ?int $year): StatusCode
     {
         if (empty($sport) || empty($year))

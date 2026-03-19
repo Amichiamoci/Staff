@@ -15,10 +15,10 @@ use Amichiamoci\Controllers\Attributes\RequireStaff;
 use Richie314\SimpleMvc\Controllers\Attributes\RequireLogin;
 use Richie314\SimpleMvc\Http\StatusCode;
 
-#[RequireLogin]
 class SportController
 extends Controller
 {
+    #[RequireLogin]
     public function fields(): StatusCode
     {
         return $this->Json(
@@ -34,6 +34,7 @@ extends Controller
         );
     }
 
+    #[RequireLogin]
     public function index(?int $year = null): StatusCode
     {
         if (empty($year))
@@ -52,6 +53,7 @@ extends Controller
         );
     }
 
+    #[RequireLogin]
     public function tournament(?int $id = null): StatusCode
     {
         if (empty($id))
@@ -349,6 +351,7 @@ extends Controller
         return $this->tournament(id: $partita->Torneo);
     }
 
+    #[RequireLogin]
     public function match_add_score(?int $match): StatusCode
     {
         if (empty($match))
@@ -370,6 +373,7 @@ extends Controller
         ]);
     }
 
+    #[RequireLogin]
     public function match_remove_score(?int $score): StatusCode
     {
         if (empty($score))
@@ -390,6 +394,7 @@ extends Controller
         ]);
     }
 
+    #[RequireLogin]
     public function match_edit_score(
         ?int $score, 
         ?string $home, 

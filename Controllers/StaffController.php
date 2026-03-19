@@ -25,7 +25,6 @@ use Richie314\SimpleMvc\Controllers\Attributes\RequireLogin;
 use Richie314\SimpleMvc\Http\StatusCode;
 
 
-#[RequireLogin]
 class StaffController
 extends Controller
 {
@@ -137,6 +136,7 @@ extends Controller
         );
     }
 
+    #[RequireLogin]
     public function view(?int $id): StatusCode
     {
         if (empty($id))
@@ -153,7 +153,7 @@ extends Controller
         );
     }
 
-
+    #[RequireLogin]
     public function anagrafiche(?int $year = null): StatusCode
     {
         if (empty($year))
@@ -170,6 +170,7 @@ extends Controller
         );
     }
 
+    #[RequireLogin]
     public function csi(): StatusCode
     {
         return $this->Render(
@@ -179,6 +180,7 @@ extends Controller
         );
     }
 
+    #[RequireLogin]
     public function me(
         ?int $anagrafica = null,
         ?int $parrocchia = null,
@@ -304,6 +306,7 @@ extends Controller
         return File::VirtualPath(physical_path: $path);
     }
 
+    #[RequireLogin]
     public function new_anagrafica(
         // Required parameters
         string $nome = '',
@@ -422,6 +425,7 @@ extends Controller
         );
     }
 
+    #[RequireLogin]
     public function edit_anagrafica(
         ?int $id = null
     ): StatusCode
@@ -445,6 +449,7 @@ extends Controller
         );
     }
 
+    #[RequireLogin]
     public function iscrivi(
         ?int $id = null, // Anagraphical id
         ?int $id_iscrizione = null, // Are we editing the subscription?
@@ -589,6 +594,7 @@ extends Controller
         return $this->anagrafiche();
     }
 
+    #[RequireLogin]
     public function modifica_iscrizione(?int $id = null): StatusCode
     {
         if (empty($id))
@@ -624,6 +630,7 @@ extends Controller
         );
     }
 
+    #[RequireLogin]
     public function edizione(
         ?int $anno = null,
         ?string $motto = null,
@@ -665,6 +672,7 @@ extends Controller
         );
     }
 
+    #[RequireLogin]
     public function t_shirts(?int $year = null): StatusCode
     {
         if (empty($year)) 
@@ -690,6 +698,7 @@ extends Controller
         );
     }
 
+    #[RequireLogin]
     public function church_leaderboard(?int $year = null): StatusCode
     {
         if (empty($year))
