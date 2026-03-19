@@ -7,28 +7,24 @@ use Amichiamoci\Utils\Database;
 use Amichiamoci\Models\User;
 
 echo "Testing db connection..." . PHP_EOL;
-try {
-    $connection = new \mysqli(
-        hostname: $MYSQL_HOST, 
-        username: $MYSQL_USER, 
-        password: $MYSQL_PASSWORD, 
-        database: $MYSQL_DB,
-        port: $MYSQL_PORT
-    );
-} catch (\Throwable) {
-    $connection = false;
-}
 
 if (!$connection) {
     echo "⚠️ Could not establish connection with the db" . PHP_EOL;
     exit(1);
 }
-echo "✅ Connection to host '$MYSQL_HOST:$MYSQL_PORT' successfull!" . PHP_EOL;
+
+echo "✅ Connection to host '$connection->host_info' successfull!" . PHP_EOL;
 
 $init_file = dirname(path: __DIR__) . '/starting-db.tmp.sql';
 
 function rebuild_db(): void {
-    global $MYSQL_HOST, $MYSQL_DB, $MYSQL_USER, $MYSQL_PASSWORD, $MYSQL_PORT, $init_file;
+    global $init_file;
+
+    $MYSQL_HOST = Security::LoadEnvironmentOfFromFile(var: 'MYSQL_HOST', default: 'localhost');
+    $MYSQL_PORT = (int)Security::LoadEnvironmentOfFromFile(var: 'MYSQL_PORT', default: '3306');
+    $MYSQL_USER = Security::LoadEnvironmentOfFromFile(var: 'MYSQL_USER', default: 'amichiamoci');
+    $MYSQL_PASSWORD = Security::LoadEnvironmentOfFromFile(var: 'MYSQL_PASSWORD');
+    $MYSQL_DB = Security::LoadEnvironmentOfFromFile(var: 'MYSQL_DB');
 
     echo "Rebuilding db..." . PHP_EOL;
 
@@ -51,6 +47,8 @@ function rebuild_db(): void {
             return "$k=$v";
         }, array_keys($params), array_values(array: $params))
     );
+    unset($MYSQL_HOST, $MYSQL_PORT, $MYSQL_USER, $MYSQL_PASSWORD, $MYSQL_DB);
+    
     $result = passthru(command: "mariadb --skip-ssl $joined_params < $init_file");
 
     if ($result === false) {

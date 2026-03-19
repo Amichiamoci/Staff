@@ -88,7 +88,7 @@ extends BaseFile
      * @param string $virtual_path The virtual path to convert
      * @return bool|string The mapped path if the input is a valid virtual path, false otherwise
      */
-    public static function PhysicalPath(string $virtual_path): string|false
+    public static function PhysicalPath(string $virtual_path, bool $createIfMissing = false): string|false
     {
         if (strlen(string: $virtual_path) === 0 || 
             self::IsExternalFile(filename: $virtual_path)
@@ -105,7 +105,13 @@ extends BaseFile
         if (!str_starts_with(haystack: $virtual_path, needle: $volumePhysicalPath))
             $virtual_path = $volumePhysicalPath . $virtual_path;
 
-        return realpath(path: $virtual_path);
+        $realPath = realpath($virtual_path);
+        if ($realPath === false && $createIfMissing)
+        {
+            touch($virtual_path);
+            $realPath = realpath($virtual_path);
+        }
+        return $realPath;
     }
 
     /**
@@ -310,14 +316,15 @@ extends BaseFile
             self::IsAllowedExtension(file: $file);
     }
 
-    public static function CombinePdfs(array $file_names, string $final_name): bool
+    private static function CombinePdfs(array $file_names, string $final_name): bool
     {
         if (count(value: $file_names) === 0)
             return false;
 
         try {
+            $physical_final_name = self::PhysicalPath($final_name, createIfMissing: true);
             if (count(value: $file_names) === 1)
-                return copy(from: $file_names[0], to: $final_name);
+                return copy(from: $file_names[0], to: $physical_final_name);
 
             $pdf = new Mpdf(config: [
                 'mode' => 'utf-8',
@@ -344,7 +351,7 @@ extends BaseFile
                 }
             }
 
-            $pdf->Output(name: $final_name, dest: 'F');
+            $pdf->Output(name: $physical_final_name, dest: 'F');
             return true;
 
         } catch (\Throwable) {
@@ -373,15 +380,10 @@ extends BaseFile
         }
     }
 
-    public static function UploadDocumentsMerge(array $files, string $final_name): ?string
+    public static function UploadDocumentsMerge(array $files, ?string $virtual_final_name): ?string
     {
-        if (empty($final_name))
-            $final_name = uniqid(more_entropy: true);
-
-        if (!str_starts_with(haystack: $final_name, needle: DIRECTORY_SEPARATOR))
-            $final_name = DIRECTORY_SEPARATOR . $final_name;
-
-        $final_name = self::PhysicalPath(virtual_path: $final_name);
+        if (empty($virtual_final_name))
+            $virtual_final_name = uniqid(more_entropy: true);
 
         if (count(value: $files) === 0)
             return null;
@@ -398,18 +400,21 @@ extends BaseFile
 
             $file = array_filter(array: $files, callback: function ($f): bool { return isWordDocument(file: $f); })[0];
             $extension = pathinfo(path: $file['name'], flags: PATHINFO_EXTENSION);
-            $final_name .= ".$extension";
+            $virtual_final_name .= ".$extension";
             
-            if (!move_uploaded_file(from: $file['tmp_name'], to: $final_name))
+            $physical_final_name = self::PhysicalPath($virtual_final_name, createIfMissing: true);
+            if (!move_uploaded_file(from: $file['tmp_name'], to: $physical_final_name))
                 // Error in saving the file
                 return null;
 
-            return $final_name;
+            return $virtual_final_name;
         }
 
         // All pdfs or images -> combine them in a single pdf
 
-        $final_name .= ".pdf";
+        if (!str_ends_with($virtual_final_name, ".pdf"))
+            $virtual_final_name .= ".pdf";
+
         // Merge all files into a pdf
         $paths = [];
         foreach ($files as $file)
@@ -440,7 +445,7 @@ extends BaseFile
 
         if (!self::CombinePdfs(
             file_names: $paths, 
-            final_name: $final_name)
+            final_name: $virtual_final_name)
         ) 
             return null;
 
@@ -448,6 +453,6 @@ extends BaseFile
         foreach ($paths as $tmps)
             self::Delete(file_path: $tmps);
 
-        return $final_name;
+        return $virtual_final_name;
     }
 }

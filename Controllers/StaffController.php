@@ -295,15 +295,13 @@ extends Controller
         if (count(value: $files) === 0)
             return null;
 
-        $target_file_name = 
-            "documenti" . DIRECTORY_SEPARATOR . 
-            "documento_" . str_replace(search: '.', replace: '', subject: uniqid(more_entropy: true));
+        $file_name = "documento_" . str_replace(search: '.', replace: '', subject: uniqid(more_entropy: true));
+        $target_file_name = File::Documents . DIRECTORY_SEPARATOR . $file_name;
 
-        $path = File::UploadDocumentsMerge(files: $files, final_name: $target_file_name);
-        if (empty($path))
-            return null;
-
-        return File::VirtualPath(physical_path: $path);
+        return File::UploadDocumentsMerge(
+            files: $files, 
+            virtual_final_name: $target_file_name,
+        );
     }
 
     #[RequireLogin]
@@ -331,8 +329,7 @@ extends Controller
 
         if ($this->IsPost())
         {
-            if (
-                empty($nome) ||
+            if (empty($nome) ||
                 empty($cognome) ||
                 empty($cf) ||
                 // empty($doc_code) ||
@@ -340,9 +337,8 @@ extends Controller
                 empty($email) ||
                 empty($provenienza) ||
                 empty($compleanno)
-            ) {
+            )
                 return $this->BadRequest();
-            }
 
             $document_path = $this->anagrafica_handle_file();
             $already_existed = false;
@@ -351,7 +347,9 @@ extends Controller
             if (empty($id) && empty($document_path))
             {
                 // If we are creating a new record the document is mandatory
-                return $this->BadRequest();
+                return $this->BadRequest(
+                    "Qualcosa è andato storto durante il caricamento del documento"
+                );
             }
 
             $record_id = Anagrafica::CreateOrUpdate(
@@ -386,7 +384,9 @@ extends Controller
                 if (!$already_existed || $record_id !== $id)
                 {
                     // The procedure succeded but the cf was not pointing to this anagrafica
-                    $this->Message(message: Message::Warn(content: 'Anagrafica modificata, tuttavia i dati non sembrano essere allineati'));
+                    $this->Message(message: Message::Warn(
+                        content: 'Anagrafica modificata, tuttavia i dati non sembrano essere allineati'
+                    ));
                     return $this->edit_anagrafica(id: $id); 
                 }
 
@@ -482,18 +482,21 @@ extends Controller
             $files = array_filter(array: $files, callback: function (array $file): bool {
                 return File::IsUploadOk(file: $file);
             });
-            $actual_path = null;
+            $uploaded_file_path = null;
             if (count(value: $files) > 0)
             {
                 $year = Edizione::ById(connection: $this->DB, id: $edizione);
                 if (!isset($year))
                     return $this->NotFound();
 
-                $target_file_name = 
-                    "certificati" . DIRECTORY_SEPARATOR . 
-                    $year->Year . '_' . 
+                $file_name = $year->Year . '_' . 
                     str_replace(search: '.', replace: '', subject: uniqid(more_entropy: true));
-                $actual_path = File::UploadDocumentsMerge(files: $files, final_name: $target_file_name);
+                
+                $target_file_name = File::Certificates . DIRECTORY_SEPARATOR . $file_name;
+                $uploaded_file_path = File::UploadDocumentsMerge(
+                    files: $files, 
+                    virtual_final_name: $target_file_name,
+                );
             }
 
             //
@@ -516,9 +519,9 @@ extends Controller
                     if (!Iscrizione::UpdateCertificato(
                         connection: $this->DB, 
                         id: $iscrizione->Id, 
-                        certificato: File::VirtualPath(physical_path: $actual_path))
+                        certificato: $uploaded_file_path)
                     ) {
-                        $actual_path = null; // In order to show warning later
+                        $uploaded_file_path = null; // In order to show warning later
                     }
                 }
             } else {
@@ -527,9 +530,7 @@ extends Controller
                     connection: $this->DB, 
                     id_anagrafica: $id, 
                     tutore: empty($tutore) ? null : $tutore, 
-                    certificato: empty($actual_path) ? 
-                        null : 
-                        File::VirtualPath(physical_path: $actual_path), 
+                    certificato: $uploaded_file_path, 
                     parrocchia: $parrocchia, 
                     taglia: Taglia::from(value: $taglia), 
                     edizione: $edizione,
@@ -539,7 +540,7 @@ extends Controller
             // How did the handling of the data go?
             if ($res)
             {
-                if (isset($actual_path)) {
+                if (!empty($uploaded_file_path)) {
                     $this->Message(message: Message::Success(
                         content: $a->Nome . ' correttamente iscritto'));
                 } else {
