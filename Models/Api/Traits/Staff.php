@@ -35,4 +35,20 @@ trait Staff
             }
         );
     }
+
+    protected function get_staff_email(string $Name, string $Surname): ApiCall
+    {
+        $name = $this->DB->escape_string($Name);
+        $surname = $this->DB->escape_string($Surname);
+        return new ApiCall(
+            query: 
+                "SELECT TRIM(p.`email`) AS \"email\" " . 
+                "FROM `partecipazioni_staff` p " . 
+                "WHERE p.`nome`='$name' AND p.`cognome`='$surname' AND p.`email` IS NOT NULL " . 
+                "LIMIT 1",
+            row_parser: function (array $r): array {
+                return [ 'email' => $r['email'],];
+            }
+        );
+    }
 }

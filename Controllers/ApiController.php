@@ -192,9 +192,7 @@ extends Controller
         foreach (getallheaders() as $key => $value)
         {
             if (!str_starts_with(haystack: $key, needle: 'Data-Param-'))
-            {
                 continue;
-            }
 
             $base_name = substr(string: $key, offset: strlen(string: 'Data-Param-'));
             $arr[str_replace(search: '-', replace: '_', subject: $base_name)] = $value;
@@ -208,6 +206,7 @@ extends Controller
 
         'staff-list' => 'staff_list',
         'get-user-claims' => 'get_user_claims',
+        'get-staff-email' => 'get_staff_email',
 
         'today-matches-of' => 'today_matches_of',
         'today-matches-sport' => 'today_matches_sport',
