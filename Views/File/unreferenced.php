@@ -26,8 +26,13 @@ use Amichiamoci\Utils\File;
                 title="Scarica il file"
                 download
             >
-                <?= htmlspecialchars(string: $file) ?>
+                <?= htmlspecialchars(string: str_ireplace(
+                    search: File::STAFF,
+                    replace: '',
+                    subject: $file,
+                )) ?>
             </a>
+            (<?= File::Size(file_path: $file) ?>)
         </li>
     <?php } ?>
 </ul>
