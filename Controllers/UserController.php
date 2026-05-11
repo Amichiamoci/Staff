@@ -252,9 +252,7 @@ extends Controller
         ?string $g_recaptcha_response = null,
     ): StatusCode {
         if ($this->User !== null)
-        {
             $this->Message(message: Message::Warn(content: 'Perché recuperare la tua password se sei già loggato?'));
-        }
 
         if ($this->IsPost())
         {
@@ -262,10 +260,8 @@ extends Controller
                 username: $username, 
                 g_recaptcha_response: $g_recaptcha_response
             );
-            if (isset($token))
-            {
+            if ($token !== null)
                 $this->password_recover_send_mail(token: $token);
-            }
 
             $this->Message(
                 message: 
@@ -292,26 +288,22 @@ extends Controller
         $token = Token::Load(connection: $this->DB, value: $value);
 
         if (
-            !isset($token) || 
+            $token === null || 
             $token->IsExpired() || 
             $token->IsUsed() || 
             !$token->Matches(secret: $secret)
-        ) {
+        ) 
             return 'Token non valido, scaduto o già usato';
-        }
 
-        if (!$token->Use(connection: $this->DB)) {
+        if (!$token->Use(connection: $this->DB))
             return 'Impossibile reclamare il token';
-        }
 
         $user = User::ById(connection: $this->DB, id: $token->UserId);
-        if (!isset($user)) {
+        if ($user === null) 
             return 'Dati del server non sincronizzati';
-        }
 
-        if (!$user->ForceSetNewPassword(connection: $this->DB, new_password: $password)) {
+        if (!$user->ForceSetNewPassword(connection: $this->DB, new_password: $password)) 
             return 'Impossibile impostare la nuova password. Contattare un amministratore';
-        }
 
         return null;
     }
@@ -327,13 +319,11 @@ extends Controller
 
         if ($this->IsPost())
         {
-            if (
-                !isset($secret) || 
+            if (!isset($secret) || 
                 !isset($password) ||
                 strlen(string: $password) < 8
-            ) {
+            ) 
                 return $this->BadRequest();
-            }
 
             $user = null;
             $message = $this->token_submit_logic(
@@ -358,9 +348,9 @@ extends Controller
                         user_ip: Security::GetIpAddress(),
                     );
 
-                    if ($login) {
-                        return $this->me();
-                    }
+                    if ($login) 
+                        return $this->Redirect($this->PathPrefix . "/user/me");
+                    
                     $this->Message(message: Message::Error(content: 'Non è stato possibile effettuare il login in automatico'));
                 }
             }
@@ -418,12 +408,12 @@ extends Controller
     #[RequireLogin]
     public function view(?int $id): StatusCode
     {
-        if (!isset($id))
+        if (empty($id))
             return $this->BadRequest();
         
         $user = $this->User;
         $target = User::ById(connection: $this->DB, id: $id);
-        if (!isset($target))
+        if ($target === null)
             return $this->NotFound();
 
         if ($target->Id !== $user->Id && !$user->Admin) { 
