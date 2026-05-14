@@ -159,4 +159,21 @@ class AnagraficaConIscrizione extends Anagrafica
         }
         return $arr;
     }
+
+    public static function SuggestTutore(\mysqli $connection, int $anagrafica): ?int
+    {
+        if (!$connection || empty($anagrafica))
+            return null;
+
+        $query = "SELECT SuggerisciTutore($anagrafica) AS \"tutore\"";
+        $result = $connection->query($query);
+        if (!$result || $result->num_rows === 0)
+            return null;
+
+        $row = $result->fetch_assoc();
+        if (!$row)
+            return null;
+
+        return (int)$row["tutore"];
+    }
 }

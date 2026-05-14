@@ -100,3 +100,8 @@ FROM `iscritti` i
 	INNER JOIN `edizioni` e ON e.`id` = i.`edizione`
 GROUP BY e.`id`, a.`eta` + CAST(e.anno AS SIGNED INT) - YEAR(CURRENT_DATE)
 ORDER BY e.`anno` DESC, COUNT(DISTINCT a.`id`) DESC;
+
+CREATE OR REPLACE VIEW `iscritti_senza_tutore` AS
+SELECT a.*
+FROM `anagrafiche_con_iscrizioni_correnti` a
+WHERE a.`eta` < 18 AND a.`id_iscrizione` IS NOT NULL and a.`id_tutore` IS NULL;

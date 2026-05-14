@@ -196,4 +196,30 @@ BEGIN
     RETURN expected = LEFT(TRIM(UPPER(`codice_fiscale`)), 6);
 END ; //
 
+DROP FUNCTION IF EXISTS `SuggerisciTutore` //
+CREATE FUNCTION `SuggerisciTutore`(`id_anagrafica` INT)
+RETURNS INT
+NOT DETERMINISTIC
+BEGIN
+    DECLARE suggestion INT;
+
+    SELECT a.`id` INTO suggestion
+    FROM `iscritti_senza_tutore` i
+        LEFT OUTER JOIN `anagrafiche_espanse` a USING(`email`)
+    WHERE a.`eta` >= 25 AND i.`id` = `id_anagrafica`;
+
+    IF suggestion IS NOT NULL THEN
+        RETURN suggestion;
+    END IF;
+
+    SELECT MAX(a2.`id`) INTO suggestion
+    FROM `anagrafiche_espanse` a
+        INNER JOIN `iscritti` i ON a.`id` = i.`dati_anagrafici`
+        INNER JOIN `anagrafiche_espanse` a2 ON i.`tutore` = a2.`id`
+    WHERE a.`id` = `id_anagrafica`
+    GROUP BY a.`id`;
+
+    RETURN suggestion;
+END ; //
+
 DELIMITER ;

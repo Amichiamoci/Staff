@@ -4,13 +4,13 @@ use Amichiamoci\Models\Staff;
 use Amichiamoci\Utils\File;
 
 if (empty($parrocchia) && isset($staff) && $staff instanceof Staff)
-{
     $parrocchia = $staff->Parrocchia->Id;
-}
+
 if (empty($taglia))
-{
     $taglia = 'L';
-}
+
+if (empty($tutore) && !empty($tutore_suggerito))
+    $tutore = $tutore_suggerito;
 ?>
 <h1>
     Iscrivi <?= htmlspecialchars(string: $target->Nome . ' ' . $target->Cognome) ?>

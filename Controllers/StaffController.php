@@ -569,6 +569,8 @@ extends Controller
                 'tutore' => $tutore,
                 'parrocchia' => $parrocchia,
                 'taglia' => $taglia,
+
+                'tutore_suggerito' => AnagraficaConIscrizione::SuggestTutore(connection: $this->DB, anagrafica: $a->Id),
             ]
         );
     }
