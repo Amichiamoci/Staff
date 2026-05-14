@@ -69,7 +69,6 @@ jobs:
           then
             echo "path=admin/" >> "$GITHUB_OUTPUT"
             echo -e "MYSQL_DB=${{ secrets.DB_MASTER_DATABASE }}" >> ".env"
-            echo -e "SITE_NAME=\"Portale Staff\"" >> ".env"
             echo -e "ENABLE_API=true" >> ".env"
           else
             echo "path=admin_test/" >> "$GITHUB_OUTPUT"

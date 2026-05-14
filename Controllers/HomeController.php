@@ -23,12 +23,12 @@ extends Controller
     public function web_manifest(): StatusCode
     {
         return $this->Json(object: [
-            'name' => SITE_NAME,
-            'short_name' => SITE_NAME,
+            'name' => 'Portale Staff ' . SITE_NAME,
+            'short_name' => 'Portale Staff',
             'start_url' => File::getInstallationPath() . '/',
             'display' => 'standalone',
             'background_color' => '#fff',
-            'description' => 'Portale staff',
+            'description' => 'Portale per staffisti di ' . SITE_NAME,
             'icons' => [
                 [
                     'src' => File::getInstallationPath() . '/images/icon.png',
