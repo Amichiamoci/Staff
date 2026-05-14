@@ -102,7 +102,10 @@ if (empty($tutore) && !empty($tutore_suggerito))
                     <option value="<?= $a->Id ?>"
                         <?= (!empty($tutore) && $a->Id === $tutore) ? 'selected' : '' ?>
                     >
-                        <?= htmlspecialchars(string: $a->Cognome . ' ' . $a->Nome) ?>
+                        <strong>
+                            <?= htmlspecialchars(string: $a->Cognome) ?>
+                        </strong>
+                        <?= htmlspecialchars(string: $a->Nome) ?>
                     </option>
                 <?php } ?>
             </select>
