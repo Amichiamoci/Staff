@@ -203,7 +203,7 @@ NOT DETERMINISTIC
 BEGIN
     DECLARE suggestion INT;
 
-    SELECT a.`id` INTO suggestion
+    SELECT MAX(a.`id`) INTO suggestion
     FROM `iscritti_senza_tutore` i
         LEFT OUTER JOIN `anagrafiche_espanse` a USING(`email`)
     WHERE a.`eta` >= 25 AND i.`id` = `id_anagrafica`;
