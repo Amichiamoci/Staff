@@ -159,8 +159,7 @@ $iscritti_per_parrocchia = array_reduce(
     <div class="col-12 mt-2">
         <button 
             class="btn btn-primary" 
-            type="submit" 
-            disabled
+            type="submit"
         >
             <?php if (empty($id)) { ?>
                 Crea
