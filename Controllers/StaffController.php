@@ -514,7 +514,7 @@ extends Controller
                 $iscrizione->Taglia = Taglia::from(value: $taglia);
                 $res = $iscrizione->Update(connection: $this->DB);
 
-                if ($res && !empty($actual_path))
+                if ($res && !empty($uploaded_file_path))
                 {
                     if (!Iscrizione::UpdateCertificato(
                         connection: $this->DB, 
