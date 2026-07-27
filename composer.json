@@ -2,7 +2,7 @@
     "require": {
         "monolog/monolog": "^3.8",
         "lfkeitel/phptotp": "^1.1",
-        "guzzlehttp/guzzle": "^7.9",
+        "guzzlehttp/guzzle": "^8.0",
         "phpmailer/phpmailer": "^7.0",
         "mpdf/mpdf": "^8.2",
         "vlucas/phpdotenv": "^5.6",
