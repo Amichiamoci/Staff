@@ -40,7 +40,7 @@ use Amichiamoci\Models\ProblemaIscrizione;
 
 <?php if (count(value: $iscritti_problemi) > 0) { ?>
     <h2 class="h1 text-warning">
-        Problemi iscrizioni (<?= count(value: $iscritti_problemi) ?>)
+        Problemi iscrizioni (<?= count(value: $iscritti_problemi) ?>/<?= count(value: $iscritti) ?>)
     </h2>
     <div class="row">
         <?php foreach ($iscritti_problemi as $problema) { 
@@ -179,8 +179,7 @@ use Amichiamoci\Models\ProblemaIscrizione;
 <?php } ?>
 
 <h1>
-    <?= count(value: $iscritti) ?> iscritti di <?= htmlspecialchars(string: $nome_parrocchia) ?>
-    per il <?= date(format: 'Y') ?>
+    <?= count(value: $iscritti) ?> iscritti per il <?= date(format: 'Y') ?>
 </h1>
 
 <div class="container m-1">
