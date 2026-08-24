@@ -50,22 +50,24 @@ extends BaseController
             loginPath: $loginPath
         );
         $user = $controller->getUser();
+        $staff = $controller->Staff();
 
-        if ($controller->Staff() !== null)
+        if ($staff !== null)
         {
             if ($commissione !== null && 
-                !$controller->Staff()->InCommissione(commissione: $commissione)
+                !$staff->InCommissione(commissione: $commissione) &&
+                !$user->Admin
             ) {
                 $controller->NotAuthorized(
                     message: "Accesso consentito solo agli staffisti della commissione $commissione o agli amministratori");
                 exit;
             }
 
-            return $controller->Staff();
+            return $staff;
         }
 
         if ($user->Admin)
-            return null; // Admin property bypasses staff claim
+            return null; // Admin property bypasses staff claim entirely
 
         $controller->NotAuthorized(message: "Accesso consentito solo agli staffisti o agli amministratori");
         exit;
