@@ -40,41 +40,46 @@ $codice_societa_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_SOCIETA_C
     <thead>
         <tr><td colspan="8"></td></tr>
         <tr>
-            <td colspan="8"> 
+            <td> </td>
+            <td colspan="15"> 
                 TESSERAMENTO CENTRO SPORTIVO ITALIANO
             </td>
         </tr>
-        <tr><td colspan="8"></td></tr>
+        <tr><td colspan="16"></td></tr>
         <tr>
+            <td></td>
             <td colspan="2"> 
                 <strong>Comitato di:</strong>
             </td>
-            <td colspan="2" contenteditable="true"> 
+            <td colspan="4" contenteditable="true"> 
                 LIVORNO 
             </td>
-            <td colspan="2"> 
-                <strong>Codice Comitato:</strong> 
+            <td></td>
+            <td colspan="4"> 
+                <strong>Codice Comitato</strong> 
             </td>
             <td colspan="2" contenteditable="true">
                 <?= htmlspecialchars(string: $codice_comitato_csi) ?>
             </td>
         </tr>
-        <tr><td colspan="8"></td></tr>
+        <tr><td colspan="16"></td></tr>
         <tr>
+            <td></td>
             <td colspan="2"> 
                 <strong>Società sportiva:</strong> 
             </td>
-            <td colspan="2" contenteditable="true"> 
+            <td colspan="4" contenteditable="true"> 
                 CIRCOLO SPORTIVO DIOCESANO AMICHIAMOCI 
             </td>
-            <td colspan="2"> 
-                <strong>Codice Società:</strong> 
+            <td></td>
+            <td colspan="4"> 
+                <strong>Codice Società</strong> 
             </td>
             <td colspan="2" contenteditable="true">
                 <?= htmlspecialchars(string: $codice_societa_csi) ?>
             </td>
         </tr>
-        <tr><td colspan="8"></td></tr>
+        <tr><td colspan="16"></td></tr>
         <tr>
             <td colspan="2"> </td>
             <td colspan="9"> </td>
@@ -167,10 +172,56 @@ $codice_societa_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_SOCIETA_C
                 <td contenteditable="true" colspan="3"> </td>
             </tr>
         <?php } ?>
-        <tr><td colspan="8"></td></tr>
+        <tr><td colspan="16"></td></tr>
         <tr>
+            <td colspan="16">
+                <small>
+                    Informazioni Privacy (N.B. il testo aggiornato di queste informazioni è conservato, 
+                    a disposizione di chiunque lo richieda, presso i Comitati territoriali e sul sito 
+                    Internet istituzionale del CSI) - Ai sensi degli artt. 13 e 14 del Regolamento UE 2016/67
+                </small>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="16">
+                <small>
+                    Base giuridica di questi trattamenti si rinviene nell’essere gli stessi necessari
+                    all’esecuzione di un contratto di cui l’interessato è parte nonché  per adempiere
+                    agli obblighi cui è soggetto il titolare del trattamento. I dati appartenenti
+                    a categorie p
+                </small>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="16">
+                <small>
+                    Titolare del trattamento è il CENTRO SPORTIVO ITALIANO – Via della Conciliazione, 1 - 00193 ROMA. 
+                    I dati potranno essere comunicati ai soggetti ai quali l'invio si renda obbligatorio 
+                    in forza di Legge o regolamento e, in particolare, al CONI e CONINET SPA
+                </small>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="16">
+                <small>
+                    I trattamenti per i quali si richiede un consenso, invece, 
+                    sono da ritenersi facoltativi e la mancata concessione dello stesso impedisce esclusivamente 
+                    lo svolgimento di tali attività accessorie. I dati, fatto salvo ogni obbligo di legge, 
+                    saranno conserva
+                </small>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="16">
+                <strong>
+                    IL/LA SOTTOSCRITTO/A LETTE E COMPRESE LE INFORMAZIONI CHE PRECEDONO
+                </strong>
+            </td>
+        </tr>
+        <tr>
+            <td> </td>
             <td> <strong>Data:</strong> </td>
-            <td colspan="2"><?= date(format: "d/m/Y") ?></td>
+            <td><?= date(format: "d/m/Y") ?></td>
             <td colspan="2"> <strong>Il Presidente:</strong> </td>
             <td colspan="3">________________________</td>
         </tr>
@@ -204,32 +255,32 @@ $codice_societa_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_SOCIETA_C
                 wch: 15 // Nato il
             },
             {
-                wch: 20 // Luogo nascita
+                wch: 16 // Luogo nascita
             },
             {
                 wch: 20 // Indirizzo
             },
             {
-                wch: 8 // Civico
+                wch: 5 // Civico
             },
             {
-                wch: 20 // Comune
+                wch: 12 // Comune
             },
             {
-                wch: 12 // CAP
+                wch: 8 // CAP
             },
             {
-                wch: 8 // Provincia
+                wch: 4 // Provincia
             },
-            {   wch: 6 },
-            {   wch: 6 },
-            {   wch: 6 },
-            {   wch: 6 },
-            {   wch: 6 },
-            {   wch: 6 },
-            {   wch: 6 },
-            {   wch: 6 },
-            {   wch: 6 },
+            {   wch: 3 },
+            {   wch: 3 },
+            {   wch: 3 },
+            {   wch: 3 },
+            {   wch: 3 },
+            {   wch: 3 },
+            {   wch: 3 },
+            {   wch: 3 },
+            {   wch: 3 },
 
             {
                 wch: 13 // Telefono
@@ -241,10 +292,10 @@ $codice_societa_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_SOCIETA_C
                 wch: 25 // Email
             },
             
-            {   wch: 6 },
-            {   wch: 6 },
-            {   wch: 6 },
-            {   wch: 6 },
+            {   wch: 3 },
+            {   wch: 3 },
+            {   wch: 3 },
+            {   wch: 3 },
         ];
         XLSX.utils.book_append_sheet(wb, sheet, "Inserimento Tesserati");
         if (!wb.Props) 
