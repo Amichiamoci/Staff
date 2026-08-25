@@ -1,3 +1,24 @@
+<?php
+use Amichiamoci\Utils\Security;
+
+$amichiamoci_full_address = Security::LoadEnvironmentOfFromFile(
+    var: 'LEGAL_ADDRESS', 
+    default: 'Via del Seminario, 68, Livorno, 57121, LI',
+);
+
+$amichiamoci_address_parts = explode(separator: ',', string: $amichiamoci_full_address, limit: 5);
+for ($i = 0; $i < 5; $i++) {
+    if (empty($amichiamoci_address_parts[$i])) {
+        $amichiamoci_address_parts[$i] = '';
+    }
+}
+
+$codice_comitato_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_COMITATO_CSI', default: '');
+$codice_societa_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_SOCIETA_CSI', default: '');
+
+
+?>
+
 <h1>
     Tesseramenti per C.S.I.
 </h1>
@@ -8,31 +29,79 @@
 <table id="csi" class="table table-striped border border-1">
     <thead>
         <tr><td colspan="8"></td></tr>
-        <tr><td colspan="8"> CENTRO SPORTIVO ITALIANO </td></tr>
+        <tr><td colspan="8"> TESSERAMENTO CENTRO SPORTIVO ITALIANO </td></tr>
         <tr><td colspan="8"></td></tr>
         <tr>
-            <td colspan="2"> <strong>Comitato di:</strong> </td>
-            <td colspan="2" contenteditable="true"></td>
-            <td colspan="2"> <strong>Codice Comitato:</strong> </td>
-            <td colspan="2" contenteditable="true"></td>
+            <td colspan="2"> 
+                <strong>Comitato di:</strong>
+            </td>
+            <td colspan="2" contenteditable="true"> 
+                LIVORNO 
+            </td>
+            <td colspan="2"> 
+                <strong>Codice Comitato:</strong> 
+            </td>
+            <td colspan="2" contenteditable="true">
+                <?= htmlspecialchars(string: $codice_comitato_csi) ?>
+            </td>
         </tr>
         <tr><td colspan="8"></td></tr>
         <tr>
-            <td colspan="2"> <strong>Società sportiva:</strong> </td>
-            <td colspan="2" contenteditable="true">Amichiamoci A.S.D.</td>
-            <td colspan="2"> <strong>Codice Società:</strong> </td>
-            <td colspan="2" contenteditable="true"></td>
+            <td colspan="2"> 
+                <strong>Società sportiva:</strong> 
+            </td>
+            <td colspan="2" contenteditable="true"> 
+                CIRCOLO SPORTIVO DIOCESANO AMICHIAMOCI 
+            </td>
+            <td colspan="2"> 
+                <strong>Codice Società:</strong> 
+            </td>
+            <td colspan="2" contenteditable="true">
+                <?= htmlspecialchars(string: $codice_societa_csi) ?>
+            </td>
         </tr>
         <tr><td colspan="8"></td></tr>
         <tr>
+            <td colspan="2"> </td>
+            <td colspan="9"> </td>
+            <td colspan="9"> <strong>Attività Qualifiche</strong> </td>
+            <td colspan="4"> </td>
+            <td> <strong>Dis</strong> </td>
+            <td colspan="3"> <strong>Privacy (A)</strong> </td>
+        </tr>
+        <tr>
+            <td> </td>
             <td> <strong>N°</strong> </td>
             <td> <strong>COGNOME</strong> </td>
             <td> <strong>NOME</strong> </td>
             <td> <strong>SESSO</strong> </td>
-            <td> <strong>LUOGO NASCITA</strong> </td>
             <td> <strong>NATO IL</strong> </td>
-            <td> <strong>Telefono</strong> </td>
-            <td> <strong>Email</strong> </td>
+            <td> <strong>LUOGO NASCITA</strong> </td>
+
+            <td> <strong>INDIRIZZO</strong> </td>
+            <td> <strong>CIVICO</strong> </td>
+            <td> <strong>COMUNE</strong> </td>
+            <td> <strong>CAP</strong> </td>
+            <td> <strong>Prov</strong> </td>
+
+            <td> <strong>TT</strong> </td>
+            <td> <strong>1</strong> </td>
+            <td> <strong>2</strong> </td>
+            <td> <strong>1</strong> </td>
+            <td> <strong>2</strong> </td>
+            <td> <strong>3</strong> </td>
+            <td> <strong>4</strong> </td>
+            <td> <strong>5</strong> </td>
+
+            <td> <strong>PREF</strong> </td>
+            <td> <strong>TELEFONO</strong> </td>
+            <td> <strong>CODICE FISCALE</strong> </td>
+            <td> <strong>EMAIL</strong> </td>
+
+            <td> <strong> (C)</strong> </td>
+            <td> <strong> 1) </strong> </td>
+            <td> <strong> 2) </strong> </td>
+            <td> <strong> 3) </strong> </td>
         </tr>
     </thead>
     <tbody>
@@ -40,18 +109,37 @@
             foreach ($iscrizioni as $iscrizione) {
             if (!($iscrizione instanceof Amichiamoci\Models\TesseramentoCSI)) continue; ?>
             <tr>
-                <td scope="row"><?= $i++ ?></td>
-                <td><?= htmlspecialchars(string: $iscrizione->Cognome) ?></td>
-                <td><?= htmlspecialchars(string: $iscrizione->Nome) ?></td>
-                <td><?= htmlspecialchars(string: $iscrizione->Sesso) ?></td>
-                <td><?= htmlspecialchars(string: $iscrizione->LuogoNascita) ?></td>
-                <td><?= htmlspecialchars(string: $iscrizione->DataNascita) ?></td>
+                <td> </td>
+                <td scope="row" contenteditable="true"><?= $i++ ?></td>
+                <td contenteditable="true"><?= htmlspecialchars(string: $iscrizione->Cognome) ?></td>
+                <td contenteditable="true"><?= htmlspecialchars(string: $iscrizione->Nome) ?></td>
+                <td contenteditable="true"><?= htmlspecialchars(string: $iscrizione->Sesso) ?></td>
+                <td contenteditable="true"><?= htmlspecialchars(string: $iscrizione->DataNascita) ?></td>
+                <td contenteditable="true"><?= htmlspecialchars(string: $iscrizione->LuogoNascita) ?></td>
+                
+                <?php for ($j = 0; $j < 5; $j++) { ?>
+                    <td contenteditable="true">
+                        <small>
+                            <?= htmlspecialchars(string: $amichiamoci_address_parts[$j]) ?>
+                        </small>
+                    </td>
+                <?php } ?>
+
+                <td contenteditable="true">AT</td>
+                <td contenteditable="true">PR</td>
+                <?php for ($j = 0; $j < 7; $j++) { ?>
+                    <td contenteditable="true"> </td>
+                <?php } ?>
+
                 <td>
                     <?php if (isset($iscrizione->Telefono)) { ?>
                         <a href="tel:<?= htmlspecialchars(string: $iscrizione->Telefono) ?>">
                             <?= htmlspecialchars(string: $iscrizione->Telefono) ?>
                         </a>
                     <?php } ?>
+                </td>
+                <td contenteditable="true">
+                    <output><?= htmlspecialchars(string: $iscrizione->CodiceFiscale) ?></output>
                 </td>
                 <td>
                     <?php if (isset($iscrizione->Email)) { ?>
@@ -60,6 +148,9 @@
                         </a>
                     <?php } ?>
                 </td>
+
+                <td contenteditable="true"> </td>
+                <td contenteditable="true" colspan="3"> </td>
             </tr>
         <?php } ?>
         <tr><td colspan="8"></td></tr>

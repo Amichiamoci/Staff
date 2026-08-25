@@ -10,6 +10,7 @@ class TesseramentoCSI
     public string $LuogoNascita;
     public string $DataNascita;
     public ?string $Telefono;
+    public string $CodiceFiscale;
     public ?string $Email;
 
     public function __construct(
@@ -19,6 +20,7 @@ class TesseramentoCSI
         string $luogo_nascita,
         string $data_nascita,
         ?string $telefono,
+        string $codice_fiscale,
         ?string $email,
     ) {
         $this->Nome = $nome;
@@ -29,6 +31,7 @@ class TesseramentoCSI
         $this->Telefono = $telefono;
         if (empty($this->Telefono))
             $this->Telefono = null;
+        $this->CodiceFiscale = $codice_fiscale;
         $this->Email = $email;
         if (empty($this->Email))
             $this->Email = null;
@@ -52,6 +55,7 @@ class TesseramentoCSI
                 luogo_nascita: $row['luogo_nascita'],
                 data_nascita: $row['data_nascita_americana'],
                 telefono: $row['telefono'],
+                codice_fiscale: $row['codice_fiscale'],
                 email: $row['email']
             );
         }

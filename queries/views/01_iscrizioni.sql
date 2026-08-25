@@ -7,6 +7,7 @@ SELECT
     a.`data_nascita_italiana` AS "data_nascita",
     a.`data_nascita` AS "data_nascita_americana",
     IFNULL (a.`telefono`, '') AS "telefono",
+    a.`codice_fiscale`,
     IFNULL (a.`email`, '') AS "email"
 FROM `iscritti` i
 	INNER JOIN `anagrafiche_espanse` a ON a.`id` = i.`dati_anagrafici`
