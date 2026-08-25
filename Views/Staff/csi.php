@@ -29,7 +29,7 @@ $codice_societa_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_SOCIETA_C
 <button 
     type="button"
     onclick="exportTables()"
-    class="btn btn-outline-primary mt-2"
+    class="btn btn-outline-primary mt-2 mb-2"
     title="Esporta tabella"
 >
     Esporta come foglio Excel &nbsp;
@@ -38,14 +38,14 @@ $codice_societa_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_SOCIETA_C
 
 <table id="csi" class="table table-striped border border-1">
     <thead>
-        <tr><td colspan="8"></td></tr>
+        <tr><td colspan="32"></td></tr>
         <tr>
             <td> </td>
-            <td colspan="15"> 
+            <td colspan="31"> 
                 TESSERAMENTO CENTRO SPORTIVO ITALIANO
             </td>
         </tr>
-        <tr><td colspan="16"></td></tr>
+        <tr><td colspan="32"></td></tr>
         <tr>
             <td></td>
             <td colspan="2"> 
@@ -58,11 +58,11 @@ $codice_societa_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_SOCIETA_C
             <td colspan="4"> 
                 <strong>Codice Comitato</strong> 
             </td>
-            <td colspan="2" contenteditable="true">
+            <td colspan="3" contenteditable="true">
                 <?= htmlspecialchars(string: $codice_comitato_csi) ?>
             </td>
         </tr>
-        <tr><td colspan="16"></td></tr>
+        <tr><td colspan="32"></td></tr>
         <tr>
             <td></td>
             <td colspan="2"> 
@@ -75,11 +75,19 @@ $codice_societa_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_SOCIETA_C
             <td colspan="4"> 
                 <strong>Codice Società</strong> 
             </td>
-            <td colspan="2" contenteditable="true">
+            <td colspan="3" contenteditable="true">
                 <?= htmlspecialchars(string: $codice_societa_csi) ?>
             </td>
         </tr>
-        <tr><td colspan="16"></td></tr>
+        <tr>
+            <td colspan="30"></td>
+            <td>
+                <strong>Data</strong>
+            </td>
+            <td>
+                <strong>Firma (B)</strong>
+            </td>
+        </tr>
         <tr>
             <td colspan="2"> </td>
             <td colspan="9"> </td>
@@ -169,12 +177,14 @@ $codice_societa_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_SOCIETA_C
                 </td>
 
                 <td contenteditable="true"> </td>
-                <td contenteditable="true" colspan="3"> </td>
+                <td contenteditable="true"> <strong>X</strong> </td>
+                <td contenteditable="true"> </td>
+                <td contenteditable="true"> </td>
             </tr>
         <?php } ?>
-        <tr><td colspan="16"></td></tr>
+        <tr><td colspan="32"></td></tr>
         <tr>
-            <td colspan="16">
+            <td colspan="32">
                 <small>
                     Informazioni Privacy (N.B. il testo aggiornato di queste informazioni è conservato, 
                     a disposizione di chiunque lo richieda, presso i Comitati territoriali e sul sito 
@@ -183,7 +193,7 @@ $codice_societa_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_SOCIETA_C
             </td>
         </tr>
         <tr>
-            <td colspan="16">
+            <td colspan="32">
                 <small>
                     Base giuridica di questi trattamenti si rinviene nell’essere gli stessi necessari
                     all’esecuzione di un contratto di cui l’interessato è parte nonché  per adempiere
@@ -193,7 +203,7 @@ $codice_societa_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_SOCIETA_C
             </td>
         </tr>
         <tr>
-            <td colspan="16">
+            <td colspan="32">
                 <small>
                     Titolare del trattamento è il CENTRO SPORTIVO ITALIANO – Via della Conciliazione, 1 - 00193 ROMA. 
                     I dati potranno essere comunicati ai soggetti ai quali l'invio si renda obbligatorio 
@@ -202,7 +212,7 @@ $codice_societa_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_SOCIETA_C
             </td>
         </tr>
         <tr>
-            <td colspan="16">
+            <td colspan="32">
                 <small>
                     I trattamenti per i quali si richiede un consenso, invece, 
                     sono da ritenersi facoltativi e la mancata concessione dello stesso impedisce esclusivamente 
@@ -212,12 +222,72 @@ $codice_societa_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_SOCIETA_C
             </td>
         </tr>
         <tr>
-            <td colspan="16">
+            <td colspan="32">
                 <strong>
                     IL/LA SOTTOSCRITTO/A LETTE E COMPRESE LE INFORMAZIONI CHE PRECEDONO
                 </strong>
             </td>
         </tr>
+        <tr>
+            <td colspan="32">
+                <small>
+                    1) Diritti di immagine – Circa l’archiviazione e il libero utilizzo da parte del CSI,
+                    senza limiti di tempo e senza finalità di lucro delle proprie immagini fotografiche o
+                    audiovisive (o delle immagini del/della proprio/a figlio/a in caso di tesserato min
+                </small>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="32">
+                <small>
+                    2) Attività promozionali del CSI - In relazione al trattamento dei dati personali
+                    dell’interessato per finalità di marketing diretto/ricerche di mercato del CSI nei termini sopra esposti
+                </small>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="32">
+                <small>
+                    3) Attività promozionali di Terzi - In relazione al trattamento dei dati
+                    personali dell’interessato per finalità di comunicazione al CONI ovvero ai soggetti
+                    sopra indicati per loro proprie iniziative di marketing diretto/ricerche di mercato
+                    nei termini so
+                </small>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="32">
+                <small>
+                    A) Per ognuna delle finalità sopra elencate 1), 2) e 3) deve essere indicata con una X
+                    il consenso al trattamento da parte del tesserato.
+                </small>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="32">
+                <small>
+                    B) Firma del tesserato da apporsi di proprio pugno da parte del tesserato o di
+                    chi esercita la potestà genitoriale in caso di minorenne  (in caso di genitori
+                    separati la firma deve essere di entrambi).
+                </small>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="32">
+                <small>
+                    C) Evidenziare con una X gli atleti disabili.
+                </small>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="32">
+                Il sottoscritto, Presidente e/o Legale Rappresentante dell’Associazione sportiva,
+                Società sportiva, Circolo culturale sportivo, a conoscenza delle norme relative
+                al tesseramento e all’assicurazione stipulata dal CSI per i suoi tesserati,
+                dichiara sotto la
+            </td>
+        </tr>
+        <tr> <td colspan="32"> </td> </tr>
         <tr>
             <td> </td>
             <td> <strong>Data:</strong> </td>
@@ -296,6 +366,13 @@ $codice_societa_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_SOCIETA_C
             {   wch: 3 },
             {   wch: 3 },
             {   wch: 3 },
+
+            {
+                wch: 8 // Data
+            },
+            {
+                wch: 15 // Firma
+            },
         ];
         XLSX.utils.book_append_sheet(wb, sheet, "Inserimento Tesserati");
         if (!wb.Props) 
