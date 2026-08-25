@@ -23,13 +23,27 @@ $codice_societa_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_SOCIETA_C
     Tesseramenti per C.S.I.
 </h1>
 <p class="ps-1 pe-1">
-    I valori che vengono riportati nelle tabelle rispecchiano le attuali iscrizioni registrate nel sistema
+    I valori che vengono riportati nelle tabelle rispecchiano le attuali iscrizioni registrate nel sistema.
 </p>
+
+<button 
+    type="button"
+    onclick="exportTables()"
+    class="btn btn-outline-primary mt-2"
+    title="Esporta tabella"
+>
+    Esporta come foglio Excel &nbsp;
+    <i class="bi bi-file-earmark-arrow-down"></i>
+</button>
 
 <table id="csi" class="table table-striped border border-1">
     <thead>
         <tr><td colspan="8"></td></tr>
-        <tr><td colspan="8"> TESSERAMENTO CENTRO SPORTIVO ITALIANO </td></tr>
+        <tr>
+            <td colspan="8"> 
+                TESSERAMENTO CENTRO SPORTIVO ITALIANO
+            </td>
+        </tr>
         <tr><td colspan="8"></td></tr>
         <tr>
             <td colspan="2"> 
@@ -163,16 +177,6 @@ $codice_societa_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_SOCIETA_C
     </tbody>
 </table>
 
-<button 
-    type="button"
-    onclick="exportTables()"
-    class="btn btn-outline-primary mt-2"
-    title="Esporta tabella"
->
-    Esporta come foglio Excel &nbsp;
-    <i class="bi bi-file-earmark-arrow-down"></i>
-</button>
-
 <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js" defer></script>
 <script>
     function exportTables()
@@ -181,36 +185,73 @@ $codice_societa_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_SOCIETA_C
         const wb = XLSX.utils.book_new();
         const sheet = XLSX.utils.table_to_sheet(table);
         sheet["!cols"] = [
-            {
-                wch: 6 //N°
+            {  
+                wch: 2 // <empty>
             },
             {
-                wch: 15 //Cognome
+                wch: 6 // N°
             },
             {
-                wch: 15 //Nome
+                wch: 15 // Cognome
             },
             {
-                wch: 6 //Sesso
+                wch: 15 // Nome
             },
             {
-                wch: 15 //Nato il
+                wch: 6 // Sesso
             },
             {
-                wch: 20 //Luogo nascita
+                wch: 15 // Nato il
             },
             {
-                wch: 13 //Telefono
+                wch: 20 // Luogo nascita
             },
             {
-                wch: 23 //Email
-            }];
-        XLSX.utils.book_append_sheet(wb, sheet, "Lista Iscrizioni <?= date(format: "Y") ?>");
+                wch: 20 // Indirizzo
+            },
+            {
+                wch: 8 // Civico
+            },
+            {
+                wch: 20 // Comune
+            },
+            {
+                wch: 12 // CAP
+            },
+            {
+                wch: 8 // Provincia
+            },
+            {   wch: 6 },
+            {   wch: 6 },
+            {   wch: 6 },
+            {   wch: 6 },
+            {   wch: 6 },
+            {   wch: 6 },
+            {   wch: 6 },
+            {   wch: 6 },
+            {   wch: 6 },
+
+            {
+                wch: 13 // Telefono
+            },
+            {
+                wch: 20 // Codice Fiscale
+            },
+            {
+                wch: 25 // Email
+            },
+            
+            {   wch: 6 },
+            {   wch: 6 },
+            {   wch: 6 },
+            {   wch: 6 },
+        ];
+        XLSX.utils.book_append_sheet(wb, sheet, "Inserimento Tesserati");
         if (!wb.Props) 
             wb.Props = {};
         wb.Props.Title = "Iscrizioni <?= SITE_NAME ?> <?= date(format: "Y") ?>";
-        wb.Props.Author = "<?= SITE_NAME ?> A.S.D.";
+        wb.Props.Author = "<?= SITE_NAME ?>";
 
-        XLSX.writeFile(wb, "Iscrizioni-<?= date(format: "Y")?>.xlsx");
+        XLSX.writeFile(wb, "Iscrizioni-<?= SITE_NAME ?>-<?= date(format: "Y")?>.xlsx");
     }
 </script>
