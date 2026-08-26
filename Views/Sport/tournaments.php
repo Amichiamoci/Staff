@@ -39,19 +39,23 @@ $tornei_per_sport = array_reduce(
 <?php } ?>
 
 <h1>
-    Tornei attivi (<?= count(value: $tornei) ?>)
+    Tornei attivi: <output><?= count(value: $tornei) ?></output>
 </h1>
 
 <?php foreach (array_keys($tornei_per_sport) as $sport_id) { ?>
-    <h3 class="mt-1">
-        <?= htmlspecialchars(string: $tornei_per_sport[$sport_id][0]->Sport->Nome) ?>
-        (<?= count(value: $tornei_per_sport[$sport_id]) ?>)
-    </h3>
-    <div class="row m-0">
-        <?php foreach ($tornei_per_sport[$sport_id] as $torneo) { ?>
-            <div class="col col-xs-6 col-sm-4">
-                <?php require dirname(path: __DIR__) . '/Shared/Torneo.php'; ?>
-            </div>
-        <?php } ?>
-    </div>
+    <details class="m-0">
+        <summary>
+            <h3 class="mt-1">
+                <?= htmlspecialchars(string: $tornei_per_sport[$sport_id][0]->Sport->Nome) ?>
+                (<?= count(value: $tornei_per_sport[$sport_id]) ?>)
+            </h3>
+        </summary>
+        <div class="row m-0">
+            <?php foreach ($tornei_per_sport[$sport_id] as $torneo) { ?>
+                <div class="col col-xs-6 col-sm-4">
+                    <?php require dirname(path: __DIR__) . '/Shared/Torneo.php'; ?>
+                </div>
+            <?php } ?>
+        </div>
+    </details>
 <?php } ?>

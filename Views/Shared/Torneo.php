@@ -202,7 +202,7 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
             </dd>
         </dl>
         <?php if ($user->Admin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'))) { ?>
-            <div class="row">
+            <div class="row m-1">
                 <div class="col">
                     <button
                         type="button"
@@ -285,7 +285,7 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
             count(value: $torneo->IdPartite) > 0 && 
             (!isset($hide_edit_icon) || $hide_edit_icon !== 'yes')
         ) { ?>
-            <div class="row">
+            <div class="row m-1">
                 <div class="col">
                     <a  href="<?= $P ?>/sport/tournament?id=<?= $torneo->Id ?>"
                         title="Aggiungi un risultato a una partita"
