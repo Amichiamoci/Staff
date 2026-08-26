@@ -43,12 +43,12 @@ $tornei_per_sport = array_reduce(
 </h1>
 
 <?php foreach (array_keys($tornei_per_sport) as $sport_id) { ?>
-    <details class="m-0">
+    <details class="m-t-1" open>
         <summary>
-            <h3 class="mt-1">
+            <h4 class="d-inline">
                 <?= htmlspecialchars(string: $tornei_per_sport[$sport_id][0]->Sport->Nome) ?>
                 (<?= count(value: $tornei_per_sport[$sport_id]) ?>)
-            </h3>
+            </h4>
         </summary>
         <div class="row m-0">
             <?php foreach ($tornei_per_sport[$sport_id] as $torneo) { ?>
