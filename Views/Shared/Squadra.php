@@ -56,28 +56,40 @@ $allow_edits = true;
         <?php } ?>
     </div>
     <div class="card-body p-1">
-        <?php if (is_string(value: $squadra->Referenti)) { ?>
-            <h4 class="ms-1">
-                Referenti
-                <small>(staff esclusi)</small>
-            </h4>
-            <p class="ms-2">
-                <?php foreach (
-                    explode(
-                        separator: ',', 
-                        string: str_replace(
-                            search: ["\n", "\r", "\t", ";", ], 
-                            replace: ',', 
-                            subject: $squadra->Referenti,
-                        ),
-                    ) as $referente) { 
-                        if (trim(string: $referente) === '') continue;
-                ?>
-
+        <?php 
+        $lista_espansa_referenti = [];
+        if (is_string(value: $squadra->Referenti)) {
+            $lista_espansa_referenti = explode(
+                separator: ',', 
+                string: str_replace(
+                    search: ["\n", "\r", "\t", ";", ], 
+                    replace: ',', 
+                    subject: $squadra->Referenti,
+                ),
+            );
+            $lista_espansa_referenti = array_filter($lista_espansa_referenti, 
+                                                    callback: function ($referente) {
+                return trim(string: $referente) !== '';
+            });
+        }
+        ?>
+        
+        <h4 class="ms-1">
+            Referenti
+            <?php if (count(value: $lista_espansa_referenti) > 0) { ?>
+                <small>(extra-staff)</small>
+            <?php } ?>
+        </h4>
+        
+        <p class="ms-2">
+            <?php if (count(value: $lista_espansa_referenti) === 0) { ?>
+                Nessun referente extra-staff indicato
+            <?php } else { ?>
+                <?php foreach ($lista_espansa_referenti as $referente) { ?>
                     <?= htmlspecialchars(string: trim(string: $referente)) ?><br>
                 <?php } ?>
-            </p>
-        <?php } ?>
+            <?php } ?>
+        </p>
 
         <h4 class="ms-1">
             Membri
