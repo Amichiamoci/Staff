@@ -54,94 +54,98 @@ $squadre_per_sport = array_reduce(
     Le squadre sono raggruppate per lo sport per il quale sono registrate
 </p>
 <?php foreach (array_keys(array: $squadre_per_sport) as $sport_id) { ?>
-    <h3 class="mt-1">
-        <?= htmlspecialchars(string: $squadre_per_sport[$sport_id][0]->Sport->Nome) ?>
-        (<?= count(value: $squadre_per_sport[$sport_id]) ?>)
-    </h3>
-    <div class="row">
-        <?php foreach ($squadre_per_sport[$sport_id] as $squadra) { ?>
-            <div class="col col-xs-6 col-sm-4">
-                <div class="card" id="squadra-<?= $squadra->Id ?>">
-                    <div class="card-header user-select-none">
-                        <strong>
-                            <?= htmlspecialchars(string: $squadra->Nome) ?>
-                        </strong>
-                        <a 
-                            href="<?= $P ?>/teams/edit?id=<?= $squadra->Id ?>"
-                            class="link-underline link-underline-opacity-0 link-primary text-end"
-                            <?php /* 
-                            href="javascript:alert('Non più possibile!')"
-                            class="link-underline link-underline-opacity-0 link-secondary text-end"
-                            */ ?>
-                            title="Modifica <?= htmlspecialchars(string: $squadra->Nome) ?>"
-                        >
-                            <i class="bi bi-pencil-square"></i>
-                        </a>
-                        <?php if ($user->Admin) { ?>
-                            <form action="<?= $P ?>/teams/delete" method="post" class="d-inline">
-                                <input type="hidden" name="id" value="<?= $squadra->Id ?>" required>
-                                <input type="hidden" name="year" value="<?= $anno ?>">
-                                <input type="hidden" name="church" value="<?= $id_parrocchia ?>">
-                                <button 
-                                    type="submit" 
-                                    class="btn btn-link link-underline link-underline-opacity-0 link-danger p-0" 
-                                    title="Elimina"
-                                    data-confirm="Sicuro di voler cancellare la squadra?"
-                                    data-confirm-btn="Sì, cancella"
-                                    data-cancel-btn="Annulla"
-                                >
-                                    <i class="bi bi-x-lg"></i>
-                                </button>
-                            </form>
-                        <?php } ?>
-                    </div>
-                    <div class="card-body p-1">
-                        <?php if (is_string(value: $squadra->Referenti)) { ?>
-                            <h4 class="ms-1">
-                                Referenti
-                            </h4>
-                            <p class="ms-2">
-                                <?php foreach (
-                                    explode(
-                                        separator: ',', 
-                                        string: str_replace(
-                                            search: ["\n", "\r", "\t", ";", ], 
-                                            replace: ',', 
-                                            subject: $squadra->Referenti,
-                                        ),
-                                    ) as $referente) { 
-                                        if (trim(string: $referente) === '') continue;
-                                ?>
-
-                                    <?= htmlspecialchars(string: trim(string: $referente)) ?><br>
-                                <?php } ?>
-                            </p>
-                        <?php } ?>
-
-                        <h4 class="ms-1">
-                            Membri
-                        </h4>
-                        <ul class="list-group list-group-flush">
-                            <?php foreach ($squadra->MembriFull() as $id_anagrafica => $nome) { ?>
-                                <li class="list-group-item pt-0 border-0">
-                                    <a 
-                                        href="<?= $P ?>/staff/edit_anagrafica?id=<?= $id_anagrafica ?>"
-                                        class="text-reset link-underline link-underline-opacity-0"
-                                        title="Modifica i dati"
+    <details class="mt-1" open>
+        <summary>
+            <h4 class="d-inline">
+                <?= htmlspecialchars(string: $squadre_per_sport[$sport_id][0]->Sport->Nome) ?>
+                (<?= count(value: $squadre_per_sport[$sport_id]) ?>)
+            </h4>
+        </summary>
+        <div class="row">
+            <?php foreach ($squadre_per_sport[$sport_id] as $squadra) { ?>
+                <div class="col col-xs-6 col-sm-4">
+                    <div class="card" id="squadra-<?= $squadra->Id ?>">
+                        <div class="card-header user-select-none">
+                            <strong>
+                                <?= htmlspecialchars(string: $squadra->Nome) ?>
+                            </strong>
+                            <a 
+                                href="<?= $P ?>/teams/edit?id=<?= $squadra->Id ?>"
+                                class="link-underline link-underline-opacity-0 link-primary text-end"
+                                <?php /* 
+                                href="javascript:alert('Non più possibile!')"
+                                class="link-underline link-underline-opacity-0 link-secondary text-end"
+                                */ ?>
+                                title="Modifica <?= htmlspecialchars(string: $squadra->Nome) ?>"
+                            >
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <?php if ($user->Admin) { ?>
+                                <form action="<?= $P ?>/teams/delete" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="<?= $squadra->Id ?>" required>
+                                    <input type="hidden" name="year" value="<?= $anno ?>">
+                                    <input type="hidden" name="church" value="<?= $id_parrocchia ?>">
+                                    <button 
+                                        type="submit" 
+                                        class="btn btn-link link-underline link-underline-opacity-0 link-danger p-0" 
+                                        title="Elimina"
+                                        data-confirm="Sicuro di voler cancellare la squadra?"
+                                        data-confirm-btn="Sì, cancella"
+                                        data-cancel-btn="Annulla"
                                     >
-                                        <?= htmlspecialchars(string: $nome) ?>
-                                    </a>
-                                </li>
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                </form>
                             <?php } ?>
-                            <?php if (count(value: $squadra->IdIscritti) === 0) { ?>
-                                <li class="list-group-item user-select-none text-warning">
-                                    Nessun membro!
-                                </li>
+                        </div>
+                        <div class="card-body p-1">
+                            <?php if (is_string(value: $squadra->Referenti)) { ?>
+                                <h4 class="ms-1">
+                                    Referenti
+                                </h4>
+                                <p class="ms-2">
+                                    <?php foreach (
+                                        explode(
+                                            separator: ',', 
+                                            string: str_replace(
+                                                search: ["\n", "\r", "\t", ";", ], 
+                                                replace: ',', 
+                                                subject: $squadra->Referenti,
+                                            ),
+                                        ) as $referente) { 
+                                            if (trim(string: $referente) === '') continue;
+                                    ?>
+
+                                        <?= htmlspecialchars(string: trim(string: $referente)) ?><br>
+                                    <?php } ?>
+                                </p>
                             <?php } ?>
-                        </ul>
+
+                            <h4 class="ms-1">
+                                Membri
+                            </h4>
+                            <ul class="list-group list-group-flush">
+                                <?php foreach ($squadra->MembriFull() as $id_anagrafica => $nome) { ?>
+                                    <li class="list-group-item pt-0 border-0">
+                                        <a 
+                                            href="<?= $P ?>/staff/edit_anagrafica?id=<?= $id_anagrafica ?>"
+                                            class="text-reset link-underline link-underline-opacity-0"
+                                            title="Modifica i dati"
+                                        >
+                                            <?= htmlspecialchars(string: $nome) ?>
+                                        </a>
+                                    </li>
+                                <?php } ?>
+                                <?php if (count(value: $squadra->IdIscritti) === 0) { ?>
+                                    <li class="list-group-item user-select-none text-warning">
+                                        Nessun membro!
+                                    </li>
+                                <?php } ?>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-            </div>
-        <?php } ?>
-    </div>
+            <?php } ?>
+        </div>
+    </details>
 <?php } ?>

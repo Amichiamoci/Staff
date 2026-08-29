@@ -43,7 +43,7 @@ $tornei_per_sport = array_reduce(
 </h1>
 
 <?php foreach (array_keys($tornei_per_sport) as $sport_id) { ?>
-    <details class="m-t-1" open>
+    <details class="mt-1" open>
         <summary>
             <h4 class="d-inline">
                 <?= htmlspecialchars(string: $tornei_per_sport[$sport_id][0]->Sport->Nome) ?>

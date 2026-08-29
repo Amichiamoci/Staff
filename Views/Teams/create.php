@@ -119,6 +119,9 @@ $iscritti_per_parrocchia = array_reduce(
         <div class="invalid-feedback">
             Per favore, indica dei referenti
         </div>
+        <div class="form-text user-select-none ms-2">
+            NON è necessario indicare gli STAFF in questa lista.
+        </div>
     </div>
 
     <h3>
