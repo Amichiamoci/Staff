@@ -1,9 +1,17 @@
 <?php
-    use Amichiamoci\Models\Partita;
-    if (!($partita instanceof Partita)) {
-        throw new \Exception(message: 'Invalid variable $partita');
-    }
-    $can_edit = $user->Admin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'));
+
+use Amichiamoci\Models\Partita;
+use Amichiamoci\Models\User;
+
+if (!isset($partita) || !($partita instanceof Partita)) {
+    throw new \Exception(message: 'Invalid variable $partita');
+}
+
+if (!isset($user) || !($user instanceof User)) {
+    throw new \Exception(message: 'var $user not valid');
+}
+
+$can_edit = $user->Admin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'));
 ?>
 
 <div class="card" id="match-<?= $partita->Id ?>">

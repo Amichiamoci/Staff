@@ -2,10 +2,16 @@
 
 use Amichiamoci\Models\TipoTorneo;
 use Amichiamoci\Models\Torneo;
+use Amichiamoci\Models\User;
 
 if (!isset($torneo) || !($torneo instanceof Torneo)) {
     throw new \Exception(message: 'var $torneo not valid');
 }
+
+if (!isset($user) || !($user instanceof User)) {
+    throw new \Exception(message: 'var $user not valid');
+}
+
 ?>
 
 <div class="card mb-1" id="torneo-<?= $torneo->Id ?>">
@@ -281,8 +287,7 @@ if (!isset($torneo) || !($torneo instanceof Torneo)) {
         <?php } ?>
 
         <?php 
-        if (
-            count(value: $torneo->IdPartite) > 0 && 
+        if (count(value: $torneo->IdPartite) > 0 && 
             (!isset($hide_edit_icon) || $hide_edit_icon !== 'yes')
         ) { ?>
             <div class="row m-1">

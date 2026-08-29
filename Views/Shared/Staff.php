@@ -2,9 +2,14 @@
 
 use Amichiamoci\Models\StaffBase;
 use Amichiamoci\Models\Staff;
+use Amichiamoci\Models\User;
 
 if (!isset($staff) || !($staff instanceof StaffBase)) {
     throw new \Exception(message: '$staff variable not set!');
+}
+
+if (!isset($user) || !($user instanceof User)) {
+    throw new \Exception(message: 'var $user not valid');
 }
 
 ?>

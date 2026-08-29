@@ -1,3 +1,12 @@
+<?php
+
+use Amichiamoci\Models\Message;
+
+if (!isset($message) || !($message instanceof Message)) {
+    throw new \Exception(message: 'var $message not set');
+}
+?>
+
 <div class="alert alert-<?= $message->Type->value ?> user-select-none alert-dismissible fade show d-flex" role="alert">
     <i class="bi <?= $message->Icon() ?> flex-shrink-0 me-2"></i>
     <div>

@@ -1,5 +1,5 @@
 <?php
-    use Amichiamoci\Utils\Security;
+use Amichiamoci\Utils\Security;
 ?>
 <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3">
     <div class="container-fluid">

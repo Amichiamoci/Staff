@@ -3,9 +3,14 @@ use Amichiamoci\Utils\Link;
 use Amichiamoci\Utils\File;
 use Amichiamoci\Models\Anagrafica;
 use Amichiamoci\Models\AnagraficaConIscrizione;
+use Amichiamoci\Models\User;
 
 if (!isset($anagrafica) || !($anagrafica instanceof Anagrafica))
     throw new \Exception(message: '$anagrafica variable not set!');
+
+if (!isset($user) || !($user instanceof User)) {
+    throw new \Exception(message: 'var $user not valid');
+}
 ?>
 
 <div class="card" 
