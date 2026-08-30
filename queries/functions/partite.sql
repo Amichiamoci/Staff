@@ -30,11 +30,24 @@ BEGIN
         RETURN 0;
     END IF;
 
+    SELECT TRIM(UPPER(`sport`.`area`)) INTO area
+    FROM `sport`
+        INNER JOIN `tornei` ON `tornei`.`sport` = `sport`.`id`
+        INNER JOIN `partite` ON `partite`.`torneo` = `tornei`.`id`
+    WHERE `partite`.`id` = id;
+
     SELECT p.`a_tavolino` INTO tavolino
     FROM `partite` p
     WHERE p.`id` = id;
 
     IF tavolino IS NOT NULL THEN
+        -- Ci sono regole diverse per il tavolino a pallavolo
+        IF area = 'PALLAVOLO' THEN
+            RETURN CASE 
+                WHEN tavolino = team THEN 3
+                ELSE -1 END; 
+        END IF;
+
         RETURN CASE 
             WHEN tavolino = team THEN 3
             ELSE 0 END; 
@@ -49,11 +62,6 @@ BEGIN
         RETURN 0; -- La partita non esiste
     END IF;
 
-    SELECT TRIM(UPPER(`sport`.`area`)) INTO area
-    FROM `sport`
-        INNER JOIN `tornei` ON `tornei`.`sport` = `sport`.`id`
-        INNER JOIN `partite` ON `partite`.`torneo` = `tornei`.`id`
-    WHERE `partite`.`id` = id;
 
     IF EXISTS(
         SELECT `partite`.* 

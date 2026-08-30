@@ -9,6 +9,8 @@ assert(isset($user) && ($user instanceof User), 'var $user not valid');
 assert(isset($anagrafica) && ($anagrafica instanceof Anagrafica), 'var $anagrafica not valid');
 assert(isset($P) && is_string($P), 'var $P not valid');
 
+$iscrizioni_aperte = false;
+
 ?>
 
 <div class="card" 
@@ -257,18 +259,20 @@ assert(isset($P) && is_string($P), 'var $P not valid');
 
                 <?php } ?>
             <?php } else { ?>
-                <dt class="col-sm-4 text-nowrap">
-                    <i class="bi bi-person-plus"></i>
-                    Iscrivi
-                </dt>
-                <dd class="col-sm-8">
-                    <a  href="<?= $P ?>/staff/iscrivi?id=<?= $anagrafica->Id ?>"
-                        class="btn btn-secondary"
-                        title="Iscrivi alla manifestazione"
-                    >
-                        Clicca qui
-                    </a>
-                </dd>
+                <?php if ($iscrizioni_aperte) { ?>
+                    <dt class="col-sm-4 text-nowrap">
+                        <i class="bi bi-person-plus"></i>
+                        Iscrivi
+                    </dt>
+                    <dd class="col-sm-8">
+                        <a  href="<?= $P ?>/staff/iscrivi?id=<?= $anagrafica->Id ?>"
+                            class="btn btn-secondary"
+                            title="Iscrivi alla manifestazione"
+                        >
+                            Clicca qui
+                        </a>
+                    </dd>
+                <?php } ?>
             <?php } ?>
         </dl>
     </div>
