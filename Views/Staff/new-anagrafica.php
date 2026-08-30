@@ -3,6 +3,9 @@
 use Amichiamoci\Models\Anagrafica;
 use Amichiamoci\Utils\File;
 
+assert(isset($P) && is_string($P), 'var $P not valid');
+assert(isset($tipi_documento) && is_array($tipi_documento), 'var $tipi_documento not valid');
+
 $is_editing = isset($anagrafica) && ($anagrafica instanceof Anagrafica);
 
 if ($is_editing) {

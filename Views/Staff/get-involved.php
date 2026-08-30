@@ -1,3 +1,19 @@
+<?php
+
+use Amichiamoci\Models\User;
+use Amichiamoci\Models\Staff;
+use Amichiamoci\Models\Edizione;
+
+assert(isset($user) && ($user instanceof User), 'var $user not valid');
+assert(isset($staff) && ($staff instanceof Staff), 'var $staff not valid');
+
+assert(isset($edizioni) && is_array($edizioni), 'var $edizioni not valid');
+assert(isset($commissioni) && is_array($commissioni), 'var $commissioni not valid');
+assert(isset($taglie) && is_array($taglie), 'var $taglie not valid');
+assert(isset($edizione_corrente) && ($edizione_corrente instanceof Edizione), 'var $edizione_corrente not valid');
+
+?>
+
 <h1>
     Partecipa all'edizione corrente di <?= SITE_NAME ?>
 </h1>

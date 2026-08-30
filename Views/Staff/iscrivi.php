@@ -1,7 +1,16 @@
 <?php
 
+use Amichiamoci\Models\User;
 use Amichiamoci\Models\Staff;
 use Amichiamoci\Utils\File;
+use Amichiamoci\Models\Anagrafica;
+
+assert(isset($user) && ($user instanceof User), 'var $user not valid');
+assert(isset($P) && is_string($P), 'var $P not valid');
+
+assert(isset($target) && ($target instanceof Anagrafica), 'var $target not valid');
+assert(isset($taglie) && is_array($taglie), 'var $taglie not valid');
+assert(isset($parrocchie) && is_array($parrocchie), 'var $parrocchie not valid');
 
 if (empty($parrocchia) && isset($staff) && $staff instanceof Staff)
     $parrocchia = $staff->Parrocchia->Id;

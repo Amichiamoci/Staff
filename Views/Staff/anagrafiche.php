@@ -1,3 +1,7 @@
+<?php
+assert(isset($title) && is_string($title), 'var $title not valid');
+assert(isset($anagrafiche) && is_array($anagrafiche), 'var $anagrafiche not valid');
+?>
 <h1>
     <?= htmlspecialchars(string: $title) ?> (<?= count(value: $anagrafiche) ?>)
 </h1>

@@ -1,5 +1,7 @@
 <?php
 use Amichiamoci\Utils\Security;
+
+assert(isset($P) && is_string($P), 'var $P not valid');
 ?>
 <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3">
     <div class="container-fluid">

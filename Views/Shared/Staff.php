@@ -4,13 +4,9 @@ use Amichiamoci\Models\StaffBase;
 use Amichiamoci\Models\Staff;
 use Amichiamoci\Models\User;
 
-if (!isset($staff) || !($staff instanceof StaffBase)) {
-    throw new \Exception(message: '$staff variable not set!');
-}
-
-if (!isset($user) || !($user instanceof User)) {
-    throw new \Exception(message: 'var $user not valid');
-}
+assert(isset($user) && ($user instanceof User), 'var $user not valid');
+assert(isset($staff) && ($staff instanceof StaffBase), 'var $staff not valid');
+assert(isset($P) && is_string($P), 'var $P not valid');
 
 ?>
 <div class="card" id="staff-<?= $staff->Id ?>">

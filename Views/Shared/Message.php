@@ -2,9 +2,8 @@
 
 use Amichiamoci\Models\Message;
 
-if (!isset($message) || !($message instanceof Message)) {
-    throw new \Exception(message: 'var $message not set');
-}
+assert(isset($message) && ($message instanceof Message), 'var $message not valid');
+
 ?>
 
 <div class="alert alert-<?= $message->Type->value ?> user-select-none alert-dismissible fade show d-flex" role="alert">

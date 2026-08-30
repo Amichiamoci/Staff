@@ -3,17 +3,13 @@
 use Amichiamoci\Models\Squadra;
 use Amichiamoci\Models\User;
 
-if (!isset($squadra) || !($squadra instanceof Squadra)) {
-    throw new \Exception(message: 'var $squadra not valid');
-}
-
-if (!isset($user) || !($user instanceof User)) {
-    throw new \Exception(message: 'var $user not valid');
-}
-
 if (!isset($anno) || !is_int(value: $anno)) {
     $anno = (int) date(format: 'Y');
 }
+
+assert(isset($user) && ($user instanceof User), 'var $user not valid');
+assert(isset($squadra) && ($squadra instanceof Squadra), 'var $squadra not valid');
+assert(isset($P) && is_string($P), 'var $P not valid');
 
 $allow_edits = true;
 // $allow_edits = $user->Admin;

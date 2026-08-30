@@ -1,3 +1,8 @@
+<?php
+assert(isset($P) && is_string($P), 'var $P not valid');
+assert(isset($title) && is_string($title), 'var $title not valid');
+assert(isset($partite) && is_array($partite), 'var $partite not valid');
+?>
 <h1>
     <?= htmlspecialchars(string: $title) ?>
 </h1>

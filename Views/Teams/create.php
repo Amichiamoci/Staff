@@ -1,6 +1,12 @@
 <?php
 
 use Amichiamoci\Models\Iscrizione;
+use Amichiamoci\Models\User;
+
+assert(isset($user) && ($user instanceof User), 'var $user not valid');
+assert(isset($P) && is_string($P), 'var $P not valid');
+assert(isset($title) && is_string($title), 'var $title not valid');
+assert(isset($iscritti) && is_array($iscritti), 'var $iscritti not valid');
 
 $iscritti_per_parrocchia = array_reduce(
     array: $iscritti,
@@ -29,7 +35,7 @@ $iscritti_per_parrocchia = array_reduce(
             class="form-control" 
             id="name" 
             name="name"
-            value="<?=is_string(value: $nome) ? htmlspecialchars(string: $nome) : '' ?>"
+            value="<?= is_string(value: $nome) ? htmlspecialchars(string: $nome) : '' ?>"
         >
         <label for="name">Nome</label>
         <div class="invalid-feedback">

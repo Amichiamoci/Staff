@@ -3,13 +3,10 @@
 use Amichiamoci\Models\Partita;
 use Amichiamoci\Models\User;
 
-if (!isset($partita) || !($partita instanceof Partita)) {
-    throw new \Exception(message: 'Invalid variable $partita');
-}
-
-if (!isset($user) || !($user instanceof User)) {
-    throw new \Exception(message: 'var $user not valid');
-}
+assert(isset($user) && ($user instanceof User), 'var $user not valid');
+assert(isset($P) && is_string($P), 'var $P not valid');
+assert(isset($partita) && ($partita instanceof Partita), 'var $partita not valid');
+assert(isset($campi) && is_array($campi), 'var $campi not valid');
 
 $can_edit = $user->Admin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'));
 ?>

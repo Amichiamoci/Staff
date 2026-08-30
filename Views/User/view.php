@@ -1,8 +1,11 @@
 <?php 
 use Amichiamoci\Models\User;
 
-if (!isset($target) || !($target instanceof User)) 
-    throw new Exception(message: '$target variable not set!');
+assert(isset($user) && ($user instanceof User), 'var $user not valid');
+assert(isset($P) && is_string($P), 'var $P not valid');
+
+assert(isset($target) && ($target instanceof User), 'var $target not valid');
+assert(isset($activity) && is_array($activity), 'var $activity not valid');
 ?>
 
 <div class="card m-1">

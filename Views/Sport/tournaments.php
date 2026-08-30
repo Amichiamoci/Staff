@@ -1,6 +1,14 @@
 <?php
 
 use Amichiamoci\Models\Torneo;
+use Amichiamoci\Models\User;
+
+assert(isset($P) && is_string($P), 'var $P not valid');
+assert(isset($user) && ($user instanceof User), 'var $user not valid');
+
+assert(isset($tornei) && is_array($tornei), 'var $tornei not valid');
+assert(isset($edizioni) && is_array($edizioni), 'var $edizioni not valid');
+assert(isset($anno) && is_int($anno), 'var $anno not valid');
 
 $tornei_per_sport = array_reduce(
     array: $tornei,

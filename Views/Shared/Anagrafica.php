@@ -5,12 +5,10 @@ use Amichiamoci\Models\Anagrafica;
 use Amichiamoci\Models\AnagraficaConIscrizione;
 use Amichiamoci\Models\User;
 
-if (!isset($anagrafica) || !($anagrafica instanceof Anagrafica))
-    throw new \Exception(message: '$anagrafica variable not set!');
+assert(isset($user) && ($user instanceof User), 'var $user not valid');
+assert(isset($anagrafica) && ($anagrafica instanceof Anagrafica), 'var $anagrafica not valid');
+assert(isset($P) && is_string($P), 'var $P not valid');
 
-if (!isset($user) || !($user instanceof User)) {
-    throw new \Exception(message: 'var $user not valid');
-}
 ?>
 
 <div class="card" 

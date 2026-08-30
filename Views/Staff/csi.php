@@ -1,6 +1,8 @@
 <?php
 use Amichiamoci\Utils\Security;
 
+assert(isset($iscrizioni) && is_array($iscrizioni), 'var $iscrizioni not valid');
+
 $amichiamoci_full_address = Security::LoadEnvironmentOfFromFile(
     var: 'LEGAL_ADDRESS', 
     default: 'Via del Seminario, 68, Livorno, 57121, LI',
@@ -16,9 +18,7 @@ for ($i = 0; $i < 5; $i++) {
 $codice_comitato_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_COMITATO_CSI', default: '');
 $codice_societa_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_SOCIETA_CSI', default: '');
 
-
 ?>
-
 <h1>
     Tesseramenti per C.S.I.
 </h1>

@@ -1,3 +1,12 @@
+<?php
+use Amichiamoci\Models\User;
+
+assert(isset($user) && ($user instanceof User), 'var $user not valid');
+
+assert(isset($classifica) && is_array($classifica), 'var $classifica not valid');
+
+?>
+
 <?php if ($user->Admin) { ?>
     <div class="input-group mb-2">
         <select id="anno-selector" class="form-control">

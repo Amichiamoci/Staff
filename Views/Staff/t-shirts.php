@@ -1,3 +1,11 @@
+<?php
+use Amichiamoci\Models\User;
+assert(isset($user) && ($user instanceof User), 'var $user not valid');
+
+assert(isset($riepilogo) && is_array($riepilogo), 'var $riepilogo not valid');
+assert(isset($lista_completa) && is_array($lista_completa), 'var $lista_completa not valid');
+?>
+
 <?php if ($user->Admin) { ?>
     <div class="input-group mb-2">
         <select id="anno-selector" class="form-control">
@@ -51,15 +59,14 @@
     function column_score(string $str): int
     {
         if ($index = array_search(needle: strtolower(string: $str), haystack: canonical_columns()))
-        {
             return (int)$index;
-        }
         return -strlen(string: $str) - 1;
     }
     function render_table(array $data): void { ?>    
     <table class="table table-striped border border-1">
         <thead>
             <?php 
+                $columns = [];
                 if (count(value: $data) > 0)
                 { 
                     $columns = array_keys($data[0]);

@@ -1,7 +1,13 @@
 <?php
-use Amichiamoci\Models\Parrocchia;
+use Amichiamoci\Models\User;
 use Amichiamoci\Models\Staff;
+use Amichiamoci\Models\Parrocchia;
 use Amichiamoci\Models\Templates\Anagrafica as AnagraficaBase;
+
+assert(isset($user) && ($user instanceof User), 'var $user not valid');
+assert(isset($P) && is_string($P), 'var $P not valid');
+assert(isset($parrocchie) && is_array($parrocchie), 'var $parrocchie not valid');
+
     if (isset($staff)) { 
 ?>
     <h1>

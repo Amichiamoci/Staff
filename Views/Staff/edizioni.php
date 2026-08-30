@@ -1,6 +1,11 @@
 <?php
 
 use Amichiamoci\Models\Edizione;
+use Amichiamoci\Models\User;
+
+assert(isset($user) && ($user instanceof User), 'var $user not valid');
+assert(isset($edizioni) && is_array($edizioni), 'var $edizioni not valid');
+
 ?>
 <h1>
     Edizioni di <?= SITE_NAME ?>

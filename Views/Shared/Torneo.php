@@ -4,13 +4,9 @@ use Amichiamoci\Models\TipoTorneo;
 use Amichiamoci\Models\Torneo;
 use Amichiamoci\Models\User;
 
-if (!isset($torneo) || !($torneo instanceof Torneo)) {
-    throw new \Exception(message: 'var $torneo not valid');
-}
-
-if (!isset($user) || !($user instanceof User)) {
-    throw new \Exception(message: 'var $user not valid');
-}
+assert(isset($user) && ($user instanceof User), 'var $user not valid');
+assert(isset($P) && is_string($P), 'var $P not valid');
+assert(isset($torneo) && ($torneo instanceof Torneo), 'var $torneo not valid');
 
 ?>
 

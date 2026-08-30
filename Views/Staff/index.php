@@ -1,5 +1,13 @@
 <?php
 use Amichiamoci\Models\ProblemaIscrizione;
+use Amichiamoci\Models\User;
+
+assert(isset($P) && is_string($P), 'var $P not valid');
+assert(isset($user) && ($user instanceof User), 'var $user not valid');
+
+assert(isset($iscritti) && is_array($iscritti), 'var $iscritti not valid');
+assert(isset($iscritti_problemi) && is_array($iscritti_problemi), 'var $iscritti_problemi not valid');
+
 ?>
 
 <?php if ($user->Admin) { ?>
