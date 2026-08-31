@@ -8,6 +8,21 @@ assert(isset($P) && is_string(value: $P));
 assert(isset($team) && $team instanceof Distinta);
 
 $members = $team->MembriDistinta;
+$referenti = [];
+if (is_string(value: $team->Referenti)) {
+    $referenti = explode(
+        separator: ',',
+        string: str_replace(
+            search: ["\n", "\r", "\t", ';'],
+            replace: ',',
+            subject: $team->Referenti,
+        ),
+    );
+    $referenti = array_values(array_filter(array: array_map(
+        callback: fn(string $referente): string => trim(string: $referente),
+        array: $referenti,
+    ), callback: fn(string $referente): bool => $referente !== ''));
+}
 ?>
 
 <div class="container-fluid py-3">
@@ -30,6 +45,25 @@ $members = $team->MembriDistinta;
     </div>
 
     <div class="card">
+        <div class="card-header">
+            <strong>Referenti</strong>
+        </div>
+        <ul class="list-group list-group-flush">
+            <?php if (count(value: $referenti) === 0) { ?>
+                <li class="list-group-item text-muted">Nessun referente extra-staff indicato.</li>
+            <?php } else { ?>
+                <?php foreach ($referenti as $referente) { ?>
+                    <li class="list-group-item">
+                        <span class="fw-semibold">
+                            <?= htmlspecialchars(string: $referente) ?>
+                        </span>
+                    </li>
+                <?php } ?>
+            <?php } ?>
+        </ul>
+    </div>
+
+    <div class="card mt-3">
         <div class="card-header">
             <strong>Membri della squadra</strong>
         </div>
