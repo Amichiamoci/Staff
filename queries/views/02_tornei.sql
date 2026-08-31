@@ -72,4 +72,4 @@ FROM `squadre` s
 
     INNER JOIN `partecipaz_squad_torneo` pt ON pt.`squadra` = s.`id`
     INNER JOIN `tornei` t ON t.`id` = pt.`torneo`
-ORDER BY CAST("punteggio" AS UNSIGNED) DESC;
+ORDER BY CAST("punteggio" AS SIGNED) DESC;

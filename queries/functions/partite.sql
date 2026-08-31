@@ -41,8 +41,8 @@ BEGIN
     WHERE p.`id` = id;
 
     IF tavolino IS NOT NULL THEN
-        -- Ci sono regole diverse per il tavolino a pallavolo
-        IF area = 'PALLAVOLO' THEN
+        -- Ci sono regole diverse per il tavolino a pallavolo e calcio
+        IF area = 'PALLAVOLO' OR area = 'CALCIO' THEN
             RETURN CASE 
                 WHEN tavolino = team THEN 3
                 ELSE -1 END; 

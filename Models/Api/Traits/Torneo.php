@@ -104,7 +104,7 @@ trait Torneo
     protected function tournament_leaderboard(int $Id): ApiCall
     {
         return new ApiCall(
-            query: "SELECT * FROM `classifica_torneo` WHERE `id_torneo` = $Id ORDER BY CAST(`punteggio` AS UNSIGNED) DESC",
+            query: "SELECT * FROM `classifica_torneo` WHERE `id_torneo` = $Id ORDER BY CAST(`punteggio` AS SIGNED) DESC",
             row_parser: function(array $r): array {
                 return [
                     'Name' => $r['nome_squadra'],
