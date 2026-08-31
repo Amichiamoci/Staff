@@ -2,6 +2,7 @@
 
 namespace Amichiamoci\Controllers;
 
+use Amichiamoci\Models\Distinta;
 use Amichiamoci\Models\Edizione;
 use Amichiamoci\Models\Iscrizione;
 use Amichiamoci\Models\Parrocchia;
@@ -232,6 +233,25 @@ extends Controller
                     sport: $sport
                 )
             ))
+        );
+    }
+
+    #[RequireStaff]
+    public function details(?int $id): StatusCode
+    {
+        if (empty($id))
+            return $this->BadRequest();
+
+        $team = Distinta::ById(connection: $this->DB, id: $id);
+        if ($team === null)
+            return $this->NotFound();   
+
+        return $this->Render(
+            view: 'Teams/details',
+            title: 'Distinta',
+            data: [
+                'team' => $team,
+            ]
         );
     }
 }
