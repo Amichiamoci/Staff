@@ -21,10 +21,12 @@ $members = $team->MembriDistinta;
                 <?= htmlspecialchars(string: $team->Sport->Nome) ?>
             </small>
         </div>
-        <a href="<?= $P ?>/teams/edit?id=<?= $team->Id ?>" class="btn btn-outline-primary btn-sm">
-            <i class="bi bi-pencil-square"></i>
-            Modifica squadra
-        </a>
+        <?php if ($user->Admin) { ?>
+            <a href="<?= $P ?>/teams/edit?id=<?= $team->Id ?>" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-pencil-square"></i>
+                Modifica squadra
+            </a>
+        <?php } ?>
     </div>
 
     <div class="card">
