@@ -33,17 +33,35 @@ $can_edit = $user->Admin || (isset($staff) && $staff->InCommissione(commissione:
     <?php } ?>
     <div class="card-body">
         <div class="card-title text-center">
-            <a  href="<?= $P ?>/church?id=<?= $partita->Casa->Parrocchia->Id ?>"
-                title="<?= htmlspecialchars(string: $partita->Casa->Parrocchia->Nome) ?>"
-                class="text-reset fw-bold"
-                target="_blank"
-            ><?= htmlspecialchars(string: $partita->Casa->Nome) ?></a>
+            <span class="d-inline-flex align-items-center gap-1">
+                <a
+                    href="<?= $P ?>/teams/details?id=<?= $partita->Casa->Id ?>"
+                    class="link-underline link-underline-opacity-0 link-primary"
+                    title="Vedi la distinta di <?= htmlspecialchars(string: $partita->Casa->Nome) ?>"
+                >
+                    <i class="bi bi-shirt text-primary"></i>
+                </a>
+                <a  href="<?= $P ?>/church?id=<?= $partita->Casa->Parrocchia->Id ?>"
+                    title="<?= htmlspecialchars(string: $partita->Casa->Parrocchia->Nome) ?>"
+                    class="text-reset fw-bold"
+                    target="_blank"
+                ><?= htmlspecialchars(string: $partita->Casa->Nome) ?></a>
+            </span>
             vs
-            <a  href="<?= $P ?>/church?id=<?= $partita->Ospiti->Parrocchia->Id ?>"
-                title="<?= htmlspecialchars(string: $partita->Ospiti->Parrocchia->Nome) ?>"
-                class="text-reset fw-bold"
-                target="_blank"
-            ><?= htmlspecialchars(string: $partita->Ospiti->Nome) ?></a>
+            <span class="d-inline-flex align-items-center gap-1">
+                <a
+                    href="<?= $P ?>/teams/details?id=<?= $partita->Ospiti->Id ?>"
+                    class="link-underline link-underline-opacity-0 link-primary"
+                    title="Vedi la distinta di <?= htmlspecialchars(string: $partita->Ospiti->Nome) ?>"
+                >
+                    <i class="bi bi-shirt text-primary"></i>
+                </a>
+                <a  href="<?= $P ?>/church?id=<?= $partita->Ospiti->Parrocchia->Id ?>"
+                    title="<?= htmlspecialchars(string: $partita->Ospiti->Parrocchia->Nome) ?>"
+                    class="text-reset fw-bold"
+                    target="_blank"
+                ><?= htmlspecialchars(string: $partita->Ospiti->Nome) ?></a>
+            </span>
         </div>
 
         <dl class="row">

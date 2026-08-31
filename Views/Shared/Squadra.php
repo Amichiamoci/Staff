@@ -17,22 +17,33 @@ $allow_edits = true;
 
 <div class="card" id="squadra-<?= $squadra->Id ?>">
     <div class="card-header user-select-none">
-        <strong>
-            <?= htmlspecialchars(string: $squadra->Nome) ?>
-        </strong>
-        <a 
-            <?php if ($allow_edits) { ?>
-                href="<?= $P ?>/teams/edit?id=<?= $squadra->Id ?>"
-                class="link-underline link-underline-opacity-0 link-primary text-end"
-                title="Modifica <?= htmlspecialchars(string: $squadra->Nome) ?>"
-            <?php } else { ?>
-                href="javascript:alert('Non più possibile!')"
-                class="link-underline link-underline-opacity-0 link-secondary text-end"
-                title="Non più possibile modificare la squadra"
-            <?php } ?>
-        >
-            <i class="bi bi-pencil-square"></i>
-        </a>
+        <div class="d-flex align-items-center justify-content-between gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <a
+                    href="<?= $P ?>/teams/details?id=<?= $squadra->Id ?>"
+                    class="link-underline link-underline-opacity-0 link-primary"
+                    title="Vedi la distinta di <?= htmlspecialchars(string: $squadra->Nome) ?>"
+                >
+                    <i class="bi bi-shirt text-primary"></i>
+                </a>
+                <strong>
+                    <?= htmlspecialchars(string: $squadra->Nome) ?>
+                </strong>
+            </div>
+            <a 
+                <?php if ($allow_edits) { ?>
+                    href="<?= $P ?>/teams/edit?id=<?= $squadra->Id ?>"
+                    class="link-underline link-underline-opacity-0 link-primary text-end"
+                    title="Modifica <?= htmlspecialchars(string: $squadra->Nome) ?>"
+                <?php } else { ?>
+                    href="javascript:alert('Non più possibile!')"
+                    class="link-underline link-underline-opacity-0 link-secondary text-end"
+                    title="Non più possibile modificare la squadra"
+                <?php } ?>
+            >
+                <i class="bi bi-pencil-square"></i>
+            </a>
+        </div>
         <?php if ($user->Admin) { ?>
             <form action="<?= $P ?>/teams/delete" method="post" class="d-inline">
                 <input type="hidden" name="id" value="<?= $squadra->Id ?>" required>
