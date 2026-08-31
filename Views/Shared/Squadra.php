@@ -24,7 +24,7 @@ $allow_edits = true;
                     class="link-underline link-underline-opacity-0 link-primary"
                     title="Vedi la distinta di <?= htmlspecialchars(string: $squadra->Nome) ?>"
                 >
-                    <i class="bi bi-shirt text-primary"></i>
+                    <i class="bi bi-clipboard2-pulse"></i>
                 </a>
                 <strong>
                     <?= htmlspecialchars(string: $squadra->Nome) ?>
@@ -33,11 +33,11 @@ $allow_edits = true;
             <a 
                 <?php if ($allow_edits) { ?>
                     href="<?= $P ?>/teams/edit?id=<?= $squadra->Id ?>"
-                    class="link-underline link-underline-opacity-0 link-primary text-end"
+                    class="link-underline link-underline-opacity-0 link-primary"
                     title="Modifica <?= htmlspecialchars(string: $squadra->Nome) ?>"
                 <?php } else { ?>
                     href="javascript:alert('Non più possibile!')"
-                    class="link-underline link-underline-opacity-0 link-secondary text-end"
+                    class="link-underline link-underline-opacity-0 link-secondary"
                     title="Non più possibile modificare la squadra"
                 <?php } ?>
             >

@@ -39,7 +39,7 @@ $can_edit = $user->Admin || (isset($staff) && $staff->InCommissione(commissione:
                     class="link-underline link-underline-opacity-0 link-primary"
                     title="Vedi la distinta di <?= htmlspecialchars(string: $partita->Casa->Nome) ?>"
                 >
-                    <i class="bi bi-shirt text-primary"></i>
+                    <i class="bi bi-clipboard2-pulse"></i>
                 </a>
                 <a  href="<?= $P ?>/church?id=<?= $partita->Casa->Parrocchia->Id ?>"
                     title="<?= htmlspecialchars(string: $partita->Casa->Parrocchia->Nome) ?>"
@@ -47,14 +47,16 @@ $can_edit = $user->Admin || (isset($staff) && $staff->InCommissione(commissione:
                     target="_blank"
                 ><?= htmlspecialchars(string: $partita->Casa->Nome) ?></a>
             </span>
-            vs
+            <span>
+                <i class="bi bi-dash-lg text-secondary"></i>
+            </span>
             <span class="d-inline-flex align-items-center gap-1">
                 <a
                     href="<?= $P ?>/teams/details?id=<?= $partita->Ospiti->Id ?>"
                     class="link-underline link-underline-opacity-0 link-primary"
                     title="Vedi la distinta di <?= htmlspecialchars(string: $partita->Ospiti->Nome) ?>"
                 >
-                    <i class="bi bi-shirt text-primary"></i>
+                    <i class="bi bi-clipboard2-pulse"></i>
                 </a>
                 <a  href="<?= $P ?>/church?id=<?= $partita->Ospiti->Parrocchia->Id ?>"
                     title="<?= htmlspecialchars(string: $partita->Ospiti->Parrocchia->Nome) ?>"
