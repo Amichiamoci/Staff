@@ -51,6 +51,11 @@ $can_edit = $user->Admin || (isset($staff) && $staff->InCommissione(commissione:
                 <i class="bi bi-dash-lg text-secondary"></i>
             </span>
             <span class="d-inline-flex align-items-center gap-1">
+                <a  href="<?= $P ?>/church?id=<?= $partita->Ospiti->Parrocchia->Id ?>"
+                    title="<?= htmlspecialchars(string: $partita->Ospiti->Parrocchia->Nome) ?>"
+                    class="text-reset fw-bold"
+                    target="_blank"
+                ><?= htmlspecialchars(string: $partita->Ospiti->Nome) ?></a>
                 <a
                     href="<?= $P ?>/teams/details?id=<?= $partita->Ospiti->Id ?>"
                     class="link-underline link-underline-opacity-0 link-primary"
@@ -58,11 +63,6 @@ $can_edit = $user->Admin || (isset($staff) && $staff->InCommissione(commissione:
                 >
                     <i class="bi bi-clipboard2-pulse"></i>
                 </a>
-                <a  href="<?= $P ?>/church?id=<?= $partita->Ospiti->Parrocchia->Id ?>"
-                    title="<?= htmlspecialchars(string: $partita->Ospiti->Parrocchia->Nome) ?>"
-                    class="text-reset fw-bold"
-                    target="_blank"
-                ><?= htmlspecialchars(string: $partita->Ospiti->Nome) ?></a>
             </span>
         </div>
 

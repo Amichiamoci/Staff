@@ -11,8 +11,8 @@ assert(isset($user) && ($user instanceof User), 'var $user not valid');
 assert(isset($squadra) && ($squadra instanceof Squadra), 'var $squadra not valid');
 assert(isset($P) && is_string($P), 'var $P not valid');
 
-$allow_edits = true;
-// $allow_edits = $user->Admin;
+// $allow_edits = true;
+$allow_edits = $user->Admin;
 ?>
 
 <div class="card" id="squadra-<?= $squadra->Id ?>">
@@ -30,37 +30,38 @@ $allow_edits = true;
                     <?= htmlspecialchars(string: $squadra->Nome) ?>
                 </strong>
             </div>
-            <a 
-                <?php if ($allow_edits) { ?>
-                    href="<?= $P ?>/teams/edit?id=<?= $squadra->Id ?>"
-                    class="link-underline link-underline-opacity-0 link-primary"
-                    title="Modifica <?= htmlspecialchars(string: $squadra->Nome) ?>"
-                <?php } else { ?>
-                    href="javascript:alert('Non più possibile!')"
-                    class="link-underline link-underline-opacity-0 link-secondary"
-                    title="Non più possibile modificare la squadra"
-                <?php } ?>
-            >
-                <i class="bi bi-pencil-square"></i>
-            </a>
-        </div>
-        <?php if ($user->Admin) { ?>
-            <form action="<?= $P ?>/teams/delete" method="post" class="d-inline">
-                <input type="hidden" name="id" value="<?= $squadra->Id ?>" required>
-                <input type="hidden" name="year" value="<?= $anno ?>">
-                <input type="hidden" name="church" value="<?= $squadra->Parrocchia->Id ?>">
-                <button 
-                    type="submit" 
-                    class="btn btn-link link-underline link-underline-opacity-0 link-danger p-0" 
-                    title="Elimina"
-                    data-confirm="Sicuro di voler cancellare la squadra?"
-                    data-confirm-btn="Sì, cancella"
-                    data-cancel-btn="Annulla"
+            <span>
+                <a  <?php if ($allow_edits) { ?>
+                        href="<?= $P ?>/teams/edit?id=<?= $squadra->Id ?>"
+                        class="link-underline link-underline-opacity-0 link-primary"
+                        title="Modifica <?= htmlspecialchars(string: $squadra->Nome) ?>"
+                    <?php } else { ?>
+                        href="javascript:alert('Non più possibile!')"
+                        class="link-underline link-underline-opacity-0 link-secondary"
+                        title="Non più possibile modificare la squadra"
+                    <?php } ?>
                 >
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </form>
-        <?php } ?>
+                    <i class="bi bi-pencil-square"></i>
+                </a>
+            </span>
+            <?php if ($user->Admin) { ?>
+                <form action="<?= $P ?>/teams/delete" method="post" class="d-inline">
+                    <input type="hidden" name="id" value="<?= $squadra->Id ?>" required>
+                    <input type="hidden" name="year" value="<?= $anno ?>">
+                    <input type="hidden" name="church" value="<?= $squadra->Parrocchia->Id ?>">
+                    <button 
+                        type="submit" 
+                        class="btn btn-link link-underline link-underline-opacity-0 link-danger p-0" 
+                        title="Elimina"
+                        data-confirm="Sicuro di voler cancellare la squadra?"
+                        data-confirm-btn="Sì, cancella"
+                        data-cancel-btn="Annulla"
+                    >
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </form>
+            <?php } ?>
+        </div>
     </div>
     <div class="card-body p-1">
         <?php 
