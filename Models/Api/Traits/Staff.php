@@ -30,7 +30,6 @@ trait Staff
             row_parser: function (array $r): array {
                 return [
                     'Admin' => (bool)$r['admin'],
-                    'Referee' => (bool)$r['referee'],
                 ];
             }
         );
