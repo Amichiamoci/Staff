@@ -14,6 +14,10 @@ $can_edit = $user->Admin || (isset($staff) && $staff->InCommissione(commissione:
 <div class="card" id="match-<?= $partita->Id ?>">
     <?php if ($user->Admin) { ?>
         <div class="card-header font-monospace">
+            <span class="user-select-none">
+                <?= $partita->getSport()->getIcon() ?>
+            </span>
+
             #<?= $partita->Id ?>
 
             <form action="<?= $P ?>/sport/match_delete" method="post" class="d-inline">
@@ -34,8 +38,7 @@ $can_edit = $user->Admin || (isset($staff) && $staff->InCommissione(commissione:
     <div class="card-body">
         <div class="card-title text-center">
             <span class="d-inline-flex align-items-center gap-1">
-                <a
-                    href="<?= $P ?>/teams/details?id=<?= $partita->Casa->Id ?>"
+                <a  href="<?= $P ?>/teams/details?id=<?= $partita->Casa->Id ?>"
                     class="link-underline link-underline-opacity-0 link-primary"
                     title="Vedi la distinta di <?= htmlspecialchars(string: $partita->Casa->Nome) ?>"
                 >
@@ -71,7 +74,7 @@ $can_edit = $user->Admin || (isset($staff) && $staff->InCommissione(commissione:
                 Sport
             </dt>
             <dd class="col-sm-8 text-secondary user-select-none">
-                <?= htmlspecialchars(string: $partita->Casa->Sport->Nome) ?>
+                <?= htmlspecialchars(string: $partita->getSport()->Nome) ?>
             </dd>
 
             <dt class="col-sm-4">

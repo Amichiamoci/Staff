@@ -14,6 +14,11 @@ class Partita implements DbEntity
     public Squadra $Casa;
     public Squadra $Ospiti;
 
+    public function getSport(): Sport
+    {
+        return $this->Casa->Sport;
+    }
+
     public array $Punteggi = [];
 
     public function __construct(
