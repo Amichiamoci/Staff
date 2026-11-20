@@ -23,9 +23,9 @@ trait Staff
 
     protected function get_user_claims(string $Email): ApiCall
     {
-        $email = $this->DB->escape_string($Email);
         return new ApiCall(
-            query: "CALL `GetAppUserClaims`('$email')",
+            query: "CALL `GetAppUserClaims`(?)",
+            parameters: [$Email],
             is_procedure: true,
             row_parser: function (array $r): array {
                 return [
@@ -37,14 +37,13 @@ trait Staff
 
     protected function get_staff_email(string $Name, string $Surname): ApiCall
     {
-        $name = $this->DB->escape_string($Name);
-        $surname = $this->DB->escape_string($Surname);
         return new ApiCall(
             query: 
                 "SELECT TRIM(p.`email`) AS \"email\" " . 
                 "FROM `partecipazioni_staff` p " . 
-                "WHERE p.`nome`='$name' AND p.`cognome`='$surname' AND p.`email` IS NOT NULL " . 
+                "WHERE p.`nome` = ? AND p.`cognome` = ? AND p.`email` IS NOT NULL " . 
                 "LIMIT 1",
+            parameters: [$Name, $Surname],
             row_parser: function (array $r): array {
                 return [ 'email' => $r['email'],];
             }

@@ -55,7 +55,7 @@ function display_tree(
                                         $path = $base_url . DIRECTORY_SEPARATOR . $value;
                                         if (File::Exists(file_path: $path)) { ?>
                                             <a 
-                                                href="<?= File::GetExportUrl(path: $path) ?>" 
+                                                href="<?= htmlspecialchars(File::GetExportUrl(path: $path)) ?>" 
                                                 class="font-monospace link-underline-1 link-secondary"
                                                 download="<?= htmlspecialchars(string: $value) ?>"
                                             ><?= htmlspecialchars(string: $value) ?></a>

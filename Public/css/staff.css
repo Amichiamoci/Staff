@@ -1,0 +1,19 @@
+#scroll-top {
+    inset-block-end: 1.25rem;
+    inset-inline-end: 1.25rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    :root {
+        scroll-behavior: smooth;
+    }
+}
+
+.email-preview {
+    width: 100%;
+    min-height: 28rem;
+}
+
+#error-body {
+    white-space: pre-line;
+}

@@ -115,12 +115,14 @@ assert(isset($iscritti_problemi) && is_array($iscritti_problemi), 'var $iscritti
                                 </dt>
                                 <dd class="col-sm-8 text-danger">
                                     <?= htmlspecialchars(string: $problema->Tutore) ?>
-                                    <a  class="link-primary link-underline link-underline-opacity-0"
-                                        title="Aggiungi certificato"
-                                        href="<?= $P ?>/staff/modifica_iscrizione?id=<?= $problema->Iscrizione ?>"
-                                    >
-                                        Inserisci
-                                    </a>
+                                    <?php if ($user->Admin) { ?>
+                                        <a  class="link-primary link-underline link-underline-opacity-0"
+                                            title="Aggiungi certificato"
+                                            href="<?= $P ?>/staff/modifica_iscrizione?id=<?= $problema->Iscrizione ?>"
+                                        >
+                                            Inserisci
+                                        </a>
+                                    <?php } ?>
                                 </dd>
                             <?php } ?>
                             <?php if (isset($problema->Eta)) { ?>
@@ -137,12 +139,14 @@ assert(isset($iscritti_problemi) && is_array($iscritti_problemi), 'var $iscritti
                                 </dt>
                                 <dd class="col-sm-8 text-danger">
                                     <?= htmlspecialchars(string: $problema->Certificato) ?>
-                                    <a  class="link-primary link-underline link-underline-opacity-0"
-                                        title="Aggiungi certificato"
-                                        href="<?= $P ?>/staff/modifica_iscrizione?id=<?= $problema->Iscrizione ?>"
-                                    >
-                                        Inserisci
-                                    </a>
+                                    <?php if ($user->Admin) { ?>
+                                        <a  class="link-primary link-underline link-underline-opacity-0"
+                                            title="Aggiungi certificato"
+                                            href="<?= $P ?>/staff/modifica_iscrizione?id=<?= $problema->Iscrizione ?>"
+                                        >
+                                            Inserisci
+                                        </a>
+                                    <?php } ?>
                                 </dd>
                             <?php } ?>
                             <?php if (isset($problema->Taglia)) { ?>

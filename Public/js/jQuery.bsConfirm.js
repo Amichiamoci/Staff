@@ -147,9 +147,13 @@ let bsConfirm = function (options, element, withOnClick = false) {
                     } else if (btn.is('[type=submit]')) {
                         // add a submit button name/value to trigger the correct event
                         if (btn.attr('name')) {
-                            form.append(`<input type="hidden" name="${btn.attr('name')}" value="${btn.attr('value')}">`);
+                            form.append($('<input>', {
+                                type: 'hidden',
+                                name: btn.attr('name'),
+                                value: btn.val()
+                            }));
                         }
-                        form.submit();
+                        form.trigger('submit');
                     }
                 };
 
@@ -169,7 +173,7 @@ let bsConfirm = function (options, element, withOnClick = false) {
 
         // set modal markup values
         $('.modal-title', modal).text(plugin.settings.title);
-        $('.modal-body', modal).html(plugin.settings.message);
+        $('.modal-body', modal).text(plugin.settings.message);
         $('.btn-cancel', modal).text(plugin.settings.cancelBtn);
         $('.btn-confirm', modal).text(plugin.settings.confirmBtn);
 

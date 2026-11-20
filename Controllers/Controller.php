@@ -19,7 +19,7 @@ extends BaseController
 
         return $this->ViewBag['staff'];
     }
-    protected function Alerts(): array
+    protected function &Alerts(): array
     {
         if (!array_key_exists(key: 'alerts', array: $this->ViewBag))
             $this->ViewBag['alerts'] = [];
@@ -38,7 +38,7 @@ extends BaseController
      * is admin.
      * @return Staff|null
      */
-    public static function RequireStaff(
+    public static function _RequireStaff(
         self $controller, 
         bool $requireAdmin = false,
         string $loginPath = '/login',
@@ -76,7 +76,7 @@ extends BaseController
     /**
      * Adds a message to display in the current flow.
      * Does not work with redirects
-     * @param \Amichiamoci\Models\Message|string|null $message
+     * @param Message|string|null $message
      * @return void
      */
     protected function Message(Message|string|null $message): void
@@ -88,6 +88,13 @@ extends BaseController
             $message = new Message(type: MessageType::Info, content: $message);
         
         $this->Alerts()[] = $message;
+    }
+
+    protected function PostRequired(): never
+    {
+        header('Allow: POST');
+        http_response_code(405);
+        exit('Metodo non consentito.');
     }
 
     protected function IsPost(): bool

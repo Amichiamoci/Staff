@@ -20,11 +20,11 @@ $init_file = dirname(path: __DIR__) . '/starting-db.tmp.sql';
 function rebuild_db(): void {
     global $init_file;
 
-    $MYSQL_HOST = Security::LoadEnvironmentOfFromFile(var: 'MYSQL_HOST', default: 'localhost');
-    $MYSQL_PORT = (int)Security::LoadEnvironmentOfFromFile(var: 'MYSQL_PORT', default: '3306');
-    $MYSQL_USER = Security::LoadEnvironmentOfFromFile(var: 'MYSQL_USER', default: 'amichiamoci');
-    $MYSQL_PASSWORD = Security::LoadEnvironmentOfFromFile(var: 'MYSQL_PASSWORD');
-    $MYSQL_DB = Security::LoadEnvironmentOfFromFile(var: 'MYSQL_DB');
+    $MYSQL_HOST = Security::LoadEnvironmentOrFromFile(var: 'MYSQL_HOST', default: 'localhost');
+    $MYSQL_PORT = (int)Security::LoadEnvironmentOrFromFile(var: 'MYSQL_PORT', default: '3306');
+    $MYSQL_USER = Security::LoadEnvironmentOrFromFile(var: 'MYSQL_USER', default: 'amichiamoci');
+    $MYSQL_PASSWORD = Security::LoadEnvironmentOrFromFile(var: 'MYSQL_PASSWORD');
+    $MYSQL_DB = Security::LoadEnvironmentOrFromFile(var: 'MYSQL_DB');
 
     echo "Rebuilding db..." . PHP_EOL;
 
@@ -64,8 +64,8 @@ function rebuild_db(): void {
 
 function add_first_user(): void {
     global $connection;
-    $admin = Security::LoadEnvironmentOfFromFile(var: 'ADMIN_USERNAME');
-    $admin_password = Security::LoadEnvironmentOfFromFile(var: 'ADMIN_PASSWORD');
+    $admin = Security::LoadEnvironmentOrFromFile(var: 'ADMIN_USERNAME');
+    $admin_password = Security::LoadEnvironmentOrFromFile(var: 'ADMIN_PASSWORD');
     
     if (empty($admin) || empty($admin_password)) {
         return;

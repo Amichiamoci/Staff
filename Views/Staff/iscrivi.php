@@ -25,7 +25,7 @@ if (empty($tutore) && !empty($tutore_suggerito))
     Iscrivi <?= htmlspecialchars(string: $target->Nome . ' ' . $target->Cognome) ?>
 </h1>
 <p>
-    Iscrivi <?= htmlspecialchars(string: $target->Nome) ?> ad <?= SITE_NAME ?> <?= date(format: 'Y')?>
+    Iscrivi <?= htmlspecialchars(string: $target->Nome) ?> ad <?= htmlspecialchars(SITE_NAME) ?> <?= date(format: 'Y')?>
 </p>
 
 <form 
@@ -120,7 +120,7 @@ if (empty($tutore) && !empty($tutore_suggerito))
             </select>
             <label for="tutore">Genitore/Tutore</label>
             <div class="invalid-feedback">
-                Per favore, indica un genitore o un tutore per <?= $target->Nome ?>
+                Per favore, indica un genitore o un tutore per <?= htmlspecialchars($target->Nome) ?>
                 (l'anagrafica del genitore/tutore deve essere già presente nel sistema)
             </div>
         </div>

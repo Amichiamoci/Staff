@@ -68,7 +68,7 @@ assert(isset($torneo) && ($torneo instanceof Torneo), 'var $torneo not valid');
                 <?php if (count(value: $torneo->IdPartite) > 0) { ?>
                     <?= count(value: $torneo->IdPartite) ?> partite previste
                 <?php } else { ?>
-                    <?php if ($user->Admin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'))) { ?>
+                    <?php if ($user->Admin) { ?>
                         <button
                             type="button"
                             data-bs-toggle="modal" 
@@ -177,12 +177,12 @@ assert(isset($torneo) && ($torneo instanceof Torneo), 'var $torneo not valid');
                     <?php foreach ($torneo->ListaSquadre as $id => $nome) { ?>
                         <li class="list-group-item">
                             <a  class="link-underline link-underline-opacity-0 text-reset"
-                                href="<?= $P ?>/teams/view?id=<?= $id ?>"
+                                href="<?= $P ?>/teams/details?id=<?= $id ?>"
                                 title="Vedi squadra"
                             >
                                 <?= htmlspecialchars(string: $nome) ?>
                             </a>
-                            <?php if ($user->Admin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'))) { ?>
+                            <?php if ($user->Admin) { ?>
                                 <form action="<?= $P ?>/sport/tournament_remove_team" method="post" class="d-inline p-0">
                                     <input type="hidden" name="tournament" value="<?= $torneo->Id ?>" required>
                                     <input type="hidden" name="team" value="<?= $id ?>" required>
@@ -203,7 +203,7 @@ assert(isset($torneo) && ($torneo instanceof Torneo), 'var $torneo not valid');
                 </ul>
             </dd>
         </dl>
-        <?php if ($user->Admin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'))) { ?>
+        <?php if ($user->Admin) { ?>
             <div class="row m-1">
                 <div class="col">
                     <button

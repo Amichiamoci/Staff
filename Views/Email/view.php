@@ -44,44 +44,15 @@
     <?php } ?>
 </dl>
 
-<iframe 
-    style="width: 100%;min-height: 450px;height: auto;max-height: 80vh;" 
-    class="border border-1"
-    id="iframe"
+<iframe
+    class="email-preview border"
     title="Visualizzazione dell'email"
+    sandbox
+    srcdoc="<?= htmlspecialchars(
+        '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'; img-src data:">'
+        . $email_preview
+    ) ?>"
 ></iframe>
-<!-- We cannot just HTML escape the content and put it here! -->
-<script>
-    (() => {
-        const iframe = document.getElementById('iframe');
-        const iframeDoc = iframe.contentWindow.document;
-        if (!iframeDoc) {
-            console.warn('Impossibile effettuare il rendering');
-            iframe.classList.add('d-none');
-            return;
-        }
-        iframe.setAttribute('sandbox', 'allow-forms');
-        iframeDoc.open(); 
-        iframeDoc.write('<?= $content_escaped ?>'); // Assuming js-escaped content
-        iframeDoc.close();
-    })();
-</script>
 
-<h3>
-    Corpo effettivo dell'email:
-</h3>
-<pre><code class="language-html"><?= htmlspecialchars(string: $email->Content) ?></code></pre>  
-
-<?php 
-    define(constant_name: 'HLJS_VER', value: '11.11.1');
-?>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/<?= HLJS_VER ?>/highlight.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/<?= HLJS_VER ?>/languages/html.min.js"></script>
-<script>
-    (() => {
-        const href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/<?= HLJS_VER ?>/styles/default.min.css';
-        $('head').append( $('<link rel="stylesheet" type="text/css">').attr('href', href) );
-        hljs.highlightAll();
-    })();
-</script>
+<h3>Corpo effettivo dell'email</h3>
+<pre><code><?= htmlspecialchars($email->Content) ?></code></pre>

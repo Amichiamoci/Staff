@@ -102,20 +102,22 @@ assert(isset($activity) && is_array($activity), 'var $activity not valid');
                 </div>
             </div>
 
-            <a href="<?= $P ?>/user/logout" class="btn btn-primary" role="button">
-                Esci
-            </a>
+            <form action="<?= $P ?>/user/logout" method="post" class="d-inline-block">
+                <button type="submit" class="btn btn-primary">Esci</button>
+            </form>
         <?php } ?>
 
 
         <?php if ($user->Admin) { ?>
             <div class="input-group m-1">
-                <a href="<?= $P ?>/user/ban?target_id=<?= $target->Id ?>" class="btn btn-outline-secondary" role="button">
-                    Blocca
-                </a>
-                <a href="<?= $P ?>/user/restore?target_id=<?= $target->Id ?>" class="btn btn-outline-secondary" role="button">
-                    Riabilita
-                </a>
+                <form action="<?= $P ?>/user/ban" method="post" class="d-inline-block">
+                    <input type="hidden" name="target_id" value="<?= $target->Id ?>">
+                    <button type="submit" class="btn btn-outline-secondary">Blocca</button>
+                </form>
+                <form action="<?= $P ?>/user/restore" method="post" class="d-inline-block">
+                    <input type="hidden" name="target_id" value="<?= $target->Id ?>">
+                    <button type="submit" class="btn btn-outline-secondary">Riabilita</button>
+                </form>
             </div>
             
             <?php if ($user->Id !== $target->Id) { ?>

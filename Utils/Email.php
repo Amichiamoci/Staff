@@ -66,25 +66,28 @@ class Email
         ?\mysqli $connection = null, 
         bool $hide_output = false,
     ): bool {
-        $sanitized_email = filter_var(value: $to, filter: FILTER_SANITIZE_EMAIL);
+        $to = trim($to);
+        if (!PHPMailer::validateAddress($to)) {
+            return false;
+        }
         $mail = new PHPMailer();
-        $mail->addAddress(address: $sanitized_email);
+        $mail->addAddress(address: $to);
 
-        $from_addr = Security::LoadEnvironmentOfFromFile(var: 'MAIL_OUTPUT_ADDRESS');
+        $from_addr = Security::LoadEnvironmentOrFromFile(var: 'MAIL_OUTPUT_ADDRESS');
         if (empty($from_addr)) {
             throw new \Exception(
                 message: 'The address to use for outgoing emails is null. Set the MAIL_OUTPUT_ADDRESS environment variable.');
         }
         $mail->isSMTP();
 
-        $smtp_host = Security::LoadEnvironmentOfFromFile(var: 'SMTP_HOST');
-        $smtp_port = Security::LoadEnvironmentOfFromFile(var: 'SMTP_PORT', default: '25');
+        $smtp_host = Security::LoadEnvironmentOrFromFile(var: 'SMTP_HOST');
+        $smtp_port = Security::LoadEnvironmentOrFromFile(var: 'SMTP_PORT', default: '25');
         if (!empty($smtp_host)) {
             $mail->Host = $smtp_host;
             $mail->Port = (int)$smtp_port;
             
-            $username = Security::LoadEnvironmentOfFromFile(var: 'SMTP_USER');
-            $password = Security::LoadEnvironmentOfFromFile(var: 'SMTP_PASSWORD');
+            $username = Security::LoadEnvironmentOrFromFile(var: 'SMTP_USER');
+            $password = Security::LoadEnvironmentOrFromFile(var: 'SMTP_PASSWORD');
             if (!empty($username)) {
                 $mail->Username = $username;
                 $mail->SMTPAuth = true;
@@ -94,54 +97,40 @@ class Email
             }
         }
 
-        $mail->setFrom(address: $from_addr, name: SITE_NAME, auto: false);
+        if (!$mail->setFrom(address: $from_addr, name: SITE_NAME, auto: false)) {
+            return false;
+        }
         $mail->clearReplyTos(); // Disable reply-to
         $mail->Subject = $subject;
         
         $mail->CharSet = 'UTF-8';
         $mail->isHTML();
 
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        if ((int)$mail->Port === 465) {
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        } elseif ($mail->SMTPAuth) {
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        }
 
         $id = null;
         if ($connection)
         {
-            $sanitized_body = $body;
-            if ($hide_output)
-            {
-                $output_regex = '/>[-!$@£%^&*()_+|~={}\[\]:;?,.\/A-Za-z0-9]+<\/output>/i';
-                $sanitized_body = preg_replace(pattern: $output_regex, replacement: "> ????<!--RIMOSSO--> </output>", subject: $sanitized_body);
-                
-                $code_regex = '/>[-!$@£%^&*()_+|~={}\[\]:;?,.\/A-Za-z0-9]+<\/code>/i';
-                $sanitized_body = preg_replace(pattern: $code_regex, replacement: "> ????<!--RIMOSSO--> </code>", subject: $sanitized_body);
-                
-                $secret_regex = '/&secret=[A-Za-z0-9]+/i';
-                $sanitized_body = preg_replace(pattern: $secret_regex, replacement: "&secret=RIMOSSO", subject: $sanitized_body);
-            }
-            $query = "CALL CreateEmail('" . 
-                $connection->real_escape_string(string: $sanitized_email) . "', '" . 
-                $connection->real_escape_string(string: $subject) . "', '" .
-                $connection->real_escape_string(string: $sanitized_body) ."')";
+            $storedBody = $hide_output ? '[Contenuto riservato]' : $body;
             try {
-                $result = $connection->query(query: $query);
-                if ($result && $result->num_rows > 0) {
-                    if (($row = $result->fetch_assoc()) && array_key_exists(key: 'id', array: $row))
-                    {
-                        $id = (int)$row["id"];
-                    }
+                $result = $connection->execute_query('CALL CreateEmail(?, ?, ?)', [$to, $subject, $storedBody]);
+                if ($result instanceof \mysqli_result) {
+                    $row = $result->fetch_assoc();
+                    $id = isset($row['id']) ? (int)$row['id'] : null;
                     $result->close();
                 }
                 $connection->next_result();
-            } catch (\Throwable) {
-                // echo htmlspecialchars(string: $ex->getMessage());
+            } catch (\mysqli_sql_exception) {
+                error_log('Unable to record outgoing staff email.');
             }
         }
 
-        $mail->msgHTML(message: self::Render(
-            title: $subject, 
-            content: $body, 
-            id: $id
-        ));
+        $mail->Body = self::Render(title: $subject, content: $body, id: $id);
+        $mail->AltBody = $mail->html2text($body);
 
         try {
             $email_sent = $mail->send();
@@ -149,12 +138,23 @@ class Email
             $email_sent = false;
         }
         
-        if (!$email_sent && $connection)
+        if (!$email_sent && $connection && $id !== null)
         {
             $query = "UPDATE `email` SET `email`.`ricevuta` = FALSE WHERE `email`.`id` = $id";
             $connection->query(query: $query);
         }
         return $email_sent;
+    }
+
+    public static function OpenSignature(int $id): ?string
+    {
+        $key = Security::LoadEnvironmentOrFromFile(var: 'MAIL_OPEN_SIGNING_KEY');
+        if ($key === null || strlen($key) < 32) {
+            return null;
+        }
+
+        $database = Security::LoadEnvironmentOrFromFile(var: 'MYSQL_DB');
+        return hash_hmac('sha256', "staff-email-open:$database:$id", $key);
     }
 
     public static function Render(
@@ -166,6 +166,7 @@ class Email
             'title' => $title,
             'content' => $content,
             'email_id' => $id,
+            'open_signature' => $id === null ? null : self::OpenSignature($id),
             'site_name' => SITE_NAME,
             'site_url' => MAIN_SITE_URL,
             'P' => File::getInstallationPath(),

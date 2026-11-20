@@ -15,15 +15,24 @@ extends Controller
     #[RequireLogin]
     public function index(?string $name = null): StatusCode
     {
-        if (!is_string(value: $name))
+        if ($name === null || File::IsExternalFile($name)) {
             return $this->NotFound();
+        }
 
-        if (File::IsExternalFile(filename: $name))
-            return $this->Redirect(url: File::GetExportUrl(path: $name));
+        $path = File::PhysicalPath($name);
+        if ($path === false || !is_file($path)) {
+            return $this->NotFound();
+        }
 
-        return $this->File(
-            file_path: File::PhysicalPath(virtual_path: $name),
-        );
+        $relativePath = File::VirtualPath($path);
+        if (!$this->getUser()->Admin && (
+            $relativePath === false
+            || (!str_starts_with($relativePath, File::Documents . '/') && !str_starts_with($relativePath, File::Certificates . '/'))
+        )) {
+            return $this->NotFound();
+        }
+
+        return $this->File(file_path: $path);
     }
 
     #[RequireLogin(requireAdmin: true)]

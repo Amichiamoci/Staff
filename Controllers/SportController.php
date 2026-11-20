@@ -76,7 +76,7 @@ extends Controller
         );
     }
 
-    #[RequireStaff]
+    #[RequireLogin(requireAdmin: true)]
     public function tournament_add_team(?int $tournament, ?int $team): StatusCode
     {
         if (empty($tournament) || empty($team))
@@ -95,7 +95,7 @@ extends Controller
         return $this->tournament(id: $tournament);
     }
 
-    #[RequireStaff]
+    #[RequireLogin(requireAdmin: true)]
     public function tournament_remove_team(?int $tournament, ?int $team): StatusCode
     {
         if (empty($tournament) || empty($team))
@@ -114,7 +114,7 @@ extends Controller
         return $this->tournament(id: $tournament);
     }
 
-    #[RequireStaff]
+    #[RequireLogin(requireAdmin: true)]
     public function tournament_generate_calendar(
         ?int $id, 
         bool $two_ways = false, 
@@ -143,7 +143,7 @@ extends Controller
         return $this->tournament(id: $id);
     }
 
-    #[RequireStaff]
+    #[RequireLogin(requireAdmin: true)]
     public function tournament_create(
         ?int $edition = null,
         ?int $sport = null,
@@ -194,6 +194,10 @@ extends Controller
         ?int $id,
     ): StatusCode
     {
+        if (!$this->IsPost()) {
+            $this->PostRequired();
+        }
+
         $tournament = Torneo::ById(connection: $this->DB, id: $id);
         if ($tournament === null)
             return $this->NotFound();
@@ -226,45 +230,13 @@ extends Controller
     }
     
 
-    /**
-     * Generate (and link) the necessary instances of Torneo to fill up an entire sport
-     * @param mixed $id the id of the sport
-     */
-    #[RequireStaff]
-    public function plan(?int $id = null, ?int $year = null): StatusCode
-    {
-        if (empty($id))
-            return $this->BadRequest();
-        if (empty($year)) 
-            $year = (int)date(format: 'Y');
-
-        $sport = Sport::ById(connection: $this->DB, id: $id);
-        if (!isset($sport))
-            return $this->NotFound();
-
-        $edition = Edizione::FromYear(connection: $this->DB, year: $year);
-        if (!isset($edition))
-            return $this->NotFound();
-
-        if ($this->IsPost())
-        {
-            // TODO: check for active tournaments for this sport inside the edition
-
-            // TODO: generate the tournaments
-        }
-
-        return $this->Render(
-            view: 'Sport/plan',
-            title: 'Pianifica tornei',
-            data: [
-
-            ],
-        );
-    }
-
-    #[RequireStaff(commissione: 'Tornei')]
+    #[RequireLogin(requireAdmin: true)]
     public function match_field(?int $match, string|int|null $field = null): StatusCode
     {
+        if (!$this->IsPost()) {
+            $this->PostRequired();
+        }
+
         if (empty($match))
             return $this->Json(object: [
                 'result' => 'fail',
@@ -285,9 +257,13 @@ extends Controller
         ]);
     }
 
-    #[RequireStaff(commissione: 'Tornei')]
+    #[RequireLogin(requireAdmin: true)]
     public function match_time(?int $match, ?string $time = null): StatusCode
     {
+        if (!$this->IsPost()) {
+            $this->PostRequired();
+        }
+
         if (empty($match))
             return $this->Json(object: [
                 'result' => 'fail',
@@ -308,9 +284,13 @@ extends Controller
         ]);
     }
 
-    #[RequireStaff(commissione: 'Tornei')]
+    #[RequireLogin(requireAdmin: true)]
     public function match_date(?int $match, ?string $date = null): StatusCode
     {
+        if (!$this->IsPost()) {
+            $this->PostRequired();
+        }
+
         if (empty($match)) 
             return $this->Json(object: [
                 'result' => 'fail',
@@ -334,6 +314,10 @@ extends Controller
     #[RequireLogin(requireAdmin: true)]
     public function match_delete(?int $match): StatusCode
     {
+        if (!$this->IsPost()) {
+            $this->PostRequired();
+        }
+
         if (empty($match))
             return $this->BadRequest();
 
@@ -351,9 +335,13 @@ extends Controller
         return $this->tournament(id: $partita->Torneo);
     }
 
-    #[RequireLogin]
+    #[RequireLogin(requireAdmin: true)]
     public function match_add_score(?int $match): StatusCode
     {
+        if (!$this->IsPost()) {
+            $this->PostRequired();
+        }
+
         if (empty($match))
             return $this->Json(object: [
                 'result' => 'fail',
@@ -373,9 +361,13 @@ extends Controller
         ]);
     }
 
-    #[RequireLogin]
+    #[RequireLogin(requireAdmin: true)]
     public function match_remove_score(?int $score): StatusCode
     {
+        if (!$this->IsPost()) {
+            $this->PostRequired();
+        }
+
         if (empty($score))
             return $this->Json(object: [
                 'result' => 'fail',
@@ -394,13 +386,17 @@ extends Controller
         ]);
     }
 
-    #[RequireLogin]
+    #[RequireLogin(requireAdmin: true)]
     public function match_edit_score(
         ?int $score, 
         ?string $home, 
         ?string $guest,
     ): StatusCode
     {
+        if (!$this->IsPost()) {
+            $this->PostRequired();
+        }
+
         if (empty($score) || !isset($home) || !isset($guest))
             return $this->Json(object: [
                 'result' => 'fail',

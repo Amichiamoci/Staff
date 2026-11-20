@@ -168,7 +168,9 @@ extends Controller
             if (!empty(RECAPTCHA_PUBLIC_KEY))
             {
                 $message = Security::Recaptcha3Validation(
-                    g_recaptcha_response: $g_recaptcha_response);       
+                    g_recaptcha_response: $g_recaptcha_response,
+                    action: 'login',
+                );
             }
 
             if (empty($message))
@@ -177,7 +179,7 @@ extends Controller
                     connection: $this->DB, 
                     username: $username, 
                     password: $password, 
-                    user_agent: $_SERVER['HTTP_USER_AGENT'], 
+                    user_agent: $_SERVER['HTTP_USER_AGENT'] ?? '', 
                     user_ip: Security::GetIpAddress()
                 )) {
                     // Login successful
@@ -186,12 +188,12 @@ extends Controller
                     {
                         $redirect_url = Cookie::Get(name: 'Redirect');
                         Cookie::Delete(name: 'Redirect');
-                        if (empty($redirect_url)) {
+                        if (!is_string($redirect_url) || !preg_match('~^/(?![/\\\\])[^\x00-\x20\x7f\\\\]*$~D', $redirect_url)) {
                             $redirect_url = File::getInstallationPath() . '/';
                         }
                     }
         
-                    return $this->Redirect(url: $redirect_url);
+                    return $this->RedirectWithStatus($redirect_url, StatusCode::SeeOther);
                 } 
                 
                 // return $this->NotAuthorized();
@@ -205,7 +207,6 @@ extends Controller
             data: [
                 'message' => $message,
                 'username' => $username,
-                'password' => $password,
             ]
         );
     }
@@ -233,6 +234,25 @@ extends Controller
                 'church' => $church,
                 'staffs' => $staffs,
             ]
+        );
+    }
+    
+    #[RequireLogin]
+    public function credits(): StatusCode
+    {
+        $root = dirname(__DIR__);
+        $project = json_decode(file_get_contents($root . '/composer.json'), true, flags: JSON_THROW_ON_ERROR);
+        $lock = json_decode(file_get_contents($root . '/composer.lock'), true, flags: JSON_THROW_ON_ERROR);
+
+        return $this->Render(
+            view: 'Home/credits',
+            title: 'Crediti',
+            data: [
+                'repository' => $project['homepage'],
+                'contributors' => $project['authors'],
+                'technologies' => $project['extra']['credits'],
+                'packages' => $lock['packages'],
+            ],
         );
     }
 }

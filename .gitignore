@@ -1,5 +1,6 @@
 cron/*.txt
 .env
+.env.*
 vendor
 data/*
 !data/.gitkeep

@@ -9,7 +9,8 @@
             type="email"
             class="form-control" 
             id="to"
-            name="to" 
+            name="to"
+            value="<?= htmlspecialchars($to ?? '') ?>"
         >
         <label for="to">Destinatario</label>
         <div class="invalid-feedback">
@@ -22,22 +23,21 @@
             required
             type="text" class="form-control" 
             id="subject"
-            name="subject" 
+            name="subject"
+            value="<?= htmlspecialchars($subject ?? '') ?>"
         >
         <label for="subject">Oggetto</label>
         <div class="invalid-feedback">
             Per favore, immetti un oggetto
         </div>
     </div>
-<!--
-    <input type="hidden" name="body" id="body" required>
-    <div id="body-editor"></div>
--->
-    <textarea 
-        name="body" 
-        id="body" 
-        required
-        rows="10" cols="80"></textarea>
+    <div class="mb-3">
+        <label for="body" class="form-label">Corpo del messaggio (HTML)</label>
+        <textarea id="body" name="body" class="form-control font-monospace" rows="10" required
+            data-editor-license-key="<?= htmlspecialchars($editorLicenseKey) ?>"
+        ><?= htmlspecialchars($body ?? '') ?></textarea>
+        <p id="email-body-error" class="text-danger mt-1" role="alert" hidden>Inserisci il corpo del messaggio.</p>
+    </div>
 
     <button 
         type="submit"
@@ -51,10 +51,19 @@
         <i class="bi bi-envelope-arrow-up-fill"></i>
     </button>
 </form>
-<script 
-    src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js" 
-    crossorigin="anonymous" 
-    referrerpolicy="no-referrer"
-    defer
-></script>
-<script src="<?= $P ?>/js/email.js" defer></script>
+
+<?php if ($editorLicenseKey !== '') { ?>
+    <link rel="stylesheet"
+        href="https://cdn.ckeditor.com/ckeditor5/49.1.0/ckeditor5.css"
+        integrity="sha384-Ik86sZFfK6DFSEqNb0YngU5v3igL9OXn0BRTeWz8HuqB8AGVR6ZQBwfkoRKvCvfD"
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+    <script defer
+        src="https://cdn.ckeditor.com/ckeditor5/49.1.0/ckeditor5.umd.js"
+        integrity="sha384-pvS9kI6PwqtRN6Gd07beavMP8NvNjO5Abp96fjdsxAkmcGfzN0IPjkfWySTuBXUz"
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script defer
+        src="https://cdn.ckeditor.com/ckeditor5/49.1.0/translations/it.umd.js"
+        integrity="sha384-FGjgPBewHs6FRTPCK+2y/e/yqoN1jS7ewB0Q0HFOgYb134TTZLjCs/Kb6ZzF5iXq"
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="<?= htmlspecialchars($P) ?>/js/email-editor.js" defer></script>
+<?php } ?>

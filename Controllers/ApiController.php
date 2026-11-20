@@ -23,6 +23,10 @@ extends Controller
     #[RequireLogin(requireAdmin: true)]
     public function delete_token(?int $id = null): StatusCode
     {
+        if (!$this->IsPost()) {
+            $this->PostRequired();
+        }
+
         if (empty($id))
         {
             return $this->admin();
@@ -72,32 +76,12 @@ extends Controller
 
     public function index(?string $resource = null): StatusCode
     {
-        if (!isset($resource))
-        {
-            return $this->Json(
-                object: [
-                    'Message' => 'Invalid resource (null)',
-                    'Stack' => [
-                        __METHOD__,
-                    ],
-                    'Line' => __LINE__, 
-                    'File' => __FILE__,
-                ],
-                statusCode: StatusCode::BadRequest,
-            );
-        }
-
         $bearer = $this->get_bearer();
         if (!isset($bearer))
         {
             return $this->Json(
                 object: [
                     'Message' => "Header 'App-Bearer' missing",
-                    'Stack' => [
-                        __METHOD__,
-                    ],
-                    'Line' => __LINE__,
-                    'File' => __FILE__,
                 ],
                 statusCode: StatusCode::BadRequest,
             );
@@ -111,13 +95,21 @@ extends Controller
             return $this->Json(
                 object: [
                     'Message' => 'Invalid bearer token',
-                    'Stack' => [
-                        __METHOD__,
-                    ],
+                ],
+                statusCode: StatusCode::NotAuthorized,
+            );
+        }
+
+        if (!isset($resource))
+        {
+            return $this->Json(
+                object: [
+                    'Message' => 'Invalid resource (null)',
+                    'Stack' => [__METHOD__],
                     'Line' => __LINE__,
                     'File' => __FILE__,
                 ],
-                statusCode: StatusCode::NotAuthorized,
+                statusCode: StatusCode::BadRequest,
             );
         }
 
@@ -126,9 +118,7 @@ extends Controller
             return $this->Json(
                 object: [
                     'Message' => "Action '$resource' not found",
-                    'Stack' => [
-                        __METHOD__,
-                    ],
+                    'Stack' => [__METHOD__],
                     'Line' => __LINE__,
                     'File' => __FILE__,
                 ],
@@ -136,15 +126,10 @@ extends Controller
             );
         }
 
-        // Get the parameters for the query
-        $parameters = self::get_parameters();
-
-        $dummy_controller = new ReflectionClass(objectOrClass: $this);
-        $method = $dummy_controller->getMethod(name: $this->avaible_methods[$resource]);
-        $method->setAccessible(accessible: true);
-
-        try { 
-            // $call_object = call_user_func_array(callback: [$dummy_controller, $f], args: $parameters);
+        try {
+            $parameters = self::get_parameters();
+            $controller = new ReflectionClass($this);
+            $method = $controller->getMethod($this->avaible_methods[$resource]);
             $call_object = $method->invokeArgs(object: $this, args: $parameters);
             $result = $call_object->Execute($this->DB);
 
@@ -153,28 +138,25 @@ extends Controller
                 return $this->Json(
                     object: [
                         'Message' => 'Could not obtain result from action',
-                        'Stack' => [
-                            __METHOD__,
-                        ],
+                        'Stack' => [__METHOD__],
                         'Line' => __LINE__,
                         'File' => __FILE__,
                     ],
                     statusCode: StatusCode::ServerError,
                 );
             }
-        } catch (\Throwable $ex) {
+            return $this->Json(object: $result);
+        } catch (\Throwable) {
             return $this->Json(
                 object: [
-                    'Message' => $ex->getMessage(),
-                    'Stack' => $ex->getTrace(),
-                    'Line' => $ex->getLine(),
-                    'File' => $ex->getFile(),
+                    'Message' => 'Could not execute action',
+                    'Stack' => [__METHOD__],
+                    'Line' => __LINE__,
+                    'File' => __FILE__,
                 ],
                 statusCode: StatusCode::ServerError,
             );
         }
-
-        return $this->Json(object: $result);
     }
 
     private function get_bearer(): ?string
@@ -201,7 +183,6 @@ extends Controller
     }
 
     private array $avaible_methods = [
-        'teams-members' => 'teams_members',
         'teams-info' => 'teams_info',
 
         'staff-list' => 'staff_list',

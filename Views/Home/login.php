@@ -8,7 +8,7 @@
             required
             type="text" 
             class="form-control" 
-            id="username" 
+            id="username" autocomplete="username"
             name="username" 
             placeholder="..."
             value="<?= empty($username) ? '' : htmlspecialchars(string: $username) ?>"
@@ -26,7 +26,7 @@
             id="password" 
             name="password" 
             placeholder="Password"
-            value="<?= empty($password) ? '' : htmlspecialchars(string: $password) ?>"
+            autocomplete="current-password"
         >
         <label for="password">Password</label>
         <div class="invalid-feedback">

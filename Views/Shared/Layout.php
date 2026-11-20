@@ -2,7 +2,7 @@
 
 assert(isset($P) && is_string($P), 'var $P not valid');
 assert(isset($title) && is_string($title), 'var $title not valid');
-assert(isset($view_file) && is_string($view_file), 'var $view_file not valid');
+
 ?>
 
 <!DOCTYPE html>
@@ -13,25 +13,28 @@ assert(isset($view_file) && is_string($view_file), 'var $view_file not valid');
     <meta name="color-scheme" content="light dark">
     <meta name="robots" content="noindex, nofollow">
     <title>
-        <?= SITE_NAME ?> - <?= htmlspecialchars(string: $title) ?>
+        <?= htmlspecialchars(SITE_NAME) ?> - <?= htmlspecialchars(string: $title) ?>
     </title>
     <link rel="preconnect" href="https://cdn.jsdelivr.net/" crossorigin>
-    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net/">
     
     <link rel="icon" href="<?= $P ?>/images/icon.png" type="image/png">
-    <link rel="shortcut icon" href="<?= $P ?>/images/icon.png" type="image/png">
+    <link rel="stylesheet" href="<?= $P ?>/css/staff.css">
     <link rel="manifest" href="<?= $P ?>/web_manifest">
 
     <link 
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" 
-        rel="stylesheet" 
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" 
-        crossorigin="anonymous">
-    <link 
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css" 
         rel="stylesheet"
-        crossorigin="anonymous">
-    <script>const BasePath = '<?= $P ?>';</script>
+        integrity="sha384-yEPZ7jP9S0QKiUQ0m3jjsO4ProIW7wvR9gXkI7JOGa2XVsw53Yke2bsdkBbjmmiX"
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer">
+    <link 
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.2/font/bootstrap-icons.min.css"
+        rel="stylesheet"
+        integrity="sha384-nWN3KqaaVcbEsCjLSV+2jMjh62Iny/+mN3srM8TZeM8N6aj7eDl5wwYggjAJ4/sJ"
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer">
+    <script>const BasePath = <?= json_encode($P, JSON_HEX_TAG | JSON_THROW_ON_ERROR) ?>;</script>
+    <script src="<?= $P ?>/js/darkmode.js"></script>
 </head>
 <body class="d-flex flex-column min-vh-100">
     <header>
@@ -47,8 +50,10 @@ assert(isset($view_file) && is_string($view_file), 'var $view_file not valid');
         </p>
     </noscript>
     <script 
-        src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"
-        crossorigin="anonymous"></script>
+        src="https://cdn.jsdelivr.net/npm/jquery@4.1.0/dist/jquery.min.js"
+        integrity="sha384-UGSi5euAzE1p4sK41+yKs3vtdPcidmaW6fY2NUITZkjIPyMVUUYB/BV4A5Oa8uu2"
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
 
     <div class="container">
         <?php if (isset($alerts) && is_array($alerts)) { ?>
@@ -57,14 +62,14 @@ assert(isset($view_file) && is_string($view_file), 'var $view_file not valid');
             <?php } ?>
         <?php } ?>
         <main class="pb-3">
-            <?php include_once $view_file; ?>
+            <?php $RenderBody(); ?>
         </main>
     </div>
     
     <button type="button"
             class="btn btn-secondary btn-floating btn-lg d-none position-fixed z-3"
             data-btn-to-top="true"
-            style="bottom: 20px; right: 20px;"
+            aria-label="Torna su"
             title="Torna su"
             id="scroll-top"
     >
@@ -76,13 +81,15 @@ assert(isset($view_file) && is_string($view_file), 'var $view_file not valid');
     </footer>
 
     <script 
-        src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"
-        crossorigin="anonymous"></script>
+        src="https://cdn.jsdelivr.net/npm/jquery-validation@1.22.1/dist/jquery.validate.min.js"
+        integrity="sha384-DIFfDxcYkhbAXYdxOYFZshXsis24zK4HtbU7qI30u9/eP7JtiRIGuOaLsoYL5QTs"
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
     <script 
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 
-        crossorigin="anonymous"></script>
-    <script src="<?= $P ?>/js/darkmode.js"></script>
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-WyOxWvTyr1QaMPfiPJSv76iReVthorl5uWlFtZPyK0IEB0hGzo9y5Bp9mYanr8Bu"
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
     <script src="<?= $P ?>/js/jQuery.bsConfirm.js"></script>
     <script>
         //
@@ -116,9 +123,7 @@ assert(isset($view_file) && is_string($view_file), 'var $view_file not valid');
         });
         $('#scroll-top').on('click', function(e) {
             e.preventDefault();
-            $('html, body').animate({
-                scrollTop: 0,
-            }, '300');
+            window.scrollTo({ top: 0 });
         });
 
         //

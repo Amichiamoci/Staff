@@ -61,9 +61,20 @@ implements DbEntity
     
     public function Logout() : bool
     {
-        session_unset();
-        session_destroy();
-        return Cookie::DeleteIfItIs(name: self::$COOKIE_NAME, value: (string)$this->Id);
+        $cookie = session_get_cookie_params();
+        $_SESSION = [];
+        $destroyed = session_destroy();
+        $expired = Cookie::SetWithOptions(
+            name: self::$COOKIE_NAME,
+            value: '',
+            exp: -3600,
+            path: $cookie['path'],
+            domain: $cookie['domain'],
+            secure: $cookie['secure'],
+            httpOnly: $cookie['httponly'],
+            sameSite: $cookie['samesite'],
+        );
+        return $destroyed && $expired;
     }
 
     private static function SessionStart() : bool
@@ -71,9 +82,12 @@ implements DbEntity
         return session_start(options: [
             'name'            => self::$COOKIE_NAME,
             'cookie_lifetime' => '172800', // 48h
-            'cookie_domain'   => DOMAIN,
-            'cookie_path'     => File::getInstallationPath(),
-            'cookie_httponly' => '1'
+            'cookie_path'     => File::getInstallationPath() ?: '/',
+            'cookie_secure'   => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+                || filter_var(Security::LoadEnvironmentOrFromFile(var: 'SESSION_COOKIE_SECURE'), FILTER_VALIDATE_BOOL),
+            'cookie_httponly' => true,
+            'cookie_samesite' => 'Lax',
+            'use_strict_mode' => true,
         ]);
     }
 
@@ -163,6 +177,9 @@ implements DbEntity
             
             // Session was not active but it is now
         }
+
+        if (!session_regenerate_id(true))
+            return false;
 
         $flag = sha1(string: $user_agent . $user_ip);
         $_SESSION[self::$USER_ID] = $id;
@@ -377,7 +394,7 @@ implements DbEntity
         if (!$this->TestPassword(connection: $connection, password: $password))
             return false;
         
-        return self::ForceSetNewPassword(connection: $connection, new_password: $new_password);
+        return $this->ForceSetNewPassword(connection: $connection, new_password: $new_password);
     }
 
     public function ChangeUserName(

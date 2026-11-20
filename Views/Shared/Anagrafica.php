@@ -130,7 +130,7 @@ $iscrizioni_aperte = false;
                 <?= htmlspecialchars(string: $anagrafica->DocumentType->Nome) ?>
             </dt>
             <dd class="col-sm-8">
-                <a  href="<?= File::GetExportUrl(path: $anagrafica->DocumentFileName) ?>"
+                <a  href="<?= htmlspecialchars(File::GetExportUrl(path: $anagrafica->DocumentFileName)) ?>"
                     download
                     class="link-underline link-underline-opacity-0 text-reset font-monospace"
                     title="Scarica il documento"
@@ -171,7 +171,7 @@ $iscrizioni_aperte = false;
                     <span class="font-monospace">
                         <?= $anagrafica->Iscrizione->Id ?>
                     </span>
-                    <?php if ($user->Admin || (isset($staff) && $staff->Parrocchia->Id === $anagrafica->Iscrizione->Parrocchia->Id)) { ?>
+                    <?php if ($user->Admin) { ?>
                         <form action="<?= $P ?>/staff/delete_iscrizione" method="post" class="d-inline">
                             <input type="hidden" name="id" value="<?= $anagrafica->Iscrizione->Id ?>">
                             <button 
@@ -219,7 +219,7 @@ $iscrizioni_aperte = false;
                 </dt>
                 <dd class="col-sm-8">
                     <?php if (isset($anagrafica->Iscrizione->Certificato)) { ?>
-                        <a  href="<?= File::GetExportUrl(path: $anagrafica->Iscrizione->Certificato) ?>"
+                        <a  href="<?= htmlspecialchars(File::GetExportUrl(path: $anagrafica->Iscrizione->Certificato)) ?>"
                             download
                             class="link-underline link-underline-opacity-0 text-success"
                             title="Scarica il documento"

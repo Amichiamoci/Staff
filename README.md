@@ -1,81 +1,78 @@
 # Portale Staff Amichiamoci
 
-[![Docker image build and push](https://github.com/Amichiamoci/Staff/actions/workflows/docker.yml/badge.svg)](https://github.com/Amichiamoci/Staff/actions/workflows/docker.yml)
+[![Build Docker](https://github.com/Amichiamoci/Staff/actions/workflows/docker.yml/badge.svg)](https://github.com/Amichiamoci/Staff/actions/workflows/docker.yml)
+[![Deploy FTP](https://github.com/Amichiamoci/Staff/actions/workflows/ftp-deploy.yml/badge.svg)](https://github.com/Amichiamoci/Staff/actions/workflows/ftp-deploy.yml)
+[![Analisi PHP](https://github.com/Amichiamoci/Staff/actions/workflows/phpmd.yml/badge.svg)](https://github.com/Amichiamoci/Staff/actions/workflows/phpmd.yml)
+[![PHP 8.4+](https://img.shields.io/badge/PHP-8.4%2B-777BB4?logo=php&logoColor=white)](composer.json)
 
-[![FTP deploy on push](https://github.com/Amichiamoci/Staff/actions/workflows/ftp-deploy.yml/badge.svg)](https://github.com/Amichiamoci/Staff/actions/workflows/ftp-deploy.yml)
+Portale riservato allo staff della manifestazione [Amichiamoci](https://www.amichiamoci.it) per gestire iscrizioni, squadre, tornei e partite.
 
-Applicativo per la gestione di iscrizioni, partite e tornei per la 
-[Manifestazione](https://www.amichiamoci.it).
+## Avvio con Docker
 
-## Configurazione
-Impostare le seguenti variabili d'ambiente:
+1. Crea un database MariaDB vuoto con codifica `utf8mb4` e un utente dedicato. L'utente deve poter creare tabelle, viste e routine nel database. Se MariaDB è in un altro container, collega i due container alla stessa rete Docker e usa il nome del servizio come `MYSQL_HOST`.
+2. Prepara un file locale `.env` con i valori della tabella qui sotto. Limita i permessi del file con `chmod 600 .env`.
+3. Scarica l'immagine e avvia il portale. Nell'esempio MariaDB è già raggiungibile dalla rete `amichiamoci`.
 
-- `MYSQL_USER`: obbligatoria
-- `MYSQL_PASSWORD`: opzionale
-- `MYSQL_DB`: obbligatoria
-- `MYSQL_HOST`: obbligatoria
-- `MYSQL_PORT`: opzionale, default `3306`
-- `ADMIN_USERNAME`: opzionale, ha effetto solo al primo avvio
-- `ADMIN_PASSWORD`: opzionale, ha effetto solo al primo avvio
-- `SITE_NAME`: opzionale, default `Amichiamoci`
-- `MAIN_SITE_URL`: opzionale, default <https://www.amichiamoci.it>
-- `RECAPTCHA_PUBLIC_KEY`: opzionale, chiavi Recaptcha v3 per proteggere la pagina di login
-- `RECAPTCHA_SECRET_KEY`: opzionale
-- `DOMAIN`: opzionale, l'host al quale sarà accessibile il portale
-- `POWERED_BY`: opzionale, link che compare nel footer, default <https://github.com/Amichiamoci/Staff>
-- `MAIL_OUTPUT_ADDRESS`: opzionale, se non impostato non sarà possibile inviare email
-- `SMTP_HOST`: opzionale, se non impostato non sarà possibile inviare email
-- `SMTP_PORT`: opzionale, default `25`
-- `SMTP_USER`: opzionale, se non impostato non sarà possibile inviare email
-- `SMTP_PASSWORD`: opzionale
-- `CRON_CAPTURE_OUTGOING_ADDRESS`: opzionale, se impostato, le email inviate in automatico dal CRON andranno a questo indirizzo
-- `CRON_ENABLE_HTTP`: opzionale, se impostato, lo script CRON sarà avviabile dall'esterno tramite una richiesta HTTP
-- `ENABLE_API`: opzionale, impostare a `true` od `1` per abilitare l'ApiController
+   ```sh
+   docker pull amichiamoci/staff
+   docker run -d --name amichiamoci-staff --network amichiamoci \
+     --env-file .env --publish 127.0.0.1:8080:8080 \
+     --volume amichiamoci-data:/amichiamoci/data amichiamoci/staff
+   ```
 
+4. Apri <http://localhost:8080> e accedi con l'account configurato tramite `ADMIN_USERNAME` e `ADMIN_PASSWORD`. Se il servizio è destinato all'uso in rete, pubblicalo tramite un reverse proxy HTTPS che conservi l'host pubblico e imposta `SESSION_COOKIE_SECURE=1`.
 
-## Installazione con Docker
-```bash
-docker pull amichiamoci/staff
+Il primo avvio importa lo schema solo in un database vuoto. Il container avvia il cron interno per le attività pianificate. Per installazioni esistenti esegui un backup del database e del volume dati prima dell'aggiornamento. Se un'importazione si interrompe, verifica lo stato dello schema prima di ripetere l'avvio.
+
+### Configurazione
+
+| Variabile | Uso |
+| --- | --- |
+| `MYSQL_DB` | Nome del database. |
+| `MYSQL_HOST`, `MYSQL_PORT` | Host MariaDB e porta. Valori predefiniti `localhost` e `3306`. |
+| `MYSQL_USER`, `MYSQL_PASSWORD` | Credenziali MariaDB. Il nome utente predefinito è `amichiamoci`. |
+| `ADMIN_USERNAME`, `ADMIN_PASSWORD` | Credenziali del primo amministratore. Obbligatorie per inizializzare il database. |
+| `SITE_NAME`, `MAIN_SITE_URL`, `DOMAIN` | Nome del portale, URL del sito pubblico e host pubblico. Configura `DOMAIN` per generare i link di recupero password. |
+| `CKEDITOR_LICENSE_KEY` | Chiave CKEditor 5 Cloud CDN per abilitare l’editor di testo ricco in `/email/send`. Senza chiave il modulo usa il campo HTML. |
+| `RECAPTCHA_PUBLIC_KEY`, `RECAPTCHA_SECRET_KEY` | Coppia di chiavi per abilitare la verifica reCAPTCHA al login. |
+| `MAIL_OUTPUT_ADDRESS`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` | Configurazione della posta in uscita. La porta predefinita è `25`. La porta `465` usa TLS implicito. Sulle altre porte, la posta autenticata richiede STARTTLS. |
+| `CRON_CAPTURE_OUTGOING_ADDRESS` | Destinatario di prova per le email inviate dal cron. |
+| `SESSION_COOKIE_SECURE` | Imposta `1` quando TLS termina sul reverse proxy. |
+| `ENABLE_API` | Imposta `1` per abilitare le route API. |
+| `FILE_MAX_SIZE` | Limite applicativo per file in byte, predefinito a 10 MiB. |
+
+Conserva password e token in un gestore di segreti o in un file locale protetto. Le variabili possono essere fornite anche tramite i corrispondenti file Docker secrets in `/run/secrets/`, impostando una variabile come `MYSQL_PASSWORD_FILE=/run/secrets/mysql_password`. I backup del volume contengono dati personali e richiedono accesso ristretto.
+
+Per costruire l'immagine dalla copia locale usa `docker build -t amichiamoci/staff:local .` e passa quel tag a `docker run`.
+
+Il workflow di deploy richiede FTPS con un certificato valido.
+
+## Installazione con Apache
+
+1. Installa PHP 8.4 o successivo con `mysqli`, `gd`, `mbstring` e `fileinfo`, Composer 2 e il client `mariadb`. Usa `composer check-platform-reqs` per verificare l'ambiente.
+2. Esegui `composer install --no-interaction --prefer-dist --optimize-autoloader`, dalla directory del progetto.
+3. Configura un virtual host HTTPS. Attiva `mod_rewrite` e applica le regole di `docker/apache.htaccess` nella directory del progetto. Se usi un file `.htaccess`, consenti le direttive necessarie tramite `AllowOverride`. Usa un formato di access log che escluda le query string.
+4. Crea `data/documenti`, `data/certificati`, `data/tmp/cron` e `data/log`, scrivibili dall'utente del servizio PHP.
+5. Prepara il database e il file `.env`, poi esegui `php script/build-database.php`. Pianifica `php /percorso/del/progetto/script/cron.php` tramite il cron di sistema con l'utente del servizio PHP.
+
+Per respingere le richieste ai percorsi della lista di blocco prima della ricerca sul filesystem, includi `docker/apache-early.conf` nel virtual host dedicato con il portale come `DocumentRoot`. Su hosting condiviso, `.htaccess` restituisce lo stesso 404 senza avviare PHP, dopo che Apache ha cercato il file di configurazione. Le richieste alle directory degli asset possono richiedere una verifica del file sul disco. Aggiungi `env=!staff_rejected` al `CustomLog` del virtual host per escludere dal log di accesso i 404 prodotti dalle regole di riscrittura. Nginx esclude già i propri 404 dal log di accesso.
+
+I server web bloccano le richieste a file nascosti, percorsi PHP diretti, WordPress e pannelli di controllo. Il router PHP gestisce gli altri URL applicativi e restituisce 404 se il percorso non esiste. Le nuove azioni PHP sono disponibili senza modifiche alla configurazione del server web.
+
+Per abilitare la registrazione delle aperture delle nuove email, imposta `MAIL_OPEN_SIGNING_KEY` con un valore casuale di almeno 32 caratteri e configura lo stesso secret nel workflow FTPS. I pixel delle email già inviate senza firma continuano a rispondere, senza aggiornare lo storico.
+
+La gestione dei tornei e dei risultati, la modifica delle anagrafiche collegate agli account staff e la modifica o cancellazione delle iscrizioni esistenti richiedono un amministratore.
+
+## Verifiche locali
+
+```sh
+composer validate
+composer audit --locked
+php tests/file-paths.php
+php tests/routing.php
+php tests/reset-token.php
 ```
 
-Avviare il contenitore e impostare le variabili d'ambiente allo stesso. all'avvio genererà il databse se non ne trova uno (il controllo è effettuato sull'esistenza di almeno un utente, non cancellarli mai tutti).
+I test PHP usano directory temporanee e dati sintetici. Per una prova end-to-end, avvia il portale con un database di prova e verifica accesso, caricamento e download, invio dei moduli e aggiornamento di una partita.
 
-### Porte e utenti
-Il contenitore espone solo la porta `80`, ed il processo principale è eseguito dall'utente `www-data`
-
-### Volumi
-Un solo volume è richiesto, e va montato a `/app/data`.
-
-### Segreti e dati sensibili
-I docker secrets sono supportati e consigliati per le variabili più importanti (come password o token)
-
-### Costruire l'immagine in locale
-Effettuare un pull della repo:
-```bash
-git clone https://github.com/Amichiamoci/Staff && cd ./Staff
-```
-Costrure l'immagine
-```bash
-docker build . --tag 'amichiamoci-staff'
-```
-
-## Installazione su Apache (sconsigliata)
-Assicurarsi di avere [composer](https://getcomposer.org "Vai al sito") installato sul proprio sistema.
-
-Caricare le librerie con
-```bash
-composer update --no-interaction --no-progress
-```
-Impostare le variabili d'ambiente nel file `.env` (nella cartella principale dell'applicativo)
-
-Generare il file `.sql` per l'inizializzazione del database con
-```bash
-chmod +x ./build-starting-db.sh
-```
-Questo genererà un file `starting-db.tmp.sql`.
-
-Adesso eseguire lo script per generare effettivamente il database
-```bash
-php ./build-database.php
-```
-Lo script cercherà di lanciare `mariadb` (MariaDB client per comunicare col server), se non si dispone di tale pacchetto o non si dispone dei permessi sarà necessario eseguire il file `starting-db.tmp.sql` a mano. Fare ciò non genererà il primo utente (`admin`): anche quello andrà aggiunto a mano.
+Il bundle locale [CodiceFiscale.js 2.4.0](https://github.com/lucavandro/CodiceFiscaleJS) è distribuito con [licenza CC BY-SA 4.0](Public/js/codicefiscale.LICENSE.txt).

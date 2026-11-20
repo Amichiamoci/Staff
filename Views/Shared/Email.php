@@ -94,9 +94,9 @@
             <p>
                 Si prega cortesemente di non rispondere a questa email
             </p>
-            <?php if (isset($email_id) && $email_id !== 0) { ?>
+            <?php if (isset($open_signature)) { ?>
                 <img 
-                    src="https://<?= DOMAIN . $P ?>/email/heartbeat?id=<?= $email_id ?>" 
+                    src="https://<?= htmlspecialchars(DOMAIN . $P) ?>/email/heartbeat?id=<?= $email_id ?>&amp;signature=<?= $open_signature ?>" 
                     width="1" height="1" 
                     style="width: 1px; height: 1px;"
                     loading="eager">

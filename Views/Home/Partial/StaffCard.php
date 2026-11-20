@@ -64,14 +64,14 @@ if (isset($staff) && $staff instanceof Staff) {
             <?php if (!isset($staff->Taglia)) { ?>
                 <p>
                     Non ti sei ancora registrato per
-                    <?= SITE_NAME ?> <?= date(format: "Y") ?>, fallo subito!
+                    <?= htmlspecialchars(SITE_NAME) ?> <?= date(format: "Y") ?>, fallo subito!
                 </p>
                 <a  href="<?= $P ?>/staff/get_involved"
                     class="btn btn-primary btn-lg"
                     title="Partecipa"
                 >
                     Partecipa ad
-                    <?= SITE_NAME ?> <?= date(format: "Y") ?>
+                    <?= htmlspecialchars(SITE_NAME) ?> <?= date(format: "Y") ?>
                 </a>
             <?php } ?>
         </div>

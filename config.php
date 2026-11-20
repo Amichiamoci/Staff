@@ -6,14 +6,15 @@ require_once __DIR__ . '/vendor/autoload.php';
 use Amichiamoci\Utils\Security;
 use Dotenv\Dotenv;
 
+$_ENV += getenv();
 $dotenv = Dotenv::createImmutable(paths: __DIR__);
 $dotenv->safeLoad();
 
-$MYSQL_HOST = Security::LoadEnvironmentOfFromFile(var: 'MYSQL_HOST', default: 'localhost');
-$MYSQL_PORT = (int)Security::LoadEnvironmentOfFromFile(var: 'MYSQL_PORT', default: '3306');
-$MYSQL_USER = Security::LoadEnvironmentOfFromFile(var: 'MYSQL_USER', default: 'amichiamoci');
-$MYSQL_PASSWORD = Security::LoadEnvironmentOfFromFile(var: 'MYSQL_PASSWORD');
-$MYSQL_DB = Security::LoadEnvironmentOfFromFile(var: 'MYSQL_DB');
+$MYSQL_HOST = Security::LoadEnvironmentOrFromFile(var: 'MYSQL_HOST', default: 'localhost');
+$MYSQL_PORT = (int)Security::LoadEnvironmentOrFromFile(var: 'MYSQL_PORT', default: '3306');
+$MYSQL_USER = Security::LoadEnvironmentOrFromFile(var: 'MYSQL_USER', default: 'amichiamoci');
+$MYSQL_PASSWORD = Security::LoadEnvironmentOrFromFile(var: 'MYSQL_PASSWORD');
+$MYSQL_DB = Security::LoadEnvironmentOrFromFile(var: 'MYSQL_DB');
 
 $connection = new \mysqli(
     hostname: $MYSQL_HOST, 
@@ -31,17 +32,17 @@ if (!array_key_exists(key: 'HTTP_HOST', array: $_SERVER)) {
 
 define(
     constant_name: "SITE_NAME", 
-    value: Security::LoadEnvironmentOfFromFile(var: "SITE_NAME", default: 'Amichiamoci'));
+    value: Security::LoadEnvironmentOrFromFile(var: "SITE_NAME", default: 'Amichiamoci'));
 define(
     constant_name: "DOMAIN", 
-    value: Security::LoadEnvironmentOfFromFile(var: "DOMAIN", default: $_SERVER['HTTP_HOST']));
+    value: Security::LoadEnvironmentOrFromFile(var: "DOMAIN", default: $_SERVER['HTTP_HOST']));
 define(constant_name: 'POWERED_BY', value: 'https://github.com/Amichiamoci/Staff');
 
 // Public key, private key will only be loaded when used
 define(
     constant_name: "RECAPTCHA_PUBLIC_KEY", 
-    value: Security::LoadEnvironmentOfFromFile(var: "RECAPTCHA_PUBLIC_KEY"));
+    value: Security::LoadEnvironmentOrFromFile(var: "RECAPTCHA_PUBLIC_KEY"));
 
 define(
     constant_name: 'MAIN_SITE_URL',
-    value: Security::LoadEnvironmentOfFromFile(var: 'MAIN_SITE_URL', default: 'https://www.amichiamoci.it'));
+    value: Security::LoadEnvironmentOrFromFile(var: 'MAIN_SITE_URL', default: 'https://www.amichiamoci.it'));

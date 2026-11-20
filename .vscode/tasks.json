@@ -4,8 +4,9 @@
     {
       "label": "Start container (Production)",
       "type": "shell",
-      "command": "docker-compose",
+      "command": "docker",
       "args": [
+        "compose",
         "-f",
         ".vscode/docker-compose.yml",
         "--profile",
@@ -20,8 +21,9 @@
     {
       "label": "Start container (Debugging)",
       "type": "shell",
-      "command": "docker-compose",
+      "command": "docker",
       "args": [
+        "compose",
         "-f",
         ".vscode/docker-compose.yml",
         "--profile",
@@ -41,8 +43,9 @@
     {
       "label": "Stop container",
       "type": "shell",
-      "command": "docker-compose",
+      "command": "docker",
       "args": [
+        "compose",
         "-f",
         ".vscode/docker-compose.yml",
         "--profile",
@@ -55,7 +58,7 @@
     {
       "label": "Wait for container",
       "type": "shell",
-      "command": "docker-compose -f .vscode/docker-compose.yml --profile \"*\" wait app",
+      "command": "docker compose -f .vscode/docker-compose.yml --profile \"*\" wait app",
       "problemMatcher": [],
       "presentation": { "reveal": "never" }
     },

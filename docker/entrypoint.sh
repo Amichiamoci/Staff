@@ -24,5 +24,6 @@ until php "$APP_PATH/script/build-database.php"; do
     sleep 1
 done
 
+crond
 php-fpm -D
 nginx -g "daemon off;"

@@ -1,5 +1,20 @@
 <?php
 
+ini_set('display_errors', '0');
+set_exception_handler(static function (Throwable $exception): void {
+    error_log('Staff request failed: ' . $exception::class);
+    if (!headers_sent()) {
+        http_response_code(500);
+        header('Content-Type: text/plain; charset=UTF-8');
+    }
+    echo 'Errore interno.';
+});
+
+header('Cache-Control: no-store');
+header('Referrer-Policy: no-referrer');
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
+
 require_once __DIR__ . '/config.php';
 
 use Amichiamoci\Controllers\ApiController;
@@ -28,7 +43,7 @@ $logger->pushHandler(
     handler: new RotatingFileHandler(
         filename: File::getLogDir() . DIRECTORY_SEPARATOR .  'requests.log', 
         level: Level::Info,
-        maxFiles: (int)Security::LoadEnvironmentOfFromFile(
+        maxFiles: (int)Security::LoadEnvironmentOrFromFile(
             var: 'LOG_ROTATING_MAX_FILES', 
             default: '14',
         ),
@@ -51,35 +66,22 @@ $router->AddController(controller: EmailController::class, route_base: '/email')
 if (Security::ApiEnabled())
     $router->AddController(controller: ApiController::class, route_base: '/api');
 
-set_error_handler(callback: function(\Throwable|int $ex, ?string $msg = null): void {
-    if ($ex instanceof \Throwable) {
-    ?>
-    <pre class="text-error"><?= htmlspecialchars(string: $ex->getMessage())?></pre>
-    <pre class="text-warning"><?= htmlspecialchars(string: $ex->getTraceAsString())?></pre>
-    <?php } else { ?>
-        <span class="user-select-none font-monospace text-error">
-            <strong> Errore 0x<?= dechex(num: $ex) ?> </strong> (<?= $ex ?>)
-        </span>
-        <?php if (!empty($msg)) { ?>
-            <code class="text-error">
-                <?= htmlspecialchars(string: $msg) ?>
-            </code>
-        <?php } ?>
-    <?php }
-});
-set_exception_handler(callback: function(\Throwable $ex): void {
-    ?>
-    <pre><?= htmlspecialchars(string: $ex->getMessage())?></pre>
-    <pre><?= htmlspecialchars(string: $ex->getTraceAsString())?></pre>
-    <?php
-});
-
 // Pass the db connection to the router,
 // so it can be passed to the controllers
 $router->SetDbConnection(connection: $connection);
 
 // Load user data
 $user = User::LoadFromSession();
+if ($user !== null) {
+    $account = User::ById($connection, $user->Id);
+    if ($account === null || $account->IsBanned) {
+        $user->Logout();
+        $user = null;
+    } else {
+        $user->Admin = $account->Admin;
+        $user->Name = $account->Name;
+    }
+}
 if ($user !== null)
 {
     $router->SetUser(user: $user);
@@ -102,9 +104,10 @@ if ($user !== null)
 $uri = $_SERVER['REQUEST_URI'];
 $client_ip = Security::GetIpAddress();
 
-$result = $router->dispatch(uri: $uri);
+$result = $router->Dispatch(uri: $uri);
 
-$log_message = "[$client_ip] [$result->value] $uri";
+$path = parse_url($uri, PHP_URL_PATH);
+$log_message = "[$client_ip] [$result->value] $path";
 if (StatusCode::IsError(statusCode: $result))
     $logger->warning(message: $log_message);
 else

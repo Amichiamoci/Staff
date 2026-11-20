@@ -96,7 +96,7 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                                     Partite e risultati
                                 </a>
                             </li>
-                            <?php if ($user->Admin || (isset($staff) && $staff->InCommissione(commissione: 'Tornei'))) { ?>
+                            <?php if ($user->Admin) { ?>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
@@ -233,6 +233,9 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                                 </a>
                             </li>
                             <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
                                 <a  class="dropdown-item" 
                                     href="<?= $P ?>/staff/csi"
                                 >
@@ -247,6 +250,9 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                                 </a>
                             </li>
                             <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
                                 <a  class="dropdown-item" 
                                     href="<?= $P ?>/staff/church_leaderboard"
                                 >
@@ -254,10 +260,18 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                                 </a>
                             </li>
                             <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li>
                                 <a  class="dropdown-item" 
                                     href="<?= $P ?>/staff/edizione"
                                 >
                                     Tutte le edizioni
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="<?= $P ?>/credits">
+                                    Crediti
                                 </a>
                             </li>
                         </ul>

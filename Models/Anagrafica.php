@@ -32,9 +32,23 @@ class Anagrafica extends AnagraficaBase
         ?string $nome_file = null, 
         bool $abort_if_existing = false,
         ?bool &$already_existing = null,
+        bool $allowStaffUpdate = false,
     ) : int {
         if (!$connection)
             return 0;
+        if (!$allowStaffUpdate) {
+            $staff = $connection->execute_query(
+                'SELECT 1 FROM `staffisti` s JOIN `anagrafiche` a ON a.`id` = s.`dati_anagrafici`
+                 WHERE LOWER(a.`codice_fiscale`) = LOWER(TRIM(?)) LIMIT 1',
+                [$cf],
+            );
+            $isStaff = $staff->num_rows > 0;
+            $staff->close();
+            if ($isStaff) {
+                return 0;
+            }
+        }
+
         $result = $connection->execute_query(
             query: 'CALL `CreaAnagrafica`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',
             params: [
@@ -115,9 +129,10 @@ class Anagrafica extends AnagraficaBase
         if (!$connection || strlen(string: trim(string: $cf)) === 0)
             return null;
 
-        $cf = $connection->real_escape_string(string: $cf);
-        $query = "SELECT * FROM `anagrafiche_espanse` WHERE LOWER(`cf`) = LOWER('$cf')";
-        $result = $connection->query(query: $query);
+        $result = $connection->execute_query(
+            'SELECT * FROM `anagrafiche_espanse` WHERE LOWER(`cf`) = LOWER(TRIM(?))',
+            [$cf],
+        );
         if (!$result || $result->num_rows === 0)
         {
             return null;

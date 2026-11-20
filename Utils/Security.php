@@ -2,6 +2,7 @@
 namespace Amichiamoci\Utils;
 
 use GuzzleHttp\Client as HttpClient;
+use GuzzleHttp\Exception\GuzzleException;
 use Richie314\SimpleMvc\Utils\Security as BaseSecurity;
 
 class Security
@@ -9,8 +10,8 @@ extends BaseSecurity
 {
     public static function ApiEnabled(): bool
     {
-        $enable_api = self::LoadEnvironmentOfFromFile(var: 'ENABLE_API');
-        return is_string(value: $enable_api) && (bool)$enable_api;
+        $enable_api = self::LoadEnvironmentOrFromFile(var: 'ENABLE_API');
+        return filter_var($enable_api, FILTER_VALIDATE_BOOL);
     }
     public static function RandomSubset(int $length, array $alphabet): string
     {
@@ -37,38 +38,39 @@ extends BaseSecurity
 
     public static function Recaptcha3Validation(
         #[\SensitiveParameter] ?string $g_recaptcha_response,
+        string $action,
     ): ?string
     {
         if (empty($g_recaptcha_response))
             return 'Variabile $g_recaptcha_response non impostata!';
 
-        $secret_key = self::LoadEnvironmentOfFromFile(var: 'RECAPTCHA_SECRET_KEY');
+        $secret_key = self::LoadEnvironmentOrFromFile(var: 'RECAPTCHA_SECRET_KEY');
         if (empty($secret_key)) 
             return 'Google Recaptcha è abilitato, ma la chiave segreta non è impostata';
         
-        $client = new HttpClient();
-        $response = $client->post(
-            uri: 'https://www.google.com/recaptcha/api/siteverify',
-            options: [
-                'form_params' => [
-                    'secret' => $secret_key,
-                    'response' => $g_recaptcha_response,
-                ]
-            ]
-        );
-        if (!$response) 
+        try {
+            $response = (new HttpClient())->post(
+                'https://www.google.com/recaptcha/api/siteverify',
+                [
+                    'timeout' => 5,
+                    'form_params' => [
+                        'secret' => $secret_key,
+                        'response' => $g_recaptcha_response,
+                    ],
+                ],
+            );
+        } catch (GuzzleException) {
             return 'Impossibile contattare il server di Google';
-        
-        $body = $response->getBody();
-        if (empty($body))
-            return 'Risposta vuota dai server di Google';
-        
-        $object = json_decode(json: $body);
-        if (empty($object))
-            return 'Risposta non valida dai server di Google';
-        
-        if ($object->success)
+        }
+
+        $result = json_decode((string)$response->getBody(), true);
+        if (($result['success'] ?? false) === true
+            && ($result['action'] ?? null) === $action
+            && is_numeric($result['score'] ?? null)
+            && $result['score'] >= 0.5
+        ) {
             return null;
-        return 'Token Recaptcha scaduto';
+        }
+        return 'Verifica reCAPTCHA non riuscita';
     }
 }

@@ -44,9 +44,9 @@ RUN if [ "$DEBUG_APP" = "1" ]; then \
     echo "DEBUG_APP=$DEBUG_APP" > .env
 
 RUN touch /var/log/schedule.log
-RUN chmod 777 /var/log/schedule.log
+RUN chmod 600 /var/log/schedule.log
 RUN mkdir -p /etc/cron.d
-RUN echo '0 * * * * "php /amichiamoci/script/cron.php >> /var/log/schedule.log 2>&1"' > /etc/cron.d/scheduler
+RUN echo '0 * * * * php /amichiamoci/script/cron.php >> /var/log/schedule.log 2>&1' > /etc/cron.d/scheduler
 RUN crontab /etc/cron.d/scheduler
 
 COPY ./docker/nginx.conf /etc/nginx/http.d/default.conf
@@ -59,7 +59,7 @@ FROM php_ready AS php_deps
 ARG DEBUG_APP=0
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-COPY composer.json .
+COPY composer.json composer.lock ./
 RUN composer install \
     --no-interaction \
     --no-progress \
@@ -86,6 +86,7 @@ COPY --chown=www-data --from=php_deps /amichiamoci/vendor ./vendor
 COPY --chown=www-data . .
 COPY --chown=www-data --from=docs /amichiamoci/docs/html ./docs
 
+RUN chmod -R a+rX ./Public ./docs
 RUN chmod +x ./script/build-database.php
 RUN chmod +x ./script/cron.php
 

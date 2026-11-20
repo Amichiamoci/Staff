@@ -3,7 +3,7 @@ use Amichiamoci\Utils\Security;
 
 assert(isset($iscrizioni) && is_array($iscrizioni), 'var $iscrizioni not valid');
 
-$amichiamoci_full_address = Security::LoadEnvironmentOfFromFile(
+$amichiamoci_full_address = Security::LoadEnvironmentOrFromFile(
     var: 'LEGAL_ADDRESS', 
     default: 'Via del Seminario, 68, Livorno, 57121, LI',
 );
@@ -15,8 +15,8 @@ for ($i = 0; $i < 5; $i++) {
     }
 }
 
-$codice_comitato_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_COMITATO_CSI', default: '');
-$codice_societa_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_SOCIETA_CSI', default: '');
+$codice_comitato_csi = Security::LoadEnvironmentOrFromFile(var: 'CODICE_COMITATO_CSI', default: '');
+$codice_societa_csi = Security::LoadEnvironmentOrFromFile(var: 'CODICE_SOCIETA_CSI', default: '');
 
 ?>
 <h1>
@@ -298,7 +298,13 @@ $codice_societa_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_SOCIETA_C
     </tbody>
 </table>
 
-<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js" defer></script>
+<script
+    src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"
+    integrity="sha384-EnyY0/GSHQGSxSgMwaIPzSESbqoOLSexfnSMN2AP+39Ckmn92stwABZynq1JyzdT"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+    defer
+></script>
 <script>
     function exportTables()
     {
@@ -377,9 +383,9 @@ $codice_societa_csi = Security::LoadEnvironmentOfFromFile(var: 'CODICE_SOCIETA_C
         XLSX.utils.book_append_sheet(wb, sheet, "Inserimento Tesserati");
         if (!wb.Props) 
             wb.Props = {};
-        wb.Props.Title = "Iscrizioni <?= SITE_NAME ?> <?= date(format: "Y") ?>";
-        wb.Props.Author = "<?= SITE_NAME ?>";
+        wb.Props.Title = <?= json_encode("Iscrizioni " . SITE_NAME . " " . date("Y"), JSON_HEX_TAG | JSON_THROW_ON_ERROR) ?>;
+        wb.Props.Author = <?= json_encode(SITE_NAME, JSON_HEX_TAG | JSON_THROW_ON_ERROR) ?>;
 
-        XLSX.writeFile(wb, "Iscrizioni-<?= SITE_NAME ?>-<?= date(format: "Y")?>.xlsx");
+        XLSX.writeFile(wb, <?= json_encode("Iscrizioni-" . SITE_NAME . "-" . date("Y") . ".xlsx", JSON_HEX_TAG | JSON_THROW_ON_ERROR) ?>);
     }
 </script>

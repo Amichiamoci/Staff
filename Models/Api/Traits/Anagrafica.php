@@ -92,13 +92,13 @@ trait Anagrafica
     }
     protected function managed_anagraphicals(string $Email): ApiCall
     {
-        $email = $this->DB->escape_string($Email);
         $query = 
             "SELECT * " .
             "FROM `anagrafiche_con_iscrizioni_correnti` " .
-            "WHERE LOWER(TRIM(`email`)) = LOWER(TRIM('$email')) OR LOWER(TRIM(`email_tutore`)) = LOWER(TRIM('$email'))";
+            "WHERE LOWER(TRIM(`email`)) = LOWER(TRIM(?)) OR LOWER(TRIM(`email_tutore`)) = LOWER(TRIM(?))";
         return new ApiCall(
             query: $query,
+            parameters: [$Email, $Email],
             row_parser: function (array $r): array { return self::managed_anagraphicals_parse($r); },
         );
     }
@@ -144,11 +144,10 @@ trait Anagrafica
                 row_parser: function (array $r): array { return self::managed_anagraphicals_parse_subscription($r); },
             );
         }
-        $tutor = empty($Tutor) ? 'NULL' : (string)$Tutor;
-        $certificate = empty($Certificate) ? 'NULL' : '\'' . $this->DB->escape_string($Certificate) . '\'';
         
         return new ApiCall(
-            query: "CALL `IscriviEdizioneCorrente`($Anagraphical, $Church, '$taglia', $tutor, $certificate);",
+            query: "CALL `IscriviEdizioneCorrente`(?, ?, ?, ?, ?)",
+            parameters: [$Anagraphical, $Church, $taglia, $Tutor ?: null, $Certificate ?: null],
             row_parser: function (array $r) use($Church, $taglia, $Tutor): array
             {
                 return [

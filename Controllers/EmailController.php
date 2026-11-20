@@ -8,6 +8,7 @@ use Richie314\SimpleMvc\Http\StatusCode;
 use Amichiamoci\Models\Email;
 use Amichiamoci\Models\Message;
 use Amichiamoci\Utils\Email as EmailSender;
+use Amichiamoci\Utils\Security;
 
 class EmailController
 extends Controller
@@ -33,20 +34,21 @@ extends Controller
             view: 'Email/view',
             data: [
                 'email' => $email,
-                'content_escaped' => $this->DB->real_escape_string(
-                    string: EmailSender::Render(title: $email->Subject, content: $email->Content)
-                ),
+                'email_preview' => EmailSender::Render(title: $email->Subject, content: $email->Content),
             ],
             title: 'Email #' . $id,
         );
     }
 
-    public function heartbeat(?int $id): StatusCode
+    public function heartbeat(?int $id = null, ?string $signature = null): StatusCode
     {
         if (empty($id))
             return $this->NotFound();
 
-        Email::HeartBeat(connection: $this->DB, id: $id);
+        $expected = EmailSender::OpenSignature($id);
+        if ($expected !== null && $signature !== null && hash_equals($expected, $signature)) {
+            Email::HeartBeat(connection: $this->DB, id: $id);
+        }
         
         return $this->File(
             file_path: dirname(path: __DIR__) . '/Public/images/blank_dot.svg',
@@ -82,6 +84,12 @@ extends Controller
         return $this->Render(
             view: 'Email/send',
             title: 'Invia email',
+            data: [
+                'to' => $to,
+                'subject' => $subject,
+                'body' => $body,
+                'editorLicenseKey' => trim(Security::LoadEnvironmentOrFromFile(var: 'CKEDITOR_LICENSE_KEY') ?? ''),
+            ],
         );
     }
 }

@@ -100,12 +100,10 @@ class AnagraficaConIscrizione extends Anagrafica
         $sourceProperties = $sourceReflection->getProperties();
         foreach ($sourceProperties as $sourceProperty)
         {
-            $sourceProperty->setAccessible(true);
             $name = $sourceProperty->getName();
             $value = $sourceProperty->getValue($a);
             if ($destinationReflection->hasProperty(name: $name)) {
                 $propDest = $destinationReflection->getProperty(name: $name);
-                $propDest->setAccessible(accessible: true);
                 $propDest->setValue($ai, $value); // do not add named parameters
             } else {
                 $ai->$name = $value;

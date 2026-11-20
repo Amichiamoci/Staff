@@ -14,6 +14,7 @@ class Call
         string $query,
         ?callable $row_parser = null,
         bool $is_procedure = false,
+        private array $parameters = [],
     ) {
         $this->Query = $query;
         $this->RowParser = isset($row_parser) ? 
@@ -24,15 +25,14 @@ class Call
 
     public function Execute(\mysqli $connection): ?array
     {
-        $response = $connection->query(query: $this->Query);
+        $response = $connection->execute_query($this->Query, $this->parameters);
         if (!$response) {
             return null;
         }
 
         $result = ($response === true) ? [] : $response->fetch_all(mode: MYSQLI_ASSOC);
-        if (!isset($result) || !$result)
-        {
-            $result = [];
+        if ($response instanceof \mysqli_result) {
+            $response->close();
         }
 
         if ($this->IsProcedure) {

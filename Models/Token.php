@@ -2,7 +2,6 @@
 
 namespace Amichiamoci\Models;
 
-use Amichiamoci\Utils\Security;
 class Token
 {
     public string $Value;
@@ -16,14 +15,14 @@ class Token
     public ?string $RequestingBrowser = null;
 
     public function IsUsed(): bool { return isset($this->UsageDate); }
-    public function IsExpired(): bool { return (new \DateTime()) > $this->ExpirationDate; }
+    public function IsExpired(): bool { return (new \DateTime()) >= $this->ExpirationDate; }
 
     public function Use(\mysqli $connection): bool
     {
         if (!$connection)
             return false;
 
-        $query = "UPDATE `token` SET `usage_date` = CURRENT_TIMESTAMP WHERE `value` = ?";
+        $query = "UPDATE `token` SET `usage_date` = CURRENT_TIMESTAMP WHERE `value` = ? AND `usage_date` IS NULL AND `expiration_date` > CURRENT_TIMESTAMP";
 
         $result = $connection->execute_query(
             query: $query, 
@@ -112,9 +111,7 @@ class Token
 
     public function Matches(string $secret): bool
     {
-        return 
-            $secret === $this->Secret &&
-            $this->Value === self::GenerateValueFromSecret(secret: $this->Secret);
+        return hash_equals($this->Value, self::GenerateValueFromSecret($secret));
     }
 
     public static function Generate(
@@ -130,24 +127,33 @@ class Token
             return null;
 
         // Generate secret and its hash (value)
-        $secret = Security::RandomSubset(
-            length: 8, 
-            alphabet: str_split(string: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'));
+        $secret = bin2hex(random_bytes(32));
         $value = self::GenerateValueFromSecret(secret: $secret);
 
         // Upload to DB
         $query = 
-            "REPLACE INTO `token` (`value`, `secret`, `expiration_date`, `user_id`, `email`, `requesting_ip`, `requesting_browser`) " .
-            "VALUES (?, ?, CURRENT_TIMESTAMP + INTERVAL $duration_mins MINUTE, ?, ?, ?, ?)";
+            "INSERT INTO `token` (`value`, `secret`, `expiration_date`, `user_id`, `email`, `requesting_ip`, `requesting_browser`) " .
+            "VALUES (?, '', CURRENT_TIMESTAMP + INTERVAL ? MINUTE, ?, ?, ?, ?)";
         $result = $connection->execute_query(
             query: $query, 
-            params: [$value, $secret, $user_id, $email, $requesting_ip, $requesting_browser]
+            params: [
+                $value,
+                $duration_mins,
+                $user_id,
+                $email,
+                strlen($requesting_ip ?? '') <= 15 ? $requesting_ip : null,
+                $requesting_browser === null ? null : mb_scrub(substr($requesting_browser, 0, 128), 'UTF-8'),
+            ]
         );
 
         if (!$result || $connection->affected_rows !== 1) 
             return null;
         
-        return self::Load(connection: $connection, value: $value);
+        $token = self::Load(connection: $connection, value: $value);
+        if ($token !== null) {
+            $token->Secret = $secret;
+        }
+        return $token;
     }
 
 }

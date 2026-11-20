@@ -7,10 +7,10 @@ trait Partita
 {
     protected function today_matches_of(string $Email): ApiCall
     {
-        $email = $this->DB->escape_string(string: $Email);
-        $query = "SELECT * FROM `partite_oggi_persona` WHERE LOWER(TRIM(`email`)) = LOWER(TRIM('$email'))";
+        $query = "SELECT * FROM `partite_oggi_persona` WHERE LOWER(TRIM(`email`)) = LOWER(TRIM(?))";
         return new ApiCall(
             query: $query,
+            parameters: [$Email],
             row_parser: function(array $r): array {
                 $arr = [
                     'WhoPlays' => $r['nome'] . ' ' . $r['cognome'],
@@ -76,10 +76,10 @@ trait Partita
 
     protected function today_matches_sport(string $Sport): ApiCall
     {
-        $area = $this->DB->escape_string(string: $Sport);
-        $query = "SELECT * FROM `partite_oggi` WHERE UPPER(`area_sport`) = UPPER('$area')";
+        $query = "SELECT * FROM `partite_oggi` WHERE UPPER(`area_sport`) = UPPER(?)";
         return new ApiCall(
             query: $query,
+            parameters: [$Sport],
             row_parser: function(array $r): array {
                 return self::parse_partita(r: $r);
             },
@@ -162,11 +162,12 @@ trait Partita
 
     protected function add_result(int $Id, string $Home, string $Guest): ApiCall
     {
-        $home = $this->DB->escape_string(string: $Home);
-        $guest = $this->DB->escape_string(string: $Guest);
-        $query = "CALL `CreaPunteggioCompleto`($Id, TRIM('$home'), TRIM('$guest'));";
+        $home = trim($Home);
+        $guest = trim($Guest);
+        $query = "CALL `CreaPunteggioCompleto`(?, ?, ?)";
         return new ApiCall(
             query: $query,
+            parameters: [$Id, $home, $guest],
             row_parser: function (array $r) use($home, $guest): array {
                 return [
                     'Id' => (int)$r['id'],

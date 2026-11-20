@@ -15,7 +15,7 @@ assert(isset($edizione_corrente) && ($edizione_corrente instanceof Edizione), 'v
 ?>
 
 <h1>
-    Partecipa all'edizione corrente di <?= SITE_NAME ?>
+    Partecipa all'edizione corrente di <?= htmlspecialchars(SITE_NAME) ?>
 </h1>
 <form method="post">
     <?php if ($user->Admin) { ?>

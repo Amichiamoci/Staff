@@ -3,6 +3,8 @@ on:
     branches:
       - main
       - test
+  workflow_dispatch:
+
 name: FTP deploy to server
 jobs:
   ftp-deploy:
@@ -28,6 +30,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
+          extensions: fileinfo, gd, mbstring, mysqli
           tools: composer:v2
           coverage: none
         env:
@@ -48,39 +51,55 @@ jobs:
           max_attempts: 5
           command: composer install --no-interaction --no-progress --optimize-autoloader --no-dev
         
-      - name: Load DB data and website address in .env
-        run: |
-          echo -e "DOMAIN=amichiamoci.it" > ".env"
-          echo -e "MYSQL_HOST=${{ secrets.DB_ADDRESS }}" >> ".env"
-          echo -e "MYSQL_USER=${{ secrets.DB_USER }}" >> ".env"
-          echo -e "MYSQL_PASSWORD=${{ secrets.DB_PASSWORD }}" >> ".env"
-          echo -e "RECAPTCHA_PUBLIC_KEY=${{ secrets.RECAPTCHA_SITE_KEY }}" >> ".env"
-          echo -e "RECAPTCHA_SECRET_KEY=${{ secrets.RECAPTCHA_SECRET }}" >> ".env"
-          echo -e "MAIL_OUTPUT_ADDRESS=${{ secrets.SMTP_USER }}" >> ".env"
-          echo -e "SMTP_HOST=${{ vars.SMTP_HOST }}" >> ".env"
-          echo -e "SMTP_PORT=${{ vars.SMTP_PORT }}" >> ".env"
-          echo -e "SMTP_USER=${{ secrets.SMTP_USER }}" >> ".env"
-          echo -e "SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}" >> ".env"
-          echo -e "CODICE_COMITATO_CSI=${{ secrets.CODICE_COMITATO_CSI }}" >> ".env"
-          echo -e "CODICE_SOCIETA_CSI=${{ secrets.CODICE_SOCIETA_CSI }}" >> ".env"
-        
-      - name: Calculate Deploy Path and Variables
+      - name: Prepare deployment configuration
         id: deploy-path
-        run: |
-          if [ "$BRANCH" = 'main' ]
-          then
-            echo "path=admin/" >> "$GITHUB_OUTPUT"
-            echo -e "MYSQL_DB=${{ secrets.DB_MASTER_DATABASE }}" >> ".env"
-            echo -e "ENABLE_API=true" >> ".env"
-          else
-            echo "path=admin_test/" >> "$GITHUB_OUTPUT"
-            echo -e "MYSQL_DB=${{ secrets.DB_TEST_DATABASE }}" >> ".env"
-            echo -e "SITE_NAME=\"Amichiamoci TEST\"" >> ".env"
-            echo -e "CRON_CAPTURE_OUTGOING_ADDRESS=dummy" >> ".env"
-          fi
         env:
           BRANCH: ${{ github.ref_name }}
-      
+          MYSQL_HOST: ${{ secrets.DB_ADDRESS }}
+          MYSQL_USER: ${{ secrets.DB_USER }}
+          MYSQL_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MYSQL_DB: ${{ github.ref_name == 'main' && secrets.DB_MASTER_DATABASE || secrets.DB_TEST_DATABASE }}
+          RECAPTCHA_PUBLIC_KEY: ${{ secrets.RECAPTCHA_SITE_KEY }}
+          RECAPTCHA_SECRET_KEY: ${{ secrets.RECAPTCHA_SECRET }}
+          MAIL_OUTPUT_ADDRESS: ${{ secrets.SMTP_USER }}
+          SMTP_HOST: ${{ vars.SMTP_HOST }}
+          SMTP_PORT: ${{ vars.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          MAIL_OPEN_SIGNING_KEY: ${{ secrets.MAIL_OPEN_SIGNING_KEY }}
+          CODICE_COMITATO_CSI: ${{ secrets.CODICE_COMITATO_CSI }}
+          CODICE_SOCIETA_CSI: ${{ secrets.CODICE_SOCIETA_CSI }}
+        run: |
+          umask 077
+          python3 - <<'PYTHON'
+          import json
+          import os
+
+          keys = (
+              "MYSQL_HOST", "MYSQL_USER", "MYSQL_PASSWORD", "MYSQL_DB",
+              "RECAPTCHA_PUBLIC_KEY", "RECAPTCHA_SECRET_KEY", "MAIL_OUTPUT_ADDRESS",
+              "SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASSWORD", "MAIL_OPEN_SIGNING_KEY",
+              "CODICE_COMITATO_CSI", "CODICE_SOCIETA_CSI",
+          )
+          values = {key: os.environ[key] for key in keys}
+          values["DOMAIN"] = "amichiamoci.it"
+          values["SESSION_COOKIE_SECURE"] = "1"
+          if os.environ["BRANCH"] == "main":
+              path = "admin/"
+              values["ENABLE_API"] = "true"
+          else:
+              path = "admin_test/"
+              values["SITE_NAME"] = "Amichiamoci TEST"
+              values["CRON_CAPTURE_OUTGOING_ADDRESS"] = "dummy"
+
+          with open(".env", "w", encoding="utf-8") as env_file:
+              for key, value in values.items():
+                  encoded = json.dumps(value, ensure_ascii=False).replace("$", r"\$")
+                  env_file.write(f"{key}={encoded}\n")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"path={path}\n")
+          PYTHON
+
       - name: Copy .htaccess
         run: cp ./docker/apache.htaccess ./.htaccess
 
@@ -91,11 +110,15 @@ jobs:
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: ${{ secrets.FTP_FOLDER_BASE }}${{ steps.deploy-path.outputs.path }}
+          protocol: ftps
+          security: strict
           log-level: minimal
           exclude: |
             **/.git*
             **/.git*/**
             **/node_modules/**
+            **/data/**
+            **/tests/**
             **/docs_tmp/**
             *.md
             Dockerfile

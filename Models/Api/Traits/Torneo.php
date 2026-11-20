@@ -129,9 +129,9 @@ trait Torneo
 
     protected function tournament_sport(string $Sport): ApiCall
     {
-        $area = $this->DB->escape_string(string: $Sport);
         return new ApiCall(
-            query: "SELECT * FROM `tornei_attivi` WHERE UPPER(`area_sport`) = UPPER('$area')",
+            query: "SELECT * FROM `tornei_attivi` WHERE UPPER(`area_sport`) = UPPER(?)",
+            parameters: [$Sport],
             row_parser: function (array $r): array {
                 return self::parse_tornei_attivi(r: $r);
             }

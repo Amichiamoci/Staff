@@ -1,19 +1,11 @@
-<FilesMatch "\.(save|swp|sql|env|md|bkp)$">
-    Require all denied
-</FilesMatch>
-
+Options -Indexes -MultiViews
+ErrorDocument 404 default
 RewriteEngine On
 
-# Map static resources to Public/ directory
-RewriteRule ^(css|js|images)/(.*)$ Public/$1/$2 [L,NC]
+RewriteRule "(^|/)\.|\.(php[0-9]*|phtml|phar)([./]|$)" - [E=staff_rejected:1,R=404,END,NC]
+RewriteRule "(^|/)(wp-[^/]*|wordpress|xmlrpc\.php|phpmyadmin|pma|cpanel|webmail|whm|plesk|panel|adminer|phpinfo)([./]|$)" - [E=staff_rejected:1,R=404,END,NC]
 
-# Skip rewrite if request is for an existing file or directory
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
+RewriteRule ^(css|js|images)/(.*)$ Public/$1/$2 [END]
+RewriteRule ^(Public|docs)/ - [END]
 
-# Skip rewrite if request starts with Public/ or docs/ (case-insensitive)
-RewriteCond %{REQUEST_URI} !^/(Public|docs)/ [NC]
-
-# Everything else goes to index.php
-RewriteRule ^(.*)$ index.php [QSA,L]
+RewriteRule ^ index.php [END]

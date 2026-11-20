@@ -1,7 +1,11 @@
 <?php
 
-ini_set(option: 'display_errors', value: '1');
-ini_set(option: 'display_startup_errors', value: '1');
+if (PHP_SAPI !== 'cli') {
+    http_response_code(404);
+    exit;
+}
+
+$_SERVER['DOCUMENT_ROOT'] = dirname(__DIR__);
 
 require_once dirname(path: __DIR__) . '/config.php';
 
@@ -13,14 +17,6 @@ use Amichiamoci\Utils\File;
 use Monolog\Logger;
 use Monolog\Level;
 use Monolog\Handler\StreamHandler;
-
-if (PHP_SAPI !== 'cli' && 
-    !((bool)Security::LoadEnvironmentOfFromFile(var: 'CRON_ENABLE_HTTP', default: 0))
-) {
-    echo 'Job not allowed.' . PHP_EOL;
-    echo 'Activate them by setting the variable CRON_ENABLE_HTTP to 1' . PHP_EOL;
-    exit;
-}
 
 echo 'CRON job started' . PHP_EOL . PHP_EOL;
 
@@ -113,7 +109,7 @@ function birthday_emails(): void
         $mail_text = Email::Birthday(name: $person['name']);
 
         // For debugging: we don't want to send real emails when testing
-        $email_cron_override = Security::LoadEnvironmentOfFromFile(
+        $email_cron_override = Security::LoadEnvironmentOrFromFile(
             var: 'CRON_CAPTURE_OUTGOING_ADDRESS',
         );
         if (!empty($email_cron_override))

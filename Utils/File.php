@@ -90,28 +90,35 @@ extends BaseFile
      */
     public static function PhysicalPath(string $virtual_path, bool $createIfMissing = false): string|false
     {
-        if (strlen(string: $virtual_path) === 0 || 
-            self::IsExternalFile(filename: $virtual_path)
-        )
+        if ($virtual_path === '' || str_contains($virtual_path, "\0") || self::IsExternalFile($virtual_path)) {
             return false;
-
-        if (str_starts_with(haystack: $virtual_path, needle: self::STAFF))
-            $virtual_path = substr(string: $virtual_path, offset: strlen(string: self::STAFF));
-
-        if (!str_starts_with(haystack: $virtual_path, needle: DIRECTORY_SEPARATOR))
-            $virtual_path = DIRECTORY_SEPARATOR . $virtual_path;
-
-        $volumePhysicalPath = self::getVolumePhysicalPath();
-        if (!str_starts_with(haystack: $virtual_path, needle: $volumePhysicalPath))
-            $virtual_path = $volumePhysicalPath . $virtual_path;
-
-        $realPath = realpath($virtual_path);
-        if ($realPath === false && $createIfMissing)
-        {
-            touch($virtual_path);
-            $realPath = realpath($virtual_path);
         }
-        return $realPath;
+
+        $volume = self::getVolumePhysicalPath();
+        $root = realpath($volume);
+        if ($root === false) {
+            return false;
+        }
+
+        if (str_starts_with($virtual_path, self::STAFF)) {
+            $virtual_path = substr($virtual_path, strlen(self::STAFF));
+        } elseif (str_starts_with($virtual_path, $volume . DIRECTORY_SEPARATOR)) {
+            $virtual_path = substr($virtual_path, strlen($volume));
+        }
+        $path = $root . DIRECTORY_SEPARATOR . ltrim($virtual_path, DIRECTORY_SEPARATOR);
+        $resolved = realpath($path);
+        if ($resolved === false && $createIfMissing && !is_link($path)) {
+            $parent = realpath(dirname($path));
+            if ($parent !== false && ($parent === $root || str_starts_with($parent, $root . DIRECTORY_SEPARATOR))) {
+                if (touch($path)) {
+                    $resolved = realpath($path);
+                }
+            }
+        }
+        if ($resolved !== false && ($resolved === $root || str_starts_with($resolved, $root . DIRECTORY_SEPARATOR))) {
+            return $resolved;
+        }
+        return false;
     }
 
     /**
@@ -250,7 +257,7 @@ extends BaseFile
             }
             return $path;
         }
-        return self::getInstallationPath() . "/file?name=$path";
+        return self::getInstallationPath() . "/file?name=" . rawurlencode($path);
     }
 
     public static array $ALLOWED_EXT = [
@@ -277,7 +284,7 @@ extends BaseFile
 
     public static function MAX_SIZE(): int
     {
-        $str = Security::LoadEnvironmentOfFromFile(var: 'FILE_MAX_SIZE');
+        $str = Security::LoadEnvironmentOrFromFile(var: 'FILE_MAX_SIZE');
 
         if (!empty($str) && is_numeric(value: $str))
             return (int)$str;

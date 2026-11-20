@@ -198,7 +198,7 @@ extends Controller
                     parrocchia: $parrocchia
                 );
                 if ($res) {
-                    $staff = self::RequireStaff(controller: $this);
+                    $staff = self::_RequireStaff(controller: $this);
                     $staff->Parrocchia->Id = $parrocchia;
                 }
             } else {
@@ -217,7 +217,7 @@ extends Controller
                     $this->getUser()->IdAnagrafica = $anagrafica;
                     $this->getUser()->RealName = Anagrafica::NomeDaId(connection: $this->DB, id: $anagrafica);
                     $this->getUser()->PutAdditionalInSession();
-                    self::RequireStaff(controller: $this);
+                    self::_RequireStaff(controller: $this);
                 }
             }
 
@@ -340,6 +340,10 @@ extends Controller
             )
                 return $this->BadRequest();
 
+            if (!empty($id) && Anagrafica::FromFiscalCode($this->DB, $cf)?->Id !== $id) {
+                return $this->BadRequest('Il codice fiscale non corrisponde alla persona selezionata.');
+            }
+
             $document_path = $this->anagrafica_handle_file();
             $already_existed = false;
 
@@ -368,6 +372,7 @@ extends Controller
                 nome_file: $document_path,
 
                 already_existing: $already_existed,
+                allowStaffUpdate: $this->getUser()->Admin,
             );
 
             if (!empty($id))
@@ -469,11 +474,24 @@ extends Controller
 
         if ($this->IsPost())
         {
-            if (empty($parrocchia) || empty($taglia))
+            $shirt = Taglia::tryFrom($taglia ?? '');
+            if (empty($parrocchia) || $shirt === null)
                 return $this->BadRequest();
 
-            if (empty($edizione))
-                $edizione = Edizione::Current(connection: $this->DB)->Id;
+            $iscrizione = null;
+            if (!empty($id_iscrizione)) {
+                if (!$this->getUser()->Admin)
+                    return $this->NotAuthorized();
+
+                $iscrizione = Iscrizione::ById($this->DB, $id_iscrizione);
+                if ($iscrizione === null || Iscrizione::IdAnagraficaAssociata($this->DB, $id_iscrizione) !== $id)
+                    return $this->NotFound();
+
+            }
+
+            $edizione ??= Edizione::Current(connection: $this->DB)?->Id;
+            if (!$edizione)
+                return $this->NotFound();
 
             //
             // Handle the submitted files
@@ -502,16 +520,11 @@ extends Controller
             //
             // Handle the submitted data
             //
-            if (!empty($id_iscrizione))
+            if ($iscrizione !== null)
             {
-                // We are editing a subscription
-                $iscrizione = Iscrizione::ById(connection: $this->DB, id: $id_iscrizione);
-                if ($iscrizione === null)
-                    return $this->NotFound();
-
                 $iscrizione->Parrocchia->Id = $parrocchia;
                 $iscrizione->IdTutore = empty($tutore) ? null : $tutore;
-                $iscrizione->Taglia = Taglia::from(value: $taglia);
+                $iscrizione->Taglia = $shirt;
                 $res = $iscrizione->Update(connection: $this->DB);
 
                 if ($res && !empty($uploaded_file_path))
@@ -532,7 +545,7 @@ extends Controller
                     tutore: empty($tutore) ? null : $tutore, 
                     certificato: $uploaded_file_path, 
                     parrocchia: $parrocchia, 
-                    taglia: Taglia::from(value: $taglia), 
+                    taglia: $shirt, 
                     edizione: $edizione,
                 );
             }
@@ -575,17 +588,17 @@ extends Controller
         );
     }
 
-    #[RequireStaff]
+    #[RequireLogin(requireAdmin: true)]
     public function delete_iscrizione(?int $id = null): StatusCode
     {
         if ($this->IsPost())
         {
+            if (!$id)
+                return $this->BadRequest();
+
             $target = Iscrizione::ById(connection: $this->DB, id: $id);
             if ($target === null)
                 return $this->NotFound();
-
-            if (!$this->User->Admin && $target->Parrocchia->Id !== $this->Staff()->Parrocchia->Id)
-                return $this->NotAuthorized();
             
             if (Iscrizione::Delete(connection: $this->DB, id: $id)) {
                 $this->Message(message: Message::Success(content: 'Iscrizione cancellata'));
@@ -597,7 +610,7 @@ extends Controller
         return $this->anagrafiche();
     }
 
-    #[RequireLogin]
+    #[RequireLogin(requireAdmin: true)]
     public function modifica_iscrizione(?int $id = null): StatusCode
     {
         if (empty($id))
@@ -725,6 +738,10 @@ extends Controller
         ?string $score,
     ): StatusCode
     {
+        if (!$this->IsPost()) {
+            $this->PostRequired();
+        }
+
         if (!PunteggioParrocchia::Insert(
             connection: $this->DB, 
             edizione: $edition, 

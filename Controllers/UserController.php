@@ -21,6 +21,10 @@ extends Controller
     #[RequireLogin]
     public function logout(): StatusCode
     {
+        if (!$this->IsPost()) {
+            $this->PostRequired();
+        }
+
         $this->getUser()->Logout();
         Cookie::DeleteIfExists(name: "login_forward");
         return $this->Redirect(url: File::getInstallationPath() . '/');
@@ -29,6 +33,10 @@ extends Controller
     #[RequireLogin(requireAdmin: true)]
     public function delete(?int $target_id): StatusCode
     {
+        if (!$this->IsPost()) {
+            $this->PostRequired();
+        }
+
         if (!isset($target_id))
             return $this->NotFound();
         
@@ -120,6 +128,10 @@ extends Controller
     #[RequireLogin(requireAdmin: true)]
     public function ban(?int $target_id): StatusCode
     {
+        if (!$this->IsPost()) {
+            $this->PostRequired();
+        }
+
         if (User::Ban(connection: $this->DB, id: $target_id)) {
             $this->Message(message: Message::Success(content: 'Utente bloccato'));
         } else {
@@ -132,6 +144,10 @@ extends Controller
     #[RequireLogin(requireAdmin: true)]
     public function restore(?int $target_id): StatusCode
     {
+        if (!$this->IsPost()) {
+            $this->PostRequired();
+        }
+
         if (User::Restore(connection: $this->DB, id: $target_id)) {
             $this->Message(message: Message::Success(content: 'Utente sbloccato'));
         } else {
@@ -150,6 +166,7 @@ extends Controller
         {
             $message = Security::Recaptcha3Validation(
                 g_recaptcha_response: $g_recaptcha_response,
+                action: 'password_recover',
             );
             if (isset($message)) {
                 return null;
@@ -181,13 +198,17 @@ extends Controller
             user_id: $user->Id,
             email: $anagrafica->Email,
             requesting_ip: Security::GetIpAddress(),
-            requesting_browser: $_SERVER['HTTP_USER_AGENT'],
+            requesting_browser: $_SERVER['HTTP_USER_AGENT'] ?? '',
         );
     }
 
     private function password_recover_send_mail(Token $token): bool
     {
-        $installation_url = DOMAIN . File::getInstallationPath();
+        $domain = Security::LoadEnvironmentOrFromFile(var: 'DOMAIN');
+        if ($domain === null || !preg_match('/^[a-z0-9.-]+(?::[0-9]+)?$/iD', $domain)) {
+            return false;
+        }
+        $installation_url = htmlspecialchars($domain . File::getInstallationPath());
         ob_start();
         ?>
         <p>
@@ -295,16 +316,25 @@ extends Controller
         ) 
             return 'Token non valido, scaduto o già usato';
 
-        if (!$token->Use(connection: $this->DB))
-            return 'Impossibile reclamare il token';
-
         $user = User::ById(connection: $this->DB, id: $token->UserId);
-        if ($user === null) 
-            return 'Dati del server non sincronizzati';
+        if ($user === null || $user->IsBanned)
+            return 'Token non valido, scaduto o già usato';
 
-        if (!$user->ForceSetNewPassword(connection: $this->DB, new_password: $password)) 
-            return 'Impossibile impostare la nuova password. Contattare un amministratore';
-
+        $this->DB->begin_transaction();
+        try {
+            if (!$token->Use(connection: $this->DB)) {
+                $this->DB->rollback();
+                return 'Impossibile reclamare il token';
+            }
+            if (!$user->ForceSetNewPassword(connection: $this->DB, new_password: $password)) {
+                $this->DB->rollback();
+                return 'Impossibile impostare la nuova password. Contattare un amministratore';
+            }
+            $this->DB->commit();
+        } catch (\Throwable $exception) {
+            $this->DB->rollback();
+            throw $exception;
+        }
         return null;
     }
 
@@ -344,7 +374,7 @@ extends Controller
                         connection: $this->DB,
                         username: $user->Name,
                         password: $password,
-                        user_agent: $_SERVER['HTTP_USER_AGENT'],
+                        user_agent: $_SERVER['HTTP_USER_AGENT'] ?? '',
                         user_ip: Security::GetIpAddress(),
                     );
 
@@ -479,7 +509,11 @@ extends Controller
         #[\SensitiveParameter] string $password, 
     ): string
     {
-        $installation_url = DOMAIN . File::getInstallationPath();
+        $domain = Security::LoadEnvironmentOrFromFile(var: 'DOMAIN');
+        if ($domain === null || !preg_match('/^[a-z0-9.-]+(?::[0-9]+)?$/iD', $domain)) {
+            return false;
+        }
+        $installation_url = htmlspecialchars($domain . File::getInstallationPath());
         ob_start();
         ?>
             <h3>Benvenuto/a</h3>

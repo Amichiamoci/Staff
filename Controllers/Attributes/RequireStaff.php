@@ -19,7 +19,7 @@ implements Attribute
 
     public function DoWork(BaseController $controller, string $action, array $parameters): void
     {
-        Controller::RequireStaff(
+        Controller::_RequireStaff(
             controller: $controller, 
             requireAdmin: $this->requireAdmin,
             loginPath: $this->loginPath,

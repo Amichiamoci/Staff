@@ -8,7 +8,7 @@ assert(isset($edizioni) && is_array($edizioni), 'var $edizioni not valid');
 
 ?>
 <h1>
-    Edizioni di <?= SITE_NAME ?>
+    Edizioni di <?= htmlspecialchars(SITE_NAME) ?>
 </h1>
 <ul class="listgroup-flush">
     <?php foreach ($edizioni as $e) { 

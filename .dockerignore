@@ -4,5 +4,6 @@ data
 ./vendor
 ./.git
 .env
+.env.*
 .gitignore
 docs
