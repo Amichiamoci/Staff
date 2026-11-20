@@ -1,9 +1,7 @@
-on: 
+on:
   push:
     branches:
       - main
-      - test
-  workflow_dispatch:
 
 name: FTP deploy to server
 jobs:
@@ -13,19 +11,17 @@ jobs:
     steps:
 
       - name: 🚚 Get latest code
-        uses: actions/checkout@v5
-        with: 
-          ref: ${{ github.head_ref }}
+        uses: actions/checkout@v7
 
       - name: Setup Doxygen
         run: sed -i 's/^OUTPUT_DIRECTORY[[:space:]]*=[[:space:]]*docs$/OUTPUT_DIRECTORY = docs_tmp/' ./Doxyfile
-      
+
       - name: Generate Doxygen Documentation
         uses: mattnotmitt/doxygen-action@1.12.0
 
       - name: Rename output folder
         run: cp -R ./docs_tmp/html ./docs
-        
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -35,30 +31,28 @@ jobs:
           coverage: none
         env:
           update: true
-        
+
       - name: Cache php libraries
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         id: cache
         with:
           path: ./vendor/
           key: ${{ runner.os }}-php84-vendor-${{ hashFiles('./composer.lock') }}
-        
+
       - name: Install php Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: nick-invision/retry@v2
+        uses: nick-invision/retry@v4
         with:
           timeout_minutes: 5
           max_attempts: 5
           command: composer install --no-interaction --no-progress --optimize-autoloader --no-dev
-        
+
       - name: Prepare deployment configuration
-        id: deploy-path
         env:
-          BRANCH: ${{ github.ref_name }}
           MYSQL_HOST: ${{ secrets.DB_ADDRESS }}
           MYSQL_USER: ${{ secrets.DB_USER }}
           MYSQL_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          MYSQL_DB: ${{ github.ref_name == 'main' && secrets.DB_MASTER_DATABASE || secrets.DB_TEST_DATABASE }}
+          MYSQL_DB: ${{ secrets.DB_MASTER_DATABASE }}
           RECAPTCHA_PUBLIC_KEY: ${{ secrets.RECAPTCHA_SITE_KEY }}
           RECAPTCHA_SECRET_KEY: ${{ secrets.RECAPTCHA_SECRET }}
           MAIL_OUTPUT_ADDRESS: ${{ secrets.SMTP_USER }}
@@ -84,34 +78,24 @@ jobs:
           values = {key: os.environ[key] for key in keys}
           values["DOMAIN"] = "amichiamoci.it"
           values["SESSION_COOKIE_SECURE"] = "1"
-          if os.environ["BRANCH"] == "main":
-              path = "admin/"
-              values["ENABLE_API"] = "true"
-          else:
-              path = "admin_test/"
-              values["SITE_NAME"] = "Amichiamoci TEST"
-              values["CRON_CAPTURE_OUTGOING_ADDRESS"] = "dummy"
+          values["ENABLE_API"] = "true"
 
           with open(".env", "w", encoding="utf-8") as env_file:
               for key, value in values.items():
                   encoded = json.dumps(value, ensure_ascii=False).replace("$", r"\$")
                   env_file.write(f"{key}={encoded}\n")
-          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
-              output.write(f"path={path}\n")
           PYTHON
 
       - name: Copy .htaccess
         run: cp ./docker/apache.htaccess ./.htaccess
 
       - name: 📂 Sync files
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
           server: ${{ secrets.FTP_ENDPOINT }}
           username: ${{ secrets.FTP_USER }}
           password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: ${{ secrets.FTP_FOLDER_BASE }}${{ steps.deploy-path.outputs.path }}
-          protocol: ftps
-          security: strict
+          server-dir: ${{ secrets.FTP_FOLDER_BASE }}admin/
           log-level: minimal
           exclude: |
             **/.git*
@@ -128,4 +112,3 @@ jobs:
             **/queries/**
             **/.vscode/**
             Doxyfile
-          

@@ -45,8 +45,6 @@ Conserva password e token in un gestore di segreti o in un file locale protetto.
 
 Per costruire l'immagine dalla copia locale usa `docker build -t amichiamoci/staff:local .` e passa quel tag a `docker run`.
 
-Il workflow di deploy richiede FTPS con un certificato valido.
-
 ## Installazione con Apache
 
 1. Installa PHP 8.4 o successivo con `mysqli`, `gd`, `mbstring` e `fileinfo`, Composer 2 e il client `mariadb`. Usa `composer check-platform-reqs` per verificare l'ambiente.
@@ -58,8 +56,6 @@ Il workflow di deploy richiede FTPS con un certificato valido.
 Per respingere le richieste ai percorsi della lista di blocco prima della ricerca sul filesystem, includi `docker/apache-early.conf` nel virtual host dedicato con il portale come `DocumentRoot`. Su hosting condiviso, `.htaccess` restituisce lo stesso 404 senza avviare PHP, dopo che Apache ha cercato il file di configurazione. Le richieste alle directory degli asset possono richiedere una verifica del file sul disco. Aggiungi `env=!staff_rejected` al `CustomLog` del virtual host per escludere dal log di accesso i 404 prodotti dalle regole di riscrittura. Nginx esclude già i propri 404 dal log di accesso.
 
 I server web bloccano le richieste a file nascosti, percorsi PHP diretti, WordPress e pannelli di controllo. Il router PHP gestisce gli altri URL applicativi e restituisce 404 se il percorso non esiste. Le nuove azioni PHP sono disponibili senza modifiche alla configurazione del server web.
-
-Per abilitare la registrazione delle aperture delle nuove email, imposta `MAIL_OPEN_SIGNING_KEY` con un valore casuale di almeno 32 caratteri e configura lo stesso secret nel workflow FTPS. I pixel delle email già inviate senza firma continuano a rispondere, senza aggiornare lo storico.
 
 La gestione dei tornei e dei risultati, la modifica delle anagrafiche collegate agli account staff e la modifica o cancellazione delle iscrizioni esistenti richiedono un amministratore.
 
