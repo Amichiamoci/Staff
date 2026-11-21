@@ -2,7 +2,6 @@
 
 [![Build Docker](https://github.com/Amichiamoci/Staff/actions/workflows/docker.yml/badge.svg)](https://github.com/Amichiamoci/Staff/actions/workflows/docker.yml)
 [![Deploy FTP](https://github.com/Amichiamoci/Staff/actions/workflows/ftp-deploy.yml/badge.svg)](https://github.com/Amichiamoci/Staff/actions/workflows/ftp-deploy.yml)
-[![Analisi PHP](https://github.com/Amichiamoci/Staff/actions/workflows/phpmd.yml/badge.svg)](https://github.com/Amichiamoci/Staff/actions/workflows/phpmd.yml)
 [![PHP 8.4+](https://img.shields.io/badge/PHP-8.4%2B-777BB4?logo=php&logoColor=white)](composer.json)
 
 Portale riservato allo staff della manifestazione [Amichiamoci](https://www.amichiamoci.it) per gestire iscrizioni, squadre, tornei e partite.
