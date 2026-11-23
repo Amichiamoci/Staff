@@ -1,3 +1,12 @@
+<p align="center">
+    <img
+        src="Public/images/banner.png"
+        alt="Amichiamoci"
+        width="512"
+        height="172"
+    >
+</p>
+
 # Portale Staff Amichiamoci
 
 [![Test Docker](https://github.com/Amichiamoci/Staff/actions/workflows/tests.yml/badge.svg)](https://github.com/Amichiamoci/Staff/actions/workflows/tests.yml)
@@ -27,15 +36,24 @@ flowchart LR
     cron["Cron"] --> app
     app --> db[(MariaDB)]
     app --> local["Archivio locale (staff:///)"]
-    app -.-> drive["Google Drive cifrato (opzionale)"]
+    app -.-> drive["Google Drive cifrato (drive:///)"]
     app -->|Invio email| smtp["Server SMTP"]
 ```
 
 ## Installazione
 
-### Docker
+<h3>
+    <img
+        src="https://cdn.simpleicons.org/docker/2496ED"
+        alt=""
+        width="24"
+        height="24"
+        loading="lazy"
+    >
+    Docker
+</h3>
 
-Prepara un database MariaDB vuoto con codifica `utf8mb4` e un utente dedicato con permessi per creare tabelle, viste e routine.
+Prepara un database MariaDB vuoto in codifica utf8mb4 e un utente con permessi per creare tabelle, viste e routine.
 Se MariaDB è in un altro container, collega i due container alla stessa rete Docker e usa il nome del servizio come `MYSQL_HOST`.
 
 Configura un file `.env` con le variabili descritte di seguito e limita l’accesso al file con `chmod 600 .env`.
@@ -52,19 +70,112 @@ Il container inizializza lo schema su un database vuoto e avvia il cron.
 In produzione, usa un reverse proxy HTTPS che conservi l’host pubblico e imposta `SESSION_COOKIE_SECURE=1`.
 Prima di aggiornare un’installazione esistente, salva un backup del database e del volume dati.
 
-### Apache
+### Preparazione comune per Apache e NGINX
 
-Installa PHP 8.4 o successivo con `mysqli`, `gd`, `mbstring`, `fileinfo` e `sodium`, Composer 2 e il client `mariadb`.
+Installa PHP-FPM 8.4 o successivo con `mysqli`, `gd`, `mbstring`, `fileinfo` e `sodium`, Composer 2 e il client `mariadb`.
 Installa le dipendenze con `composer install --no-interaction --prefer-dist --optimize-autoloader` e verifica l’ambiente con `composer check-platform-reqs`.
 
-Configura un virtual host HTTPS con `mod_rewrite` e applica `docker/apache.htaccess` nella directory del progetto.
-Se usi `.htaccess`, abilita le direttive richieste tramite `AllowOverride`.
-Con il portale come `DocumentRoot` puoi anche includere `docker/apache-early.conf` per bloccare i percorsi vietati prima della ricerca sul filesystem.
-Usa un formato di log di accesso privo di query string.
-
+Prepara un database MariaDB vuoto e configura il file `.env`, includendo le credenziali del primo amministratore.
 Crea le directory `data/documenti`, `data/certificati`, `data/tmp/cron` e `data/log` e rendile scrivibili dall’utente PHP.
-Prepara il database e il file `.env`, poi esegui `php script/build-database.php`.
-Pianifica `php /percorso/del/progetto/script/cron.php` nel cron di sistema con l’utente del servizio PHP.
+Esegui `php script/build-database.php` e pianifica `php /srv/amichiamoci/script/cron.php` nel cron di sistema con l’utente PHP.
+
+Gli esempi usano un host locale sulla porta 8080 e presuppongono che il progetto sia in `/srv/amichiamoci`.
+Sostituisci il percorso del socket con quello del tuo pool PHP-FPM.
+Per un’installazione pubblica configura HTTPS sul server o sul reverse proxy e imposta `DOMAIN` e `SESSION_COOKIE_SECURE=1`.
+
+<h3>
+    <img
+        src="https://cdn.simpleicons.org/apache/D22128"
+        alt=""
+        width="24"
+        height="24"
+        loading="lazy"
+    >
+    Apache
+</h3>
+
+Installa Apache HTTP Server e abilita i moduli rewrite, proxy e proxy_fcgi.
+
+Copia `docker/apache.htaccess` come `.htaccess` nella radice del progetto e abilita il virtual host.
+Verifica la configurazione con `apachectl configtest`, quindi ricarica Apache.
+Consulta la [documentazione Apache per PHP-FPM](https://httpd.apache.org/docs/2.4/mod/mod_proxy_fcgi.html).
+
+<details>
+    <summary>Configurazione minima di Apache</summary>
+
+```apache
+Listen 127.0.0.1:8080
+
+<VirtualHost 127.0.0.1:8080>
+    ServerName localhost
+    DocumentRoot "/srv/amichiamoci"
+
+    <Directory "/srv/amichiamoci">
+        Options FollowSymLinks
+        AllowOverride FileInfo Options
+        Require all granted
+
+        <Files "index.php">
+            SetHandler "proxy:unix:/run/php/php8.5-fpm.sock|fcgi://localhost/"
+        </Files>
+    </Directory>
+
+    CustomLog "/var/log/apache2/amichiamoci-access.log" "%h %t %m %U %>s"
+</VirtualHost>
+```
+
+</details>
+
+<h3>
+    <img
+        src="https://cdn.simpleicons.org/nginx/009639"
+        alt=""
+        width="24"
+        height="24"
+        loading="lazy"
+    >
+    NGINX
+</h3>
+
+Installa NGINX e avvia il servizio PHP-FPM.
+
+Aggiungi un file per il portale nella configurazione HTTP di NGINX, ad esempio `/etc/nginx/conf.d/amichiamoci.conf`.
+Verifica la configurazione con `nginx -t`, quindi ricarica NGINX.
+Consulta la [documentazione NGINX per FastCGI](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html).
+
+<details>
+    <summary>Configurazione minima di NGINX</summary>
+
+```nginx
+log_format amichiamoci '$remote_addr [$time_local] "$request_method $uri" $status';
+
+server {
+    listen 127.0.0.1:8080;
+    server_name localhost;
+    root /srv/amichiamoci;
+    access_log /var/log/nginx/amichiamoci-access.log amichiamoci;
+
+    if ($uri ~* "(^|/)\\.|\\.(php[0-9]*|phtml|phar)([./]|$)") {
+        return 404;
+    }
+
+    location ~ ^/(css|js|images|quill)/ {
+        rewrite ^ /Public$uri last;
+    }
+
+    location ~ ^/(Public|docs)/ {
+        try_files $uri =404;
+    }
+
+    location / {
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root/index.php;
+        fastcgi_pass unix:/run/php/php8.5-fpm.sock;
+    }
+}
+```
+
+</details>
 
 ## Variabili d’ambiente
 
@@ -154,19 +265,18 @@ I servizi MariaDB e phpMyAdmin in `.vscode/docker-compose.yml` usano variabili p
 | `PHP_VERSION` | Serie del runtime PHP nell’immagine, predefinita `8.5`. |
 | `DEBUG_APP` | Imposta `1` durante la build per includere Xdebug, le dipendenze di sviluppo e la documentazione Doxygen. |
 
-## Verifiche e pubblicazione
+## Immagini Docker disponibili
 
-GitHub Actions esegue i test in Docker con PHP 8.4, 8.5 e 8.6 e un MariaDB temporaneo.
-Dopo i test passa alla pubblicazione dell’immagine `:nighly` su Docker Hub e GHCR a ogni push.
+L'applicazione è disponibile come `amichiamoci/staff` su Docker Hub e come `ghcr.io/amichiamoci/staff` su GitHub Container Registry.
 
-Il workflow manuale **Create GitHub release** verifica il commit e pubblica un tag stabile come `v1.2.3`.
-Configura il segreto repository `RELEASE_TOKEN` con il permesso **Contents: Read and write** per attivare i workflow avviati dalla release.
-Dopo i test, questi workflow pubblicano le immagini `:latest` e `:v1.2.3` e caricano l’applicazione sul server di produzione via FTP.
-Vedi la [documentazione di GitHub Actions](https://docs.github.com/en/actions/using-workflows/triggering-a-workflow).
+- [Docker Hub](https://hub.docker.com/r/amichiamoci/staff/tags)
+- [GitHub Container Registry](https://github.com/orgs/Amichiamoci/packages/container/package/staff)
 
-Per le verifiche locali esegui `sh tests/run.sh PORTA` con Composer 2 e un MariaDB di prova in ascolto su loopback, database `fixture` e utente root locale senza password.
-I test usano dati sintetici e un database separato.
-Esegui `composer audit --locked` dopo una modifica alle dipendenze.
+| Tag | Contenuto |
+| --- | --- |
+| `:latest` | Immagine della release più recente pubblicata. |
+| `:v1.2.3` | Immagine di una specifica release, identificata dal suo numero di versione. |
+| `:nighly` | Immagine di sviluppo con le modifiche più recenti, adatta alle prove. |
 
 ## Licenze dei componenti inclusi
 
