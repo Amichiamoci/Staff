@@ -5,6 +5,11 @@ use Amichiamoci\Models\Templates\Anagrafica as AnagraficaBase;
 assert(isset($user) && ($user instanceof User), 'var $user not valid');
 assert(isset($P) && is_string($P), 'var $P not valid');
 assert(isset($parrocchie) && is_array($parrocchie), 'var $parrocchie not valid');
+assert(!isset($staff) || $staff instanceof Staff, 'var $staff not valid');
+if (isset($target)) {
+    assert($target instanceof User, 'var $target not valid');
+    assert(isset($anagrafiche) && is_array($anagrafiche), 'var $anagrafiche not valid');
+}
 
 ?>
 <?php if (isset($target)) { ?>
@@ -18,11 +23,23 @@ assert(isset($parrocchie) && is_array($parrocchie), 'var $parrocchie not valid')
     <?php return; ?>
 <?php } ?>
 
-<form method="post" id="staff-form">
+<form
+    method="post"
+    id="staff-form"
+>
     <?php if (isset($target)) { ?>
-        <input type="hidden" name="account" value="<?= $target->Id ?>">
+        <input
+            type="hidden"
+            name="account"
+            value="<?= $target->Id ?>"
+        >
         <div class="form-floating mb-3">
-            <select id="anagrafica" name="anagrafica" class="form-select" required>
+            <select
+                id="anagrafica"
+                name="anagrafica"
+                class="form-select"
+                required
+            >
                 <option value="">Scegli</option>
                 <?php foreach ($anagrafiche as $anagrafica) {
                     if (!($anagrafica instanceof AnagraficaBase)) continue;
@@ -37,7 +54,8 @@ assert(isset($parrocchie) && is_array($parrocchie), 'var $parrocchie not valid')
     <?php } ?>
     <div class="form-floating mb-3">
         <select
-            id="parrocchia" name="parrocchia"
+            id="parrocchia"
+            name="parrocchia"
             required
             class="form-control"
             title="Parrocchia"
@@ -66,7 +84,11 @@ assert(isset($parrocchie) && is_array($parrocchie), 'var $parrocchie not valid')
     </div>
 
     <div class="col-12 mt-2">
-        <button class="btn btn-primary" type="submit">
+        <button
+            class="btn btn-primary"
+            type="submit"
+            title="Salva i dati dello staffista"
+        >
             <?php if (!isset($target)) { ?>
                 Modifica i dati
             <?php } else { ?>

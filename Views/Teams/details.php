@@ -36,7 +36,10 @@ if (is_string(value: $team->Referenti)) {
             </small>
         </div>
         <?php if ($user->Admin) { ?>
-            <a href="<?= $P ?>/teams/edit?id=<?= $team->Id ?>" class="btn btn-outline-primary btn-sm">
+            <a  href="<?= $P ?>/teams/edit?id=<?= $team->Id ?>"
+                class="btn btn-outline-primary btn-sm"
+                title="Modifica squadra"
+            >
                 <i class="bi bi-pencil-square"></i>
                 Modifica squadra
             </a>
@@ -75,9 +78,13 @@ if (is_string(value: $team->Referenti)) {
                         <div class="d-flex justify-content-between align-items-start gap-3">
                             <div class="d-flex align-items-start gap-2">
                                 <?php if (!empty($member['HaProblemi'])) { ?>
-                                    <i class="bi bi-x-circle-fill text-danger fs-5" title="Problemi"></i>
+                                    <i  class="bi bi-x-circle-fill text-danger fs-5"
+                                        title="Problemi"
+                                    ></i>
                                 <?php } else { ?>
-                                    <i class="bi bi-check-circle-fill text-success fs-5" title="Nessun problema"></i>
+                                    <i  class="bi bi-check-circle-fill text-success fs-5"
+                                        title="Nessun problema"
+                                    ></i>
                                 <?php } ?>
                                 <div>
                                     <div class="fw-semibold">

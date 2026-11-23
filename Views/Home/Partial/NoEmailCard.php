@@ -1,4 +1,7 @@
 <?php
+
+assert(isset($P) && is_string($P), 'var $P not valid');
+
     $card_name= 'no_email';
     $card_title = 'Anagrafiche senza email';
     $card_subtitle = 

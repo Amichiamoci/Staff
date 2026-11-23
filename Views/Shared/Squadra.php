@@ -14,12 +14,14 @@ assert(isset($P) && is_string($P), 'var $P not valid');
 $allow_edits = $user->Admin;
 ?>
 
-<div class="card" id="squadra-<?= $squadra->Id ?>">
+<div
+    class="card"
+    id="squadra-<?= $squadra->Id ?>"
+>
     <div class="card-header user-select-none">
         <div class="d-flex align-items-center justify-content-between gap-2">
             <div class="d-flex align-items-center gap-2">
-                <a
-                    href="<?= $P ?>/teams/details?id=<?= $squadra->Id ?>"
+                <a  href="<?= $P ?>/teams/details?id=<?= $squadra->Id ?>"
                     class="link-underline link-underline-opacity-0 link-primary"
                     title="Vedi la distinta di <?= htmlspecialchars(string: $squadra->Nome) ?>"
                 >
@@ -30,27 +32,45 @@ $allow_edits = $user->Admin;
                 </strong>
             </div>
             <span>
-                <a  <?php if ($allow_edits) { ?>
-                        href="<?= $P ?>/teams/edit?id=<?= $squadra->Id ?>"
-                        class="link-underline link-underline-opacity-0 link-primary"
-                        title="Modifica <?= htmlspecialchars(string: $squadra->Nome) ?>"
+                <a
+                    <?php if ($allow_edits) { ?>
+                    href="<?= $P ?>/teams/edit?id=<?= $squadra->Id ?>"
+                    class="link-underline link-underline-opacity-0 link-primary"
+                    title="Modifica <?= htmlspecialchars(string: $squadra->Nome) ?>"
                     <?php } else { ?>
-                        href="javascript:alert('Non più possibile!')"
-                        class="link-underline link-underline-opacity-0 link-secondary"
-                        title="Non più possibile modificare la squadra"
+                    href="javascript:alert('Non più possibile!')"
+                    class="link-underline link-underline-opacity-0 link-secondary"
+                    title="Non più possibile modificare la squadra"
                     <?php } ?>
                 >
                     <i class="bi bi-pencil-square"></i>
                 </a>
             </span>
             <?php if ($user->Admin) { ?>
-                <form action="<?= $P ?>/teams/delete" method="post" class="d-inline">
-                    <input type="hidden" name="id" value="<?= $squadra->Id ?>" required>
-                    <input type="hidden" name="year" value="<?= $anno ?>">
-                    <input type="hidden" name="church" value="<?= $squadra->Parrocchia->Id ?>">
-                    <button 
-                        type="submit" 
-                        class="btn btn-link link-underline link-underline-opacity-0 link-danger p-0" 
+                <form
+                    action="<?= $P ?>/teams/delete"
+                    method="post"
+                    class="d-inline"
+                >
+                    <input
+                        type="hidden"
+                        name="id"
+                        value="<?= $squadra->Id ?>"
+                        required
+                    >
+                    <input
+                        type="hidden"
+                        name="year"
+                        value="<?= $anno ?>"
+                    >
+                    <input
+                        type="hidden"
+                        name="church"
+                        value="<?= $squadra->Parrocchia->Id ?>"
+                    >
+                    <button
+                        type="submit"
+                        class="btn btn-link link-underline link-underline-opacity-0 link-danger p-0"
                         title="Elimina"
                         data-confirm="Sicuro di voler cancellare la squadra?"
                         data-confirm-btn="Sì, cancella"
@@ -104,8 +124,7 @@ $allow_edits = $user->Admin;
         <ul class="list-group list-group-flush">
             <?php foreach ($squadra->MembriFull() as $id_anagrafica => $nome) { ?>
                 <li class="list-group-item pt-0 border-0">
-                    <a 
-                        href="<?= $P ?>/staff/edit_anagrafica?id=<?= $id_anagrafica ?>"
+                    <a  href="<?= $P ?>/staff/edit_anagrafica?id=<?= $id_anagrafica ?>"
                         class="text-reset link-underline link-underline-opacity-0"
                         title="Modifica i dati"
                     >

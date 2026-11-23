@@ -59,6 +59,8 @@ class Squadra extends NomeIdSemplice
         $this->Referenti = $referenti;
     }
     
+
+    /** Lists teams with optional year and sport filters. */
     public static function All(
         \mysqli $connection, 
         string|int|null $year = null, 
@@ -101,6 +103,7 @@ class Squadra extends NomeIdSemplice
         return $arr;
     }
 
+    /** Lists teams belonging to one parish for the given year. */
     public static function FromParrocchia(
         \mysqli $connection, 
         int $parrocchia, 
@@ -113,6 +116,7 @@ class Squadra extends NomeIdSemplice
         });
     }
 
+    /** Looks up the team name for an ID. */
     public static function NomeFromId(\mysqli $connection, int $id) : ?string
     {
         if (!$connection || $id === 0)
@@ -136,6 +140,7 @@ class Squadra extends NomeIdSemplice
         return $ret;
     }
 
+    /** Deletes a team by ID and reports whether the operation succeeded. */
     public static function Delete(\mysqli $connection, int $id) : bool
     {
         if (!$connection)
@@ -147,6 +152,7 @@ class Squadra extends NomeIdSemplice
         return (bool)$result && $connection->affected_rows === 1;
     }
 
+    /** Loads the team and its roster metadata. */
     public static function ById(\mysqli $connection, int $id) : ?self
     {
         if (!$connection || $id === 0)
@@ -184,6 +190,7 @@ class Squadra extends NomeIdSemplice
         return $squadra;
     }
 
+    /** Saves the team and its members, passing an existing ID when updating a team. */
     public static function Create(
         \mysqli $connection, 
         string $nome, 

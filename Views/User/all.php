@@ -1,9 +1,19 @@
+<?php
+
+assert(isset($P) && is_string($P), 'var $P not valid');
+assert(isset($users) && is_array($users), 'var $users not valid');
+
+?>
+
 <h1>
     Lista utenti
 </h1>
 <div class="row">
     <?php foreach ($users as $user_info) { ?>
-        <div class="col col-xs-12 col-sm-6 col-md-4 col-xl-3" id="user-<?= $user_info->Id ?>">
+        <div
+            class="col col-xs-12 col-sm-6 col-md-4 col-xl-3"
+            id="user-<?= $user_info->Id ?>"
+        >
             <div class="card m-1">
                 <div class="card-header">
                     <span class="user-select-none text-secondary">
@@ -21,8 +31,8 @@
                 <div class="card-body">
                     <?php if (!empty($user_info->RealName) && !empty($user_info->IdStaff)) { ?>
                         <h5 class="card-title mb-2">
-                            <a  href="<?= $P ?>/staff/view?id=<?= $user_info->IdStaff ?>" 
-                                class="text-reset link-underline-opacity-0" 
+                            <a  href="<?= $P ?>/staff/view?id=<?= $user_info->IdStaff ?>"
+                                class="text-reset link-underline-opacity-0"
                                 title="Vai"
                             >
                                 <?= htmlspecialchars(string: $user_info->RealName) ?>

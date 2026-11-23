@@ -6,6 +6,8 @@ use Amichiamoci\Models\Api\Call as ApiCall;
 
 trait Staff
 {
+
+    /** Prepares the API roster of staff in the current edition. */
     protected function staff_list(): ApiCall
     {
         return new ApiCall(
@@ -22,6 +24,7 @@ trait Staff
         );
     }
 
+    /** Resolves the app’s user claims for the given email address. */
     protected function get_user_claims(string $Email): ApiCall
     {
         return new ApiCall(
@@ -36,6 +39,7 @@ trait Staff
         );
     }
 
+    /** Looks up staff email addresses by name and surname. */
     protected function get_staff_email(string $Name, string $Surname): ApiCall
     {
         return new ApiCall(

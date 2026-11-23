@@ -6,6 +6,8 @@ use Amichiamoci\Models\Api\Call as ApiCall;
 
 trait Partita
 {
+
+    /** Finds today’s matches for a participant identified by email. */
     protected function today_matches_of(string $Email): ApiCall
     {
         $query = "SELECT * FROM `partite_oggi_persona` WHERE LOWER(TRIM(`email`)) = LOWER(TRIM(?))";
@@ -75,6 +77,7 @@ trait Partita
         );
     }
 
+    /** Finds today’s matches for the requested sports area. */
     protected function today_matches_sport(string $Sport): ApiCall
     {
         $query = "SELECT * FROM `partite_oggi` WHERE UPPER(`area_sport`) = UPPER(?)";
@@ -87,6 +90,7 @@ trait Partita
         );
     }
 
+    /** Prepares the joint list of today’s and yesterday’s matches. */
     protected function today_and_yesterday_matchest(): ApiCall
     {
         return new ApiCall(
@@ -97,6 +101,7 @@ trait Partita
         );
     }
 
+    /** Maps match, teams, venue, and result data to the shared API payload. */
     private static function parse_partita(array $r): array
     {
         $arr = [
@@ -161,6 +166,7 @@ trait Partita
         return $arr;
     }
 
+    /** Prepares a call that stores the home and guest scores for a match. */
     protected function add_result(int $Id, string $Home, string $Guest): ApiCall
     {
         $home = trim($Home);
@@ -180,6 +186,7 @@ trait Partita
         );
     }
 
+    /** Prepares deletion of an individual score row. */
     protected function delete_result(int $Id): ApiCall
     {
         return new ApiCall(
@@ -187,6 +194,7 @@ trait Partita
         );
     }
 
+    /** Lists the venues associated with active matches. */
     protected function all_fields(): ApiCall
     {
         return new ApiCall(

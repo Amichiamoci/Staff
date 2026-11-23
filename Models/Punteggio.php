@@ -28,6 +28,7 @@ class Punteggio implements DbEntity
         $this->Ospiti = $ospiti;
     }
 
+    /** Expands the aggregated score fields into individual score objects for one match. */
     public static function Decompress(
         string|array|null $id,
         string|array|null $casa,
@@ -83,6 +84,7 @@ class Punteggio implements DbEntity
         return $arr;
     }
 
+    /** Finds an individual score by ID. */
     public static function ById(\mysqli $connection, int $id): ?self
     {
         if (!$connection)
@@ -106,6 +108,7 @@ class Punteggio implements DbEntity
         );
     }
 
+    /** Removes a score without deleting its match. */
     public static function Delete(\mysqli $connection, int $id): bool
     {
         if (!$connection)
@@ -115,6 +118,7 @@ class Punteggio implements DbEntity
         return (bool)$result && $connection->affected_rows === 1;
     }
 
+    /** Updates the home and guest values for a score row. */
     public static function Edit(\mysqli $connection, int $id, string $casa, string $ospiti): bool
     {
         if (!$connection)
@@ -132,6 +136,7 @@ class Punteggio implements DbEntity
         return (bool)$result && $connection->affected_rows === 1;
     }
 
+    /** Provides the model interface’s currently unsupported unfiltered list as an empty array. */
     public static function All(\mysqli $connection): array
     {
         return [];

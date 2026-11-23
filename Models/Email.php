@@ -42,6 +42,10 @@ class Email implements DbEntity
             ((bool)$received);
     }
 
+    /**
+     * Returns up to 500 recent messages or the entire history for a specific recipient.
+     * Orders by the send timestamp and uses the ID to break ties.
+     */
     public static function All(\mysqli $connection, ?string $recipient = null): array
     {
         $query = "SELECT id, dest AS destinatario, COALESCE(subject, '') AS oggetto, ricevuta,
@@ -61,6 +65,7 @@ class Email implements DbEntity
         return $emails;
     }
 
+    /** Lists distinct recorded recipient addresses in database sort order. */
     public static function Recipients(\mysqli $connection): array
     {
         $result = $connection->query("SELECT DISTINCT dest FROM email WHERE dest <> '' ORDER BY dest");
@@ -69,6 +74,7 @@ class Email implements DbEntity
         return $recipients;
     }
 
+    /** Builds a stored message from the shared database aliases and accepts rows without a body. */
     private static function FromRow(array $row): self
     {
         return new self(
@@ -83,6 +89,7 @@ class Email implements DbEntity
         );
     }
 
+    /** Loads a stored message including its body, or returns null when it is absent. */
     public static function ById(\mysqli $connection, int $id): ?Email
     {
         if (!$connection)
@@ -100,6 +107,7 @@ class Email implements DbEntity
         return $obj;
     }
 
+    /** Records the first known opening of a stored message. */
     public static function HeartBeat(\mysqli $connection, int $id): bool {
         if (!$connection)
             return false;

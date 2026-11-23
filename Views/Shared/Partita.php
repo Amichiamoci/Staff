@@ -10,7 +10,10 @@ assert(isset($campi) && is_array($campi), 'var $campi not valid');
 $can_edit = $user->Admin;
 ?>
 
-<div class="card" id="match-<?= $partita->Id ?>">
+<div
+    class="card"
+    id="match-<?= $partita->Id ?>"
+>
     <?php if ($user->Admin) { ?>
         <div class="card-header font-monospace">
             <span class="user-select-none">
@@ -19,9 +22,17 @@ $can_edit = $user->Admin;
 
             #<?= $partita->Id ?>
 
-            <form action="<?= $P ?>/sport/match_delete" method="post" class="d-inline">
-                <input type="hidden" name="match" value="<?= $partita->Id ?>">
-                <button 
+            <form
+                action="<?= $P ?>/sport/match_delete"
+                method="post"
+                class="d-inline"
+            >
+                <input
+                    type="hidden"
+                    name="match"
+                    value="<?= $partita->Id ?>"
+                >
+                <button
                     type="submit"
                     class="p-0 btn btn-link link-danger link-underline link-underline-opacity-0"
                     title="Elimina la partita"
@@ -58,8 +69,7 @@ $can_edit = $user->Admin;
                     class="text-reset fw-bold"
                     target="_blank"
                 ><?= htmlspecialchars(string: $partita->Ospiti->Nome) ?></a>
-                <a
-                    href="<?= $P ?>/teams/details?id=<?= $partita->Ospiti->Id ?>"
+                <a  href="<?= $P ?>/teams/details?id=<?= $partita->Ospiti->Id ?>"
                     class="link-underline link-underline-opacity-0 link-primary"
                     title="Vedi la distinta di <?= htmlspecialchars(string: $partita->Ospiti->Nome) ?>"
                 >
@@ -81,15 +91,15 @@ $can_edit = $user->Admin;
             </dt>
             <dd class="col-sm-8">
                 <?php if ($can_edit) { ?>
-                    <input 
-                        type="date" 
+                    <input
+                        type="date"
                         class="form-control match-date-selector"
                         data-match="<?= $partita->Id ?>"
                         value="<?= $partita->Data ? htmlspecialchars(string: $partita->Data) : '' ?>"
                         min="<?= date(format: 'Y') ?>-09-01"
                         max="<?= date(format: 'Y') ?>-10-31"
                         title="Imposta la data della partita"
-                    >  
+                    >
                 <?php } else { ?>
                     <?php if (isset($partita->Data)) { ?>   
                         <?= htmlspecialchars(string: $partita->Data) ?> 
@@ -106,8 +116,8 @@ $can_edit = $user->Admin;
             </dt>
             <dd class="col-sm-8">
                 <?php if ($can_edit) { ?>
-                    <input 
-                        type="time" 
+                    <input
+                        type="time"
                         class="form-control match-time-selector"
                         data-match="<?= $partita->Id ?>"
                         value="<?= $partita->Orario ? htmlspecialchars(string: $partita->Orario) : '' ?>"
@@ -115,7 +125,7 @@ $can_edit = $user->Admin;
                         max="23:00"
                         step="300"
                         title="Imposta l'orario della partita"
-                    >  
+                    >
                 <?php } else { ?>
                     <?php if (isset($partita->Orario)) { ?>   
                         <?= htmlspecialchars(string: $partita->Orario) ?> 
@@ -132,14 +142,14 @@ $can_edit = $user->Admin;
             </dt>
             <dd class="col-sm-8">
                 <?php if ($can_edit) { ?>
-                    <select 
+                    <select
                         data-match="<?= $partita->Id ?>"
                         class="match-field-selector form-control"
                         title="Imposta il campo della partita"
                     >
                         <option value="">Nessun campo</option>
                         <?php foreach ($campi as $campo) { ?>
-                            <option 
+                            <option
                                 value="<?= $campo->Id ?>"
                                 <?= (isset($partita->Campo) && $partita->Campo->Id === $campo->Id) ? 'selected' : '' ?>
                             >
@@ -162,12 +172,16 @@ $can_edit = $user->Admin;
                 Risultato
             </dt>
             <dd class="col-sm-8">
-                <ul class="list-group-flush m-0 p-0" data-match="<?= $partita->Id ?>">
+                <ul class="list-group-flush m-0 p-0"
+                    data-match="<?= $partita->Id ?>"
+                >
                     <?php foreach ($partita->Punteggi as $punteggio) { ?>
-                        <li class="list-group-item" data-result="<?= $punteggio->Id ?>">
+                        <li class="list-group-item"
+                            data-result="<?= $punteggio->Id ?>"
+                        >
                             <?php if ($can_edit) { ?>
                                 <div class="input-group mb-2">
-                                    <input 
+                                    <input
                                         type="text"
                                         data-result="<?= $punteggio->Id ?>"
                                         class="form-control match-result-edit"
@@ -191,7 +205,7 @@ $can_edit = $user->Admin;
                     <?php } ?>
                     <?php if ($can_edit) { ?>
                         <li class="list-group-item">
-                            <button 
+                            <button
                                 type="button"
                                 class="btn btn-outline-primary w-100 match-result-add"
                                 title="Aggiungi risultato"

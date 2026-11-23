@@ -6,6 +6,7 @@ class AnagraficaConIscrizione extends Anagrafica
 {
     public Iscrizione $Iscrizione;
 
+    /** Lists personal records with their current enrollment when one exists, then applies the optional filter. */
     public static function All(\mysqli $connection, ?callable $filter = null): array
     {
         if (!$connection) return [];
@@ -26,6 +27,7 @@ class AnagraficaConIscrizione extends Anagrafica
         return $arr;
     }
 
+    /** Loads current-year enrollments for the given parish together with the person records. */
     public static function FromChurchId(\mysqli $connection, int $church_id): array {
         if (!$connection) return [];
         $query = "CALL `IscrizioniList`(YEAR(CURRENT_DATE), $church_id);";
@@ -45,6 +47,7 @@ class AnagraficaConIscrizione extends Anagrafica
         return $arr;
     }
 
+    /** Loads the person records associated with enrollments in the requested year. */
     public static function FromYear(\mysqli $connection, int $year): array {
         if (!$connection) return [];
         $query = "CALL `IscrizioniList`($year, NULL)";
@@ -63,6 +66,7 @@ class AnagraficaConIscrizione extends Anagrafica
         return $arr;
     }
 
+    /** Counts the enrolled people in each parish for the given year. */
     public static function GroupByChurch(\mysqli $connection, int $year): array {
         $list = self::FromYear(connection: $connection, year: $year);
         return array_reduce(
@@ -79,6 +83,7 @@ class AnagraficaConIscrizione extends Anagrafica
         );
     }
 
+    /** Hydrates a person and attaches an enrollment only when the result row identifies one. */
     protected static function FromDbRow(array $row): parent|self
     {
         $a = parent::FromDbRow(row: $row);
@@ -122,6 +127,7 @@ class AnagraficaConIscrizione extends Anagrafica
         return $ai;
     }
 
+    /** Finds current enrollments whose personal record has more than one enrollment in the same edition. */
     public static function DoubleSubscriptions(\mysqli $connection): array
     {
         if (!$connection)
@@ -149,6 +155,7 @@ class AnagraficaConIscrizione extends Anagrafica
         return $arr;
     }
 
+    /** Looks up a previously associated guardian and returns its ID when available. */
     public static function SuggestTutore(\mysqli $connection, int $anagrafica): ?int
     {
         if (!$connection || empty($anagrafica))

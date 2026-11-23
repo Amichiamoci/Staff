@@ -5,52 +5,75 @@ assert(isset($P) && is_string($P), 'var $P not valid');
 ?>
 <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3">
     <div class="container-fluid">
-        <a class="navbar-brand" href="<?= $P ?>/">
-            <img src="<?= $P ?>/images/banner.png" 
-                 height="48"
-                 alt="Logo di Amichiamoci" title="Vai alla pagina principale" 
-                 class="d-inline-block align-text-top"
+        <a  class="navbar-brand"
+            href="<?= $P ?>/"
+            title="Torna alla pagina principale"
+        >
+            <img
+                src="<?= $P ?>/images/banner.png"
+                height="48"
+                alt="Logo di Amichiamoci"
+                title="Vai alla pagina principale"
+                class="d-inline-block align-text-top"
             />
         </a>
-        <button class="navbar-toggler" 
-                type="button"
-                data-toggle="collapse"
-                data-bs-toggle="collapse"
-                data-target="#navbar-collapse"
-                data-bs-target="#navbar-collapse" 
-                aria-expanded="false" aria-label="Toggle navigation"
+        <button
+            class="navbar-toggler"
+            type="button"
+            data-toggle="collapse"
+            data-bs-toggle="collapse"
+            data-target="#navbar-collapse"
+            data-bs-target="#navbar-collapse"
+            aria-expanded="false"
+            aria-label="Mostra o nascondi la navigazione"
+            title="Mostra o nascondi la navigazione"
         >
-            <i class="bi bi-list text-secondary" style="pointer-events: none;"></i>
+            <i  class="bi bi-list text-secondary"
+                style="pointer-events: none;"
+            ></i>
         </button>
-        <div id="navbar-collapse"
-             class="navbar-collapse collapse d-sm-inline-flex justify-content-between"
+        <div
+            id="navbar-collapse"
+            class="navbar-collapse collapse d-sm-inline-flex justify-content-between"
         >
             <ul class="navbar-nav flex-grow-1">
                 <?php if (isset($user)) { ?>
                     <li class="nav-item dropdown">
-                        <a  class="nav-link text-reset dropdown-toggle"
-                            href="#" 
-                            id="subscriptionDropdownMenuLink" 
-                            role="button" 
-                            data-bs-toggle="dropdown" 
+                        <button
+                            class="nav-link text-reset dropdown-toggle"
+                            type="button"
+                            id="subscriptionDropdownMenuLink"
+                            data-bs-toggle="dropdown"
                             aria-expanded="false"
+                            title="Iscrizioni"
                         >
                             Iscrizioni
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="subscriptionDropdownMenuLink">
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-lg-start"
+                            aria-labelledby="subscriptionDropdownMenuLink"
+                        >
                             <?php if ($user->Admin || isset($staff)) { ?>
                                 <li>
-                                    <a class="dropdown-item" href="<?= $P ?>/staff/index">
+                                    <a  class="dropdown-item"
+                                        href="<?= $P ?>/staff/index"
+                                        title="La mia parrocchia"
+                                    >
                                         La mia parrocchia
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="<?= $P ?>/teams">
+                                    <a  class="dropdown-item"
+                                        href="<?= $P ?>/teams"
+                                        title="Le squadre"
+                                    >
                                         Le squadre
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="<?= $P ?>/teams/new">
+                                    <a  class="dropdown-item"
+                                        href="<?= $P ?>/teams/new"
+                                        title="Crea squadra"
+                                    >
                                         Crea squadra
                                     </a>
                                 </li>
@@ -59,40 +82,58 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                                 </li>
                             <?php } ?>
                             <li>
-                                <a class="dropdown-item" href="<?= $P ?>/staff/anagrafiche?year=<?= date(format: "Y") ?>">
+                                <a  class="dropdown-item"
+                                    href="<?= $P ?>/staff/anagrafiche?year=<?= date(format: "Y") ?>"
+                                    title="Tutti gli iscritti"
+                                >
                                     Tutti gli iscritti
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="<?= $P ?>/staff/anagrafiche">
+                                <a  class="dropdown-item"
+                                    href="<?= $P ?>/staff/anagrafiche"
+                                    title="Tutte le anagrafiche"
+                                >
                                     Tutte le anagrafiche
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="<?= $P ?>/staff/new_anagrafica">
+                                <a  class="dropdown-item"
+                                    href="<?= $P ?>/staff/new_anagrafica"
+                                    title="Nuova anagrafica"
+                                >
                                     Nuova anagrafica
                                 </a>
                             </li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
-                        <a  class="nav-link text-reset dropdown-toggle"
-                            href="#" 
-                            id="matchesDropdownMenuLink" 
-                            role="button" 
-                            data-bs-toggle="dropdown" 
+                        <button
+                            class="nav-link text-reset dropdown-toggle"
+                            type="button"
+                            id="matchesDropdownMenuLink"
+                            data-bs-toggle="dropdown"
                             aria-expanded="false"
+                            title="Partite"
                         >
                             Partite
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="matchesDropdownMenuLink">
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-lg-start"
+                            aria-labelledby="matchesDropdownMenuLink"
+                        >
                             <li>
-                                <a class="dropdown-item" href="<?= $P ?>/sport">
+                                <a  class="dropdown-item"
+                                    href="<?= $P ?>/sport"
+                                    title="Tutti i Tornei"
+                                >
                                     Tutti i Tornei
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="<?= $P ?>/sport/matches">
+                                <a  class="dropdown-item"
+                                    href="<?= $P ?>/sport/matches"
+                                    title="Partite e risultati"
+                                >
                                     Partite e risultati
                                 </a>
                             </li>
@@ -101,7 +142,10 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                                     <hr class="dropdown-divider">
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="<?= $P ?>/sport/tournament_create">
+                                    <a  class="dropdown-item"
+                                        href="<?= $P ?>/sport/tournament_create"
+                                        title="Nuovo torneo"
+                                    >
                                         Nuovo torneo
                                     </a>
                                 </li>
@@ -109,23 +153,32 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
-                        <a  class="nav-link text-reset dropdown-toggle"
-                            href="#" 
-                            id="userDropdownMenuLink" 
-                            role="button" 
-                            data-bs-toggle="dropdown" 
+                        <button
+                            class="nav-link text-reset dropdown-toggle"
+                            type="button"
+                            id="userDropdownMenuLink"
+                            data-bs-toggle="dropdown"
                             aria-expanded="false"
+                            title="Utente"
                         >
                             Utente
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="userDropdownMenuLink">
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-lg-start"
+                            aria-labelledby="userDropdownMenuLink"
+                        >
                             <li>
-                                <a class="dropdown-item" href="<?= $P ?>/user/me">
+                                <a  class="dropdown-item"
+                                    href="<?= $P ?>/user/me"
+                                    title="Menù Utente"
+                                >
                                     Menù Utente
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="<?= $P ?>/staff">
+                                <a  class="dropdown-item"
+                                    href="<?= $P ?>/staff"
+                                    title="Menù Staff"
+                                >
                                     Menù Staff
                                 </a>
                             </li>
@@ -134,17 +187,26 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                                     <hr class="dropdown-divider">
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="<?= $P ?>/user/all">
+                                    <a  class="dropdown-item"
+                                        href="<?= $P ?>/user/all"
+                                        title="Tutti gli utenti"
+                                    >
                                         Tutti gli utenti
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="<?= $P ?>/user/new">
+                                    <a  class="dropdown-item"
+                                        href="<?= $P ?>/user/new"
+                                        title="Nuovo utente"
+                                    >
                                         Nuovo utente
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="<?= $P ?>/user/activity">
+                                    <a  class="dropdown-item"
+                                        href="<?= $P ?>/user/activity"
+                                        title="Accessi"
+                                    >
                                         Accessi
                                     </a>
                                 </li>
@@ -153,28 +215,40 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                     </li>
                     <?php if ($user->Admin) { ?>
                         <li class="nav-item dropdown">
-                            <a  class="nav-link text-reset dropdown-toggle"
-                                href="#" 
-                                id="serverDropdownMenuLink" 
-                                role="button" 
-                                data-bs-toggle="dropdown" 
+                            <button
+                                class="nav-link text-reset dropdown-toggle"
+                                type="button"
+                                id="serverDropdownMenuLink"
+                                data-bs-toggle="dropdown"
                                 aria-expanded="false"
+                                title="Server"
                             >
                                 Server
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="serverDropdownMenuLink">
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-lg-start"
+                                aria-labelledby="serverDropdownMenuLink"
+                            >
                                 <li>
-                                    <a class="dropdown-item" href="<?= $P ?>/email">
+                                    <a  class="dropdown-item"
+                                        href="<?= $P ?>/email"
+                                        title="Ultime 500 email"
+                                    >
                                         Ultime 500 email
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="<?= $P ?>/email/history">
+                                    <a  class="dropdown-item"
+                                        href="<?= $P ?>/email/history"
+                                        title="Storico per destinatario"
+                                    >
                                         Storico per destinatario
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="<?= $P ?>/email/send">
+                                    <a  class="dropdown-item"
+                                        href="<?= $P ?>/email/send"
+                                        title="Invia Email"
+                                    >
                                         Invia Email
                                     </a>
                                 </li>
@@ -182,7 +256,10 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                                     <hr class="dropdown-divider">
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="<?= $P ?>/file/list">
+                                    <a  class="dropdown-item"
+                                        href="<?= $P ?>/file/list"
+                                        title="Sorgenti file"
+                                    >
                                         Sorgenti file
                                     </a>
                                 </li>
@@ -190,7 +267,10 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                                     <hr class="dropdown-divider">
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="<?= $P ?>/docs/index.html">
+                                    <a  class="dropdown-item"
+                                        href="<?= $P ?>/docs/index.html"
+                                        title="Documentazione"
+                                    >
                                         Documentazione
                                     </a>
                                 </li>
@@ -199,7 +279,10 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                                         <hr class="dropdown-divider">
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="<?= $P ?>/api/admin">
+                                        <a  class="dropdown-item"
+                                            href="<?= $P ?>/api/admin"
+                                            title="Api"
+                                        >
                                             Api
                                         </a>
                                     </li>
@@ -208,26 +291,31 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                         </li>
                     <?php } ?>
                     <li class="nav-item dropdown">
-                        <a  class="nav-link text-reset dropdown-toggle"
-                            href="#" 
-                            id="listsDropdownMenuLink" 
-                            role="button" 
-                            data-bs-toggle="dropdown" 
+                        <button
+                            class="nav-link text-reset dropdown-toggle"
+                            type="button"
+                            id="listsDropdownMenuLink"
+                            data-bs-toggle="dropdown"
                             aria-expanded="false"
+                            title="Liste"
                         >
                             Liste
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="listsDropdownMenuLink">
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-lg-start"
+                            aria-labelledby="listsDropdownMenuLink"
+                        >
                             <li>
-                                <a  class="dropdown-item" 
+                                <a  class="dropdown-item"
                                     href="<?= $P ?>/staff/all"
+                                    title="Tutti gli Staff"
                                 >
                                     Tutti gli Staff
                                 </a>
                             </li>
                             <li>
-                                <a  class="dropdown-item" 
+                                <a  class="dropdown-item"
                                     href="<?= $P ?>/staff/current"
+                                    title="Mostra lo staff dell’anno corrente"
                                 >
                                     Staff per il <?= date(format: "Y") ?>
                                 </a>
@@ -236,15 +324,17 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
-                                <a  class="dropdown-item" 
+                                <a  class="dropdown-item"
                                     href="<?= $P ?>/staff/csi"
+                                    title="Tesseramenti per C.S.I."
                                 >
                                     Tesseramenti per C.S.I.
                                 </a>
                             </li>
                             <li>
-                                <a  class="dropdown-item" 
+                                <a  class="dropdown-item"
                                     href="<?= $P ?>/staff/t_shirts"
+                                    title="Tutte le maglie"
                                 >
                                     Tutte le maglie
                                 </a>
@@ -253,8 +343,9 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
-                                <a  class="dropdown-item" 
+                                <a  class="dropdown-item"
                                     href="<?= $P ?>/staff/church_leaderboard"
+                                    title="Classifica parrocchiale"
                                 >
                                     Classifica parrocchiale
                                 </a>
@@ -263,14 +354,18 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                                 <hr class="dropdown-divider">
                             </li>
                             <li>
-                                <a  class="dropdown-item" 
+                                <a  class="dropdown-item"
                                     href="<?= $P ?>/staff/edizione"
+                                    title="Tutte le edizioni"
                                 >
                                     Tutte le edizioni
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="<?= $P ?>/credits">
+                                <a  class="dropdown-item"
+                                    href="<?= $P ?>/credits"
+                                    title="Crediti"
+                                >
                                     Crediti
                                 </a>
                             </li>
@@ -279,42 +374,47 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                 <?php } ?>
                 
                 <li class="nav-item dropdown">
-                    <a  class="nav-link text-reset dropdown-toggle"
-                        href="#" 
-                        id="themeDropdownMenuLink" 
-                        role="button" 
-                        data-bs-toggle="dropdown" 
+                    <button
+                        class="nav-link text-reset dropdown-toggle"
+                        type="button"
+                        id="themeDropdownMenuLink"
+                        data-bs-toggle="dropdown"
                         aria-expanded="false"
+                        title="Tema"
                     >
                         Tema
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="themeDropdownMenuLink">
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-lg-start"
+                        aria-labelledby="themeDropdownMenuLink"
+                    >
                         <li>
-                            <a  class="dropdown-item" 
-                                href="#" 
+                            <button
+                                class="dropdown-item"
+                                type="button"
                                 data-bs-theme-value="light"
                                 title="Imposta il tema chiaro"
                             >
                                 <i class="bi bi-sun"></i>
                                 Chiaro
-                            </a>
+                            </button>
                         </li>
                         <li>
-                            <a  class="dropdown-item" 
-                                href="#" 
+                            <button
+                                class="dropdown-item"
+                                type="button"
                                 data-bs-theme-value="dark"
                                 title="Imposta il tema scuro"
                             >
                                 <i class="bi bi-moon"></i>
-                                Scuro 
-                            </a>
+                                Scuro
+                            </button>
                         </li>
                     </ul>
                 </li>
             </ul>
 
             <?php if (isset($user)) { ?>
-                <a  href="<?= $P ?>/user/me" 
+                <a  href="<?= $P ?>/user/me"
                     class="nav-link text-reset"
                     title="Vai alla pagina del profilo"
                 >

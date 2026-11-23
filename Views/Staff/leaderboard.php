@@ -1,6 +1,8 @@
 <?php
 use Amichiamoci\Models\User;
 
+assert(isset($edizioni) && is_array($edizioni), 'var $edizioni not valid');
+assert(isset($anno) && is_int($anno), 'var $anno not valid');
 assert(isset($user) && ($user instanceof User), 'var $user not valid');
 
 assert(isset($classifica) && is_array($classifica), 'var $classifica not valid');
@@ -9,9 +11,15 @@ assert(isset($classifica) && is_array($classifica), 'var $classifica not valid')
 
 <?php if ($user->Admin) { ?>
     <div class="input-group mb-2">
-        <select id="anno-selector" class="form-control">
+        <select
+            id="anno-selector"
+            class="form-control"
+        >
             <?php foreach ($edizioni as $e) { ?>
-                <option value="<?= $e->Year ?>" <?= ($e->Year === $anno) ? 'selected' : '' ?>>
+                <option
+                    value="<?= $e->Year ?>"
+                    <?= ($e->Year === $anno) ? 'selected' : '' ?>
+                >
                     <?= $e->Year ?>
                 </option>
             <?php } ?>
@@ -53,8 +61,8 @@ assert(isset($classifica) && is_array($classifica), 'var $classifica not valid')
                 </td>
                 <td>
                     <?php if ($user->Admin) { ?>
-                        <input 
-                            type="number" 
+                        <input
+                            type="number"
                             data-church="<?= $punteggio->Parrocchia->Id ?>"
                             data-edition="<?= $punteggio->Edizione ?>"
                             value="<?= empty($punteggio->Punteggio) ? '' : htmlspecialchars(string: $punteggio->Punteggio) ?>"

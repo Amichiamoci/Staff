@@ -49,6 +49,7 @@ class Iscrizione extends NomeIdSemplice
         }
     }
 
+    /** Lists current-year enrollments and optionally filters the resulting objects. */
     public static function All(\mysqli $connection, ?callable $filter = null) : array
     {
         if (!$connection)
@@ -82,6 +83,8 @@ class Iscrizione extends NomeIdSemplice
         return $arr;
     }
     
+
+    /** Loads an enrollment with its parish, edition, guardian, and certificate reference. */
     public static function ById(\mysqli $connection, int $id) : ?self
     {
         $query = "CALL SingolaIscrizione($id);";
@@ -111,6 +114,7 @@ class Iscrizione extends NomeIdSemplice
         return $obj;
     }
 
+    /** Checks whether a personal record already has an enrollment for the given edition ID. */
     public static function Exists(
         \mysqli $connection, 
         int $id_anagrafica, 
@@ -126,6 +130,7 @@ class Iscrizione extends NomeIdSemplice
         return $result->num_rows > 0;
     }
 
+    /** Returns the edition ID of an enrollment, or null when the enrollment does not exist. */
     public static function EditionId(\mysqli $connection, int $id): ?int
     {
         $result = $connection->execute_query('SELECT edizione FROM iscritti WHERE id = ?', [$id]);
@@ -133,6 +138,7 @@ class Iscrizione extends NomeIdSemplice
         return $row === null ? null : (int)$row[0];
     }
 
+    /** Returns the personal record ID associated with an enrollment. */
     public static function IdAnagraficaAssociata(\mysqli $connection, int $id) : ?int
     {
         if (!$connection || $id === 0)
@@ -147,6 +153,7 @@ class Iscrizione extends NomeIdSemplice
         return (int)$result->fetch_assoc()['dati_anagrafici'];
     }
 
+    /** Creates an enrollment with the given parish, shirt size, and optional guardian and certificate. */
     public static function Create(
         \mysqli $connection,
         int $id_anagrafica, 
@@ -173,6 +180,7 @@ class Iscrizione extends NomeIdSemplice
         );
     }
 
+    /** Stores a replacement certificate URI or clears the reference when the input is blank. */
     public static function UpdateCertificato(
         \mysqli $connection, 
         int $id, 
@@ -193,6 +201,7 @@ class Iscrizione extends NomeIdSemplice
         // return $result !== false && $connection->affected_rows >= 1;
     }
 
+    /** Persists changes to the enrollment’s shirt size, guardian, and parish. */
     public function Update(\mysqli $connection): bool
     {
         if (!$connection)
@@ -208,6 +217,7 @@ class Iscrizione extends NomeIdSemplice
         return (bool)$result;
     }
 
+    /** Deletes the enrollment and reports whether a row was removed. */
     public static function Delete(\mysqli $connection, int $id): bool
     {
         if (!$connection) {

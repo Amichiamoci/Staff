@@ -6,6 +6,8 @@ use Amichiamoci\Models\Api\Call as ApiCall;
 
 trait Parrocchia
 {
+
+    /** Prepares a lookup of one parish by its database ID. */
     protected function church(int $Id): ApiCall
     {
         return new ApiCall(
@@ -22,6 +24,7 @@ trait Parrocchia
         );
     }
 
+    /** Prepares the list of all parishes exposed by the API. */
     protected function churches(): ApiCall
     {
         return new ApiCall(
@@ -38,6 +41,8 @@ trait Parrocchia
         );
     }
     
+
+    /** Prepares the parish standings with their API field names. */
     protected function leaderboard(): ApiCall
     {
         return new ApiCall(

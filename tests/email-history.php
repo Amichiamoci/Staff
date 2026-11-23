@@ -49,7 +49,7 @@ $dispatch = static function (string $path) use ($db): array {
 };
 
 [$status, $html] = $dispatch('/email/history?recipient=archive%2Bfixture%40example.invalid');
-if ($status !== StatusCode::Ok || !str_contains($html, 'value="archive+fixture@example.invalid" selected')
+if ($status !== StatusCode::Ok || !preg_match('/value="archive\+fixture@example\.invalid"\s+selected\b/', $html)
     || !str_contains($html, 'Older imported email') || str_contains($html, 'Same time')
 ) {
     throw new RuntimeException('The selected recipient history was not rendered correctly.');

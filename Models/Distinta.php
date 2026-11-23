@@ -6,6 +6,7 @@ class Distinta extends Squadra
 {
     public array $MembriDistinta = [];
 
+    /** Loads a team roster with its participants and contacts for the requested team ID. */
     public static function ById(\mysqli $connection, int $id): ?self
     {
         $team = parent::ById(connection: $connection, id: $id);

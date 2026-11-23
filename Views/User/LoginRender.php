@@ -1,6 +1,9 @@
 <?php
 use Amichiamoci\Models\UserActivity;
 
+assert(isset($P) && is_string($P), 'var $P not valid');
+assert(isset($login) && $login instanceof UserActivity, 'var $login not valid');
+
 if (!($login instanceof UserActivity))
     throw new \Exception(message: 'Variabile $login non corretta');
 ?>
@@ -44,9 +47,10 @@ if (!($login instanceof UserActivity))
             <?= htmlspecialchars(string: $login->Flag) ?>
         </output>
         <?php if (isset($login->Ip)) { ?>
-            <a  href="https://www.infobyip.com/ip-<?= htmlspecialchars(string: $login->Ip) ?>.html" 
+            <a  href="https://www.infobyip.com/ip-<?= htmlspecialchars(string: $login->Ip) ?>.html"
                 class="text-reset link-underline link-underline-opacity-0"
                 target="blank"
+                title="Cerca informazioni sull’indirizzo IP"
             >
                 <?= htmlspecialchars(string: $login->Ip) ?>
                 <i class="bi bi-box-arrow-up-right"></i>

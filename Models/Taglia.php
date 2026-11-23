@@ -22,11 +22,13 @@ enum Taglia: string
         return array_column(array: self::cases(), column_key: 'value');
     }
 
+    /** Tests whether a string matches a supported shirt size. */
     public static function Valid(string $s): bool
     {
         return in_array(needle: $s, haystack: self::All());
     }
 
+    /** Loads shirt sizes for one year and optionally groups the results. */
     public static function List(
         \mysqli $connection, 
         int $year, 

@@ -1,29 +1,68 @@
+<?php
+
+assert(isset($P) && is_string($P), 'var $P not valid');
+assert(isset($heading) && is_string($heading), 'var $heading not valid');
+assert(isset($emails) && is_array($emails), 'var $emails not valid');
+assert(!isset($recipients) || is_array($recipients), 'var $recipients not valid');
+assert(!isset($recipient) || is_string($recipient), 'var $recipient not valid');
+
+?>
+
 <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-    <h1 id="email-list-heading" class="mb-0"><?= htmlspecialchars($heading) ?></h1>
+    <h1 id="email-list-heading"
+        class="mb-0"
+    ><?= htmlspecialchars($heading) ?></h1>
     <div class="d-flex flex-wrap gap-2">
         <?php if (isset($recipients)) { ?>
-            <a class="btn btn-outline-secondary" href="<?= $P ?>/email">Ultime 500 email</a>
+            <a  class="btn btn-outline-secondary"
+                href="<?= $P ?>/email"
+                title="Ultime 500 email"
+            >Ultime 500 email</a>
         <?php } else { ?>
-            <a class="btn btn-outline-secondary" href="<?= $P ?>/email/history">Storico per destinatario</a>
+            <a  class="btn btn-outline-secondary"
+                href="<?= $P ?>/email/history"
+                title="Storico per destinatario"
+            >Storico per destinatario</a>
         <?php } ?>
-        <a class="btn btn-primary" href="<?= $P ?>/email/send">Invia email</a>
+        <a  class="btn btn-primary"
+            href="<?= $P ?>/email/send"
+            title="Invia email"
+        >Invia email</a>
     </div>
 </div>
 
 <?php if (isset($recipients) && $recipients !== []) { ?>
     <search class="d-block mb-4">
-        <form method="get" action="<?= $P ?>/email/history">
-            <label class="form-label" for="email-recipient">Destinatario</label>
+        <form
+            method="get"
+            action="<?= $P ?>/email/history"
+        >
+            <label
+                class="form-label"
+                for="email-recipient"
+            >Destinatario</label>
             <div class="d-flex flex-wrap align-items-start gap-2">
-                <select class="form-select w-auto mw-100" id="email-recipient" name="recipient" required>
+                <select
+                    class="form-select w-auto mw-100"
+                    id="email-recipient"
+                    name="recipient"
+                    required
+                >
                     <option value="">Seleziona un indirizzo</option>
                     <?php foreach ($recipients as $address) { ?>
-                        <option value="<?= htmlspecialchars($address) ?>" <?= $address === $recipient ? 'selected' : '' ?>>
+                        <option
+                            value="<?= htmlspecialchars($address) ?>"
+                            <?= $address === $recipient ? 'selected' : '' ?>
+                        >
                             <?= htmlspecialchars($address) ?>
                         </option>
                     <?php } ?>
                 </select>
-                <button class="btn btn-outline-primary" type="submit">Mostra storico</button>
+                <button
+                    class="btn btn-outline-primary"
+                    type="submit"
+                    title="Mostra storico"
+                >Mostra storico</button>
             </div>
         </form>
     </search>
@@ -36,7 +75,12 @@
         <p class="text-body-secondary">Nessuna email trovata per <?= htmlspecialchars($recipient) ?>.</p>
     <?php } ?>
 <?php } else { ?>
-    <div class="table-responsive email-log-table" tabindex="0" role="region" aria-labelledby="email-list-heading">
+    <div
+        class="table-responsive email-log-table"
+        tabindex="0"
+        role="region"
+        aria-labelledby="email-list-heading"
+    >
         <table class="table table-striped table-hover align-middle mb-0">
             <thead class="table-light sticky-top">
                 <tr>
@@ -51,13 +95,17 @@
                 <?php foreach ($emails as $email) { ?>
                     <tr>
                         <th scope="row">
-                            <a href="<?= $P ?>/email/view?id=<?= $email->Id ?>">
+                            <a  href="<?= $P ?>/email/view?id=<?= $email->Id ?>"
+                                title="Apri email"
+                            >
                                 <?= htmlspecialchars($email->Subject !== '' ? $email->Subject : '(Senza oggetto)') ?>
                             </a>
                         </th>
                         <td>
                             <?php if (!isset($recipients) && $email->Receiver !== '') { ?>
-                                <a href="<?= $P ?>/email/history?recipient=<?= rawurlencode($email->Receiver) ?>">
+                                <a  href="<?= $P ?>/email/history?recipient=<?= rawurlencode($email->Receiver) ?>"
+                                    title="Mostra lo storico del destinatario"
+                                >
                                     <?= htmlspecialchars($email->Receiver) ?>
                                 </a>
                             <?php } else { ?>

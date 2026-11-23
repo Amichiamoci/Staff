@@ -1,16 +1,30 @@
+<?php
+
+assert(isset($P) && is_string($P), 'var $P not valid');
+assert(isset($title) && is_string($title), 'var $title not valid');
+assert(isset($staffs) && is_array($staffs), 'var $staffs not valid');
+
+?>
+
 <h1>
     <?= htmlspecialchars(string: $title)?>
 </h1>
 
 <div class="container">
     <div class="row">
-        <div class="col col-xs-6 col-sm-4 overflow-y-auto" style="max-height: 300px;">
+        <div
+            class="col col-xs-6 col-sm-4 overflow-y-auto"
+            style="max-height: 300px;"
+        >
             <h3>
                 Iscritti correnti
             </h3>
 
         </div>
-        <div class="col col-xs-6 col-sm-4 overflow-y-auto" style="max-height: 300px;">
+        <div
+            class="col col-xs-6 col-sm-4 overflow-y-auto"
+            style="max-height: 300px;"
+        >
             <h3>
                 Tutti gli staffisti
             </h3>
@@ -19,6 +33,7 @@
                     <li class="list-group-item">
                         <a  href="<?= $P ?>/staff/view?id=<?= $s->Id ?>"
                             class="link-secondary link-underline link-underline-opacity-0"
+                            title="Apri la scheda dello staffista"
                         >
                             <?= htmlspecialchars(string: $s->Nome) ?>
                         </a>

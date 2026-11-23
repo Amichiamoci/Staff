@@ -1,4 +1,7 @@
 <?php
+
+assert(isset($P) && is_string($P), 'var $P not valid');
+
     $card_name= 'email_duplicates';
     $card_title = 'Email duplicate';
     $card_json_base = '/duplicate_emails';

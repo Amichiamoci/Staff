@@ -2,6 +2,10 @@
 
 use Amichiamoci\Models\{Iscrizione, User};
 
+assert(isset($parrocchie) && is_array($parrocchie), 'var $parrocchie not valid');
+assert(isset($sport) && is_array($sport), 'var $sport not valid');
+assert(isset($edizioni) && is_array($edizioni), 'var $edizioni not valid');
+assert(isset($membri) && is_array($membri), 'var $membri not valid');
 assert(isset($user) && ($user instanceof User), 'var $user not valid');
 assert(isset($P) && is_string($P), 'var $P not valid');
 assert(isset($title) && is_string($title), 'var $title not valid');
@@ -21,18 +25,25 @@ $iscritti_per_parrocchia = array_reduce(
     <?= htmlspecialchars(string: $title) ?>
 </h1>
 
-<form method="post" action="<?= $P ?>/teams/new">
+<form
+    method="post"
+    action="<?= $P ?>/teams/new"
+>
     <?php if (!empty($id)) { ?>
-        <input type="hidden" name="id" value="<?= (int)$id ?>">
+        <input
+            type="hidden"
+            name="id"
+            value="<?= (int)$id ?>"
+        >
     <?php } ?>
 
     <div class="form-floating mb-3">
-        <input 
+        <input
             required
-            type="text" 
+            type="text"
             maxlength="128"
-            class="form-control" 
-            id="name" 
+            class="form-control"
+            id="name"
             name="name"
             value="<?= is_string(value: $nome) ? htmlspecialchars(string: $nome) : '' ?>"
         >
@@ -49,11 +60,14 @@ $iscritti_per_parrocchia = array_reduce(
         <select
             required
             class="form-control"
-            id="church" 
+            id="church"
             name="church"
         >
             <?php foreach ($parrocchie as $p) { ?>
-                <option value="<?= $p->Id ?>" <?= ($p->Id === $parrocchia) ? 'selected' : '' ?>>
+                <option
+                    value="<?= $p->Id ?>"
+                    <?= ($p->Id === $parrocchia) ? 'selected' : '' ?>
+                >
                     <?= htmlspecialchars(string: $p->Nome) ?>
                 </option>
             <?php } ?>
@@ -72,12 +86,12 @@ $iscritti_per_parrocchia = array_reduce(
         <select
             required
             class="form-control"
-            id="sport" 
+            id="sport"
             name="sport"
         >
             <option value="">Scegli uno sport</option>
             <?php foreach ($sport as $s) { ?>
-                <option 
+                <option
                     value="<?= $s->Id ?>"
                     <?= $s->Id === $sport_squadra ? 'selected' : '' ?>
                 >
@@ -96,11 +110,14 @@ $iscritti_per_parrocchia = array_reduce(
             <select
                 required
                 class="form-control"
-                id="edition" 
+                id="edition"
                 name="edition"
             >
                 <?php foreach ($edizioni as $e) { ?>
-                    <option value="<?= $e->Id ?>" <?= ($e->Id === $edizione) ? 'selected' : '' ?>>
+                    <option
+                        value="<?= $e->Id ?>"
+                        <?= ($e->Id === $edizione) ? 'selected' : '' ?>
+                    >
                         <?= $e->Year ?>: <?= htmlspecialchars(string: $e->Motto) ?>
                     </option>
                 <?php } ?>
@@ -108,7 +125,11 @@ $iscritti_per_parrocchia = array_reduce(
             <label for="edition">Edizione</label>
         </div>
     <?php } else { ?>
-        <input type="hidden" name="edition" value="<?= $edizione ?>">
+        <input
+            type="hidden"
+            name="edition"
+            value="<?= $edizione ?>"
+        >
     <?php } ?>
 
     <div class="form-floating mb-3">
@@ -132,9 +153,13 @@ $iscritti_per_parrocchia = array_reduce(
     <h3>
         Membri
     </h3>
-    <ul class="list-group overflow-y-scroll mb-3" style="max-height: 300px;">
+    <ul class="list-group overflow-y-scroll mb-3"
+        style="max-height: 300px;"
+    >
         <?php foreach (array_keys(array: $iscritti_per_parrocchia) as $id_parrocchia) { ?>
-            <li class="list-group-item user-select-none" id="church-<?= $id_parrocchia ?>">
+            <li class="list-group-item user-select-none"
+                id="church-<?= $id_parrocchia ?>"
+            >
                 <strong>
                     <?= htmlspecialchars(
                         string: $iscritti_per_parrocchia[$id_parrocchia][0]->Parrocchia->Nome) 
@@ -144,18 +169,21 @@ $iscritti_per_parrocchia = array_reduce(
             <?php foreach ($iscritti_per_parrocchia[$id_parrocchia] as $iscritto) { ?>
                 <li class="list-group-item user-select-none">
                     <div class="form-check">
-                        <input 
+                        <input
                             type="checkbox"
-                            class="form-check-input"  
-                            name="members[]" 
-                            id="member-<?= $iscritto->Id ?>" 
+                            class="form-check-input"
+                            name="members[]"
+                            id="member-<?= $iscritto->Id ?>"
                             value="<?= $iscritto->Id ?>"
                             <?= 
                                 in_array(needle: $iscritto->Id, haystack: $membri) ?
                                 'checked' : '' 
                             ?>
                         >
-                        <label for="member-<?= $iscritto->Id ?>" class="form-check-label">
+                        <label
+                            for="member-<?= $iscritto->Id ?>"
+                            class="form-check-label"
+                        >
                             <?= htmlspecialchars(string: $iscritto->Nome) ?>
                         </label>
                     </div>
@@ -165,9 +193,10 @@ $iscritti_per_parrocchia = array_reduce(
     </ul>
 
     <div class="col-12 mt-2">
-        <button 
-            class="btn btn-primary" 
+        <button
+            class="btn btn-primary"
             type="submit"
+            title="Salva squadra"
         >
             <?php if (empty($id)) { ?>
                 Crea

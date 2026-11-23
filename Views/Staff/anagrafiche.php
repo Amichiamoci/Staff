@@ -8,11 +8,12 @@ assert(isset($anagrafiche) && is_array($anagrafiche), 'var $anagrafiche not vali
 
 <div class="container m-1">
     <div class="form-floating overflow-hidden">
-        <input  type="search" 
-                id="anagrafiche-search" 
-                class="form-control anagrafiche-search-input"                
-                list="anagrafiche-data-list"
-                title="Cerca persona"
+        <input
+            type="search"
+            id="anagrafiche-search"
+            class="form-control anagrafiche-search-input"
+            list="anagrafiche-data-list"
+            title="Cerca persona"
         >
         <label for="search">Cerca nome, cognome, email o numero di telefono</label>
     </div>
@@ -31,7 +32,8 @@ assert(isset($anagrafiche) && is_array($anagrafiche), 'var $anagrafiche not vali
 
 <div class="row">
     <?php foreach ($anagrafiche as $anagrafica) { ?>
-        <div class="col col-xs-12 col-sm-6 col-lg-4 mb-2"
+        <div
+            class="col col-xs-12 col-sm-6 col-lg-4 mb-2"
             data-keywords="<?= $anagrafica->KeyWords() ?>"
         >
             <?php require dirname(path: __DIR__) . "/Shared/Anagrafica.php"; ?>

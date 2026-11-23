@@ -13,12 +13,14 @@ assert(isset($nome) && is_string($nome), 'var $nome not valid');
 
 <a  href="<?= $P ?>/staff/iscrivi?id=<?= $id ?>"
     class="btn btn-primary m-2"
+    title="Iscrivi"
 >
     Iscrivi <?= htmlspecialchars(string: $nome) ?>
 </a>
 
 <a  href="<?= $P ?>/staff/new_anagrafica"
     class="btn btn-secondary m-2"
+    title="Registra nuova persona"
 >
     Registra nuova persona
 </a>

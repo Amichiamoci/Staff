@@ -11,13 +11,13 @@ assert(isset($tipi_torneo) && is_array($tipi_torneo), 'var $tipi_torneo not vali
     Crea nuovo torneo
 </h1>
 
-<form 
-    action="<?= $P ?>/sport/tournament_create" 
+<form
+    action="<?= $P ?>/sport/tournament_create"
     method="post"
 >
     <div class="form-floating mb-3">
-        <select 
-            name="edition" 
+        <select
+            name="edition"
             id="edition"
             class="form-control"
             required
@@ -35,8 +35,8 @@ assert(isset($tipi_torneo) && is_array($tipi_torneo), 'var $tipi_torneo not vali
     </div>
 
     <div class="form-floating mb-3">
-        <select 
-            name="sport" 
+        <select
+            name="sport"
             id="sport"
             class="form-control"
             required
@@ -55,15 +55,17 @@ assert(isset($tipi_torneo) && is_array($tipi_torneo), 'var $tipi_torneo not vali
     </div>
 
     <div class="form-floating mb-3">
-        <select 
-            name="type" 
+        <select
+            name="type"
             id="type"
             class="form-control"
             required
         >
             <?php foreach ($tipi_torneo as $tipo) { ?>
-                <option value="<?= $tipo->Id ?>"
-                    <?=($tipo->Id === TipoTorneo::$RoundRobin) ? 'selected' : ''?>>
+                <option
+                    value="<?= $tipo->Id ?>"
+                    <?=($tipo->Id === TipoTorneo::$RoundRobin) ? 'selected' : ''?>
+                >
                     <?= htmlspecialchars(string: $tipo->Nome) ?>
                 </option>
             <?php } ?>
@@ -75,11 +77,11 @@ assert(isset($tipi_torneo) && is_array($tipi_torneo), 'var $tipi_torneo not vali
     </div>
 
     <div class="form-floating mb-3">
-        <input 
-            type="text" 
-            name="name" 
-            id="name" 
-            class="form-control" 
+        <input
+            type="text"
+            name="name"
+            id="name"
+            class="form-control"
             required
             maxlength="128"
         >
@@ -89,7 +91,11 @@ assert(isset($tipi_torneo) && is_array($tipi_torneo), 'var $tipi_torneo not vali
         </div>
     </div>
 
-    <button type="submit" class="btn btn-primary">
+    <button
+        type="submit"
+        class="btn btn-primary"
+        title="Crea"
+    >
         Crea
     </button>
 </form>

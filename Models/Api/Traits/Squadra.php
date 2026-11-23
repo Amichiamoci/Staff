@@ -6,6 +6,8 @@ use Amichiamoci\Models\Api\Call as ApiCall;
 
 trait Squadra
 {
+
+    /** Prepares the current edition’s team list and maps its roster data. */
     protected function teams_info(): ApiCall
     {
         return new ApiCall(query: 'CALL `SquadreList`(YEAR(CURRENT_DATE), NULL);',

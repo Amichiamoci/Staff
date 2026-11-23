@@ -6,6 +6,8 @@ use Amichiamoci\Models\Api\Call as ApiCall;
 
 trait Torneo
 {
+
+    /** Maps a tournament row and its teams to the API payload. */
     private static function parse_tornei_attivi(array $r): array
     {
         return [
@@ -23,6 +25,7 @@ trait Torneo
         ];
     }
 
+    /** Looks up one active tournament by ID. */
     protected function tournament(int $Id): ApiCall
     {
         return new ApiCall(
@@ -33,6 +36,7 @@ trait Torneo
         );
     }
 
+    /** Returns expanded match and score data for the requested tournament. */
     protected function tournament_matches(int $Id): ApiCall
     {
         return new ApiCall(
@@ -102,6 +106,7 @@ trait Torneo
         );
     }
 
+    /** Lists tournament standings in descending numeric score order. */
     protected function tournament_leaderboard(int $Id): ApiCall
     {
         return new ApiCall(
@@ -128,6 +133,7 @@ trait Torneo
         );
     }
 
+    /** Lists active tournaments for the requested sports area. */
     protected function tournament_sport(string $Sport): ApiCall
     {
         return new ApiCall(

@@ -19,20 +19,30 @@ $squadre_per_sport = array_reduce(
     initial: [],
 );
 ?>
-<?php if ($user->Admin || $staff !== null) { ?>
+<?php if ($user->Admin || isset($staff)) { ?>
     <div class="input-group mb-2">
-        <select id="parrocchia-selector" class="form-control">
+        <select
+            id="parrocchia-selector"
+            class="form-control"
+        >
             <?php foreach ($parrocchie as $parrocchia) { ?>
-                <option value="<?= $parrocchia->Id ?>" 
+                <option
+                    value="<?= $parrocchia->Id ?>"
                     <?= ($parrocchia->Id === $id_parrocchia) ? 'selected' : '' ?>
                 >
                     <?= htmlspecialchars(string: $parrocchia->Nome) ?>
                 </option>
             <?php } ?>
         </select>
-        <select id="anno-selector" class="form-control">
+        <select
+            id="anno-selector"
+            class="form-control"
+        >
             <?php foreach ($edizioni as $e) { ?>
-                <option value="<?= $e->Year ?>" <?= ($e->Year === $anno) ? 'selected' : '' ?>>
+                <option
+                    value="<?= $e->Year ?>"
+                    <?= ($e->Year === $anno) ? 'selected' : '' ?>
+                >
                     <?= $e->Year ?>
                 </option>
             <?php } ?>
@@ -62,7 +72,10 @@ $squadre_per_sport = array_reduce(
     Le squadre sono raggruppate per lo sport per il quale sono registrate
 </p>
 <?php foreach (array_keys(array: $squadre_per_sport) as $sport_id) { ?>
-    <details class="mt-1" open>
+    <details
+        class="mt-1"
+        open
+    >
         <summary>
             <h4 class="d-inline">
                 <?= htmlspecialchars(string: $squadre_per_sport[$sport_id][0]->Sport->Nome) ?>

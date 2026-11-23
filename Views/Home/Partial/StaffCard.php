@@ -1,15 +1,21 @@
 <?php 
 use Amichiamoci\Models\Staff;
 
+assert(isset($P) && is_string($P), 'var $P not valid');
+assert(isset($user) && $user instanceof \Amichiamoci\Models\User, 'var $user not valid');
+
 if (isset($staff) && $staff instanceof Staff) { 
 ?>
-    <div class="card" id="staff-<?= $staff->Id ?>">
+    <div
+        class="card"
+        id="staff-<?= $staff->Id ?>"
+    >
         <div class="card-body">
             <div class="card-title">
                 <strong>
                     <?= htmlspecialchars(string: $staff->Nome) ?>
                 </strong>
-                <a  href="<?= $P ?>/staff/me" 
+                <a  href="<?= $P ?>/staff/me"
                     class="link-underline link-underline-opacity-0 link-primary"
                     title="Modifica i miei dati"
                 >
@@ -43,7 +49,7 @@ if (isset($staff) && $staff instanceof Staff) {
                     </dd>
 
                     <dt class="col-sm-4">
-                        <a  href="<?= $P ?>/staff/get_involved" 
+                        <a  href="<?= $P ?>/staff/get_involved"
                             class="text-reset"
                             title="Cambia le commissioni a cui partecipi"
                         >
@@ -78,7 +84,10 @@ if (isset($staff) && $staff instanceof Staff) {
     </div>
 
 <?php } else { ?>
-    <div class="card" id="staff-to-create">
+    <div
+        class="card"
+        id="staff-to-create"
+    >
         <div class="card-body">
             <div class="card-title">
                 <strong>
@@ -91,7 +100,7 @@ if (isset($staff) && $staff instanceof Staff) {
                 Se hai partecipato alla manifestazione in passato ti dovrebbe bastare la
                 procedura seguente per diventare uno staffista.
             </p>
-            <a  href="<?= $P ?>/staff/me" 
+            <a  href="<?= $P ?>/staff/me"
                 class="link-underline link-underline-opacity-0 link-primary"
                 title="Diventa staff"
             >

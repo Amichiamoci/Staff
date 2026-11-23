@@ -18,6 +18,11 @@ class Anagrafica extends AnagraficaBase
     public string $DocumentExpiration = "";
     public string $DocumentFileName = "";
     
+
+    /**
+     * Saves a person’s data by fiscal code and returns the record ID, or zero when the operation is refused.
+     * Updates to staff records require explicit authorization from the caller.
+     */
     public static function CreateOrUpdate(
         \mysqli $connection, 
         string $nome, string $cognome, 
@@ -83,6 +88,10 @@ class Anagrafica extends AnagraficaBase
         return $id;
     }
 
+    /**
+     * Stores the document URI for an existing person.
+     * Throws if the update does not change exactly one row.
+     */
     public static function ReplaceDocumentPath(\mysqli $connection, int $id, string $path): void
     {
         $connection->execute_query(
@@ -94,6 +103,7 @@ class Anagrafica extends AnagraficaBase
         }
     }
 
+    /** Loads a person with document metadata, or returns null when the ID is absent. */
     public static function ById(\mysqli $connection, int $id) : ?self
     {
         if (!$connection || $id === 0)
@@ -112,6 +122,7 @@ class Anagrafica extends AnagraficaBase
         return null;
     }
 
+    /** Lists expanded personal records and applies the optional filter to the resulting objects. */
     public static function All(\mysqli $connection, ?callable $filter = null) : array
     {
         if (!$connection)
@@ -133,6 +144,8 @@ class Anagrafica extends AnagraficaBase
         return $arr;
     }
     
+
+    /** Finds a personal record by fiscal code, without requiring an enrollment. */
     public static function FromFiscalCode(\mysqli $connection, string $cf) : ?self
     {
         if (!$connection || strlen(string: trim(string: $cf)) === 0)
@@ -150,6 +163,7 @@ class Anagrafica extends AnagraficaBase
         return null;       
     }
 
+    /** Maps an expanded database row to a person and accepts both birth date aliases used by the views. */
     protected static function FromDbRow(array $row): self
     {
         $a = new self(
@@ -190,6 +204,7 @@ class Anagrafica extends AnagraficaBase
         return $a;
     }
 
+    /** Collects searchable terms for the personal record. */
     public function KeyWords(): string {
         $a = [
             $this->Nome,
@@ -206,6 +221,7 @@ class Anagrafica extends AnagraficaBase
         return join(separator: ' ', array: $a);
     }
 
+    /** Converts an Italian birth date to ISO format and preserves unrecognized input. */
     public function AmericanBirthDay(): string {
         $date = \DateTime::createFromFormat(format: 'd/m/Y', datetime: $this->BirthDay);
         if (!$date) 
@@ -214,6 +230,7 @@ class Anagrafica extends AnagraficaBase
         return $date->format(format: 'Y-m-d');
     }
 
+    /** Returns the number of people grouped by place of birth. */
     public static function GroupFrom(\mysqli $connection): array
     {
         if (!$connection) 
@@ -227,6 +244,7 @@ class Anagrafica extends AnagraficaBase
         return $result->fetch_all(mode: MYSQLI_ASSOC);
     }
 
+    /** Returns the email counts grouped by provider. */
     public static function EmailProviders(\mysqli $connection): array
     {
         if (!$connection)
@@ -239,6 +257,7 @@ class Anagrafica extends AnagraficaBase
         return $result->fetch_all(mode: MYSQLI_ASSOC);
     }
 
+    /** Returns shared email addresses with their associated people and skips inconsistent aggregate rows. */
     public static function DulicateEmails(\mysqli $connection): array
     {
         if (!$connection) 
@@ -278,6 +297,7 @@ class Anagrafica extends AnagraficaBase
         return $arr;
     }
 
+    /** Lists people without a recorded email address. */
     public static function WithoutEmail(\mysqli $connection): array
     {
         if (!$connection) return [];

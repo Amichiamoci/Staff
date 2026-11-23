@@ -10,6 +10,8 @@ class Staff extends StaffBase
     public bool $Referente = false;
     public ?string $CodiceFiscale = null;
     
+
+    /** Checks the commission name after trimming and normalizing case on both sides. */
     public function InCommissione(string $commissione): bool
     {
         return in_array(
@@ -21,6 +23,7 @@ class Staff extends StaffBase
         );
     }
 
+    /** Considers a staff record complete when it has a fiscal code and shirt size. */
     public function IsEnrolled(): bool
     {
         return !empty($this->CodiceFiscale) && !empty($this->Taglia);
@@ -54,6 +57,8 @@ class Staff extends StaffBase
             $this->CodiceFiscale = $codice_fiscale;
         }
     }
+
+    /** Loads the current staff record, including staff whose enrollment is incomplete. */
     public static function ById(\mysqli $connection, int $id) : ?self
     {
         if (!$connection || $id === 0)
@@ -90,6 +95,11 @@ class Staff extends StaffBase
         }
         return null;
     }
+
+    /**
+     * Links an account to a personal record in a parish and returns the new staff ID.
+     * Locks both records so concurrent requests cannot create duplicate links.
+     */
     public static function Create(\mysqli $connection, int $id_anagrafica, int $user, int $parrocchia) : ?int
     {
         if (!$connection)
@@ -115,6 +125,8 @@ class Staff extends StaffBase
             throw $exception;
         }
     }
+
+    /** Changes the staff member’s parish and reports whether a row changed. */
     public static function ChangeParrocchia(\mysqli $connection, int $staff, int|Parrocchia $parrocchia) : bool
     {
         if ($parrocchia instanceof Parrocchia) {
@@ -125,6 +137,8 @@ class Staff extends StaffBase
         $query = "UPDATE `staffisti` SET `parrocchia` = $parrocchia WHERE `id` = $staff";
         return (bool)$connection->query(query: $query) && $connection->affected_rows === 1;
     }
+
+    /** Enrolls a staff member in an edition with their shirt size, commissions, and representative status. */
     public static function Partecipa(
         \mysqli $connection, 
         int $staff, 
@@ -159,6 +173,7 @@ class Staff extends StaffBase
         return $result;
     }
 
+    /** Lists the staff enrolled in the current edition. */
     public static function All(\mysqli $connection): array {
         if (!$connection) 
             return [];
@@ -192,6 +207,7 @@ class Staff extends StaffBase
         return $arr;
     }
 
+    /** Lists the staff of one parish and year. */
     public static function FromParrocchia(\mysqli $connection, int $id, int $anno): array {
         if (!$connection) return [];
         $query = "SELECT * FROM `staff_per_edizione` WHERE `id_parrocchia` = $id AND `anno` = $anno";
@@ -225,6 +241,7 @@ class Staff extends StaffBase
         return $arr;
     }
 
+    /** Loads a parish’s shirt sizes for the selected year. */
     public static function MaglieDellaParrocchia(\mysqli $connection, int $parrocchia, int $anno): array
     {
         $p = new Parrocchia(id: $parrocchia, nome: 'Dummy');

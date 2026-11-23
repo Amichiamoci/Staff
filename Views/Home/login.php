@@ -1,15 +1,27 @@
+<?php
+
+assert(isset($P) && is_string($P), 'var $P not valid');
+assert(isset($message) && is_string($message), 'var $message not valid');
+assert(!isset($username) || is_string($username), 'var $username not valid');
+
+?>
+
 <h1>
     Effettua il login
 </h1>
 
-<form method="post" id="login-form">
+<form
+    method="post"
+    id="login-form"
+>
     <div class="form-floating mb-3">
-        <input 
+        <input
             required
-            type="text" 
-            class="form-control" 
-            id="username" autocomplete="username"
-            name="username" 
+            type="text"
+            class="form-control"
+            id="username"
+            autocomplete="username"
+            name="username"
             placeholder="..."
             value="<?= empty($username) ? '' : htmlspecialchars(string: $username) ?>"
         >
@@ -19,12 +31,12 @@
         </div>
     </div>
     <div class="form-floating">
-        <input 
+        <input
             required
-            type="password" 
-            class="form-control" 
-            id="password" 
-            name="password" 
+            type="password"
+            class="form-control"
+            id="password"
+            name="password"
             placeholder="Password"
             autocomplete="current-password"
         >
@@ -35,9 +47,10 @@
         <div class="form-text">
             Password dimenticata?
             Clicca
-            <a  href="<?= $P ?>/user/password_recover" 
+            <a  href="<?= $P ?>/user/password_recover"
                 class="link-underline link-underline-opacity-0 link-primary"
-                title="Recupera la password">
+                title="Recupera la password"
+            >
                 qui
             </a>
         </div>
@@ -45,7 +58,10 @@
 
     <?php if (!empty($message)) { ?>
         <div class="col mt-2">
-            <div class="alert alert-warning user-select-none" role="alert">
+            <div
+                class="alert alert-warning user-select-none"
+                role="alert"
+            >
                 <strong>
                     <i class="bi bi-exclamation-triangle"></i>
                 </strong>    
@@ -55,14 +71,15 @@
     <?php } ?>
 
     <div class="col-12 mt-2">
-        <button 
-            class="btn btn-primary g-recaptcha" 
+        <button
+            class="btn btn-primary g-recaptcha"
             type="submit"
-        <?php if (!empty(RECAPTCHA_PUBLIC_KEY)) { ?>
-            data-sitekey="<?= RECAPTCHA_PUBLIC_KEY ?>" 
+            <?php if (!empty(RECAPTCHA_PUBLIC_KEY)) { ?>
+            data-sitekey="<?= RECAPTCHA_PUBLIC_KEY ?>"
             data-callback="recaptchaCallback"
             data-action="login"
-        <?php } ?>
+            <?php } ?>
+            title="Accedi"
         >
             Accedi
         </button>
@@ -75,5 +92,9 @@
             $('#login-form').submit();
         }
     </script>
-    <script src="https://www.google.com/recaptcha/enterprise.js?render=<?= RECAPTCHA_PUBLIC_KEY ?>" async defer></script>
+    <script
+        src="https://www.google.com/recaptcha/enterprise.js?render=<?= RECAPTCHA_PUBLIC_KEY ?>"
+        async
+        defer
+    ></script>
 <?php } ?>

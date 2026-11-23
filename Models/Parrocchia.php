@@ -6,6 +6,8 @@ use Amichiamoci\Models\Templates\NomeIdSemplice;
 class Parrocchia extends NomeIdSemplice
 {
     public static function Table(): string { return "parrocchie"; }
+
+    /** Resolves the parish associated with a staff user account. */
     public static function ByUserId(\mysqli $connection, int $user) : ?self
     {
         if (!$connection || $user <= 0)
@@ -29,6 +31,7 @@ class Parrocchia extends NomeIdSemplice
         return null;
     }
 
+    /** Loads the shirt sizes assigned to the parish for one year. */
     public function Maglie(\mysqli $connection, int $year) : array
     {
         if (!$connection || $this->Id === 0)

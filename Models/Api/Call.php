@@ -23,6 +23,7 @@ class Call
         $this->IsProcedure = $is_procedure;
     }
 
+    /** Executes the database call and maps the selected rows into the API response. */
     public function Execute(\mysqli $connection): ?array
     {
         $response = $connection->execute_query($this->Query, $this->parameters);

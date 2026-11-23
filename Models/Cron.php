@@ -25,7 +25,8 @@ class Cron
 
     /**
      * Checks if the CRON is (or was) due now with a confidence of $expiryMinutes
-     * @param int $expiryMinutes Number of minutes to consider a CRON as "due" BEFORE its scheduled time. Default is 4 minutes.
+     * @param int $expiryMinutes Number of minutes to consider a CRON as "due" before its scheduled time.
+     *                    Default is 4 minutes.
      * @return bool true if the CRON is due, false otherwise
      */
     public function isDue(int $expiryMinutes = 4): bool
@@ -38,6 +39,7 @@ class Cron
         return $currentTime >= $nextRun;
     }
 
+    /** Loads the cron record for a single job. */
     public static function fetchFromDb(\mysqli $connection, string $name): ?self
     {
         $result = $connection->execute_query(
@@ -59,6 +61,7 @@ class Cron
         );
     }
 
+    /** Loads the stored schedule and last-run information for all cron jobs. */
     public static function fetchAllFromDb(\mysqli $connection): array
     {
         $result = $connection->execute_query(
@@ -79,11 +82,13 @@ class Cron
         return $cronJobs;
     }
 
+    /** Converts the elapsed days and hours to whole hours. */
     private static function dateIntervalToHours(\DateInterval $interval): int
     {
         return ($interval->d * 24) + $interval->h + (int)($interval->i / 60);
     }
 
+    /** Registers a cron job so subsequent runs can track its schedule. */
     public function createInDB(\mysqli $connection): void
     {
         $connection->execute_query(
@@ -96,6 +101,7 @@ class Cron
         );
     }
 
+    /** Records the most recent execution time for the stored job. */
     public function updateLastRunInDb(\mysqli $connection): void
     {
         $connection->execute_query(

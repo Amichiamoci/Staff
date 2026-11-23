@@ -1,6 +1,20 @@
 <?php
 use Amichiamoci\Models\Staff;
 
+assert(isset($P) && is_string($P), 'var $P not valid');
+assert(isset($card_title) && is_string($card_title), 'var $card_title not valid');
+assert(isset($card_json_base) && is_string($card_json_base), 'var $card_json_base not valid');
+assert(isset($card_js_mapper) && is_string($card_js_mapper), 'var $card_js_mapper not valid');
+assert(isset($card_nothing_found) && is_string($card_nothing_found), 'var $card_nothing_found not valid');
+
+if (!isset($card_church_year_ignore)) {
+    assert(isset($churches) && is_array($churches), 'var $churches not valid');
+    assert(isset($user) && $user instanceof \Amichiamoci\Models\User, 'var $user not valid');
+    if ($user->Admin) {
+        assert(isset($editions) && is_array($editions), 'var $editions not valid');
+    }
+}
+
 $default_parrocchia = 0;
 if (isset($staff) && $staff instanceof Staff) {
     $default_parrocchia = $staff->Parrocchia->Id;
@@ -14,15 +28,26 @@ if (!isset($card_name))
     <?php if (!isset($card_church_year_ignore)) { ?>
         <div class="card-header user-select-none">
             <div class="input-group">
-                <select id="<?= $card_name ?>-church" class="form-control mb-1" title="Parrocchia">
+                <select
+                    id="<?= $card_name ?>-church"
+                    class="form-control mb-1"
+                    title="Parrocchia"
+                >
                     <?php foreach ($churches as $church) { ?>
-                        <option value="<?= $church->Id ?>" <?= ($church->Id === $default_parrocchia) ? 'selected' : '' ?>>
+                        <option
+                            value="<?= $church->Id ?>"
+                            <?= ($church->Id === $default_parrocchia) ? 'selected' : '' ?>
+                        >
                             <?= htmlspecialchars(string: $church->Nome) ?>
                         </option>
                     <?php } ?>
                 </select>
                 <?php if ($user->Admin) { ?>
-                    <select id="<?= $card_name ?>-year" class="form-control mb-1" title="Edizione">
+                    <select
+                        id="<?= $card_name ?>-year"
+                        class="form-control mb-1"
+                        title="Edizione"
+                    >
                         <?php foreach ($editions as $edition) { ?>
                             <option value="<?= $edition->Year ?>">
                                 <?= $edition->Year ?>
@@ -30,7 +55,11 @@ if (!isset($card_name))
                         <?php } ?>
                     </select>
                 <?php } else { ?>
-                    <input type="hidden" id="<?= $card_name ?>-year" value="<?= date(format: 'Y') ?>">
+                    <input
+                        type="hidden"
+                        id="<?= $card_name ?>-year"
+                        value="<?= date(format: 'Y') ?>"
+                    >
                 <?php }?>
             </div>
         </div>
@@ -40,6 +69,7 @@ if (!isset($card_name))
             <?php if (isset($card_link)) { ?>
                 <a  href="<?= $P . $card_link ?>"
                     class="link-underline link-underline-opacity-0 text-reset"
+                    title="Apri il riepilogo"
                 >
                     <strong>
                         <?= htmlspecialchars(string: $card_title) ?>
@@ -56,7 +86,10 @@ if (!isset($card_name))
                 <?= htmlspecialchars(string: $card_subtitle) ?>
             </div>
         <?php } ?>
-        <ul class="list-group-flush p-0 overflow-y-auto" style="max-height: 250px;" id="<?= $card_name ?>-list"></ul>
+        <ul class="list-group-flush p-0 overflow-y-auto"
+            style="max-height: 250px;"
+            id="<?= $card_name ?>-list"
+        ></ul>
     </div>
 </div>
 

@@ -22,6 +22,7 @@ class PunteggioParrocchia
         $this->Punteggio = $punteggio;
     }
 
+    /** Records the parish’s scores for the specified edition. */
     public static function Insert(
         \mysqli $connection,
         string|int $edizione,
@@ -40,6 +41,8 @@ class PunteggioParrocchia
         $query = "REPLACE INTO `punteggio_parrocchia` (`parrocchia`, `edizione`, `punteggio`) VALUES (?, ?, ?)";
         return (bool)$connection->execute_query($query, [$parrocchia, $edizione, $punteggio]);
     }
+
+    /** Loads the parish standings for the specified year. */
     public static function All(
         \mysqli $connection,
         int $year

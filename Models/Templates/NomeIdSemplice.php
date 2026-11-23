@@ -6,6 +6,8 @@ abstract class NomeIdSemplice implements DbEntity
 {
     public int $Id = 0;
     public string $Nome = "";
+
+    /** Names the database table that supplies the model’s IDs and labels. */
     abstract protected static function Table(): string;
     public function __construct(
         string|int|null $id,
@@ -16,6 +18,8 @@ abstract class NomeIdSemplice implements DbEntity
         if (isset($nome) && is_string(value: $nome))
             $this->Nome = $nome;
     }
+
+    /** Lists all ID and label pairs for the concrete model. */
     public static function All(\mysqli $connection) : array
     {  
         if (!$connection)
@@ -42,6 +46,7 @@ abstract class NomeIdSemplice implements DbEntity
         return $list;
     }
 
+    /** Loads one ID and label pair for the concrete model. */
     public static function ById(\mysqli $connection, int $id): ?self
     {
         if (!$connection)

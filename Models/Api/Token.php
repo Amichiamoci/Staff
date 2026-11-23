@@ -18,6 +18,7 @@ class Token extends NomeIdSemplice
         $this->Key = $key;
     }
 
+    /** Lists API credentials for the administration page. */
     public static function All(\mysqli $connection): array
     {
         if (!$connection)
@@ -41,6 +42,7 @@ class Token extends NomeIdSemplice
         return $arr;
     }
 
+    /** Verifies an API credential and records request activity on success. */
     public static function Test(\mysqli $connection, string $key, string $ip): bool
     {
         if (!$connection)
@@ -67,6 +69,7 @@ class Token extends NomeIdSemplice
         return true;
     }
 
+    /** Generates a new named API credential and returns it to the caller. */
     public static function New(\mysqli $connection, string $name): ?self
     {
         if (!$connection)
@@ -91,6 +94,7 @@ class Token extends NomeIdSemplice
         );
     }
 
+    /** Revokes an API credential by ID. */
     public static function Delete(\mysqli $connection, int $id): bool
     {
         if (!$connection)

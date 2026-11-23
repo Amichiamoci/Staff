@@ -42,9 +42,9 @@ extends BaseController
     }
 
     /**
-     * Returns the associated staff object. If none exists interrupts the flow and calls
-     * NotAuthorized(). Returns null if there is no staff associated with the user but the user
-     * is admin.
+     * Returns the associated staff object.
+     * If no staff object exists, calls NotAuthorized() and exits for a non-administrator.
+     * Returns null for an administrator without an associated staff object.
      * @return Staff|null
      */
     public static function _RequireStaff(
@@ -84,7 +84,7 @@ extends BaseController
 
     /**
      * Adds a message to display in the current flow.
-     * Does not work with redirects
+     * Does not work with redirects.
      * @param Message|string|null $message
      * @return void
      */

@@ -459,7 +459,7 @@ extends Controller
                 return $this->edit_anagrafica(id: $id);
             }
 
-            // We have creted a new record. Hopefully
+            // We have created a new record.
             if (!empty($record_id))
             {
                 // Everything went ok

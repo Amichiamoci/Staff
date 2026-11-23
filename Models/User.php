@@ -59,6 +59,8 @@ implements DbEntity
         $this->IsBanned = $is_blocked;
     }
     
+
+    /** Ends the local login session and clears the session cookie. */
     public function Logout() : bool
     {
         $cookie = session_get_cookie_params();
@@ -77,6 +79,7 @@ implements DbEntity
         return $destroyed && $expired;
     }
 
+    /** Starts the PHP session with the portal’s cookie and HTTPS settings. */
     private static function SessionStart() : bool
     {
         return session_start(options: [
@@ -91,6 +94,7 @@ implements DbEntity
         ]);
     }
 
+    /** Inserts the database session record and returns its ID, or zero on failure. */
     private static function LogSessionStart(
         \mysqli $connection,
         int $id,
@@ -125,6 +129,11 @@ implements DbEntity
         return $ret;
     }
     
+
+    /**
+     * Verifies the credentials of an active account and starts a new recorded session.
+     * Writes authenticated session values only after the database session is created.
+     */
     public static function Login(
         \mysqli $connection, 
         string $username,
@@ -184,6 +193,7 @@ implements DbEntity
         return true;
     }
 
+    /** Reconstructs the user from the existing PHP session, including cached staff data when present. */
     public static function LoadFromSession(): ?self
     {
         if (session_status() !== PHP_SESSION_ACTIVE && !self::SessionStart())
@@ -219,6 +229,7 @@ implements DbEntity
         return $user;
     }
 
+    /** Loads the linked personal and staff IDs and the user’s display name from the database. */
     public function LoadAdditionalData(\mysqli $connection): bool
     {
         if (!$connection || $this->Id === 0)
@@ -249,11 +260,13 @@ implements DbEntity
         return $this->IdAnagrafica !== 0;
     }
 
+    /** Checks whether the account has a known linked personal record. */
     public function HasAdditionalData(): bool
     {
         return !empty($this->IdAnagrafica);
     }
 
+    /** Caches the linked staff and personal data in the active PHP session. */
     public function PutAdditionalInSession() : bool
     {
         if (session_status() !== PHP_SESSION_ACTIVE || 
@@ -268,11 +281,14 @@ implements DbEntity
         return true;
     }
     
+
+    /** Returns the elapsed time since login in seconds. */
     public function TimeLogged() : int
     {
         return time() - $this->LoginTime;
     }
 
+    /** Formats the elapsed login time for display. */
     public function TimeLoggedMessage(): string
     {
         $diff = (int)($this->TimeLogged() / 60);
@@ -293,11 +309,13 @@ implements DbEntity
         return "$diff giorni fa";
     }
 
+    /** Updates the in-memory activity timestamp. */
     public function UpdateLogTs(): void
     {
         $this->LoginTime = time();
     }
 
+    /** Copies the activity timestamp into the active PHP session. */
     public function PutLogTsInSession() : bool
     {
         if (session_status() !== PHP_SESSION_ACTIVE)
@@ -306,6 +324,8 @@ implements DbEntity
         $_SESSION[self::$LOGIN_TIME] = $this->LoginTime;
         return $this->LoginTime !== 0;
     }
+
+    /** Refreshes the last activity time of the stored session. */
     public function UploadDbLog(\mysqli $connection): bool
     {
         if (!$connection || 
@@ -323,6 +343,7 @@ implements DbEntity
         return $result;
     }
 
+    /** Checks an account’s current password against the hash stored for its ID. */
     private function TestPassword(
         \mysqli $connection, 
         #[\SensitiveParameter] string $password,
@@ -355,6 +376,7 @@ implements DbEntity
     }
 
 
+    /** Hashes and stores a new account password without requiring the current password. */
     public function ForceSetNewPassword(
         \mysqli $connection, 
         #[\SensitiveParameter] ?string $new_password,
@@ -374,6 +396,7 @@ implements DbEntity
         return $ret;
     }
 
+    /** Changes the account password after verifying the current password. */
     public function ChangePassword(
         \mysqli $connection, 
         #[\SensitiveParameter] ?string $password, 
@@ -389,6 +412,7 @@ implements DbEntity
         return $this->ForceSetNewPassword(connection: $connection, new_password: $new_password);
     }
 
+    /** Updates the username after verifying the account password. */
     public function ChangeUserName(
         \mysqli $connection, 
         #[\SensitiveParameter] string $password, 
@@ -425,6 +449,7 @@ implements DbEntity
         return $ret;
     }
 
+    /** Creates a user with a hashed password and the requested administrator status. */
     public static function Create(
         \mysqli $connection,
         string $username, 
@@ -465,6 +490,7 @@ implements DbEntity
         );
     }
 
+    /** Blocks a user account. */
     public static function Ban(\mysqli $connection, string|int|null $id) : bool
     {
         if (!$connection || empty($id))
@@ -479,6 +505,7 @@ implements DbEntity
         return $result;
     }
 
+    /** Unblocks a user account. */
     public static function Restore(\mysqli $connection, string|int|null $id) : bool
     {
         if (!$connection || empty($id))
@@ -493,6 +520,7 @@ implements DbEntity
         return $result;
     }
 
+    /** Deletes a user through the database routine. */
     public static function Delete(\mysqli $connection, int $target) : bool
     {
         if (!$connection || $target === 0)
@@ -508,6 +536,7 @@ implements DbEntity
         }
     }
 
+    /** Uses the linked person’s name when available and otherwise returns the username. */
     public function Label() : string
     {
         if (!empty($this->RealName))
@@ -516,6 +545,7 @@ implements DbEntity
         return $this->Name;
     }
 
+    /** Looks up an account by its ID. */
     public static function ById(\mysqli $connection, int $id): ?self
     {
         if (!$connection)
@@ -535,6 +565,7 @@ implements DbEntity
         );
     }
 
+    /** Looks up an account by its username. */
     public static function ByName(\mysqli $connection, string $username): ?self
     {
         if (!$connection)
@@ -557,6 +588,7 @@ implements DbEntity
         );
     }
 
+    /** Lists user accounts along with the linked staff information available in the expanded view. */
     public static function All(\mysqli $connection) : array
     {
         if (!$connection)
@@ -593,6 +625,7 @@ implements DbEntity
         return $arr;
     }
 
+    /** Returns a recent sample of login sessions for the administrator activity page. */
     public static function Activity(\mysqli $connection) : array
     {
         if (!$connection)
@@ -618,6 +651,8 @@ implements DbEntity
         return $arr;
     }
     
+
+    /** Lists this account’s sessions in descending activity order. */
     public function LoginList(\mysqli $connection) : array 
     {
         if (!$connection)

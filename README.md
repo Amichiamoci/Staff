@@ -7,114 +7,168 @@
 [![Deploy FTP](https://github.com/Amichiamoci/Staff/actions/workflows/ftp-deploy.yml/badge.svg)](https://github.com/Amichiamoci/Staff/actions/workflows/ftp-deploy.yml)
 [![PHP 8.4+](https://img.shields.io/badge/PHP-8.4%2B-777BB4?logo=php&logoColor=white)](composer.json)
 
-Portale riservato allo staff della manifestazione [Amichiamoci](https://www.amichiamoci.it) per gestire iscrizioni, squadre, tornei e partite.
+Questo repository contiene il codice sorgente del portale staff, il pannello di controllo di [Amichiamoci](https://www.amichiamoci.it), la manifestazione delle parrocchie di Livorno.
 
-## Avvio con Docker
+## Funzionalità
 
-1. Crea un database MariaDB vuoto con codifica `utf8mb4` e un utente dedicato. L'utente deve poter creare tabelle, viste e routine nel database. Se MariaDB è in un altro container, collega i due container alla stessa rete Docker e usa il nome del servizio come `MYSQL_HOST`.
-2. Prepara un file locale `.env` con i valori della tabella qui sotto. Limita i permessi del file con `chmod 600 .env`.
-3. Scarica l'immagine e avvia il portale. Nell'esempio MariaDB è già raggiungibile dalla rete `amichiamoci`.
+- Gestione delle edizioni, delle parrocchie, delle anagrafiche e delle iscrizioni, con documenti di identità, certificati medici e dati per il tesseramento CSI.
+- Organizzazione dello staff con account, ruoli di commissione e referenti parrocchiali.
+- Gestione di squadre, tornei, calendari, campi, risultati e classifiche.
+- Invio di email con l’editor Quill integrato, consultazione delle ultime 500 email e storico completo per destinatario.
+- Archivio file locale o su Google Drive con cifratura della sorgente e download soggetti ai permessi del portale.
+- API opzionale per le integrazioni e attività periodiche eseguite via cron.
 
-   ```sh
-   docker pull amichiamoci/staff
-   docker run -d --name amichiamoci-staff --network amichiamoci \
-     --env-file .env --publish 127.0.0.1:8080:8080 \
-     --volume amichiamoci-data:/amichiamoci/data amichiamoci/staff
-   ```
+## Architettura
 
-4. Apri <http://localhost:8080> e accedi con l'account configurato tramite `ADMIN_USERNAME` e `ADMIN_PASSWORD`. Se il servizio è destinato all'uso in rete, pubblicalo tramite un reverse proxy HTTPS che conservi l'host pubblico e imposta `SESSION_COOKIE_SECURE=1`.
-
-Il primo avvio importa lo schema solo in un database vuoto. Il container avvia il cron interno per le attività pianificate. Per installazioni esistenti esegui un backup del database e del volume dati prima dell'aggiornamento. Se un'importazione si interrompe, verifica lo stato dello schema prima di ripetere l'avvio.
-
-### Configurazione
-
-| Variabile | Uso |
-| --- | --- |
-| `MYSQL_DB` | Nome del database. |
-| `MYSQL_HOST`, `MYSQL_PORT` | Host MariaDB e porta. Valori predefiniti `localhost` e `3306`. |
-| `MYSQL_USER`, `MYSQL_PASSWORD` | Credenziali MariaDB. Il nome utente predefinito è `amichiamoci`. |
-| `ADMIN_USERNAME`, `ADMIN_PASSWORD` | Credenziali del primo amministratore. Obbligatorie per inizializzare il database. |
-| `SITE_NAME`, `MAIN_SITE_URL`, `DOMAIN` | Nome del portale, URL del sito pubblico e host pubblico. Configura `DOMAIN` per generare i link di recupero password. |
-| `RECAPTCHA_PUBLIC_KEY`, `RECAPTCHA_SECRET_KEY` | Coppia di chiavi per abilitare la verifica reCAPTCHA al login. |
-| `MAIL_OUTPUT_ADDRESS`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` | Configurazione della posta in uscita. La porta predefinita è `25`. La porta `465` usa TLS implicito. Sulle altre porte, la posta autenticata richiede STARTTLS. |
-| `CRON_CAPTURE_OUTGOING_ADDRESS` | Destinatario di prova per le email inviate dal cron. |
-| `SESSION_COOKIE_SECURE` | Imposta `1` quando TLS termina sul reverse proxy. |
-| `ENABLE_API` | Imposta `1` per abilitare le route API. |
-| `FILE_MAX_SIZE` | Limite applicativo per file in byte, predefinito a 10 MiB. |
-
-Conserva password e token in un gestore di segreti o in un file locale protetto. Le variabili possono essere fornite anche tramite i corrispondenti file Docker secrets in `/run/secrets/`, impostando una variabile come `MYSQL_PASSWORD_FILE=/run/secrets/mysql_password`. I backup del volume contengono dati personali e richiedono accesso ristretto.
-
-Per costruire l'immagine dalla copia locale usa `docker build -t amichiamoci/staff:local .` e passa quel tag a `docker run`.
-
-## Installazione con Apache
-
-1. Installa PHP 8.4 o successivo con `mysqli`, `gd`, `mbstring`, `fileinfo` e `sodium`, Composer 2 e il client `mariadb`. Usa `composer check-platform-reqs` per verificare l'ambiente.
-2. Esegui `composer install --no-interaction --prefer-dist --optimize-autoloader`, dalla directory del progetto.
-3. Configura un virtual host HTTPS. Attiva `mod_rewrite` e applica le regole di `docker/apache.htaccess` nella directory del progetto. Se usi un file `.htaccess`, consenti le direttive necessarie tramite `AllowOverride`. Usa un formato di access log che escluda le query string.
-4. Crea `data/documenti`, `data/certificati`, `data/tmp/cron` e `data/log`, scrivibili dall'utente del servizio PHP.
-5. Prepara il database e il file `.env`, poi esegui `php script/build-database.php`. Pianifica `php /percorso/del/progetto/script/cron.php` tramite il cron di sistema con l'utente del servizio PHP.
-
-Per respingere le richieste ai percorsi della lista di blocco prima della ricerca sul filesystem, includi `docker/apache-early.conf` nel virtual host dedicato con il portale come `DocumentRoot`. Su hosting condiviso, `.htaccess` restituisce lo stesso 404 senza avviare PHP, dopo che Apache ha cercato il file di configurazione. Le richieste alle directory degli asset possono richiedere una verifica del file sul disco. Aggiungi `env=!staff_rejected` al `CustomLog` del virtual host per escludere dal log di accesso i 404 prodotti dalle regole di riscrittura. Nginx esclude già i propri 404 dal log di accesso.
-
-I server web bloccano le richieste a file nascosti, percorsi PHP diretti, WordPress e pannelli di controllo. Il router PHP gestisce gli altri URL applicativi e restituisce 404 se il percorso non esiste. Le nuove azioni PHP sono disponibili senza modifiche alla configurazione del server web.
-
-La gestione dei tornei e dei risultati, la modifica delle anagrafiche collegate agli account staff e la modifica o cancellazione delle iscrizioni esistenti richiedono un amministratore.
-
-## Sorgenti file
-
-Gli amministratori possono consultare le sorgenti in **Sorgenti file** (`/file/list`). Il portale monta sempre `staff:///` sulla directory `data/` del progetto. Le sorgenti remote richiedono una configurazione completa. Da questa pagina gli amministratori possono scaricare i file, inclusi quelli della sorgente Drive cifrata. Il portale accetta documenti e certificati in JPEG, PNG, WebP o PDF e salva ogni caricamento come PDF.
-
-Il download dei documenti di identità è riservato agli amministratori. I certificati sono accessibili agli amministratori e agli staffisti con iscrizione completa della stessa parrocchia dell’iscritto. Per associare una nuova anagrafica, un amministratore apre la scheda utente e seleziona **Associa anagrafica staff**.
-
-| Variabile | Uso |
-| --- | --- |
-| `VFS_APP_URL` | URL HTTP o HTTPS di base per `app:///`. Quando configurata, la sorgente compare come non disponibile. |
-
-Il pannello accetta URI virtuali nei riferimenti ai file. Prima di usare il download per eventuali riferimenti precedenti salvati come percorsi locali, convertili in URI `staff:///` relativi alla directory `data/`.
-
-### Google Drive
-
-Per attivare `drive:///`, abilita Google Drive API in Google Cloud e configura un client OAuth con accesso offline. Usa un account autorizzato a leggere e scrivere nella cartella privata. Configura le seguenti variabili nell'ambiente del portale o tramite le corrispondenti variabili `_FILE`.
-
-| Variabile | Uso |
-| --- | --- |
-| `VFS_DRIVE_FOLDER_ID` | ID della cartella privata presente nel suo indirizzo Drive. |
-| `VFS_DRIVE_CLIENT_ID`, `VFS_DRIVE_CLIENT_SECRET` | Credenziali del client OAuth. |
-| `VFS_DRIVE_REFRESH_TOKEN` | Refresh token OAuth con accesso in lettura e scrittura alla cartella. |
-| `VFS_DRIVE_BASE_KEY` | Chiave di cifratura dell’intera sorgente Drive, in base64. Generala una sola volta con `base64_encode(random_bytes(32))` e conservala per rileggere i file. |
-
-Quando tutte le impostazioni Drive sono presenti, i nuovi caricamenti vengono salvati su Drive. Altrimenti il portale usa `staff:///` se configurata. I riferimenti già registrati con un URI virtuale continuano a usare la sorgente originale. VirtualFS usa la stessa chiave per tutti i file della sorgente Drive. I nomi e la struttura delle cartelle sono visibili agli utenti che possono accedere alla cartella Drive.
-
-Prima di aggiornare un’installazione con file cifrati per anagrafica, salvali tramite la versione precedente e riscrivili con la chiave di sorgente, mantenendo gli stessi URI. Conserva un backup e la vecchia chiave fino alla verifica. I file cifrati con le chiavi derivate in precedenza richiedono questa migrazione per essere leggibili dalla nuova versione.
-
-## GitHub Actions
-
-A ogni push, GitHub Actions esegue i test in Docker con PHP 8.4, 8.5 e 8.6 e un database MariaDB temporaneo. Il workflow Docker nightly esegue la stessa matrice prima di pubblicare il tag `:nighly` su Docker Hub e GitHub Container Registry.
-
-Per pubblicare una release stabile, esegui **Create GitHub release** dal branch desiderato con una versione come `1.2.3`. Il workflow verifica il commit e pubblica una release con tag `v1.2.3`. Configura il segreto `RELEASE_TOKEN` con un token GitHub dotato di permesso **Contents: Read and write** su questo repository. Una release pubblicata tramite quel token attiva i workflow di pubblicazione e deploy. [Documentazione GitHub](https://docs.github.com/en/actions/using-workflows/triggering-a-workflow)
-
-Alla pubblicazione di una release, entrambi i workflow verificano il commit della release prima di procedere. Docker pubblica `:latest` e il tag della release, ad esempio `:v1.2.3`, su entrambi i registri. Il workflow FTP genera la documentazione e carica l’applicazione sul server di produzione.
-
-## Email
-
-Gli amministratori possono comporre un messaggio con l’editor Quill integrato, consultare le ultime 500 email in ordine di invio e aprire lo storico completo di un destinatario. I file di Quill 2.0.3 sono distribuiti con [licenza BSD](Public/quill/LICENSE.txt).
-
-## Log degli errori
-
-Gli errori interni dell’applicazione vengono registrati in `data/log/errors.log` e nel log PHP. In Docker il log PHP è visibile con `docker compose -f .vscode/docker-compose.yml logs staff`. Le diagnostiche includono tipo, file, riga e codice dell’errore. Per gli errori SQL includono anche SQLSTATE. L’utente del servizio PHP deve poter scrivere in `data/log`.
-
-## Verifiche locali
-
-```sh
-composer validate
-composer audit --locked
-php tests/file-paths.php
-php tests/routing.php
-php tests/reset-token.php
+```mermaid
+flowchart LR
+    browser["Browser dello staff"] --> web["NGINX o Apache"]
+    web --> app["Portale PHP"]
+    cron["Cron"] --> app
+    app --> db[(MariaDB)]
+    app --> local["Archivio locale (staff:///)"]
+    app -.-> drive["Google Drive cifrato (opzionale)"]
+    app -->|Invio email| smtp["Server SMTP"]
 ```
 
-Per verificare i permessi SQL, esegui `php tests/file-access.php PORTA` con un MariaDB di prova su loopback, database `fixture` e account root locale senza password. Il test crea tabelle temporanee e una procedura di test che rimuove al termine. Esegui `sh tests/run.sh PORTA` per lanciare tutti i controlli della matrice con la versione PHP locale e Composer 2.
+## Installazione
 
-I test PHP usano directory temporanee e dati sintetici. Per una prova end-to-end, avvia il portale con un database di prova e verifica accesso, caricamento e download, invio dei moduli e aggiornamento di una partita.
+### Docker
 
-Il bundle locale [CodiceFiscale.js 2.4.0](https://github.com/lucavandro/CodiceFiscaleJS) è distribuito con [licenza CC BY-SA 4.0](Public/js/codicefiscale.LICENSE.txt).
+Prepara un database MariaDB vuoto con codifica `utf8mb4` e un utente dedicato con permessi per creare tabelle, viste e routine.
+Se MariaDB è in un altro container, collega i due container alla stessa rete Docker e usa il nome del servizio come `MYSQL_HOST`.
+
+Configura un file `.env` con le variabili descritte di seguito e limita l’accesso al file con `chmod 600 .env`.
+Imposta `ADMIN_USERNAME` e `ADMIN_PASSWORD` per la creazione del primo amministratore.
+
+```sh
+docker pull amichiamoci/staff:latest
+docker run -d --name amichiamoci-staff --network amichiamoci \
+  --env-file .env --publish 127.0.0.1:8080:8080 \
+  --volume amichiamoci-data:/amichiamoci/data amichiamoci/staff:latest
+```
+
+Il container inizializza lo schema su un database vuoto e avvia il cron.
+In produzione, usa un reverse proxy HTTPS che conservi l’host pubblico e imposta `SESSION_COOKIE_SECURE=1`.
+Prima di aggiornare un’installazione esistente, salva un backup del database e del volume dati.
+
+### Apache
+
+Installa PHP 8.4 o successivo con `mysqli`, `gd`, `mbstring`, `fileinfo` e `sodium`, Composer 2 e il client `mariadb`.
+Installa le dipendenze con `composer install --no-interaction --prefer-dist --optimize-autoloader` e verifica l’ambiente con `composer check-platform-reqs`.
+
+Configura un virtual host HTTPS con `mod_rewrite` e applica `docker/apache.htaccess` nella directory del progetto.
+Se usi `.htaccess`, abilita le direttive richieste tramite `AllowOverride`.
+Con il portale come `DocumentRoot` puoi anche includere `docker/apache-early.conf` per bloccare i percorsi vietati prima della ricerca sul filesystem.
+Usa un formato di log di accesso privo di query string.
+
+Crea le directory `data/documenti`, `data/certificati`, `data/tmp/cron` e `data/log` e rendile scrivibili dall’utente PHP.
+Prepara il database e il file `.env`, poi esegui `php script/build-database.php`.
+Pianifica `php /percorso/del/progetto/script/cron.php` nel cron di sistema con l’utente del servizio PHP.
+
+## Variabili d’ambiente
+
+Il portale legge le variabili dall’ambiente del processo e dal file `.env` nella radice del progetto.
+I valori già presenti nell’ambiente hanno precedenza.
+Per ogni variabile del portale puoi usare anche il suffisso `_FILE` per indicare un file che contiene il valore, come `MYSQL_PASSWORD_FILE=/run/secrets/mysql_password`.
+La variabile diretta, se impostata, ha precedenza sulla variante `_FILE`.
+Conserva credenziali e chiavi in un gestore di segreti o in un file protetto.
+
+### Database e amministrazione iniziale
+
+| Variabile | Uso |
+| --- | --- |
+| `MYSQL_HOST` | Host o nome del servizio MariaDB, predefinito `localhost`. |
+| `MYSQL_PORT` | Porta MariaDB, predefinita `3306`. |
+| `MYSQL_USER` | Utente MariaDB, predefinito `amichiamoci`. |
+| `MYSQL_PASSWORD` | Password dell’utente MariaDB. |
+| `MYSQL_DB` | Nome del database del portale. |
+| `ADMIN_USERNAME` | Nome utente del primo amministratore, usato durante l’inizializzazione. |
+| `ADMIN_PASSWORD` | Password del primo amministratore, usata durante l’inizializzazione. |
+
+### Sito, accesso e diagnostica
+
+| Variabile | Uso |
+| --- | --- |
+| `SITE_NAME` | Nome visualizzato nel portale e nelle email, predefinito `Amichiamoci`. |
+| `MAIN_SITE_URL` | Indirizzo del sito pubblico, predefinito `https://www.amichiamoci.it`. |
+| `DOMAIN` | Host pubblico del portale, usato nei link di recupero e di tracciamento, con ripiego sull’host della richiesta o su `localhost` da CLI. |
+| `SESSION_COOKIE_SECURE` | Imposta `1` per contrassegnare i cookie di sessione come sicuri anche quando HTTPS termina sul reverse proxy. |
+| `RECAPTCHA_PUBLIC_KEY` | Chiave pubblica reCAPTCHA che abilita la verifica nei moduli di accesso e recupero password. |
+| `RECAPTCHA_SECRET_KEY` | Chiave privata per la verifica server di reCAPTCHA quando è abilitato. |
+| `ENABLE_API` | Imposta `1` per registrare le route API, disabilitate per impostazione predefinita. |
+| `LOG_ROTATING_MAX_FILES` | Numero di file giornalieri da conservare per il log delle richieste, predefinito `14`. |
+
+Gli errori interni sono registrati in `data/log/errors.log` e nel log PHP, che in Docker è visibile anche nell’output del container.
+
+### Posta elettronica
+
+| Variabile | Uso |
+| --- | --- |
+| `MAIL_OUTPUT_ADDRESS` | Indirizzo mittente impostato nelle email, necessario per l’invio. |
+| `SMTP_HOST` | Nome del server SMTP, con ripiego su `localhost`. |
+| `SMTP_PORT` | Porta del server configurato con `SMTP_HOST`, predefinita `25`, con TLS implicito sulla porta `465`. |
+| `SMTP_USER` | Nome utente per autenticarsi sul server `SMTP_HOST`, con STARTTLS sulle porte diverse da `465`. |
+| `SMTP_PASSWORD` | Password per l’autenticazione SMTP. |
+| `MAIL_OPEN_SIGNING_KEY` | Chiave di almeno 32 byte per firmare i link di rilevamento delle aperture, disabilitati se la chiave manca o è troppo corta. |
+| `CRON_CAPTURE_OUTGOING_ADDRESS` | Indirizzo di prova che sostituisce il destinatario delle email di compleanno inviate dal cron. |
+
+### Archivio e Google Drive
+
+| Variabile | Uso |
+| --- | --- |
+| `FILE_MAX_SIZE` | Limite applicativo in byte per ogni file caricato, predefinito `10485760` (10 MiB). |
+| `VFS_DRIVE_FOLDER_ID` | ID della cartella privata Google Drive. |
+| `VFS_DRIVE_CLIENT_ID` | ID del client OAuth per Google Drive API. |
+| `VFS_DRIVE_CLIENT_SECRET` | Segreto del client OAuth. |
+| `VFS_DRIVE_REFRESH_TOKEN` | Token OAuth con accesso offline in lettura e scrittura alla cartella. |
+| `VFS_DRIVE_BASE_KEY` | Chiave di cifratura dell’intera sorgente Drive, codificata in base64 a partire da 32 byte casuali. |
+
+Il portale monta sempre `staff:///` sulla directory `data/`.
+Quando tutte e cinque le variabili Drive sono impostate, i nuovi file vengono salvati nella sorgente cifrata `drive:///`.
+Genera la chiave una sola volta con `base64_encode(random_bytes(32))` e conservala per rileggere i file.
+Prima di aggiornare da una versione che cifrava i file per anagrafica, decifrali con la versione precedente e riscrivili con la chiave di sorgente mantenendo gli URI.
+
+### Esportazione CSI
+
+| Variabile | Uso |
+| --- | --- |
+| `LEGAL_ADDRESS` | Indirizzo legale esportato nel formato via, civico, comune, CAP e provincia, predefinito `Via del Seminario, 68, Livorno, 57121, LI`. |
+| `CODICE_COMITATO_CSI` | Codice del comitato da inserire nell’esportazione CSI. |
+| `CODICE_SOCIETA_CSI` | Codice della società da inserire nell’esportazione CSI. |
+
+### Servizi Docker Compose
+
+I servizi MariaDB e phpMyAdmin in `.vscode/docker-compose.yml` usano variabili proprie oltre a quelle del portale.
+
+| Variabile | Uso |
+| --- | --- |
+| `MYSQL_DATABASE` | Nome del database che il container MariaDB crea quando inizializza il proprio volume. |
+| `MYSQL_ROOT_PASSWORD` | Password dell’account root del servizio MariaDB, condivisa con phpMyAdmin nella configurazione locale. |
+| `TZ` | Fuso orario del container MariaDB, impostato su `Europe/Rome` nella configurazione locale. |
+
+### Build Docker
+
+| Argomento | Uso |
+| --- | --- |
+| `PHP_VERSION` | Serie del runtime PHP nell’immagine, predefinita `8.5`. |
+| `DEBUG_APP` | Imposta `1` durante la build per includere Xdebug, le dipendenze di sviluppo e la documentazione Doxygen. |
+
+## Verifiche e pubblicazione
+
+GitHub Actions esegue i test in Docker con PHP 8.4, 8.5 e 8.6 e un MariaDB temporaneo.
+Dopo i test passa alla pubblicazione dell’immagine `:nighly` su Docker Hub e GHCR a ogni push.
+
+Il workflow manuale **Create GitHub release** verifica il commit e pubblica un tag stabile come `v1.2.3`.
+Configura il segreto repository `RELEASE_TOKEN` con il permesso **Contents: Read and write** per attivare i workflow avviati dalla release.
+Dopo i test, questi workflow pubblicano le immagini `:latest` e `:v1.2.3` e caricano l’applicazione sul server di produzione via FTP.
+Vedi la [documentazione di GitHub Actions](https://docs.github.com/en/actions/using-workflows/triggering-a-workflow).
+
+Per le verifiche locali esegui `sh tests/run.sh PORTA` con Composer 2 e un MariaDB di prova in ascolto su loopback, database `fixture` e utente root locale senza password.
+I test usano dati sintetici e un database separato.
+Esegui `composer audit --locked` dopo una modifica alle dipendenze.
+
+## Licenze dei componenti inclusi
+
+Quill 2.0.3 è distribuito con [licenza BSD](Public/quill/LICENSE.txt).
+[CodiceFiscale.js 2.4.0](https://github.com/lucavandro/CodiceFiscaleJS) è distribuito con [licenza CC BY-SA 4.0](Public/js/codicefiscale.LICENSE.txt).

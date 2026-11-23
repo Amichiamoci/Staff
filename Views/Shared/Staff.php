@@ -7,7 +7,10 @@ assert(isset($staff) && ($staff instanceof StaffBase), 'var $staff not valid');
 assert(isset($P) && is_string($P), 'var $P not valid');
 
 ?>
-<div class="card" id="staff-<?= $staff->Id ?>">
+<div
+    class="card"
+    id="staff-<?= $staff->Id ?>"
+>
     <div class="card-header font-monospace user-select-none">
         #<?= $staff->Id ?>
     </div>

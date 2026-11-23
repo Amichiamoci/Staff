@@ -21,24 +21,29 @@ if ($is_editing) {
     </h1>
 <?php } ?>
 
-<form 
-    method="post" 
-    id="anagrafica-form" 
+<form
+    method="post"
+    id="anagrafica-form"
     enctype="multipart/form-data"
     action="<?= $P ?>/staff/new_anagrafica"
 >
 
     <?php if ($is_editing) { ?>
-        <input type="hidden" name="id" required value="<?= $anagrafica->Id?> ">
+        <input
+            type="hidden"
+            name="id"
+            required
+            value="<?= $anagrafica->Id?> "
+        >
     <?php } ?>
 
     <div class="form-floating mb-3">
-        <input 
+        <input
             required
-            type="text" 
-            class="form-control" 
-            id="nome" 
-            name="nome" 
+            type="text"
+            class="form-control"
+            id="nome"
+            name="nome"
             value="<?= $is_editing ? htmlspecialchars(string: $anagrafica->Nome) : '' ?>"
         >
         <label for="nome">Nome</label>
@@ -47,12 +52,12 @@ if ($is_editing) {
         </div>
     </div>
     <div class="form-floating mb-3">
-        <input 
+        <input
             required
-            type="text" 
-            class="form-control" 
-            id="cognome" 
-            name="cognome" 
+            type="text"
+            class="form-control"
+            id="cognome"
+            name="cognome"
             value="<?= $is_editing ? htmlspecialchars(string: $anagrafica->Cognome) : '' ?>"
         >
         <label for="cognome">Cognome</label>
@@ -61,12 +66,12 @@ if ($is_editing) {
         </div>
     </div>
     <div class="form-floating mb-3">
-        <input 
+        <input
             required
-            type="text" 
-            class="form-control" 
-            id="cf" 
-            name="cf" 
+            type="text"
+            class="form-control"
+            id="cf"
+            name="cf"
             pattern="[A-Za-z]{6}[0-9]{2}[ABCDEHLMPRSTabcdehlmprst]{1}[0-9]{2}[A-Za-z]{1}[0-9LMNPQRSTUVlmnpqrstuv]{3}[A-Za-z]{1}"
             value="<?= $is_editing ? htmlspecialchars(string: $anagrafica->FiscalCode) : '' ?>"
         >
@@ -76,7 +81,10 @@ if ($is_editing) {
         </div>
     </div>
 
-    <div class="alert alert-warning d-none" role="alert">
+    <div
+        class="alert alert-warning d-none"
+        role="alert"
+    >
         <strong class="user-select-none">
             <i class="bi bi-exclamation-triangle"></i>
         </strong>    
@@ -84,12 +92,12 @@ if ($is_editing) {
     </div>
     
     <div class="form-floating mb-3">
-        <input 
+        <input
             required
-            type="date" 
-            class="form-control" 
-            id="compleanno" 
-            name="compleanno" 
+            type="date"
+            class="form-control"
+            id="compleanno"
+            name="compleanno"
             value="<?= $is_editing ? htmlspecialchars(string: $anagrafica->AmericanBirthDay()) : '' ?>"
             max="<?= date(format: "Y-m-d") ?>"
         >
@@ -99,12 +107,12 @@ if ($is_editing) {
         </div>
     </div>
     <div class="form-floating mb-3">
-        <input 
+        <input
             required
-            type="text" 
-            class="form-control" 
-            id="provenienza" 
-            name="provenienza" 
+            type="text"
+            class="form-control"
+            id="provenienza"
+            name="provenienza"
             value="<?= $is_editing ? htmlspecialchars(string: $anagrafica->From) : '' ?>"
         >
         <label for="provenienza">Luogo di nascita</label>
@@ -113,12 +121,12 @@ if ($is_editing) {
         </div>
     </div>
     <div class="form-floating mb-3">
-        <input 
+        <input
             required
-            type="email" 
-            class="form-control" 
-            id="email" 
-            name="email" 
+            type="email"
+            class="form-control"
+            id="email"
+            name="email"
             value="<?= ($is_editing && !empty($anagrafica->Email)) ? htmlspecialchars(string: $anagrafica->Email) : '' ?>"
         >
         <label for="email">Email</label>
@@ -127,11 +135,11 @@ if ($is_editing) {
         </div>
     </div>
     <div class="form-floating mb-3">
-        <input 
-            type="tel" 
-            class="form-control" 
-            id="telefono" 
-            name="telefono" 
+        <input
+            type="tel"
+            class="form-control"
+            id="telefono"
+            name="telefono"
             value="<?= ($is_editing && !empty($anagrafica->Phone)) ? htmlspecialchars(string: $anagrafica->Phone) : '' ?>"
         >
         <label for="telefono">Numero di telefono <small>(facoltativo)</small></label>
@@ -143,12 +151,14 @@ if ($is_editing) {
         <select
             required
             class="form-control"
-            id="doc_type" 
+            id="doc_type"
             name="doc_type"
         >
             <?php foreach ($tipi_documento as $tipo) { ?>
-                <option value="<?= $tipo->Id ?>"
-                    <?= (($is_editing && $anagrafica->DocumentType === $tipo->Id) || $tipo->Id === 1) ? 'selected' : '' ?>>
+                <option
+                    value="<?= $tipo->Id ?>"
+                    <?= (($is_editing && $anagrafica->DocumentType === $tipo->Id) || $tipo->Id === 1) ? 'selected' : '' ?>
+                >
                     <?= htmlspecialchars(string: $tipo->Nome) ?>
                 </option>
             <?php } ?>
@@ -160,11 +170,11 @@ if ($is_editing) {
     </div>
     <?php if ($is_editing && !empty($anagrafica->DocumentCode)) { ?>
         <div class="form-floating mb-3">
-            <input 
-                type="text" 
-                class="form-control" 
-                id="doc_code" 
-                name="doc_code" 
+            <input
+                type="text"
+                class="form-control"
+                id="doc_code"
+                name="doc_code"
                 value="<?= htmlspecialchars(string: $anagrafica->DocumentCode) ?>"
             >
             <label for="doc_code">Codice Documento <small>(facoltativo)</small></label>
@@ -174,12 +184,12 @@ if ($is_editing) {
         </div>
     <?php } ?>
     <div class="form-floating mb-3">
-        <input 
+        <input
             required
-            type="date" 
-            class="form-control" 
-            id="doc_expires" 
-            name="doc_expires" 
+            type="date"
+            class="form-control"
+            id="doc_expires"
+            name="doc_expires"
             value="<?= $is_editing ? htmlspecialchars(string: $anagrafica->DocumentExpiration) : '' ?>"
             <?= (!$is_editing) ? 'min="' . date(format: "Y-m-d") . '"' : '' ?>
         >
@@ -189,11 +199,12 @@ if ($is_editing) {
         </div>
     </div>
     <div class="form-floating mb-3">
-        <input 
+        <input
             <?= (!$is_editing) ? 'required' : '' ?>
-            type="file" multiple 
-            class="form-control" 
-            id="doc" 
+            type="file"
+            multiple
+            class="form-control"
+            id="doc"
             name="doc[]"
             accept=".jpg,.jpeg,.png,.webp,.pdf"
         >
@@ -207,7 +218,12 @@ if ($is_editing) {
     </div>
 
     <div class="col-12 mt-2">
-        <button class="btn btn-primary" type="submit" id="submit">
+        <button
+            class="btn btn-primary"
+            type="submit"
+            id="submit"
+            title="Salva anagrafica"
+        >
             <?php if ($is_editing) { ?>
                 Modifica
                 <i class="bi bi-pencil"></i>
@@ -219,5 +235,11 @@ if ($is_editing) {
     </div>
 </form>
 
-<script src="<?= $P ?>/js/codicefiscale.js" defer></script>
-<script src="<?= $P ?>/js/anagrafica.js" defer></script>
+<script
+    src="<?= $P ?>/js/codicefiscale.js"
+    defer
+></script>
+<script
+    src="<?= $P ?>/js/anagrafica.js"
+    defer
+></script>

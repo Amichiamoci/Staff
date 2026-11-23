@@ -37,6 +37,7 @@ class TesseramentoCSI
             $this->Email = null;
     }
 
+    /** Loads the participant records used in the CSI export. */
     public static function All(\mysqli $connection): array
     {
         if (!$connection) return [];

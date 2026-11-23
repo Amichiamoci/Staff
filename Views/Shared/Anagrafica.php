@@ -10,8 +10,10 @@ $iscrizioni_aperte = false;
 
 ?>
 
-<div class="card" 
-    id="anagrafica-<?= $anagrafica->Id ?>">
+<div
+    class="card"
+    id="anagrafica-<?= $anagrafica->Id ?>"
+>
     <div class="card-header font-monospace user-select-none">
         #<?= $anagrafica->Id ?>
     </div>
@@ -90,6 +92,7 @@ $iscrizioni_aperte = false;
                 <?php } else { ?>
                     <a  href="mailto:<?= htmlspecialchars(string: $anagrafica->Email) ?>"
                         class="link-underline link-underline-opacity-0 text-reset text-nowrap overflow-x-auto"
+                        title="Scrivi un’email"
                     >
                         <?= htmlspecialchars(string: $anagrafica->Email) ?>
                     </a>
@@ -104,6 +107,7 @@ $iscrizioni_aperte = false;
                 <dd class="col-sm-8">
                     <a  href="tel:<?= htmlspecialchars(string: $anagrafica->Phone) ?>"
                         class="link-underline link-underline-opacity-0 text-reset"
+                        title="Chiama il numero"
                     >
                         <?= htmlspecialchars(string: $anagrafica->Phone) ?>
                     </a>
@@ -116,6 +120,7 @@ $iscrizioni_aperte = false;
                 <dd class="col-sm-8">
                     <a  href="<?= Link::Number2WhatsApp(number: $anagrafica->Phone) ?>"
                         class="link-underline link-underline-opacity-0 text-reset"
+                        title="Apri WhatsApp"
                     >
                         <?= htmlspecialchars(string: $anagrafica->Phone) ?>
                     </a>
@@ -128,10 +133,10 @@ $iscrizioni_aperte = false;
             </dt>
             <dd class="col-sm-8">
                 <?php if (Authorization::CanAccessIdentityDocument($user)) { ?>
-                    <a href="<?= $P ?>/file/document?id=<?= $anagrafica->Id ?>"
-                       download 
-                       class="text-reset font-monospace" 
-                       title="Scarica il documento di <?= htmlspecialchars(string: $anagrafica->Nome) ?>"
+                    <a  href="<?= $P ?>/file/document?id=<?= $anagrafica->Id ?>"
+                        download
+                        class="text-reset font-monospace"
+                        title="Scarica il documento di <?= htmlspecialchars(string: $anagrafica->Nome) ?>"
                     >
                         <?= htmlspecialchars(string: $anagrafica->DocumentCode ?? 'Presente') ?>
                         <i class="bi bi-download"></i>
@@ -169,9 +174,17 @@ $iscrizioni_aperte = false;
                         <?= $anagrafica->Iscrizione->Id ?>
                     </span>
                     <?php if ($user->Admin) { ?>
-                        <form action="<?= $P ?>/staff/delete_iscrizione" method="post" class="d-inline">
-                            <input type="hidden" name="id" value="<?= $anagrafica->Iscrizione->Id ?>">
-                            <button 
+                        <form
+                            action="<?= $P ?>/staff/delete_iscrizione"
+                            method="post"
+                            class="d-inline"
+                        >
+                            <input
+                                type="hidden"
+                                name="id"
+                                value="<?= $anagrafica->Iscrizione->Id ?>"
+                            >
+                            <button
                                 type="submit"
                                 class="btn btn-link btn-underline btn-underline-opacity-0 text-reset p-0"
                                 title="Annulla iscrizione"

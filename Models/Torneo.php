@@ -45,6 +45,7 @@ class Torneo extends NomeIdSemplice
         $this->IdPartite = $id_partite;
     }
 
+    /** Rebuilds team labels from the paired aggregates in a tournament row. */
     private static function ParseIdsAndNames(string|array|null $ids, string|array|null $names): array {
         if (!isset($ids) || !isset($names))
             return [];
@@ -64,6 +65,7 @@ class Torneo extends NomeIdSemplice
         return $arr;
     }
 
+    /** Hydrates a tournament together with its edition, sport, and enrolled teams. */
     private static function ParseDbRow(array $row): self
     {
         return new self(
@@ -84,6 +86,7 @@ class Torneo extends NomeIdSemplice
         );
     }
 
+    /** Lists tournaments through the shared expanded tournament view. */
     public static function All(\mysqli $connection, ?callable $filter = null) : array
     {
         if (!$connection)
@@ -103,6 +106,7 @@ class Torneo extends NomeIdSemplice
         return $arr;
     }
 
+    /** Filters the tournament list to the selected year. */
     public static function FromYear(\mysqli $connection, int $year) : array
     {
         return self::All(connection: $connection, filter: function (self $t) use($year): bool {
@@ -110,6 +114,7 @@ class Torneo extends NomeIdSemplice
         });
     }
 
+    /** Loads the tournaments marked active by the database. */
     public static function Active(\mysqli $connection) : array
     {
         if (!$connection)
@@ -126,6 +131,7 @@ class Torneo extends NomeIdSemplice
         return $arr;
     }
 
+    /** Loads a tournament and its team list by ID. */
     public static function ById(\mysqli $connection, int $id): ?self
     {
         if (!$connection)
@@ -142,6 +148,7 @@ class Torneo extends NomeIdSemplice
         return self::ParseDbRow(row: $result->fetch_assoc());
     }
 
+    /** Records the team’s enrollment in the tournament. */
     public static function SubscribeTeam(\mysqli $connection, int $torneo, int $squadra) : bool
     {
         if (!$connection)
@@ -178,6 +185,8 @@ class Torneo extends NomeIdSemplice
             return false;
         }
     }
+
+    /** Creates a tournament and returns its database ID on success. */
     public static function Create(
         \mysqli $connection, 
         int $sport, 
@@ -206,6 +215,7 @@ class Torneo extends NomeIdSemplice
         return $connection->insert_id;
     }
 
+    /** Deletes the specified tournament. */
     public static function Delete(\mysqli $connection, int $id): bool {
         if (!$connection) 
             return false;
@@ -218,6 +228,7 @@ class Torneo extends NomeIdSemplice
         return (bool)$result && $connection->affected_rows >= 1;
     }
 
+    /** Invokes the calendar generator for the given tournament. */
     public static function GenerateCalendar(
         \mysqli $connection, 
         int $torneo, 

@@ -2,13 +2,17 @@
     Recupera la tua password
 </h1>
 
-<form method="post" id="password-recover-form">
+<form
+    method="post"
+    id="password-recover-form"
+>
     <div class="form-floating mb-3">
-        <input 
+        <input
             required
-            type="text" 
-            class="form-control" 
-            id="username" name="username" 
+            type="text"
+            class="form-control"
+            id="username"
+            name="username"
             placeholder="..."
             autocomplete="off"
         >
@@ -19,14 +23,15 @@
     </div>
 
     <div class="col-12 mt-2">
-        <button 
-            class="btn btn-primary g-recaptcha" 
+        <button
+            class="btn btn-primary g-recaptcha"
             type="submit"
-        <?php if (!empty(RECAPTCHA_PUBLIC_KEY)) { ?>
-            data-sitekey="<?= RECAPTCHA_PUBLIC_KEY ?>" 
+            <?php if (!empty(RECAPTCHA_PUBLIC_KEY)) { ?>
+            data-sitekey="<?= RECAPTCHA_PUBLIC_KEY ?>"
             data-callback="recaptchaCallback"
             data-action="password_recover"
-        <?php } ?>
+            <?php } ?>
+            title="Inviami un link di recupero"
         >
             Inviami un link di recupero
         </button>
@@ -39,5 +44,9 @@
             $('#password-recover-form').submit();
         }
     </script>
-    <script src="https://www.google.com/recaptcha/enterprise.js?render=<?= RECAPTCHA_PUBLIC_KEY ?>" async defer></script>
+    <script
+        src="https://www.google.com/recaptcha/enterprise.js?render=<?= RECAPTCHA_PUBLIC_KEY ?>"
+        async
+        defer
+    ></script>
 <?php } ?>

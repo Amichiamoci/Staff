@@ -1,18 +1,24 @@
 <?php
-    use Amichiamoci\Models\Email;
-    if (!($email instanceof Email)) {
-        throw new \Exception(message: 'Invalid object');
-    }
+use Amichiamoci\Models\Email;
+
+assert(isset($P) && is_string($P), 'var $P not valid');
+assert(isset($email) && $email instanceof Email, 'var $email not valid');
+assert(isset($email_preview) && is_string($email_preview), 'var $email_preview not valid');
+
+if (!($email instanceof Email)) {
+    throw new \Exception(message: 'Invalid object');
+}
 ?>
 
-<h2>
+<h1>
     Email a 
     <a  href="<?= $P ?>/email/history?recipient=<?= rawurlencode($email->Receiver) ?>"
         class="link-underline link-underline-opacity-0 text-reset font-monospace"
+        title="Mostra lo storico del destinatario"
     >
         <?= htmlspecialchars(string: $email->Receiver) ?>
     </a>
-</h2>
+</h1>
 
 <dl class="row">
     <dt class="col-sm-4 text-nowrap">
@@ -53,5 +59,5 @@
     ) ?>"
 ></iframe>
 
-<h3>Corpo effettivo dell'email</h3>
+<h2>Corpo effettivo dell'email</h2>
 <pre><code><?= htmlspecialchars($email->Content ?? '') ?></code></pre>

@@ -15,6 +15,7 @@ class Partita implements DbEntity
     public Squadra $Casa;
     public Squadra $Ospiti;
 
+    /** Returns the sport associated with the match. */
     public function getSport(): Sport
     {
         return $this->Casa->Sport;
@@ -91,6 +92,8 @@ class Partita implements DbEntity
             partita: $this->Id
         );
     }
+
+    /** Reconstructs a match and its related teams, venue, and scores from an expanded row. */
     private static function ParseFromRow(array $row): self
     {
         return new self(
@@ -123,6 +126,8 @@ class Partita implements DbEntity
             punteggi_ospiti: $row['punteggi_ospiti'],
         );
     }
+
+    /** Loads one match from the expanded match view. */
     public static function ById(\mysqli $connection, int $id): ?self
     {
         if (!$connection)
@@ -144,6 +149,7 @@ class Partita implements DbEntity
         return self::ParseFromRow(row: $row);
     }
 
+    /** Hydrates the rows returned by a match query using the shared row mapping. */
     private static function ArrayQueryHandler(\mysqli $connection, string $query): array
     {
         if (!$connection)
@@ -159,6 +165,7 @@ class Partita implements DbEntity
         return $arr;
     }
 
+    /** Lists matches in active tournaments. */
     public static function All(\mysqli $connection): array
     {
         return self::ArrayQueryHandler(
@@ -167,6 +174,7 @@ class Partita implements DbEntity
         );
     }
 
+    /** Lists matches scheduled for the current day. */
     public static function Oggi(\mysqli $connection): array
     {
         return self::ArrayQueryHandler(
@@ -175,6 +183,7 @@ class Partita implements DbEntity
         );
     }
 
+    /** Lists matches from the database’s upcoming-match view. */
     public static function DaGiocare(\mysqli $connection): array
     {
         return self::ArrayQueryHandler(
@@ -183,6 +192,7 @@ class Partita implements DbEntity
         );
     }
 
+    /** Lists all matches for the given tournament ID or object. */
     public static function Torneo(\mysqli $connection, int|Torneo $torneo): array
     {
         if ($torneo instanceof Torneo)
@@ -194,6 +204,7 @@ class Partita implements DbEntity
         );
     }
 
+    /** Lists matches from the database’s weekly schedule view. */
     public static function Settimana(\mysqli $connection): array
     {
         return self::ArrayQueryHandler(
@@ -202,6 +213,7 @@ class Partita implements DbEntity
         );
     }
 
+    /** Sets or clears the match venue and reports whether a row changed. */
     public static function ImpostaCampo(\mysqli $connection, int $partita, ?int $campo): bool
     {
         if (!$connection)
@@ -220,6 +232,7 @@ class Partita implements DbEntity
         return $connection->affected_rows === 1;
     }
 
+    /** Sets or clears the match time and reports whether a row changed. */
     public static function ImpostaOrario(\mysqli $connection, int $partita, ?string $orario): bool
     {
         if (!$connection)
@@ -238,6 +251,7 @@ class Partita implements DbEntity
         return $connection->affected_rows === 1;
     }
 
+    /** Sets or clears the match date and reports whether a row changed. */
     public static function ImpostaData(\mysqli $connection, int $partita, ?string $data): bool
     {
         if (!$connection)
@@ -256,6 +270,7 @@ class Partita implements DbEntity
         return $connection->affected_rows === 1;
     }
 
+    /** Removes a match by ID and reports whether a row was deleted. */
     public static function Delete(\mysqli $connection, int $id): bool
     {
         if (!$connection)
@@ -265,6 +280,7 @@ class Partita implements DbEntity
         return (bool)$result && $connection->affected_rows >= 1;
     }
 
+    /** Inserts a blank score for a match and returns the new score ID on success. */
     public static function PunteggioVuoto(\mysqli $connection, int $match): ?int
     {
         if (!$connection)

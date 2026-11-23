@@ -46,6 +46,7 @@ class UserActivity
         }
     }
 
+    /** Calculates the duration of the recorded session. */
     public function Duration(): ?DateInterval
     {
         if (!isset($this->Start) || !isset($this->LastHit))

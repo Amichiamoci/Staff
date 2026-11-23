@@ -34,7 +34,8 @@ assert(isset($edizioni) && is_array($edizioni), 'var $edizioni not valid');
             <select
                 required
                 class="form-control"
-                id="anno" name="anno"
+                id="anno"
+                name="anno"
             >
                 <option value="">Scegli un anno</option>
                 <?php 
@@ -58,7 +59,8 @@ assert(isset($edizioni) && is_array($edizioni), 'var $edizioni not valid');
                 type="text"
                 required
                 class="form-control"
-                id="motto" name="motto"
+                id="motto"
+                name="motto"
                 size="35"
                 maxlength="256"
             >
@@ -69,7 +71,12 @@ assert(isset($edizioni) && is_array($edizioni), 'var $edizioni not valid');
         </div>
 
         <div class="col-12 mt-2">
-            <button class="btn btn-primary" type="submit" id="submit">
+            <button
+                class="btn btn-primary"
+                type="submit"
+                id="submit"
+                title="Invia"
+            >
                 Invia
             </button>
         </div>

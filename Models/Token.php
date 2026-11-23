@@ -14,9 +14,13 @@ class Token
     public ?string $RequestingIp = null;
     public ?string $RequestingBrowser = null;
 
+    /** Checks whether the reset token has a recorded use time. */
     public function IsUsed(): bool { return isset($this->UsageDate); }
+
+    /** Checks whether the reset token has passed its expiration time. */
     public function IsExpired(): bool { return (new \DateTime()) >= $this->ExpirationDate; }
 
+    /** Marks a reset token as used in the database. */
     public function Use(\mysqli $connection): bool
     {
         if (!$connection)
@@ -77,6 +81,7 @@ class Token
         $this->RequestingBrowser = $requesting_browser;
     }
 
+    /** Loads a reset token and its account metadata by its stored value. */
     public static function Load(\mysqli $connection, string $value): ?self
     {
         if (!$connection)
@@ -104,16 +109,19 @@ class Token
         );
     }
 
+    /** Derives the database lookup value from a reset secret. */
     private static function GenerateValueFromSecret(string $secret): string
     {
         return hash(algo: 'sha256', data: $secret);
     }
 
+    /** Verifies the provided reset secret against the stored token value. */
     public function Matches(string $secret): bool
     {
         return hash_equals($this->Value, self::GenerateValueFromSecret($secret));
     }
 
+    /** Creates a reset token and returns the data needed to deliver it. */
     public static function Generate(
         \mysqli $connection, 
         int $duration_mins,

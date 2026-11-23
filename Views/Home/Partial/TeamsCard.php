@@ -9,15 +9,14 @@
 
 <script>
     function team_js_decoder(i) {
-        const a = document.createElement('a');
-        a.href = `${BasePath}/teams#squadra-${i.id}`;
-        a.className = 'text-reset link-underline link-underline-opacity-0';
-        a.innerText = `${i.name} (${i.sport})`;
-
-        const li = document.createElement('li');
-        li.className = 'list-group-item';
-        li.appendChild(a);
-        return li;
+        const $link = $('<a>')
+            .attr({
+                href: `${BasePath}/teams#squadra-${i.id}`,
+                title: `Vai alla squadra ${i.name}`,
+            })
+            .addClass('text-reset link-underline link-underline-opacity-0')
+            .text(`${i.name} (${i.sport})`);
+        return $('<li>').addClass('list-group-item').append($link).get(0);
     }
 </script>
 

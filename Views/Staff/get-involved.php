@@ -3,12 +3,15 @@
 use Amichiamoci\Models\{User, Staff, Edizione};
 
 assert(isset($user) && ($user instanceof User), 'var $user not valid');
-assert(isset($staff) && ($staff instanceof Staff), 'var $staff not valid');
+assert(!isset($staff) || $staff instanceof Staff, 'var $staff not valid');
 
 assert(isset($edizioni) && is_array($edizioni), 'var $edizioni not valid');
 assert(isset($commissioni) && is_array($commissioni), 'var $commissioni not valid');
 assert(isset($taglie) && is_array($taglie), 'var $taglie not valid');
-assert(isset($edizione_corrente) && ($edizione_corrente instanceof Edizione), 'var $edizione_corrente not valid');
+assert(!isset($edizione_corrente) || $edizione_corrente instanceof Edizione, 'var $edizione_corrente not valid');
+if (!$user->Admin) {
+    assert(isset($edizione_corrente), 'var $edizione_corrente not valid');
+}
 
 ?>
 
@@ -21,13 +24,15 @@ assert(isset($edizione_corrente) && ($edizione_corrente instanceof Edizione), 'v
             <select
                 required
                 class="form-control"
-                id="edition" 
+                id="edition"
                 name="edition"
             >
                 <option value="">Scegli un'edizione</option>
                 <?php foreach ($edizioni as $edizione) { ?>
-                    <option value="<?= $edizione->Id ?>"
-                        <?= (isset($edizione_corrente) && $edizione->Id === $edizione_corrente->Id) ? 'selected' : '' ?>>
+                    <option
+                        value="<?= $edizione->Id ?>"
+                        <?= (isset($edizione_corrente) && $edizione->Id === $edizione_corrente->Id) ? 'selected' : '' ?>
+                    >
                         <?= htmlspecialchars(string: $edizione->Motto) ?>
                     </option>
                 <?php } ?>
@@ -38,7 +43,12 @@ assert(isset($edizione_corrente) && ($edizione_corrente instanceof Edizione), 'v
             </div>
         </div>
     <?php } else { ?>
-        <input type="hidden" name="edition" required value="<?= $edizione_corrente->Id ?>">
+        <input
+            type="hidden"
+            name="edition"
+            required
+            value="<?= $edizione_corrente->Id ?>"
+        >
     <?php } ?>
     
     <div class="form-floating mb-3">
@@ -50,8 +60,9 @@ assert(isset($edizione_corrente) && ($edizione_corrente instanceof Edizione), 'v
         >
             <option value="">Scegli una taglia</option>
             <?php foreach ($taglie as $taglia) { ?>
-                <option value="<?= htmlspecialchars(string: $taglia) ?>"
-                    <?= $staff->Taglia->value === $taglia ? 'selected' : '' ?>
+                <option
+                    value="<?= htmlspecialchars(string: $taglia) ?>"
+                    <?= ($staff ?? null)?->Taglia?->value === $taglia ? 'selected' : '' ?>
                 >
                     <?= htmlspecialchars(string: $taglia) ?>
                 </option>
@@ -66,22 +77,27 @@ assert(isset($edizione_corrente) && ($edizione_corrente instanceof Edizione), 'v
     <h3>
         Commissioni
     </h3>
-    <ul class="list-group overflow-y-scroll mb-3" style="max-height: 300px;">
+    <ul class="list-group overflow-y-scroll mb-3"
+        style="max-height: 300px;"
+    >
         <?php foreach ($commissioni as $commissione) { ?>
             <li class="list-group-item user-select-none">
                 <div class="form-check">
-                    <input 
+                    <input
                         type="checkbox"
-                        class="form-check-input"  
+                        class="form-check-input"
                         name="roles[]"
-                        id="role-<?= $commissione->Id ?>" 
+                        id="role-<?= $commissione->Id ?>"
                         value="<?= $commissione->Id ?>"
                         <?= ($user->Admin && $commissione->Nome === 'App e sito') || 
-                            $staff->InCommissione(commissione: $commissione->Nome) ? 
+                            ($staff ?? null)?->InCommissione(commissione: $commissione->Nome) ?
                             'checked' : ''
                         ?>
                     >
-                    <label for="role-<?= $commissione->Id ?>" class="form-check-label">
+                    <label
+                        for="role-<?= $commissione->Id ?>"
+                        class="form-check-label"
+                    >
                         <?= htmlspecialchars(string: $commissione->Nome) ?>
                     </label>
                 </div>
@@ -90,21 +106,29 @@ assert(isset($edizione_corrente) && ($edizione_corrente instanceof Edizione), 'v
     </ul>
 
     <div class="form-check">
-        <input 
+        <input
             class="form-check-input"
             type="checkbox"
             value=""
             id="church_manager"
             name="church_manager"
-            <?= $staff->Referente ? 'checked' : '' ?>
+            <?= ($staff ?? null)?->Referente ? 'checked' : '' ?>
         >
-        <label class="form-check-label" for="church_manager">
+        <label
+            class="form-check-label"
+            for="church_manager"
+        >
             Sarò referente parrocchiale
         </label>
     </div>
 
     <div class="col-12 mt-2">
-        <button class="btn btn-primary" type="submit" id="submit">
+        <button
+            class="btn btn-primary"
+            type="submit"
+            id="submit"
+            title="Partecipa"
+        >
             Partecipa
         </button>
     </div>

@@ -8,7 +8,10 @@ assert(isset($torneo) && ($torneo instanceof Torneo), 'var $torneo not valid');
 
 ?>
 
-<div class="card mb-1" id="torneo-<?= $torneo->Id ?>">
+<div
+    class="card mb-1"
+    id="torneo-<?= $torneo->Id ?>"
+>
     <div class="card-header user-select-none">
         <strong>
             <?= htmlspecialchars(string: $torneo->Nome) ?>
@@ -22,12 +25,16 @@ assert(isset($torneo) && ($torneo instanceof Torneo), 'var $torneo not valid');
             </a>
         <?php } ?>
         <?php if ($user->Admin) { ?>
-            <form 
-                action="<?= $P ?>/sport/tournament_delete" 
+            <form
+                action="<?= $P ?>/sport/tournament_delete"
                 method="post"
                 class="d-inline p-0"
             >
-                <input type="hidden" name="id" value="<?= $torneo->Id ?>">
+                <input
+                    type="hidden"
+                    name="id"
+                    value="<?= $torneo->Id ?>"
+                >
                 <button
                     type="submit"
                     class="btn btn-link link-danger link-underline link-underline-opacity-0 p-0"
@@ -69,36 +76,54 @@ assert(isset($torneo) && ($torneo instanceof Torneo), 'var $torneo not valid');
                     <?php if ($user->Admin) { ?>
                         <button
                             type="button"
-                            data-bs-toggle="modal" 
+                            data-bs-toggle="modal"
                             data-bs-target="#modal-calendario-<?= $torneo->Id ?>"
                             class="btn btn-outline-primary"
+                            title="Genera"
                         >
                             Genera
                         </button>
-                        <div class="modal fade" 
-                            id="modal-calendario-<?= $torneo->Id ?>" 
-                            tabindex="-1" 
+                        <div
+                            class="modal fade"
+                            id="modal-calendario-<?= $torneo->Id ?>"
+                            tabindex="-1"
                             aria-hidden="true"
                             aria-labelledby="modal-calendario-<?= $torneo->Id ?>-label"
                         >
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="modal-calendario-<?= $torneo->Id ?>-label">
+                                        <h5 class="modal-title"
+                                            id="modal-calendario-<?= $torneo->Id ?>-label"
+                                        >
                                             Genera il calendario di <?= htmlspecialchars(string: $torneo->Nome) ?>
                                         </h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                                        <button
+                                            type="button"
+                                            class="btn-close"
+                                            data-bs-dismiss="modal"
+                                            aria-label="Chiudi"
+                                            title="Chiudi"
+                                        ></button>
                                     </div>
                                     <div class="modal-body">
                                         <p>
                                             Le date delle partite andranno inserite a mano successivamente.<br>
                                             Ora verranno solo generati gli accoppiamenti tra le squadre.
                                         </p>
-                                        <form method="POST" action="<?= $P ?>/sport/tournament_generate_calendar">
-                                            <input type="hidden" name="id" value="<?= $torneo->Id ?>" required>
+                                        <form
+                                            method="POST"
+                                            action="<?= $P ?>/sport/tournament_generate_calendar"
+                                        >
+                                            <input
+                                                type="hidden"
+                                                name="id"
+                                                value="<?= $torneo->Id ?>"
+                                                required
+                                            >
                                             <div class="form-floating mb-2">
-                                                <select 
-                                                    name="field" 
+                                                <select
+                                                    name="field"
                                                     id="field-<?= $torneo->Id ?>"
                                                     title="La squadra da aggiungere"
                                                     class="form-control"
@@ -118,20 +143,27 @@ assert(isset($torneo) && ($torneo instanceof Torneo), 'var $torneo not valid');
 
                                             <?php if ($torneo->Tipo->Id === TipoTorneo::$RoundRobin) { ?>
                                                 <div class="form-check">
-                                                    <input 
-                                                        class="form-check-input" 
-                                                        type="checkbox" 
-                                                        value="two-ways-<?= $torneo->Id ?>" 
-                                                        id="two-ways-<?= $torneo->Id ?>" 
+                                                    <input
+                                                        class="form-check-input"
+                                                        type="checkbox"
+                                                        value="two-ways-<?= $torneo->Id ?>"
+                                                        id="two-ways-<?= $torneo->Id ?>"
                                                         name="two_ways"
                                                     >
-                                                    <label class="form-check-label" for="admin">
+                                                    <label
+                                                        class="form-check-label"
+                                                        for="admin"
+                                                    >
                                                         Andata e ritorno
                                                     </label>
                                                 </div>
                                             <?php } ?>
                                             
-                                            <button type="submit" class="btn btn-primary">
+                                            <button
+                                                type="submit"
+                                                class="btn btn-primary"
+                                                title="Genera calendario"
+                                            >
                                                 Genera calendario
                                             </button>
                                         </form>
@@ -183,10 +215,24 @@ assert(isset($torneo) && ($torneo instanceof Torneo), 'var $torneo not valid');
                                 <?= htmlspecialchars(string: $nome) ?>
                             </a>
                             <?php if ($user->Admin) { ?>
-                                <form action="<?= $P ?>/sport/tournament_remove_team" method="post" class="d-inline p-0">
-                                    <input type="hidden" name="tournament" value="<?= $torneo->Id ?>" required>
-                                    <input type="hidden" name="team" value="<?= $id ?>" required>
-                                    <button 
+                                <form
+                                    action="<?= $P ?>/sport/tournament_remove_team"
+                                    method="post"
+                                    class="d-inline p-0"
+                                >
+                                    <input
+                                        type="hidden"
+                                        name="tournament"
+                                        value="<?= $torneo->Id ?>"
+                                        required
+                                    >
+                                    <input
+                                        type="hidden"
+                                        name="team"
+                                        value="<?= $id ?>"
+                                        required
+                                    >
+                                    <button
                                         type="submit"
                                         class="btn btn-link link-underline link-underline-opacity-0 link-danger p-0"
                                         title="Rimuovi squadra dal torneo"
@@ -208,33 +254,51 @@ assert(isset($torneo) && ($torneo instanceof Torneo), 'var $torneo not valid');
                 <div class="col">
                     <button
                         type="button"
-                        data-bs-toggle="modal" 
+                        data-bs-toggle="modal"
                         data-bs-target="#modal-torneo-<?= $torneo->Id ?>"
                         data-sport="<?= $torneo->Sport->Id ?>"
                         data-year="<?= $torneo->Edizione->Year ?>"
                         class="btn btn-outline-primary"
+                        title="Aggiungi squadra"
                     >
                         Aggiungi squadra
                     </button>
-                    <div class="modal fade" id="modal-torneo-<?= $torneo->Id ?>" 
-                        tabindex="-1" 
+                    <div
+                        class="modal fade"
+                        id="modal-torneo-<?= $torneo->Id ?>"
+                        tabindex="-1"
                         aria-hidden="true"
                         aria-labelledby="modal-torneo-<?= $torneo->Id ?>-label"
                     >
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="modal-torneo-<?= $torneo->Id ?>-label">
+                                    <h5 class="modal-title"
+                                        id="modal-torneo-<?= $torneo->Id ?>-label"
+                                    >
                                         Aggiungi una squadra <?= htmlspecialchars(string: $torneo->Nome) ?>
                                     </h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                                    <button
+                                        type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal"
+                                        aria-label="Chiudi"
+                                        title="Chiudi"
+                                    ></button>
                                 </div>
                                 <div class="modal-body">
-                                    <form method="POST" action="<?= $P ?>/sport/tournament_add_team">
-                                        <input type="hidden" name="tournament" value="<?= $torneo->Id ?>">
+                                    <form
+                                        method="POST"
+                                        action="<?= $P ?>/sport/tournament_add_team"
+                                    >
+                                        <input
+                                            type="hidden"
+                                            name="tournament"
+                                            value="<?= $torneo->Id ?>"
+                                        >
                                         <div class="form-floating mb-2">
-                                            <select 
-                                                name="team" 
+                                            <select
+                                                name="team"
                                                 id="add-team-<?= $torneo->Id ?>"
                                                 title="La squadra da aggiungere"
                                                 class="form-control"
@@ -248,7 +312,11 @@ assert(isset($torneo) && ($torneo instanceof Torneo), 'var $torneo not valid');
                                             </div>
                                         </div>
                                         
-                                        <button type="submit" class="btn btn-primary">
+                                        <button
+                                            type="submit"
+                                            class="btn btn-primary"
+                                            title="Aggiungi al torneo"
+                                        >
                                             Aggiungi al torneo
                                         </button>
                                     </form>

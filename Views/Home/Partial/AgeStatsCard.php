@@ -1,7 +1,18 @@
+<?php
+
+assert(isset($P) && is_string($P), 'var $P not valid');
+assert(isset($editions) && is_array($editions), 'var $editions not valid');
+
+?>
+
 <div class="card">
     <div class="card-header user-select-none">
         <div class="input-group">
-            <select id="stats-age-edition" class="form-control mb-1" title="Edizione">
+            <select
+                id="stats-age-edition"
+                class="form-control mb-1"
+                title="Edizione"
+            >
                 <?php foreach ($editions as $edition) { ?>
                     <option value="<?= $edition->Id ?>">
                         <?= $edition->Year ?>
@@ -16,12 +27,17 @@
                 Suddivisione per età
             </strong>
         </div>
-        <canvas id="stats-age-chart" 
-            style="max-height: 200px;" 
+        <canvas
+            id="stats-age-chart"
+            style="max-height: 200px;"
             class="m-x-auto m-y-auto"
-            oncontextmenu="return false"></canvas>
+            oncontextmenu="return false"
+        ></canvas>
     </div>
 </div>
 
 <?php require_once __DIR__ . '/chart.js.php'; ?>
-<script src="<?= $P ?>/js/stats-age.js" defer></script>
+<script
+    src="<?= $P ?>/js/stats-age.js"
+    defer
+></script>

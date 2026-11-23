@@ -7,6 +7,8 @@ use Amichiamoci\Models\Api\Call as ApiCall;
 
 trait Anagrafica
 {
+
+    /** Prepares the API list of document types and their labels. */
     protected function document_types(): ApiCall
     {
         return new ApiCall(
@@ -20,6 +22,7 @@ trait Anagrafica
         );
     }
 
+    /** Maps a person’s row to the API payload, including enrollment information when present. */
     private static function managed_anagraphicals_parse(array $r): array 
     {
         $base = [
@@ -83,11 +86,14 @@ trait Anagrafica
         return $base;
     }
 
+    /** Extracts only the enrollment portion of the person payload. */
     private static function managed_anagraphicals_parse_subscription(array $r): array
     {
         $whole_record = self::managed_anagraphicals_parse($r);
         return $whole_record['Subscription'];
     }
+
+    /** Finds records whose email or guardian email matches the requested address. */
     protected function managed_anagraphicals(string $Email): ApiCall
     {
         $query = 
@@ -101,6 +107,7 @@ trait Anagrafica
         );
     }
 
+    /** Prepares the enrollment operation and maps its result to the API response. */
     protected function subscribe(
         int $Anagraphical,
         int $Church,
@@ -162,6 +169,7 @@ trait Anagrafica
         );
     }
 
+    /** Prepares the request to save a person’s details and returns the stored record through the API mapping. */
     protected function anagraphical(
         string $Name,
         string $Surname,

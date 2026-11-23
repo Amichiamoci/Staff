@@ -1,15 +1,21 @@
+<?php
+
+assert(!isset($email) || is_string($email), 'var $email not valid');
+
+?>
+
 <h1>
     Crea nuovo utente
 </h1>
 
 <form method="post">
     <div class="form-floating mb-3">
-        <input 
+        <input
             required
-            type="text" 
-            class="form-control" 
-            id="email" 
-            name="email" 
+            type="text"
+            class="form-control"
+            id="email"
+            name="email"
             placeholder="abc@site.tld"
             value="<?= empty($email) ? '' : htmlspecialchars(string: $email) ?>"
         >
@@ -20,14 +26,27 @@
     </div>
 
     <div class="form-check">
-        <input class="form-check-input" type="checkbox" value="" id="admin" name="admin">
-        <label class="form-check-label" for="admin">
+        <input
+            class="form-check-input"
+            type="checkbox"
+            value=""
+            id="admin"
+            name="admin"
+        >
+        <label
+            class="form-check-label"
+            for="admin"
+        >
             Utente amministratore
         </label>
     </div>
 
     <div class="col-12 mt-2">
-        <button class="btn btn-primary" type="submit">
+        <button
+            class="btn btn-primary"
+            type="submit"
+            title="Crea"
+        >
             Crea
         </button>
     </div>

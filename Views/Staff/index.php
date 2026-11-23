@@ -11,18 +11,28 @@ assert(isset($iscritti_problemi) && is_array($iscritti_problemi), 'var $iscritti
 
 <?php if ($user->Admin) { ?>
     <div class="input-group mb-2">
-        <select id="parrocchia-selector" class="form-control">
+        <select
+            id="parrocchia-selector"
+            class="form-control"
+        >
             <?php foreach ($parrocchie as $parrocchia) { ?>
-                <option value="<?= $parrocchia->Id ?>" 
+                <option
+                    value="<?= $parrocchia->Id ?>"
                     <?= ($parrocchia->Id === $id_parrocchia) ? 'selected' : '' ?>
                 >
                     <?= htmlspecialchars(string: $parrocchia->Nome) ?>
                 </option>
             <?php } ?>
         </select>
-        <select id="anno-selector" class="form-control">
+        <select
+            id="anno-selector"
+            class="form-control"
+        >
             <?php foreach ($edizioni as $e) { ?>
-                <option value="<?= $e->Year ?>" <?= ($e->Year === $anno) ? 'selected' : '' ?>>
+                <option
+                    value="<?= $e->Year ?>"
+                    <?= ($e->Year === $anno) ? 'selected' : '' ?>
+                >
                     <?= $e->Year ?>
                 </option>
             <?php } ?>
@@ -195,11 +205,12 @@ assert(isset($iscritti_problemi) && is_array($iscritti_problemi), 'var $iscritti
 
 <div class="container m-1">
     <div class="form-floating overflow-hidden">
-        <input  type="search" 
-                id="anagrafiche-search" 
-                class="form-control anagrafiche-search-input"                
-                list="anagrafiche-data-list"
-                title="Cerca persona"
+        <input
+            type="search"
+            id="anagrafiche-search"
+            class="form-control anagrafiche-search-input"
+            list="anagrafiche-data-list"
+            title="Cerca persona"
         >
         <label for="search">Cerca nome, cognome, email o numero di telefono</label>
     </div>
@@ -218,7 +229,7 @@ assert(isset($iscritti_problemi) && is_array($iscritti_problemi), 'var $iscritti
 
 <div class="row">
     <?php foreach ($iscritti as $anagrafica) { ?>
-        <div 
+        <div
             class="col col-xs-12 col-sm-6 col-lg-4 mb-2"
             data-keywords="<?= $anagrafica->KeyWords() ?>"
         >

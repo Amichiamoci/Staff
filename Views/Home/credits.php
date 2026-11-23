@@ -1,6 +1,17 @@
+<?php
+
+assert(isset($repository) && is_string($repository), 'var $repository not valid');
+assert(isset($contributors) && is_array($contributors), 'var $contributors not valid');
+assert(isset($technologies) && is_array($technologies), 'var $technologies not valid');
+assert(isset($packages) && is_array($packages), 'var $packages not valid');
+
+?>
+
 <h1>Crediti</h1>
 <p>
-    <a href="<?= htmlspecialchars($repository) ?>">
+    <a  href="<?= htmlspecialchars($repository) ?>"
+        title="Repository ufficiale di Amichiamoci Staff"
+    >
         Repository ufficiale di Amichiamoci Staff
     </a>
 </p>
@@ -11,8 +22,8 @@
         <li>
             <?= htmlspecialchars($contributor['name']) ?>
             <?php if (!empty($contributor['homepage'])) { ?>
-                <a  href="<?= htmlspecialchars($contributor['homepage']) ?>" 
-                    target="_blank" 
+                <a  href="<?= htmlspecialchars($contributor['homepage']) ?>"
+                    target="_blank"
                     rel="noopener noreferrer"
                     title="Vai alla pagina di <?= htmlspecialchars($contributor['name']) ?>"
                     class="link-underline link-underline-opacity-0"
@@ -24,7 +35,9 @@
     <?php } ?>
 </ul>
 <p>
-    <a href="<?= htmlspecialchars(rtrim($repository, '/')) ?>/graphs/contributors">
+    <a  href="<?= htmlspecialchars(rtrim($repository, '/')) ?>/graphs/contributors"
+        title="Tutti i contributi su GitHub"
+    >
         Tutti i contributi su GitHub
     </a>
 </p>

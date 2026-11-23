@@ -2,6 +2,8 @@
 
 use Amichiamoci\Models\{User, Staff, Anagrafica};
 
+assert(isset($edizioni) && is_array($edizioni), 'var $edizioni not valid');
+assert(isset($adulti) && is_array($adulti), 'var $adulti not valid');
 assert(isset($user) && ($user instanceof User), 'var $user not valid');
 assert(isset($P) && is_string($P), 'var $P not valid');
 
@@ -25,23 +27,31 @@ if (empty($tutore) && !empty($tutore_suggerito))
     Iscrivi <?= htmlspecialchars(string: $target->Nome) ?> ad <?= htmlspecialchars(SITE_NAME) ?> <?= date(format: 'Y')?>
 </p>
 
-<form 
+<form
     method="post"
     enctype="multipart/form-data"
     action="<?= $P ?>/staff/iscrivi"
 >
-    <input type="hidden" name="id" required value="<?= $target->Id?>">
+    <input
+        type="hidden"
+        name="id"
+        required
+        value="<?= $target->Id?>"
+    >
 
     <?php if ($user->Admin) { ?>
         <div class="form-floating mb-3">
             <select
                 required
                 class="form-control"
-                id="edizione" 
+                id="edizione"
                 name="edizione"
             >
                 <?php foreach ($edizioni as $edizione) { ?>
-                    <option value="<?= $edizione->Id ?>" <?= ($edizione->Year === (int)date(format: 'Y')) ? 'selected' : ''?>>
+                    <option
+                        value="<?= $edizione->Id ?>"
+                        <?= ($edizione->Year === (int)date(format: 'Y')) ? 'selected' : ''?>
+                    >
                         <?= $edizione->Year ?>:
                         <?= htmlspecialchars(string: $edizione->Motto) ?>
                     </option>
@@ -58,13 +68,15 @@ if (empty($tutore) && !empty($tutore_suggerito))
         <select
             required
             class="form-control"
-            id="parrocchia" 
+            id="parrocchia"
             name="parrocchia"
         >
             <option value="">Scegli una parrocchia</option>
             <?php foreach ($parrocchie as $p) { ?>
-                <option value="<?= $p->Id ?>"
-                    <?= ($p->Id === $parrocchia) ? 'selected' : '' ?>>
+                <option
+                    value="<?= $p->Id ?>"
+                    <?= ($p->Id === $parrocchia) ? 'selected' : '' ?>
+                >
                     <?= htmlspecialchars(string: $p->Nome) ?>
                 </option>
             <?php } ?>
@@ -79,13 +91,15 @@ if (empty($tutore) && !empty($tutore_suggerito))
         <select
             required
             class="form-control"
-            id="taglia" 
+            id="taglia"
             name="taglia"
         >
             <option value="">Scegli una taglia</option>
             <?php foreach ($taglie as $t) { ?>
-                <option value="<?= htmlspecialchars(string: $t) ?>"
-                    <?= ($t === $taglia) ? 'selected' : '' ?>>
+                <option
+                    value="<?= htmlspecialchars(string: $t) ?>"
+                    <?= ($t === $taglia) ? 'selected' : '' ?>
+                >
                     <?= htmlspecialchars(string: $t) ?>
                 </option>
             <?php } ?>
@@ -98,14 +112,16 @@ if (empty($tutore) && !empty($tutore_suggerito))
 
     <?php if ($target->Eta < 18) { ?>
         <div class="form-floating mb-3">
-            <select <?php /*required*/ ?>
+            <select
+                <?php /*required*/ ?>
                 class="form-control"
-                id="tutore" 
+                id="tutore"
                 name="tutore"
             >
                 <option value="0">Scegli</option>
                 <?php foreach ($adulti as $a) { ?>
-                    <option value="<?= $a->Id ?>"
+                    <option
+                        value="<?= $a->Id ?>"
                         <?= (!empty($tutore) && $a->Id === $tutore) ? 'selected' : '' ?>
                     >
                         <strong>
@@ -124,11 +140,11 @@ if (empty($tutore) && !empty($tutore_suggerito))
     <?php } ?>
 
     <div class="form-floating mb-3">
-        <input 
-            type="file" 
-            multiple 
-            class="form-control" 
-            id="certificato" 
+        <input
+            type="file"
+            multiple
+            class="form-control"
+            id="certificato"
             name="certificato[]"
             accept=".jpg,.jpeg,.png,.webp,.pdf"
         >
@@ -145,11 +161,20 @@ if (empty($tutore) && !empty($tutore_suggerito))
     </div>
 
     <?php if (!empty($id_iscrizione)) { ?>
-        <input type="hidden" name="id_iscrizione" value="<?= $id_iscrizione ?>">
+        <input
+            type="hidden"
+            name="id_iscrizione"
+            value="<?= $id_iscrizione ?>"
+        >
     <?php } ?>
 
     <div class="col-12 mt-2">
-        <button class="btn btn-primary" type="submit" id="submit">
+        <button
+            class="btn btn-primary"
+            type="submit"
+            id="submit"
+            title="Salva iscrizione"
+        >
             <?php if (!empty($id_iscrizione)) { ?>
                 Aggiorna iscrizione
                 <i class="bi bi-person-fill-up"></i>

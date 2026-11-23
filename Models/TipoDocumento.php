@@ -8,6 +8,8 @@ class TipoDocumento extends NomeIdSemplice
 {
     public static function Table(): string { return 'tipi_documento'; }
     
+
+    /** Lists the document types available for personal records. */
     public static function All(\mysqli $connection) : array
     {
         if (!$connection) 
@@ -28,6 +30,7 @@ class TipoDocumento extends NomeIdSemplice
         return $arr;
     }
 
+    /** Loads a document type and its display label by ID. */
     public static function ById(\mysqli $connection, int $id) : ?self
     {
         if (!$connection) 

@@ -1,19 +1,38 @@
+<?php
+
+assert(isset($value) && is_string($value), 'var $value not valid');
+assert(!isset($secret) || is_string($secret), 'var $secret not valid');
+
+?>
+
 <h1>
     Reimposta la password
 </h1>
 
-<form method="post" id="password-reset-form">
-    <input type="hidden" name="value" value="<?= htmlspecialchars(string: $value) ?>">
+<form
+    method="post"
+    id="password-reset-form"
+>
+    <input
+        type="hidden"
+        name="value"
+        value="<?= htmlspecialchars(string: $value) ?>"
+    >
 
     <?php if (isset($secret) && strlen(string: $secret) > 0) { ?>
-        <input type="hidden" name="secret" value="<?= htmlspecialchars(string: $secret) ?>">
+        <input
+            type="hidden"
+            name="secret"
+            value="<?= htmlspecialchars(string: $secret) ?>"
+        >
     <?php } else { ?>
         <div class="form-floating mb-3">
-            <input 
+            <input
                 required
-                type="text" 
-                class="form-control" 
-                id="secret" name="secret" 
+                type="text"
+                class="form-control"
+                id="secret"
+                name="secret"
                 placeholder="..."
                 autocomplete="off"
             >
@@ -25,11 +44,12 @@
     <?php } ?>
 
     <div class="form-floating mb-3">
-        <input 
+        <input
             required
-            type="password" 
-            class="form-control" 
-            id="password" name="password"
+            type="password"
+            class="form-control"
+            id="password"
+            name="password"
             minlength="8"
         >
         <label for="password">Nuova Password</label>
@@ -39,9 +59,10 @@
     </div>
 
     <div class="col-12 mt-2">
-        <button 
-            class="btn btn-primary g-recaptcha" 
+        <button
+            class="btn btn-primary g-recaptcha"
             type="submit"
+            title="Aggiorna password"
         >
             Aggiorna password
         </button>

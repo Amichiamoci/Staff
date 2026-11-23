@@ -7,6 +7,8 @@ class Edizione
     public int $Year = 0;
     public ?string $Motto = null;
     public ?string $ImgPath = null;
+
+    /** Checks whether the object has a persisted edition ID. */
     public function Ok(): bool
     {
         return $this->Id !== 0;
@@ -29,6 +31,7 @@ class Edizione
             $this->ImgPath = $img;
     }
 
+    /** Finds an edition by its database ID. */
     public static function ById(\mysqli $connection, string|int $id) : ?self
     {
         if (!$connection || !isset($id))
@@ -48,6 +51,8 @@ class Edizione
         }
         return null;
     }
+
+    /** Finds the edition for a calendar year. */
     public static function FromYear(\mysqli $connection, string|int $year) : ?self
     {
         if (!$connection || !isset($year))
@@ -67,6 +72,8 @@ class Edizione
         }
         return null;
     }
+
+    /** Lists editions in descending year order. */
     public static function All(\mysqli $connection) : array
     {
         if (!$connection) return array();
@@ -88,6 +95,8 @@ class Edizione
         }
         return $ret;
     }
+
+    /** Looks up the edition for the database server’s current year. */
     public static function Current(\mysqli $connection) : ?self
     {
         if (!$connection)
@@ -106,6 +115,8 @@ class Edizione
         }
         return null;
     }
+
+    /** Inserts an edition and returns the new object, or null when the insert fails. */
     public static function New(\mysqli $connection, int $year, string $motto): ?self
     {
         if (!$connection) {
@@ -124,6 +135,8 @@ class Edizione
             img: null
         );
     }
+
+    /** Persists this edition’s year, motto, and image path. */
     public function Update(\mysqli $connection): ?self
     {
         if (!$connection) {
@@ -138,6 +151,7 @@ class Edizione
         return $this;
     }
 
+    /** Returns participant counts indexed by age for the specified edition ID. */
     public static function EtaPartecipanti(\mysqli $connection, int $id): array
     {
         if (!$connection)

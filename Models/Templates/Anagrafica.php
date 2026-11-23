@@ -23,6 +23,7 @@ class Anagrafica
             $this->Eta = (int)$eta;
     }
 
+    /** Lists basic personal records and applies the optional object filter. */
     public static function All(\mysqli $connection, ?callable $filter = null) : array
     {
         if (!$connection)
@@ -52,6 +53,7 @@ class Anagrafica
 
     public static function Table(): string { return "anagrafiche"; }
 
+    /** Loads a basic personal record by ID. */
     public static function ById(\mysqli $connection, int $id): ?self
     {
         if (!$connection)
@@ -77,6 +79,7 @@ class Anagrafica
         return null;
     }
 
+    /** Resolves a person’s display name from the database ID. */
     public static function NomeDaId(\mysqli $connection, int $id) : string
     {
         if (!$connection)
@@ -98,6 +101,7 @@ class Anagrafica
         return "";
     }
 
+    /** Returns the names of people whose birthday is today. */
     public static function NomiCompleannati(\mysqli $connection): array
     {
         if (!$connection)

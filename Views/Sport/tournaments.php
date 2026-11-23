@@ -21,9 +21,12 @@ $tornei_per_sport = array_reduce(
 
 <?php if ($user->Admin) { ?>
     <div class="input-group mb-2">
-        <select id="anno-selector" class="form-control">
+        <select
+            id="anno-selector"
+            class="form-control"
+        >
             <?php foreach ($edizioni as $e) { ?>
-                <option 
+                <option
                     value="<?= $e->Year ?>"
                     <?= ($e->Year === $anno) ? 'selected' : '' ?>
                 >
@@ -50,7 +53,10 @@ $tornei_per_sport = array_reduce(
 </h1>
 
 <?php foreach (array_keys($tornei_per_sport) as $sport_id) { ?>
-    <details class="mt-1" open>
+    <details
+        class="mt-1"
+        open
+    >
         <summary>
             <h4 class="d-inline">
                 <?= htmlspecialchars(string: $tornei_per_sport[$sport_id][0]->Sport->Nome) ?>

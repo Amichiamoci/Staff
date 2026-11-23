@@ -1,3 +1,9 @@
+<?php
+
+assert(isset($compleanni) && is_array($compleanni), 'var $compleanni not valid');
+
+?>
+
 <div class="card">
     <div class="card-body">
         <div class="card-title">
@@ -5,7 +11,9 @@
                 Compleanni di oggi
             </strong>
         </div>
-        <ul class="list-group-flush p-0 overflow-y-auto" style="max-height: 250px;">
+        <ul class="list-group-flush p-0 overflow-y-auto"
+            style="max-height: 250px;"
+        >
             <?php foreach ($compleanni as $compleanno) { ?>
                 <li class="list-group-item">
                     <?= htmlspecialchars(string: $compleanno) ?>

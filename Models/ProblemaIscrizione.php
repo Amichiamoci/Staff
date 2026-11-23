@@ -60,6 +60,7 @@ class ProblemaIscrizione
         $this->Telefono = $telefono;
     }
 
+    /** Loads enrollment issues for the selected year and parish. */
     public static function Parrocchia(
         \mysqli $connection, 
         int $year, 
@@ -102,6 +103,7 @@ class ProblemaIscrizione
         return $arr;
     }
 
+    /** Counts the active issue flags on this enrollment. */
     public function ProblemCount(): int
     {
         $filtered = array_filter(

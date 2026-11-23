@@ -8,6 +8,8 @@ class StaffBase extends NomeIdSemplice
 {
     public static function Table(): string { return "staff_list_raw"; }
     
+
+    /** Lists the basic staff records without restricting them to the current edition. */
     public static function All(\mysqli $connection) : array
     {
         if (!$connection)
@@ -28,6 +30,7 @@ class StaffBase extends NomeIdSemplice
         return $arr;
     }
 
+    /** Loads a basic staff record by ID. */
     public static function ById(\mysqli $connection, int $id) : ?self
     {
         if (!$connection || $id <= 0)

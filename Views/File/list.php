@@ -1,5 +1,9 @@
 <?php
 
+assert(!isset($source) || is_string($source), 'var $source not valid');
+assert(isset($available) && is_bool($available), 'var $available not valid');
+assert(isset($folder) && is_string($folder), 'var $folder not valid');
+assert(isset($entries) && is_array($entries), 'var $entries not valid');
 assert(isset($sources) && is_array($sources), 'var $sources not valid');
 assert(isset($P) && is_string($P), 'var $P not valid');
 
@@ -53,6 +57,7 @@ $print_size = static function(int $size): string {
                     <li class="breadcrumb-item">
                         <a  href="<?= $browse($source, $crumb['path']) ?>"
                             <?= $index === array_key_last($trail) ? ' aria-current="page"' : '' ?>
+                            title="Apri cartella"
                         >
                             <?= htmlspecialchars($crumb['label']) ?>
                         </a>
@@ -73,13 +78,15 @@ $print_size = static function(int $size): string {
                         <?php if ($entry->isDir()) { ?>
                             <a  href="<?= $browse($source, $path) ?>"
                                 class="link-underline link-underline-opacity-0"
-                                title="Espandi">
+                                title="Espandi"
+                            >
                                 <?= htmlspecialchars(basename($path)) ?>/
                             </a>
                         <?php } else { ?>
                             <a  href="<?= $P ?>/file/download?name=<?= rawurlencode($uri) ?>"
                                 class="link-underline link-underline-opacity-0 link-body-emphasis"
-                                title="Scarica">
+                                title="Scarica"
+                            >
                                 <?= htmlspecialchars(basename($path)) ?>
                             </a>
                         <?php } ?>

@@ -1,3 +1,9 @@
+<?php
+
+assert(isset($P) && is_string($P), 'var $P not valid');
+
+?>
+
 <div class="card">
     <div class="card-body">
         <div class="card-title text-center">
@@ -5,12 +11,17 @@
                 Luoghi di nascita
             </strong>
         </div>
-        <canvas id="stats-chart" 
-            style="max-height: 200px;" 
+        <canvas
+            id="stats-chart"
+            style="max-height: 200px;"
             class="m-x-auto m-y-auto"
-            oncontextmenu="return false"></canvas>
+            oncontextmenu="return false"
+        ></canvas>
     </div>
 </div>
 
 <?php require_once __DIR__ . '/chart.js.php'; ?>
-<script src="<?= $P ?>/js/stats-from.js" defer></script>
+<script
+    src="<?= $P ?>/js/stats-from.js"
+    defer
+></script>

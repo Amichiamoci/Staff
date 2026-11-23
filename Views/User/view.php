@@ -28,40 +28,58 @@ assert(isset($activity) && is_array($activity), 'var $activity not valid');
         <?php } ?>
 
         <?php if ($user->Admin && !$target->HasAdditionalData()) { ?>
-            <a class="btn btn-secondary" href="<?= $P ?>/staff/link_account?account=<?= $target->Id ?>">
+            <a  class="btn btn-secondary"
+                href="<?= $P ?>/staff/link_account?account=<?= $target->Id ?>"
+                title="Associa anagrafica staff"
+            >
                 Associa anagrafica staff
             </a>
         <?php } ?>
 
         <?php if ($user->Id === $target->Id) { ?>
-            <button 
+            <button
                 class="btn btn-primary"
-                data-bs-toggle="modal" 
+                data-bs-toggle="modal"
                 data-bs-target="#modal-change-password"
+                title="Cambia password"
             >
                 Cambia password
             </button>
-            <div class="modal fade" 
-                id="modal-change-password" 
-                tabindex="-1" 
+            <div
+                class="modal fade"
+                id="modal-change-password"
+                tabindex="-1"
                 aria-hidden="true"
                 aria-labelledby="modal-change-password-label"
             >
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="modal-change-password-label">
+                            <h5 class="modal-title"
+                                id="modal-change-password-label"
+                            >
                                 Cambia Password
                             </h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+                            <button
+                                type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Chiudi"
+                                title="Chiudi"
+                            ></button>
                         </div>
                         <div class="modal-body">
-                            <form method="POST" action="<?= $P ?>/user/update">
+                            <form
+                                method="POST"
+                                action="<?= $P ?>/user/update"
+                            >
                                 <div class="form-floating mb-2">
-                                    <input 
+                                    <input
                                         required
-                                        type="text" class="form-control" 
-                                        id="new_username" name="new_username" 
+                                        type="text"
+                                        class="form-control"
+                                        id="new_username"
+                                        name="new_username"
                                         placeholder="Nome utente"
                                         value="<?= htmlspecialchars(string: $user->Name) ?>"
                                     >
@@ -71,10 +89,12 @@ assert(isset($activity) && is_array($activity), 'var $activity not valid');
                                     </div>
                                 </div>
                                 <div class="form-floating mb-2">
-                                    <input 
+                                    <input
                                         required
-                                        type="password" class="form-control" 
-                                        id="current_password" name="current_password" 
+                                        type="password"
+                                        class="form-control"
+                                        id="current_password"
+                                        name="current_password"
                                         placeholder="Password"
                                         autocomplete="off"
                                     >
@@ -84,9 +104,11 @@ assert(isset($activity) && is_array($activity), 'var $activity not valid');
                                     </div>
                                 </div>
                                 <div class="form-floating mb-2">
-                                    <input 
-                                        type="password" class="form-control" 
-                                        id="new_password" name="new_password" 
+                                    <input
+                                        type="password"
+                                        class="form-control"
+                                        id="new_password"
+                                        name="new_password"
                                         placeholder="Password"
                                         autocomplete="off"
                                     >
@@ -99,7 +121,11 @@ assert(isset($activity) && is_array($activity), 'var $activity not valid');
                                     </div>
                                 </div>
                                 
-                                <button type="submit" class="btn btn-primary">
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary"
+                                    title="Invia"
+                                >
                                     Invia
                                 </button>
                             </form>
@@ -108,28 +134,68 @@ assert(isset($activity) && is_array($activity), 'var $activity not valid');
                 </div>
             </div>
 
-            <form action="<?= $P ?>/user/logout" method="post" class="d-inline-block">
-                <button type="submit" class="btn btn-primary">Esci</button>
+            <form
+                action="<?= $P ?>/user/logout"
+                method="post"
+                class="d-inline-block"
+            >
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    title="Esci"
+                >Esci</button>
             </form>
         <?php } ?>
 
 
         <?php if ($user->Admin) { ?>
             <div class="input-group m-1">
-                <form action="<?= $P ?>/user/ban" method="post" class="d-inline-block">
-                    <input type="hidden" name="target_id" value="<?= $target->Id ?>">
-                    <button type="submit" class="btn btn-outline-secondary">Blocca</button>
+                <form
+                    action="<?= $P ?>/user/ban"
+                    method="post"
+                    class="d-inline-block"
+                >
+                    <input
+                        type="hidden"
+                        name="target_id"
+                        value="<?= $target->Id ?>"
+                    >
+                    <button
+                        type="submit"
+                        class="btn btn-outline-secondary"
+                        title="Blocca"
+                    >Blocca</button>
                 </form>
-                <form action="<?= $P ?>/user/restore" method="post" class="d-inline-block">
-                    <input type="hidden" name="target_id" value="<?= $target->Id ?>">
-                    <button type="submit" class="btn btn-outline-secondary">Riabilita</button>
+                <form
+                    action="<?= $P ?>/user/restore"
+                    method="post"
+                    class="d-inline-block"
+                >
+                    <input
+                        type="hidden"
+                        name="target_id"
+                        value="<?= $target->Id ?>"
+                    >
+                    <button
+                        type="submit"
+                        class="btn btn-outline-secondary"
+                        title="Riabilita"
+                    >Riabilita</button>
                 </form>
             </div>
             
             <?php if ($user->Id !== $target->Id) { ?>
-                <form action="<?= $P ?>/user/delete" method="POST" class="d-inline-block m-1">
-                    <input type="hidden" name="target_id" value="<?= $target->Id ?>">
-                    <button 
+                <form
+                    action="<?= $P ?>/user/delete"
+                    method="POST"
+                    class="d-inline-block m-1"
+                >
+                    <input
+                        type="hidden"
+                        name="target_id"
+                        value="<?= $target->Id ?>"
+                    >
+                    <button
                         type="submit"
                         class="btn btn-outline-danger"
                         title="Elimina l'utente"
@@ -140,9 +206,17 @@ assert(isset($activity) && is_array($activity), 'var $activity not valid');
                         Elimina utente
                     </button>
                 </form>
-                <form action="<?= $P ?>/user/reset" method="POST" class="d-inline-block m-1">
-                    <input type="hidden" name="target_id" value="<?= $target->Id ?>">
-                    <button 
+                <form
+                    action="<?= $P ?>/user/reset"
+                    method="POST"
+                    class="d-inline-block m-1"
+                >
+                    <input
+                        type="hidden"
+                        name="target_id"
+                        value="<?= $target->Id ?>"
+                    >
+                    <button
                         type="submit"
                         class="btn btn-outline-info"
                         title="Reimposta la password"
@@ -163,7 +237,7 @@ assert(isset($activity) && is_array($activity), 'var $activity not valid');
     </div>
     <ul class="list list-inline mt-3 card-body">
         <?php foreach ($activity as $login) { ?>
-            <li class="d-flex justify-content-between m-2 border border-1 p-1" 
+            <li class="d-flex justify-content-between m-2 border border-1 p-1"
                 style="max-width: 800px;"
             >
                 <?php require __DIR__ . '/LoginRender.php'; ?>

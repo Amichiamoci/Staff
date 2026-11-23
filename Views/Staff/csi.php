@@ -26,7 +26,7 @@ $codice_societa_csi = Security::LoadEnvironmentOrFromFile(var: 'CODICE_SOCIETA_C
     I valori che vengono riportati nelle tabelle rispecchiano le attuali iscrizioni registrate nel sistema.
 </p>
 
-<button 
+<button
     type="button"
     onclick="exportTables()"
     class="btn btn-primary mt-2 mb-2"
@@ -36,46 +36,63 @@ $codice_societa_csi = Security::LoadEnvironmentOrFromFile(var: 'CODICE_SOCIETA_C
     <i class="bi bi-file-earmark-arrow-down"></i>
 </button>
 
-<table id="csi" class="table table-striped border border-1">
+<table
+    id="csi"
+    class="table table-striped border border-1"
+>
     <thead>
-        <tr><td colspan="30"></td></tr>
+        <tr>
+            <td colspan="30"></td>
+        </tr>
         <tr>
             <td> </td>
             <td colspan="29"> 
                 TESSERAMENTO CENTRO SPORTIVO ITALIANO
             </td>
         </tr>
-        <tr><td colspan="30"></td></tr>
+        <tr>
+            <td colspan="30"></td>
+        </tr>
         <tr>
             <td></td>
             <td colspan="2"> 
                 <strong>Comitato di:</strong>
             </td>
-            <td colspan="4" contenteditable="true"> 
+            <td colspan="4"
+                contenteditable="true"
+            >
                 LIVORNO 
             </td>
             <td></td>
             <td colspan="4"> 
                 <strong>Codice Comitato</strong> 
             </td>
-            <td colspan="3" contenteditable="true">
+            <td colspan="3"
+                contenteditable="true"
+            >
                 <?= htmlspecialchars(string: $codice_comitato_csi) ?>
             </td>
         </tr>
-        <tr><td colspan="30"></td></tr>
+        <tr>
+            <td colspan="30"></td>
+        </tr>
         <tr>
             <td></td>
             <td colspan="2"> 
                 <strong>Società sportiva:</strong> 
             </td>
-            <td colspan="4" contenteditable="true"> 
+            <td colspan="4"
+                contenteditable="true"
+            >
                 CIRCOLO SPORTIVO DIOCESANO AMICHIAMOCI 
             </td>
             <td></td>
             <td colspan="4"> 
                 <strong>Codice Società</strong> 
             </td>
-            <td colspan="3" contenteditable="true">
+            <td colspan="3"
+                contenteditable="true"
+            >
                 <?= htmlspecialchars(string: $codice_societa_csi) ?>
             </td>
         </tr>
@@ -137,7 +154,9 @@ $codice_societa_csi = Security::LoadEnvironmentOrFromFile(var: 'CODICE_SOCIETA_C
             if (!($iscrizione instanceof Amichiamoci\Models\TesseramentoCSI)) continue; ?>
             <tr>
                 <td> </td>
-                <td scope="row" contenteditable="true"><?= $i++ ?></td>
+                <td scope="row"
+                    contenteditable="true"
+                ><?= $i++ ?></td>
                 <td contenteditable="true"><?= htmlspecialchars(string: $iscrizione->Cognome) ?></td>
                 <td contenteditable="true"><?= htmlspecialchars(string: $iscrizione->Nome) ?></td>
                 <td contenteditable="true"><?= htmlspecialchars(string: $iscrizione->Sesso) ?></td>
@@ -160,7 +179,9 @@ $codice_societa_csi = Security::LoadEnvironmentOrFromFile(var: 'CODICE_SOCIETA_C
 
                 <td>
                     <?php if (isset($iscrizione->Telefono)) { ?>
-                        <a href="tel:<?= htmlspecialchars(string: $iscrizione->Telefono) ?>">
+                        <a  href="tel:<?= htmlspecialchars(string: $iscrizione->Telefono) ?>"
+                            title="Chiama il numero"
+                        >
                             <?= htmlspecialchars(string: $iscrizione->Telefono) ?>
                         </a>
                     <?php } ?>
@@ -170,7 +191,9 @@ $codice_societa_csi = Security::LoadEnvironmentOrFromFile(var: 'CODICE_SOCIETA_C
                 </td>
                 <td>
                     <?php if (isset($iscrizione->Email)) { ?>
-                        <a href="mailto:<?= htmlspecialchars(string: $iscrizione->Email) ?>">
+                        <a  href="mailto:<?= htmlspecialchars(string: $iscrizione->Email) ?>"
+                            title="Scrivi un’email"
+                        >
                             <?= htmlspecialchars(string: $iscrizione->Email) ?>
                         </a>
                     <?php } ?>
@@ -182,7 +205,9 @@ $codice_societa_csi = Security::LoadEnvironmentOrFromFile(var: 'CODICE_SOCIETA_C
                 <td contenteditable="true"> </td>
             </tr>
         <?php } ?>
-        <tr><td colspan="30"></td></tr>
+        <tr>
+            <td colspan="30"></td>
+        </tr>
         <tr>
             <td colspan="30">
                 <small>
