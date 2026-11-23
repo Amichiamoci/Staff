@@ -1,7 +1,6 @@
 <?php
 
-use Amichiamoci\Models\Edizione;
-use Amichiamoci\Models\User;
+use Amichiamoci\Models\{Edizione, User};
 
 assert(isset($user) && ($user instanceof User), 'var $user not valid');
 assert(isset($edizioni) && is_array($edizioni), 'var $edizioni not valid');

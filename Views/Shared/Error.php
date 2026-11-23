@@ -1,3 +1,8 @@
+<?php
+if ($status_code === 500 && isset($exception)) {
+    \Amichiamoci\Utils\ErrorLog::Report($exception);
+}
+?>
 <h1>
     <?= match ($status_code) {
         404 => 'Pagina non trovata',

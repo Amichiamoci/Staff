@@ -1,11 +1,11 @@
 <?php
 namespace Amichiamoci\Models;
 
-use Amichiamoci\Utils\Security;
-use Amichiamoci\Models\Templates\DbEntity;
-use Amichiamoci\Utils\File;
 use Richie314\SimpleMvc\Users\User as BaseUser;
 use Richie314\SimpleMvc\Utils\Cookie;
+
+use Amichiamoci\Utils\{Security, Link};
+use Amichiamoci\Models\Templates\DbEntity;
 
 
 class User
@@ -82,7 +82,7 @@ implements DbEntity
         return session_start(options: [
             'name'            => self::$COOKIE_NAME,
             'cookie_lifetime' => '172800', // 48h
-            'cookie_path'     => File::getInstallationPath() ?: '/',
+            'cookie_path'     => Link::InstallationPath() ?: '/',
             'cookie_secure'   => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
                 || filter_var(Security::LoadEnvironmentOrFromFile(var: 'SESSION_COOKIE_SECURE'), FILTER_VALIDATE_BOOL),
             'cookie_httponly' => true,
@@ -139,33 +139,20 @@ implements DbEntity
         )
             return false;
 
-        $query = "CALL `GetUserPassword`(?);";
+        // Compare against a bound value so the column's collation controls the lookup.
         $result = $connection->execute_query(
-            query: $query, 
-            params: [ trim(string: $username) ]
+            query: 'SELECT id, password, is_admin FROM utenti WHERE LOWER(user_name) = LOWER(?) AND is_blocked = 0',
+            params: [trim($username)],
         );
-
-        if (!$result || $result->num_rows === 0)
-        {
-            $connection->next_result();
-            return false;
-        }
-        
-        $passed = false;
-        $id = 0;
-        $admin = false;
-        if ($row = $result->fetch_assoc())
-        {
-            $id = (int)$row["id"];
-            $hash = $row["password"];
-            $admin = isset($row["is_admin"]) && (int)$row["is_admin"] === 1;
-            $passed = $id !== 0 && Security::TestPassword(
-                password: trim(string: $password), 
-                hash: $hash
-            );
-        }
+        $row = $result->fetch_assoc();
         $result->close();
-        $connection->next_result();
+
+        $id = (int)($row['id'] ?? 0);
+        $admin = (int)($row['is_admin'] ?? 0) === 1;
+        $passed = $id !== 0 && Security::TestPassword(
+            password: trim($password),
+            hash: $row['password'],
+        );
 
         if (!$passed)
             return false;
@@ -182,14 +169,19 @@ implements DbEntity
             return false;
 
         $flag = sha1(string: $user_agent . $user_ip);
+        $sessionId = self::LogSessionStart(connection: $connection, id: $id, flag: $flag, user_ip: $user_ip);
+        if ($sessionId === 0) {
+            return false;
+        }
+
         $_SESSION[self::$USER_ID] = $id;
         $_SESSION[self::$USER_NAME] = $username;
         $_SESSION[self::$LOGIN_TIME] = time();
         $_SESSION[self::$USER_IS_ADMIN] = $admin;
         $_SESSION[self::$SESSION_FLAG] = $flag;
-        $_SESSION[self::$SESSION_DB_ID] = self::LogSessionStart(connection: $connection, id: $id, flag: $flag, user_ip: $user_ip);
+        $_SESSION[self::$SESSION_DB_ID] = $sessionId;
 
-        return $_SESSION[self::$SESSION_DB_ID] !== 0;
+        return true;
     }
 
     public static function LoadFromSession(): ?self

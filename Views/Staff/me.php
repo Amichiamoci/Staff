@@ -1,58 +1,42 @@
 <?php
-use Amichiamoci\Models\User;
-use Amichiamoci\Models\Staff;
-use Amichiamoci\Models\Parrocchia;
+use Amichiamoci\Models\{User, Staff, Parrocchia};
 use Amichiamoci\Models\Templates\Anagrafica as AnagraficaBase;
 
 assert(isset($user) && ($user instanceof User), 'var $user not valid');
 assert(isset($P) && is_string($P), 'var $P not valid');
 assert(isset($parrocchie) && is_array($parrocchie), 'var $parrocchie not valid');
 
-    if (isset($staff)) { 
 ?>
-    <h1>
-        Il tuo account staff
-    </h1>
+<?php if (isset($target)) { ?>
+    <h1>Associa account staff</h1>
+    <p><?= htmlspecialchars($target->Name) ?></p>
+<?php } elseif (isset($staff)) { ?>
+    <h1>Il tuo account staff</h1>
 <?php } else { ?>
-    <h1>
-        Diventa staff
-    </h1>
+    <h1>Diventa staff</h1>
+    <p>Chiedi a un amministratore di associare la tua anagrafica al tuo account.</p>
+    <?php return; ?>
 <?php } ?>
 
 <form method="post" id="staff-form">
-    <div class="form-floating mb-3">
-        <select 
-            id="anagrafica" name="anagrafica"
-            required
-            class="form-control"
-            <?= isset($user->IdAnagrafica) ? "disabled" : "" ?>
-            title="Dati anagrafici"
-        >
-            <option value="">Scegli</option>
-            <?php foreach ($anagrafiche as $anagrafica) {
-                if (!($anagrafica instanceof AnagraficaBase)) continue;
-            ?>
-                <option 
-                    value="<?= $anagrafica->Id ?>"
-                    <?= ($anagrafica->Id === $user->IdAnagrafica) ? "selected" : "" ?>>
-                    <?= htmlspecialchars(string: $anagrafica->Nome . " " . $anagrafica->Cognome) ?>
-                </option>
-            <?php } ?>
-        </select>
-        <label for="anagrafica">Dati Anagrafici</label>
-        <div class="invalid-feedback">
-            Per favore, seleziona una persona
+    <?php if (isset($target)) { ?>
+        <input type="hidden" name="account" value="<?= $target->Id ?>">
+        <div class="form-floating mb-3">
+            <select id="anagrafica" name="anagrafica" class="form-select" required>
+                <option value="">Scegli</option>
+                <?php foreach ($anagrafiche as $anagrafica) {
+                    if (!($anagrafica instanceof AnagraficaBase)) continue;
+                    ?>
+                    <option value="<?= $anagrafica->Id ?>">
+                        <?= htmlspecialchars($anagrafica->Nome . ' ' . $anagrafica->Cognome) ?>
+                    </option>
+                <?php } ?>
+            </select>
+            <label for="anagrafica">Dati anagrafici</label>
         </div>
-        <?php if (!isset($staff)) { ?>
-            <div class="form-text user-select-none ms-2">
-                Non hai mai partecipato come concorrente?
-                Registra prima i tuoi dati
-                <a href="<?= $P ?>/staff/new_anagrafica" class="link-underline link-underline-opacity-0">qui</a>.
-            </div>
-        <?php } ?>
-    </div>
+    <?php } ?>
     <div class="form-floating mb-3">
-        <select 
+        <select
             id="parrocchia" name="parrocchia"
             required
             class="form-control"
@@ -62,10 +46,10 @@ assert(isset($parrocchie) && is_array($parrocchie), 'var $parrocchie not valid')
             <?php foreach ($parrocchie as $parrocchia) {
                 if (!($parrocchia instanceof Parrocchia)) continue;
             ?>
-                <option 
+                <option
                     value="<?= $parrocchia->Id ?>"
-                    <?= (isset($staff) && 
-                        ($staff instanceof Staff) && 
+                    <?= (!isset($target) && isset($staff) &&
+                        ($staff instanceof Staff) &&
                         $staff->Parrocchia->Id === $parrocchia->Id) ? "selected" : "" ?>
                 >
                     <?= htmlspecialchars(string: $parrocchia->Nome) ?>
@@ -83,10 +67,10 @@ assert(isset($parrocchie) && is_array($parrocchie), 'var $parrocchie not valid')
 
     <div class="col-12 mt-2">
         <button class="btn btn-primary" type="submit">
-            <?php if (isset($staff)) { ?>
+            <?php if (!isset($target)) { ?>
                 Modifica i dati
             <?php } else { ?>
-                Diventa uno staff
+                Associa account
             <?php } ?>
         </button>
     </div>

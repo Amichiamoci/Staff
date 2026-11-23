@@ -5,10 +5,8 @@ namespace Amichiamoci\Controllers;
 use Richie314\SimpleMvc\Controllers\Attributes\RequireLogin;
 use Richie314\SimpleMvc\Http\StatusCode;
 
-use Amichiamoci\Models\Email;
-use Amichiamoci\Models\Message;
-use Amichiamoci\Utils\Email as EmailSender;
-use Amichiamoci\Utils\Security;
+use Amichiamoci\Models\{Email, Message};
+use Amichiamoci\Utils\{Email as EmailSender, Security};
 
 class EmailController
 extends Controller

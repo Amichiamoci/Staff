@@ -1,7 +1,6 @@
 <?php
 
-use Amichiamoci\Models\Squadra;
-use Amichiamoci\Models\User;
+use Amichiamoci\Models\{Squadra, User};
 
 if (!isset($anno) || !is_int(value: $anno)) {
     $anno = (int) date(format: 'Y');

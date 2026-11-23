@@ -9,13 +9,10 @@ $_SERVER['DOCUMENT_ROOT'] = dirname(__DIR__);
 
 require_once dirname(path: __DIR__) . '/config.php';
 
-use Amichiamoci\Utils\Email;
-use Amichiamoci\Utils\Security;
+use Amichiamoci\Utils\{Email, Security};
 use Amichiamoci\Models\Cron;
-use Amichiamoci\Utils\File;
 
-use Monolog\Logger;
-use Monolog\Level;
+use Monolog\{Logger, Level};
 use Monolog\Handler\StreamHandler;
 
 echo 'CRON job started' . PHP_EOL . PHP_EOL;
@@ -29,7 +26,7 @@ if (!$connection)
 $cron_logger = new Logger(name: 'Cron logger');
 $cron_logger->pushHandler(
     handler: new StreamHandler(
-        stream: File::getLogDir() . DIRECTORY_SEPARATOR . 'cron.log', 
+        stream: dirname(__DIR__) . '/data/log/cron.log',
         level: Level::Info,
     )
 );

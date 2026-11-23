@@ -1,5 +1,6 @@
 <?php
 namespace Amichiamoci\Utils;
+
 use PHPMailer\PHPMailer\PHPMailer;
 
 class Email
@@ -169,7 +170,7 @@ class Email
             'open_signature' => $id === null ? null : self::OpenSignature($id),
             'site_name' => SITE_NAME,
             'site_url' => MAIN_SITE_URL,
-            'P' => File::getInstallationPath(),
+            'P' => Link::InstallationPath(),
         ]);
         ob_start();
         require dirname(path: __DIR__) . "/Views/Shared/Email.php";
@@ -185,7 +186,7 @@ class Email
             'name' => $name,
             'site_name' => SITE_NAME,
             'site_url' => MAIN_SITE_URL,
-            'P' => File::getInstallationPath(),
+            'P' => Link::InstallationPath(),
         ]);
         ob_start();
         require dirname(path: __DIR__) . "/Views/Email/birthday.php";

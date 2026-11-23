@@ -27,6 +27,12 @@ assert(isset($activity) && is_array($activity), 'var $activity not valid');
             </h6>
         <?php } ?>
 
+        <?php if ($user->Admin && !$target->HasAdditionalData()) { ?>
+            <a class="btn btn-secondary" href="<?= $P ?>/staff/link_account?account=<?= $target->Id ?>">
+                Associa anagrafica staff
+            </a>
+        <?php } ?>
+
         <?php if ($user->Id === $target->Id) { ?>
             <button 
                 class="btn btn-primary"

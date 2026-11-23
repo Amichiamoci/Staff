@@ -1,6 +1,7 @@
 <?php
 
 namespace Amichiamoci\Models;
+
 use Amichiamoci\Models\Templates\NomeIdSemplice;
 
 class Squadra extends NomeIdSemplice

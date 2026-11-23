@@ -1,24 +1,9 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS `IscrizioniList` //
-CREATE PROCEDURE `IscrizioniList` (IN anno YEAR, IN _id_parrocchia INT)
+CREATE OR REPLACE PROCEDURE `IscrizioniList` (IN requested_year YEAR, IN requested_parish INT)
 BEGIN
-    -- anno IS NULL AND id_parrocchia IS NULL -> tutte le anagrafiche, di tutte le parrocchie 
-    -- anno = X AND id_parrocchia IS NULL -> tutti gli iscritti dell'anno X
-    -- anno = X AND id_parrocchia = Y -> tutti gli iscritti dell'anno X della parrocchia Y
-    
-    SET @_anno = IFNULL(anno, YEAR(CURRENT_DATE));
-
-    WITH `iscritti_anno_specifico` AS (
-        SELECT i.*
-        FROM `iscritti` i
-        WHERE EXISTS(
-            SELECT e.*
-            FROM `edizioni` e
-            WHERE e.`anno` = @_anno AND i.`edizione` = e.`id`
-        )
-    )
-    SELECT 
+    -- A NULL year means the current year. A NULL parish includes every parish.
+    SELECT
         a.`id`, 
         a.`cognome`, 
         a.`nome`, 
@@ -38,24 +23,21 @@ BEGIN
         p.`id` AS "id_parrocchia",
         e.`anno`,
         e.`id` AS "id_edizione",
-        IF (i.`id` IS NOT NULL, 
-            LPAD(HEX(i.`id`), 8, '0'), 
-            CONCAT('Non iscritto per il ', @_anno)
-        ) AS "codice_iscrizione",
-        IF (i.id IS NULL, CONCAT('Iscrivi per il ', @_anno), NULL) AS "iscrivi",
+        LPAD(HEX(i.`id`), 8, '0') AS "codice_iscrizione",
+        NULL AS "iscrivi",
         i.`id` AS id_iscrizione,
         a.`creatore_dati`,
         i.`certificato_medico`,
         i.`taglia_maglietta` AS "maglia",
         CONCAT (a2.`cognome`, ' ', a2.`nome`) AS "tutore",
         i.`tutore` AS "id_tutore"
-    FROM `anagrafiche_espanse` a
-        LEFT OUTER JOIN `iscritti_anno_specifico` i ON a.`id` = i.`dati_anagrafici`
-        LEFT OUTER JOIN `edizioni` e ON i.`edizione` = e.`id` AND e.`anno` = @_anno
-        LEFT OUTER JOIN `parrocchie` p ON i.`parrocchia` = p.`id`
-        LEFT OUTER JOIN `anagrafiche` a2 ON i.`tutore` = a2.`id`
-    WHERE (e.`anno` = IFNULL(anno, e.`anno`)) AND (p.`id` = IFNULL(_id_parrocchia, p.`id`))
-    GROUP BY a.`id`, i.`id`
+    FROM `iscritti` i
+        INNER JOIN `edizioni` e ON e.`id` = i.`edizione`
+        INNER JOIN `anagrafiche_espanse` a ON a.`id` = i.`dati_anagrafici`
+        INNER JOIN `parrocchie` p ON p.`id` = i.`parrocchia`
+        LEFT JOIN `anagrafiche` a2 ON a2.`id` = i.`tutore`
+    WHERE e.`anno` = COALESCE(requested_year, YEAR(CURRENT_DATE))
+      AND (requested_parish IS NULL OR p.`id` = requested_parish)
     ORDER BY parrocchia DESC, YEAR(a.`data_nascita`) ASC, a.`cognome` ASC, a.`nome` ASC;
 END; //
 

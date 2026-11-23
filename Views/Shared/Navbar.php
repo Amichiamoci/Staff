@@ -178,12 +178,7 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="<?= $P ?>/file/list">
-                                        Tutti gli uploads
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="<?= $P ?>/file/unreferenced">
-                                        File non usati
+                                        Sorgenti file
                                     </a>
                                 </li>
                                 <li>

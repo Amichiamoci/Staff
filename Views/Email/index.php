@@ -1,7 +1,5 @@
 <?php
-
 use Amichiamoci\Models\Email;
-
 ?>
 
 <h1>
@@ -14,7 +12,7 @@ use Amichiamoci\Models\Email;
         <div class="col col-sm-6 col-md-4">
             <div class="card mb-1">
                 <div class="card-header font-monospace user-select-none">
-                    <a href="<?= $P ?>/email/view?id=<?= $email->Id ?>" 
+                    <a  href="<?= $P ?>/email/view?id=<?= $email->Id ?>" 
                         class="text-reset link-underline link-underline-opacity-0"
                         title="Vedi contenuto"
                     >
@@ -23,8 +21,7 @@ use Amichiamoci\Models\Email;
                 </div>
                 <div class="card-body">
                     <div class="card-title">
-                        <a 
-                            href="mailto:<?= htmlspecialchars(string: $email->Receiver) ?>"
+                        <a  href="mailto:<?= htmlspecialchars(string: $email->Receiver) ?>"
                             class="link-underline link-underline-opacity-0 text-reset"
                         >
                             <strong>
@@ -37,7 +34,7 @@ use Amichiamoci\Models\Email;
                             Oggetto
                         </dt>
                         <dd class="col-sm-8">
-                            <a href="<?= $P ?>/email/view?id=<?= $email->Id ?>" 
+                            <a  href="<?= $P ?>/email/view?id=<?= $email->Id ?>" 
                                 class="text-reset link-underline link-underline-opacity-0"
                                 title="Vedi contenuto"
                             >

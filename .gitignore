@@ -5,3 +5,4 @@ vendor
 data/*
 !data/.gitkeep
 docs
+/*.sql

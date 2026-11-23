@@ -83,14 +83,13 @@ class AnagraficaConIscrizione extends Anagrafica
     {
         $a = parent::FromDbRow(row: $row);
         if (!array_key_exists(key: 'id_iscrizione', array: $row) || empty($row['id_iscrizione']))
-        {
             return $a;
-        }
+
         $ai = new self(
-            id: $a->Id,
-            nome: $a->Nome,
+            id:      $a->Id,
+            nome:    $a->Nome,
             cognome: $a->Cognome,
-            eta: $a->Eta,
+            eta:     $a->Eta,
         );
 
         // Copy the parameters from the original object
@@ -111,24 +110,16 @@ class AnagraficaConIscrizione extends Anagrafica
         }
 
         $ai->Iscrizione = new Iscrizione(
-            id: $row["id_iscrizione"],
-            nome: $row["nome"] . " " . $row["cognome"],
-            parrocchia: $row["parrocchia"],
+            id:            $row["id_iscrizione"],
+            nome:          $row["nome"] . " " . $row["cognome"],
+            parrocchia:    $row["parrocchia"],
             id_parrocchia: $row["id_parrocchia"],
             anno_edizione: $row["anno"],
-            taglia: $row["maglia"], 
-            id_tutore: $row["id_tutore"],
-            certificato: $row["certificato_medico"],
+            taglia:        $row["maglia"], 
+            id_tutore:     $row["id_tutore"],
+            certificato:   $row["certificato_medico"],
         );
         return $ai;
-    }
-
-    public static function UnreferencedFiles(\mysqli $connection): array
-    {
-        return array_merge(
-            self::UnreferencedDocuments(connection: $connection),
-            Iscrizione::UnreferencedCertificates(connection: $connection),
-        );
     }
 
     public static function DoubleSubscriptions(\mysqli $connection): array

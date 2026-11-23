@@ -1,36 +1,14 @@
 <?php
 
-use Amichiamoci\Models\Squadra;
-use Amichiamoci\Models\User;
-use Amichiamoci\Models\StaffBase;
+use Amichiamoci\Models\{Squadra, User, StaffBase};
 
-if (!isset($user) || !($user instanceof User)) {
-    throw new \Exception(message: 'var $user not valid');
-}
-
-if (isset($staff) && !($staff instanceof StaffBase)) {
-    throw new \Exception(message: 'var $staff not valid');
-}
-
-if (!isset($teams) || !is_array($teams)) {
-    throw new \Exception(message: 'var $teams not valid');
-}
-
-if (!isset($edizioni) || !is_array($edizioni)) {
-    throw new \Exception(message: 'var $edizioni not valid');
-}
-
-if (!isset($parrocchie) || !is_array($parrocchie)) {
-    throw new \Exception(message: 'var $parrocchie not valid');
-}
-
-if (!isset($id_parrocchia) || !is_int($id_parrocchia)) {
-    throw new \Exception(message: 'var $id_parrocchia not valid');
-}
-
-if (!isset($anno) || !is_int($anno)) {
-    throw new \Exception(message: 'var $anno not valid');
-}
+assert(isset($user) && $user instanceof User, 'var $user not valid');
+assert(!isset($staff) || $staff instanceof StaffBase, 'var $staff not valid');
+assert(isset($teams) && is_array($teams), 'var $teams not valid');
+assert(isset($edizioni) && is_array($edizioni), 'var $edizioni not valid');
+assert(isset($parrocchie) && is_array($parrocchie), 'var $parrocchie not valid');
+assert(isset($id_parrocchia) && is_int($id_parrocchia), 'var $id_parrocchia not valid');
+assert(isset($anno) && is_int($anno), 'var $anno not valid');
 
 $squadre_per_sport = array_reduce(
     array: $teams,

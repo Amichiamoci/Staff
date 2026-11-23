@@ -2,84 +2,110 @@
 
 namespace Amichiamoci\Controllers;
 
+use finfo;
+use InvalidArgumentException;
+use RuntimeException;
+
 use Richie314\SimpleMvc\Controllers\Attributes\RequireLogin;
 use Richie314\SimpleMvc\Http\StatusCode;
 
-use Amichiamoci\Models\AnagraficaConIscrizione;
-use Amichiamoci\Models\Message;
-use Amichiamoci\Utils\File;
+use Amichiamoci\Models\{Anagrafica, Iscrizione};
+use Amichiamoci\Utils\Authorization;
 
-class FileController
-extends Controller
+class FileController extends Controller
 {
     #[RequireLogin]
-    public function index(?string $name = null): StatusCode
+    public function document(?int $id = null): StatusCode
     {
-        if ($name === null || File::IsExternalFile($name)) {
+        if (empty($id) || !Authorization::CanAccessIdentityDocument($this->getUser()))
+        {
             return $this->NotFound();
         }
 
-        $path = File::PhysicalPath($name);
-        if ($path === false || !is_file($path)) {
+        $anagrafica = Anagrafica::ById($this->DB, $id);
+        if ($anagrafica === null) {
             return $this->NotFound();
         }
 
-        $relativePath = File::VirtualPath($path);
-        if (!$this->getUser()->Admin && (
-            $relativePath === false
-            || (!str_starts_with($relativePath, File::Documents . '/') && !str_starts_with($relativePath, File::Certificates . '/'))
-        )) {
+        return $this->SendDownload($anagrafica->DocumentFileName);
+    }
+
+    #[RequireLogin]
+    public function certificate(?int $id = null): StatusCode
+    {
+        if (empty($id)) {
             return $this->NotFound();
         }
 
-        return $this->File(file_path: $path);
+        $iscrizione = Iscrizione::ById($this->DB, $id);
+        if ($iscrizione === null) {
+            return $this->NotFound();
+        }
+
+        $user = $this->getUser();
+        $staff = $this->Staff();
+
+        if (!Authorization::CanAccessCertificate($user, $staff, $iscrizione->Parrocchia)) {
+            return $this->NotFound();
+        }
+
+        return $this->SendDownload($iscrizione->Certificato);
+    }
+
+
+    #[RequireLogin(requireAdmin: true)]
+    public function download(?string $name = null): StatusCode
+    {
+        if (empty($name)) {
+            return $this->NotFound();
+        }
+        return $this->SendDownload($name, 'application/octet-stream');
+    }
+
+    private function SendDownload(?string $name, ?string $mime = null): StatusCode
+    {
+        if ($name === null || $name === '') {
+            return $this->NotFound();
+        }
+
+        $files = $this->Files();
+        try {
+            $content = $files->read($name);
+            $mime ??= (new finfo(FILEINFO_MIME_TYPE))->buffer($content) ?: 'application/octet-stream';
+        } catch (InvalidArgumentException | RuntimeException) {
+            return $this->NotFound();
+        }
+
+        header("Content-Disposition: attachment; filename*=UTF-8''" . rawurlencode(basename($name)));
+        return $this->Content($mime, $content);
     }
 
     #[RequireLogin(requireAdmin: true)]
-    public function list(): StatusCode
+    public function list(?string $source = null, string $folder = ''): StatusCode
     {
+        $files = $this->Files();
+        $sources = [];
+        foreach ($files->listMounts() as $mount) {
+            $sources[$mount['scheme'] . ':///'] = $mount['name'];
+        }
+        if ($source !== null && !isset($sources[$source])) {
+            return $this->NotFound();
+        }
+
+        $entries = [];
+        $available = $source !== 'app:///';
+        if ($source !== null && $available) {
+            try {
+                $entries = iterator_to_array($files->listContents($source . $folder)->sortByPath());
+            } catch (\Throwable) {
+                $available = false;
+            }
+        }
+
         return $this->Render(
             view: 'File/list',
-            title: 'Lista dei File',
-            data: ['tree' => File::ListDirectory(dir: File::STAFF)]
-        );
-    }
-
-    #[RequireLogin(requireAdmin: true)]
-    public function unreferenced(): StatusCode
-    {
-        $files = AnagraficaConIscrizione::UnreferencedFiles(connection: $this->DB);
-        if ($this->IsPost())
-        {
-            $ok = true;
-            $not_cancelled = [];
-            foreach ($files as $file)
-            {
-                if (!File::Delete(file_path: $file))
-                {
-                    $ok = false;
-                    $not_cancelled[] = $file;
-                }
-            }
-            if ($ok) {
-                $this->Message(message: Message::Success(
-                    content: count(value: $files) . ' file cancellati')
-                );
-            } else {
-                $this->Message(message: Message::Error(
-                    content: (count(value: $files) - count(value: $not_cancelled)) . 
-                        '/' . count(value: $files) . ' file cancellati!')
-                );
-            }
-            $files = $not_cancelled;
-        }
-        
-        return $this->Render(
-            view: 'File/unreferenced',
-            title: 'Elimina file vecchi',
-            data: [
-                'files' => $files,
-            ],
+            title: 'Sorgenti file',
+            data: compact('sources', 'source', 'folder', 'entries', 'available'),
         );
     }
 }

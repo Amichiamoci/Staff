@@ -1,8 +1,13 @@
 <?php
 
+use Amichiamoci\Utils\ErrorLog;
+
 ini_set('display_errors', '0');
+ini_set('zend.exception_ignore_args', '1');
+require_once __DIR__ . '/Utils/ErrorLog.php';
+register_shutdown_function([ErrorLog::class, 'ReportFatal']);
 set_exception_handler(static function (Throwable $exception): void {
-    error_log('Staff request failed: ' . $exception::class);
+    ErrorLog::Report($exception);
     if (!headers_sent()) {
         http_response_code(500);
         header('Content-Type: text/plain; charset=UTF-8');
@@ -17,31 +22,21 @@ header('X-Frame-Options: DENY');
 
 require_once __DIR__ . '/config.php';
 
-use Amichiamoci\Controllers\ApiController;
-use Amichiamoci\Controllers\EmailController;
-use Amichiamoci\Controllers\HomeController;
-use Amichiamoci\Controllers\UserController;
-use Amichiamoci\Controllers\FileController;
-use Amichiamoci\Controllers\SportController;
-use Amichiamoci\Controllers\StaffController;
-use Amichiamoci\Controllers\TeamsController;
-
 use Amichiamoci\Utils\Security;
-use Amichiamoci\Utils\File;
-use Amichiamoci\Models\User;
-use Amichiamoci\Models\Staff;
 
-use Richie314\SimpleMvc\Routers\Router;
-use Richie314\SimpleMvc\Http\StatusCode;
+/******************************************************************
+ *                                                                *
+ *                          LOGS SETUP                            *
+ *                                                                *
+ ******************************************************************/
 
-use Monolog\Level;
-use Monolog\Logger;
+use Monolog\{Level, Logger};
 use Monolog\Handler\RotatingFileHandler;
 
 $logger = new Logger(name: 'Request logger');
 $logger->pushHandler(
     handler: new RotatingFileHandler(
-        filename: File::getLogDir() . DIRECTORY_SEPARATOR .  'requests.log', 
+        filename: __DIR__ . '/data/log/requests.log',
         level: Level::Info,
         maxFiles: (int)Security::LoadEnvironmentOrFromFile(
             var: 'LOG_ROTATING_MAX_FILES', 
@@ -50,9 +45,30 @@ $logger->pushHandler(
     )
 );
 
+/******************************************************************
+ *                                                                *
+ *                    ROUTER AND CONTROLLERS                      *
+ *                                                                *
+ ******************************************************************/
+
+use Richie314\SimpleMvc\Routers\Router;
+use Richie314\SimpleMvc\Http\StatusCode;
+
+use Amichiamoci\Utils\Link;
+use Amichiamoci\Controllers\{
+    ApiController,
+    EmailController,
+    HomeController,
+    UserController,
+    FileController,
+    SportController,
+    StaffController,
+    TeamsController,
+};
+
 $router = new Router(
-    pathPrefix: File::getInstallationPath(), 
-    applicationInstallationPath: $_SERVER['DOCUMENT_ROOT'] . File::getInstallationPath(),
+    pathPrefix: Link::InstallationPath(),
+    applicationInstallationPath: $_SERVER['DOCUMENT_ROOT'] . Link::InstallationPath(),
 );
 $router->AddController(controller: HomeController::class,  route_base: '/');
 $router->AddController(controller: UserController::class,  route_base: '/user');
@@ -69,6 +85,15 @@ if (Security::ApiEnabled())
 // Pass the db connection to the router,
 // so it can be passed to the controllers
 $router->SetDbConnection(connection: $connection);
+$router->SetDefaultVariable('files', $files);
+
+/******************************************************************
+ *                                                                *
+ *                        USER HANDLING                           *
+ *                                                                *
+ ******************************************************************/
+
+use Amichiamoci\Models\{User, Staff};
 
 // Load user data
 $user = User::LoadFromSession();
@@ -101,10 +126,19 @@ if ($user !== null)
     }
 }
 
+/******************************************************************
+ *                                                                *
+ *                       REQUEST DISPATCH                         *
+ *                                                                *
+ ******************************************************************/
+
 $uri = $_SERVER['REQUEST_URI'];
 $client_ip = Security::GetIpAddress();
 
 $result = $router->Dispatch(uri: $uri);
+if ($result->value >= 500) {
+    ErrorLog::Report();
+}
 
 $path = parse_url($uri, PHP_URL_PATH);
 $log_message = "[$client_ip] [$result->value] $path";

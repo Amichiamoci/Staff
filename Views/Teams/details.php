@@ -1,7 +1,6 @@
 <?php
 
-use Amichiamoci\Models\Distinta;
-use Amichiamoci\Models\User;
+use Amichiamoci\Models\{Distinta, User};
 
 assert(isset($user) && $user instanceof User);
 assert(isset($P) && is_string(value: $P));

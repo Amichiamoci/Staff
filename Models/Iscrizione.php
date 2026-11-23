@@ -3,7 +3,6 @@
 namespace Amichiamoci\Models;
 
 use Amichiamoci\Models\Templates\NomeIdSemplice;
-use Amichiamoci\Utils\File;
 
 class Iscrizione extends NomeIdSemplice
 {
@@ -127,6 +126,13 @@ class Iscrizione extends NomeIdSemplice
         return $result->num_rows > 0;
     }
 
+    public static function EditionId(\mysqli $connection, int $id): ?int
+    {
+        $result = $connection->execute_query('SELECT edizione FROM iscritti WHERE id = ?', [$id]);
+        $row = $result->fetch_row();
+        return $row === null ? null : (int)$row[0];
+    }
+
     public static function IdAnagraficaAssociata(\mysqli $connection, int $id) : ?int
     {
         if (!$connection || $id === 0)
@@ -213,26 +219,4 @@ class Iscrizione extends NomeIdSemplice
         return $res && $connection->affected_rows >= 1;
     }
     
-    public static function UnreferencedCertificates(\mysqli $connection): array
-    {
-        if (!$connection) return [];
-
-        $query = 'SELECT DISTINCT(i.`certificato_medico`) AS "cert" FROM `iscritti` i WHERE i.`certificato_medico` IS NOT NULL';
-        $result = $connection->query(query: $query);
-        if (!$result) 
-            return [];
-
-        $arr = [];
-        while ($row = $result->fetch_assoc())
-        {
-            if (!File::Exists(file_path: $row['cert']))
-                continue;
-            $arr[] = $row['cert'];
-        }
-        $result->close();
-
-        $existing_files = File::SavedCertificates();
-
-        return array_values(array: array_diff($existing_files, $arr));
-    }
 }

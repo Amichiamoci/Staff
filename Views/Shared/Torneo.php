@@ -1,8 +1,6 @@
 <?php
 
-use Amichiamoci\Models\TipoTorneo;
-use Amichiamoci\Models\Torneo;
-use Amichiamoci\Models\User;
+use Amichiamoci\Models\{TipoTorneo, Torneo, User};
 
 assert(isset($user) && ($user instanceof User), 'var $user not valid');
 assert(isset($P) && is_string($P), 'var $P not valid');
@@ -77,7 +75,8 @@ assert(isset($torneo) && ($torneo instanceof Torneo), 'var $torneo not valid');
                         >
                             Genera
                         </button>
-                        <div class="modal fade" id="modal-calendario-<?= $torneo->Id ?>" 
+                        <div class="modal fade" 
+                            id="modal-calendario-<?= $torneo->Id ?>" 
                             tabindex="-1" 
                             aria-hidden="true"
                             aria-labelledby="modal-calendario-<?= $torneo->Id ?>-label"
@@ -123,7 +122,8 @@ assert(isset($torneo) && ($torneo instanceof Torneo), 'var $torneo not valid');
                                                         class="form-check-input" 
                                                         type="checkbox" 
                                                         value="two-ways-<?= $torneo->Id ?>" 
-                                                        id="two-ways-<?= $torneo->Id ?>" name="two_ways"
+                                                        id="two-ways-<?= $torneo->Id ?>" 
+                                                        name="two_ways"
                                                     >
                                                     <label class="form-check-label" for="admin">
                                                         Andata e ritorno

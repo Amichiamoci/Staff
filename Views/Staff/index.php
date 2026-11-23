@@ -1,6 +1,5 @@
 <?php
-use Amichiamoci\Models\ProblemaIscrizione;
-use Amichiamoci\Models\User;
+use Amichiamoci\Models\{ProblemaIscrizione, User};
 
 assert(isset($P) && is_string($P), 'var $P not valid');
 assert(isset($user) && ($user instanceof User), 'var $user not valid');

@@ -21,6 +21,11 @@ class Staff extends StaffBase
         );
     }
 
+    public function IsEnrolled(): bool
+    {
+        return !empty($this->CodiceFiscale) && !empty($this->Taglia);
+    }
+
     public function __construct(
         int|string|null $id, 
         string|null $nome,
@@ -90,16 +95,25 @@ class Staff extends StaffBase
         if (!$connection)
             return null;
 
-        // Insert the new row
-        $query = "INSERT INTO `staffisti` (`dati_anagrafici`, `id_utente`, `parrocchia`) VALUES ($id_anagrafica, $user, $parrocchia)";
-        if (
-            !$connection->query(query: $query) || 
-            $connection->affected_rows !== 1 ||
-            empty($connection->insert_id)
-        ) {
-            return null;
+        $connection->begin_transaction();
+        try {
+            // Serialize associations for the same account or anagrafica.
+            $connection->execute_query('SELECT id FROM utenti WHERE id = ? FOR UPDATE', [$user]);
+            $connection->execute_query('SELECT id FROM anagrafiche WHERE id = ? FOR UPDATE', [$id_anagrafica]);
+            $connection->execute_query(
+                'INSERT INTO staffisti (dati_anagrafici, id_utente, parrocchia)
+                 SELECT ?, ?, ? WHERE NOT EXISTS (
+                     SELECT 1 FROM staffisti WHERE id_utente = ? OR dati_anagrafici = ?
+                 )',
+                [$id_anagrafica, $user, $parrocchia, $user, $id_anagrafica],
+            );
+            $id = $connection->affected_rows === 1 ? (int)$connection->insert_id : null;
+            $connection->commit();
+            return $id;
+        } catch (\Throwable $exception) {
+            $connection->rollback();
+            throw $exception;
         }
-        return (int)$connection->insert_id;
     }
     public static function ChangeParrocchia(\mysqli $connection, int $staff, int|Parrocchia $parrocchia) : bool
     {

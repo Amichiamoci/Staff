@@ -2,18 +2,17 @@
 
 namespace Amichiamoci\Controllers;
 
-use Amichiamoci\Models\Anagrafica;
-use Amichiamoci\Models\Message;
-use Amichiamoci\Models\Token;
-use Amichiamoci\Models\User;
-
-use Amichiamoci\Utils\Email;
-use Amichiamoci\Utils\Security;
-use Amichiamoci\Utils\File;
-
 use Richie314\SimpleMvc\Controllers\Attributes\RequireLogin;
 use Richie314\SimpleMvc\Http\StatusCode;
 use Richie314\SimpleMvc\Utils\Cookie;
+
+use Amichiamoci\Models\{
+    Anagrafica,
+    Message,
+    Token,
+    User,
+};
+use Amichiamoci\Utils\{Email, Security};
 
 class UserController
 extends Controller
@@ -27,7 +26,7 @@ extends Controller
 
         $this->getUser()->Logout();
         Cookie::DeleteIfExists(name: "login_forward");
-        return $this->Redirect(url: File::getInstallationPath() . '/');
+        return $this->Redirect(url: $this->PathPrefix . '/');
     }
 
     #[RequireLogin(requireAdmin: true)]
@@ -208,7 +207,7 @@ extends Controller
         if ($domain === null || !preg_match('/^[a-z0-9.-]+(?::[0-9]+)?$/iD', $domain)) {
             return false;
         }
-        $installation_url = htmlspecialchars($domain . File::getInstallationPath());
+        $installation_url = htmlspecialchars($domain) . $this->PathPrefix;
         ob_start();
         ?>
         <p>
@@ -451,6 +450,9 @@ extends Controller
             return $this->NotAuthorized();
         }
 
+        if ($user->Admin) {
+            $target->LoadAdditionalData($this->DB);
+        }
         $activity = $target->LoginList(connection: $this->DB);
         return $this->Render(
             view: 'User/view',
@@ -513,7 +515,7 @@ extends Controller
         if ($domain === null || !preg_match('/^[a-z0-9.-]+(?::[0-9]+)?$/iD', $domain)) {
             return false;
         }
-        $installation_url = htmlspecialchars($domain . File::getInstallationPath());
+        $installation_url = htmlspecialchars($domain) . $this->PathPrefix;
         ob_start();
         ?>
             <h3>Benvenuto/a</h3>

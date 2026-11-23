@@ -1,7 +1,6 @@
 <?php
 
-use Amichiamoci\Models\Partita;
-use Amichiamoci\Models\User;
+use Amichiamoci\Models\{Partita, User};
 
 assert(isset($user) && ($user instanceof User), 'var $user not valid');
 assert(isset($P) && is_string($P), 'var $P not valid');

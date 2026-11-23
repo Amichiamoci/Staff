@@ -1,8 +1,8 @@
 <?php
 
 namespace Amichiamoci\Models;
+
 use Amichiamoci\Models\Templates\Anagrafica as AnagraficaBase;
-use Amichiamoci\Utils\File;
 
 class Anagrafica extends AnagraficaBase
 {
@@ -83,6 +83,17 @@ class Anagrafica extends AnagraficaBase
         return $id;
     }
 
+    public static function ReplaceDocumentPath(\mysqli $connection, int $id, string $path): void
+    {
+        $connection->execute_query(
+            'UPDATE anagrafiche SET documento = ? WHERE id = ?',
+            [$path, $id],
+        );
+        if ($connection->affected_rows !== 1) {
+            throw new \RuntimeException('The document reference could not be saved.');
+        }
+    }
+
     public static function ById(\mysqli $connection, int $id) : ?self
     {
         if (!$connection || $id === 0)
@@ -110,9 +121,7 @@ class Anagrafica extends AnagraficaBase
             query: "SELECT * FROM `anagrafiche_espanse` ORDER BY `cognome`, `nome`"
         );
         if (!$result)
-        {
             return [];
-        }
 
         $arr = [];
         while ($row = $result->fetch_assoc())
@@ -134,63 +143,50 @@ class Anagrafica extends AnagraficaBase
             [$cf],
         );
         if (!$result || $result->num_rows === 0)
-        {
             return null;
-        }
+
         if ($row = $result->fetch_assoc())
-        {
             return self::FromDbRow(row: $row);
-        }
         return null;       
     }
 
     protected static function FromDbRow(array $row): self
     {
         $a = new self(
-            id: $row["id"], 
-            nome: $row["nome"], 
+            id:      $row["id"], 
+            nome:    $row["nome"], 
             cognome: $row["cognome"], 
-            eta: $row["eta"]
+            eta:     $row["eta"]
         );
         $a->FiscalCode = $row["cf"];
-        if (
-            array_key_exists(key: 'data_nascita_italiana', array: $row) && 
+
+        if (array_key_exists(key: 'data_nascita_italiana', array: $row) && 
             is_string(value: $row['data_nascita_italiana'])
         ) {
             $a->BirthDay = $row['data_nascita_italiana'];
         } else {
             $a->BirthDay = $row['data_nascita'];
         }
+
         $a->From = $row["luogo_nascita"];
         if (array_key_exists(key: 'sesso', array: $row) && is_string(value: $row['sesso']))
-        {
             $a->Sex = $row['sesso'];
-        }
+
         if (array_key_exists(key: 'email', array: $row) && is_string(value: $row['email']))
-        {
             $a->Email = $row['email'];
-        }
         if (array_key_exists(key: 'telefono', array: $row) && is_string(value: $row['telefono']))
-        {
             $a->Phone = $row['telefono'];
-        }
 
         if (array_key_exists(key: 'codice_documento', array: $row) && is_string(value: $row['codice_documento']))
-        {
             $a->DocumentCode = $row["codice_documento"];
-        }
         $a->DocumentType = new TipoDocumento(
             id: (int)$row["tipo_documento"],
             nome: array_key_exists(key: 'tipo_documento_nome', array: $row) ? $row['tipo_documento_nome'] : 'Documento' 
         );
         if (array_key_exists(key: 'scadenza', array: $row) && is_string(value: $row['scadenza']))
-        {
             $a->DocumentExpiration = $row['scadenza'];
-        }
         if (array_key_exists(key: 'documento', array: $row) && is_string(value: $row['documento']))
-        {
             $a->DocumentFileName = $row['documento'];
-        }
         return $a;
     }
 
@@ -200,20 +196,21 @@ class Anagrafica extends AnagraficaBase
             $this->Cognome,
             // $this->Nome . " " . $this->Cognome,
         ];
-        if (isset($this->Email)) {
+
+        if (!empty($this->Email)) 
             $a[] = $this->Email;
-        }
-        if (isset($this->Phone)) {
+
+        if (!empty($this->Phone))
             $a[] = $this->Phone;
-        }
+
         return join(separator: ' ', array: $a);
     }
 
     public function AmericanBirthDay(): string {
         $date = \DateTime::createFromFormat(format: 'd/m/Y', datetime: $this->BirthDay);
-        if (!$date) {
+        if (!$date) 
             return $this->BirthDay;
-        }
+
         return $date->format(format: 'Y-m-d');
     }
 
@@ -242,38 +239,15 @@ class Anagrafica extends AnagraficaBase
         return $result->fetch_all(mode: MYSQLI_ASSOC);
     }
 
-    public static function UnreferencedDocuments(\mysqli $connection): array
-    {
-        if (!$connection) return [];
-
-        $query = 'SELECT DISTINCT(a.`documento`) AS "doc" FROM `anagrafiche` a WHERE a.`documento` IS NOT NULL';
-        $result = $connection->query(query: $query);
-        if (!$result) 
-            return [];
-
-        $arr = [];
-        while ($row = $result->fetch_assoc())
-        {
-            if (!File::Exists(file_path: $row['doc']))
-                continue;
-            $arr[] = $row['doc'];
-        }
-        $result->close();
-
-        $existing_files = File::SavedDocuments();
-
-        return array_values(array: array_diff($existing_files, $arr));
-    }
-
     public static function DulicateEmails(\mysqli $connection): array
     {
-        if (!$connection) return [];
+        if (!$connection) 
+            return [];
 
         $query = "SELECT * FROM `email_duplicate`";
         $result = $connection->query(query: $query);
-        if (!$result) {
+        if (!$result) 
             return [];
-        }
 
         $arr = [];
         while ($row = $result->fetch_assoc())

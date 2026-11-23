@@ -1,6 +1,7 @@
 <?php
 
 namespace Amichiamoci\Models\Api;
+
 use Amichiamoci\Models\Templates\NomeIdSemplice;
 use Amichiamoci\Utils\Security;
 

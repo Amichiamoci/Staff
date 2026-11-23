@@ -7,8 +7,7 @@
 
 <h2>
     Email a 
-    <a 
-        href="mailto:<?= htmlspecialchars(string: $email->Receiver) ?>"
+    <a  href="mailto:<?= htmlspecialchars(string: $email->Receiver) ?>"
         class="link-underline link-underline-opacity-0 text-reset font-monospace"
     >
         <?= htmlspecialchars(string: $email->Receiver) ?>

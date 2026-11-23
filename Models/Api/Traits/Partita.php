@@ -1,6 +1,7 @@
 <?php
 
 namespace Amichiamoci\Models\Api\Traits;
+
 use Amichiamoci\Models\Api\Call as ApiCall;
 
 trait Partita

@@ -2,10 +2,8 @@
 
 namespace Amichiamoci\Models\Api\Traits;
 
-use Amichiamoci\Models\Anagrafica as ModelsAnagrafica;
+use Amichiamoci\Models\{Anagrafica as ModelsAnagrafica, Iscrizione, Taglia};
 use Amichiamoci\Models\Api\Call as ApiCall;
-use Amichiamoci\Models\Iscrizione;
-use Amichiamoci\Models\Taglia;
 
 trait Anagrafica
 {

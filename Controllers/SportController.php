@@ -2,18 +2,20 @@
 
 namespace Amichiamoci\Controllers;
 
-use Amichiamoci\Models\Campo;
-use Amichiamoci\Models\Edizione;
-use Amichiamoci\Models\Message;
-use Amichiamoci\Models\Partita;
-use Amichiamoci\Models\Punteggio;
-use Amichiamoci\Models\Sport;
-use Amichiamoci\Models\TipoTorneo;
-use Amichiamoci\Models\Torneo;
-
-use Amichiamoci\Controllers\Attributes\RequireStaff;
 use Richie314\SimpleMvc\Controllers\Attributes\RequireLogin;
 use Richie314\SimpleMvc\Http\StatusCode;
+
+use Amichiamoci\Models\{
+    Campo,
+    Edizione,
+    Message,
+    Partita,
+    Punteggio,
+    Sport,
+    TipoTorneo,
+    Torneo,
+};
+use Amichiamoci\Controllers\Attributes\RequireStaff;
 
 class SportController
 extends Controller

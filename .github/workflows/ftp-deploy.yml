@@ -1,17 +1,30 @@
-on:
-  push:
-    branches:
-      - main
+name: FTP deploy to production
 
-name: FTP deploy to server
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
 jobs:
+  test:
+    uses: ./.github/workflows/tests.yml
+
   ftp-deploy:
     name: FTP deploy
+    needs: test
+    concurrency:
+      group: ftp-production
+      cancel-in-progress: false
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
 
       - name: 🚚 Get latest code
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Setup Doxygen
         run: sed -i 's/^OUTPUT_DIRECTORY[[:space:]]*=[[:space:]]*docs$/OUTPUT_DIRECTORY = docs_tmp/' ./Doxyfile
@@ -26,7 +39,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: fileinfo, gd, mbstring, mysqli
+          extensions: fileinfo, gd, mbstring, mysqli, sodium
           tools: composer:v2
           coverage: none
         env:
@@ -105,6 +118,7 @@ jobs:
             **/tests/**
             **/docs_tmp/**
             *.md
+            *.sql
             Dockerfile
             docker-compose.yml
             .dockerignore

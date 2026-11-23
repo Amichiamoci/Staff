@@ -2,8 +2,7 @@
 
 require_once dirname(path: __DIR__) . '/config.php';
 
-use Amichiamoci\Utils\Security;
-use Amichiamoci\Utils\Database;
+use Amichiamoci\Utils\{Security, Database};
 use Amichiamoci\Models\User;
 
 echo "Testing db connection..." . PHP_EOL;

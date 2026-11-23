@@ -1,6 +1,7 @@
 <?php
 
 namespace Amichiamoci\Models;
+
 use Amichiamoci\Models\Templates\DbEntity;
 
 class Email implements DbEntity

@@ -1,6 +1,9 @@
 # Portale Staff Amichiamoci
 
-[![Build Docker](https://github.com/Amichiamoci/Staff/actions/workflows/docker.yml/badge.svg)](https://github.com/Amichiamoci/Staff/actions/workflows/docker.yml)
+[![Test Docker](https://github.com/Amichiamoci/Staff/actions/workflows/tests.yml/badge.svg)](https://github.com/Amichiamoci/Staff/actions/workflows/tests.yml)
+[![Release GitHub](https://github.com/Amichiamoci/Staff/actions/workflows/release.yml/badge.svg)](https://github.com/Amichiamoci/Staff/actions/workflows/release.yml)
+[![Docker nightly](https://github.com/Amichiamoci/Staff/actions/workflows/docker-nightly.yml/badge.svg)](https://github.com/Amichiamoci/Staff/actions/workflows/docker-nightly.yml)
+[![Docker release](https://github.com/Amichiamoci/Staff/actions/workflows/docker.yml/badge.svg)](https://github.com/Amichiamoci/Staff/actions/workflows/docker.yml)
 [![Deploy FTP](https://github.com/Amichiamoci/Staff/actions/workflows/ftp-deploy.yml/badge.svg)](https://github.com/Amichiamoci/Staff/actions/workflows/ftp-deploy.yml)
 [![PHP 8.4+](https://img.shields.io/badge/PHP-8.4%2B-777BB4?logo=php&logoColor=white)](composer.json)
 
@@ -46,7 +49,7 @@ Per costruire l'immagine dalla copia locale usa `docker build -t amichiamoci/sta
 
 ## Installazione con Apache
 
-1. Installa PHP 8.4 o successivo con `mysqli`, `gd`, `mbstring` e `fileinfo`, Composer 2 e il client `mariadb`. Usa `composer check-platform-reqs` per verificare l'ambiente.
+1. Installa PHP 8.4 o successivo con `mysqli`, `gd`, `mbstring`, `fileinfo` e `sodium`, Composer 2 e il client `mariadb`. Usa `composer check-platform-reqs` per verificare l'ambiente.
 2. Esegui `composer install --no-interaction --prefer-dist --optimize-autoloader`, dalla directory del progetto.
 3. Configura un virtual host HTTPS. Attiva `mod_rewrite` e applica le regole di `docker/apache.htaccess` nella directory del progetto. Se usi un file `.htaccess`, consenti le direttive necessarie tramite `AllowOverride`. Usa un formato di access log che escluda le query string.
 4. Crea `data/documenti`, `data/certificati`, `data/tmp/cron` e `data/log`, scrivibili dall'utente del servizio PHP.
@@ -58,6 +61,45 @@ I server web bloccano le richieste a file nascosti, percorsi PHP diretti, WordPr
 
 La gestione dei tornei e dei risultati, la modifica delle anagrafiche collegate agli account staff e la modifica o cancellazione delle iscrizioni esistenti richiedono un amministratore.
 
+## Sorgenti file
+
+Gli amministratori possono consultare le sorgenti in **Sorgenti file** (`/file/list`). Il portale monta sempre `staff:///` sulla directory `data/` del progetto. Le sorgenti remote richiedono una configurazione completa. Da questa pagina gli amministratori possono scaricare i file, inclusi quelli della sorgente Drive cifrata. Il portale accetta documenti e certificati in JPEG, PNG, WebP o PDF e salva ogni caricamento come PDF.
+
+Il download dei documenti di identità è riservato agli amministratori. I certificati sono accessibili agli amministratori e agli staffisti con iscrizione completa della stessa parrocchia dell’iscritto. Per associare una nuova anagrafica, un amministratore apre la scheda utente e seleziona **Associa anagrafica staff**.
+
+| Variabile | Uso |
+| --- | --- |
+| `VFS_APP_URL` | URL HTTP o HTTPS di base per `app:///`. Quando configurata, la sorgente compare come non disponibile. |
+
+Il pannello accetta URI virtuali nei riferimenti ai file. Prima di usare il download per eventuali riferimenti precedenti salvati come percorsi locali, convertili in URI `staff:///` relativi alla directory `data/`.
+
+### Google Drive
+
+Per attivare `drive:///`, abilita Google Drive API in Google Cloud e configura un client OAuth con accesso offline. Usa un account autorizzato a leggere e scrivere nella cartella privata. Configura le seguenti variabili nell'ambiente del portale o tramite le corrispondenti variabili `_FILE`.
+
+| Variabile | Uso |
+| --- | --- |
+| `VFS_DRIVE_FOLDER_ID` | ID della cartella privata presente nel suo indirizzo Drive. |
+| `VFS_DRIVE_CLIENT_ID`, `VFS_DRIVE_CLIENT_SECRET` | Credenziali del client OAuth. |
+| `VFS_DRIVE_REFRESH_TOKEN` | Refresh token OAuth con accesso in lettura e scrittura alla cartella. |
+| `VFS_DRIVE_BASE_KEY` | Chiave di cifratura dell’intera sorgente Drive, in base64. Generala una sola volta con `base64_encode(random_bytes(32))` e conservala per rileggere i file. |
+
+Quando tutte le impostazioni Drive sono presenti, i nuovi caricamenti vengono salvati su Drive. Altrimenti il portale usa `staff:///` se configurata. I riferimenti già registrati con un URI virtuale continuano a usare la sorgente originale. VirtualFS usa la stessa chiave per tutti i file della sorgente Drive. I nomi e la struttura delle cartelle sono visibili agli utenti che possono accedere alla cartella Drive.
+
+Prima di aggiornare un’installazione con file cifrati per anagrafica, salvali tramite la versione precedente e riscrivili con la chiave di sorgente, mantenendo gli stessi URI. Conserva un backup e la vecchia chiave fino alla verifica. I file cifrati con le chiavi derivate in precedenza richiedono questa migrazione per essere leggibili dalla nuova versione.
+
+## GitHub Actions
+
+A ogni push, GitHub Actions esegue i test in Docker con PHP 8.4, 8.5 e 8.6 e un database MariaDB temporaneo. Il workflow Docker nightly esegue la stessa matrice prima di pubblicare il tag `:nighly` su Docker Hub e GitHub Container Registry.
+
+Per pubblicare una release stabile, esegui **Create GitHub release** dal branch desiderato con una versione come `1.2.3`. Il workflow verifica il commit e pubblica una release con tag `v1.2.3`. Configura il segreto `RELEASE_TOKEN` con un token GitHub dotato di permesso **Contents: Read and write** su questo repository. Una release pubblicata tramite quel token attiva i workflow di pubblicazione e deploy. [Documentazione GitHub](https://docs.github.com/en/actions/using-workflows/triggering-a-workflow)
+
+Alla pubblicazione di una release, entrambi i workflow verificano il commit della release prima di procedere. Docker pubblica `:latest` e il tag della release, ad esempio `:v1.2.3`, su entrambi i registri. Il workflow FTP genera la documentazione e carica l’applicazione sul server di produzione.
+
+## Log degli errori
+
+Gli errori interni dell’applicazione vengono registrati in `data/log/errors.log` e nel log PHP. In Docker il log PHP è visibile con `docker compose -f .vscode/docker-compose.yml logs staff`. Le diagnostiche includono tipo, file, riga e codice dell’errore. Per gli errori SQL includono anche SQLSTATE. L’utente del servizio PHP deve poter scrivere in `data/log`.
+
 ## Verifiche locali
 
 ```sh
@@ -67,6 +109,8 @@ php tests/file-paths.php
 php tests/routing.php
 php tests/reset-token.php
 ```
+
+Per verificare i permessi SQL, esegui `php tests/file-access.php PORTA` con un MariaDB di prova su loopback, database `fixture` e account root locale senza password. Il test crea tabelle temporanee e una procedura di test che rimuove al termine. Esegui `sh tests/run.sh PORTA` per lanciare tutti i controlli della matrice con la versione PHP locale e Composer 2.
 
 I test PHP usano directory temporanee e dati sintetici. Per una prova end-to-end, avvia il portale con un database di prova e verifica accesso, caricamento e download, invio dei moduli e aggiornamento di una partita.
 

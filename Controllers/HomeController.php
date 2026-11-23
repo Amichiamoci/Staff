@@ -2,19 +2,19 @@
 
 namespace Amichiamoci\Controllers;
 
-use Richie314\SimpleMvc\Http\StatusCode;
+use Richie314\SimpleMvc\Http\{StatusCode, Method};
 use Richie314\SimpleMvc\Controllers\Attributes\RequireLogin;
-use Richie314\SimpleMvc\Http\Method;
 use Richie314\SimpleMvc\Utils\Cookie;
 
-use Amichiamoci\Models\Anagrafica;
-use Amichiamoci\Models\AnagraficaConIscrizione;
-use Amichiamoci\Models\Cron;
-use Amichiamoci\Models\Edizione;
-use Amichiamoci\Models\User;
-use Amichiamoci\Models\Parrocchia;
-use Amichiamoci\Models\Staff;
-use Amichiamoci\Utils\File;
+use Amichiamoci\Models\{
+    Anagrafica,
+    AnagraficaConIscrizione,
+    Cron,
+    Edizione,
+    User,
+    Parrocchia,
+    Staff,
+};
 use Amichiamoci\Utils\Security;
 
 class HomeController
@@ -25,13 +25,13 @@ extends Controller
         return $this->Json(object: [
             'name' => 'Portale Staff ' . SITE_NAME,
             'short_name' => 'Portale Staff',
-            'start_url' => File::getInstallationPath() . '/',
+            'start_url' => $this->PathPrefix . '/',
             'display' => 'standalone',
             'background_color' => '#fff',
             'description' => 'Portale per staffisti di ' . SITE_NAME,
             'icons' => [
                 [
-                    'src' => File::getInstallationPath() . '/images/icon.png',
+                    'src' => $this->PathPrefix . '/images/icon.png',
                     'type' => 'image/png',
                     'sizes' => '256x256',
                 ]
@@ -155,7 +155,7 @@ extends Controller
     ): StatusCode
     {
         if ($this->User !== null)
-            return $this->Redirect(url: File::getInstallationPath() . '/');
+            return $this->Redirect(url: $this->PathPrefix . '/');
 
         $message = '';
 
@@ -183,13 +183,13 @@ extends Controller
                     user_ip: Security::GetIpAddress()
                 )) {
                     // Login successful
-                    $redirect_url = File::getInstallationPath() . '/';
+                    $redirect_url = $this->PathPrefix . '/';
                     if (Cookie::Exists(name: 'Redirect'))
                     {
                         $redirect_url = Cookie::Get(name: 'Redirect');
                         Cookie::Delete(name: 'Redirect');
                         if (!is_string($redirect_url) || !preg_match('~^/(?![/\\\\])[^\x00-\x20\x7f\\\\]*$~D', $redirect_url)) {
-                            $redirect_url = File::getInstallationPath() . '/';
+                            $redirect_url = $this->PathPrefix . '/';
                         }
                     }
         

@@ -1,3 +1,9 @@
+<?php
+use Amichiamoci\Models\User;
+
+assert(isset($user) && ($user instanceof User), 'var $user not valid');
+?>
+
 <div class="container">
     <div class="row">
         <div class="col col-xs-6 col-sm-4 mb-2">

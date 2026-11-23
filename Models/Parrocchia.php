@@ -1,5 +1,6 @@
 <?php
 namespace Amichiamoci\Models;
+
 use Amichiamoci\Models\Templates\NomeIdSemplice;
 
 class Parrocchia extends NomeIdSemplice

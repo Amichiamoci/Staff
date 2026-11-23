@@ -1,28 +1,39 @@
-name: Docker image build and push
+name: Publish Docker release images
 
 on:
-  push: 
-    branches: ['main']
-  workflow_dispatch: 
+  release:
+    types: [published]
+  workflow_call:
+    secrets:
+      DOCKER_HUB_PASSWORD:
+        required: true
+
+permissions:
+  contents: read
 
 env:
   APP_NAME: staff
   DOCKER_USERNAME: amichiamoci
 
 jobs:
+  test:
+    uses: ./.github/workflows/tests.yml
+
   docker:
     name: Build and publish image
+    needs: test
     runs-on: ubuntu-latest
+    timeout-minutes: 25
 
     permissions:
       contents: read
       packages: write
-      attestations: write
-      id-token: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Change repository owner to lowercase
         id: repo_owner
@@ -34,7 +45,14 @@ jobs:
         id: meta
         uses: docker/metadata-action@v6
         with:
-          images: ghcr.io/${{ steps.repo_owner.outputs.lowercase }}/${{ env.APP_NAME }}
+          images: |
+            ghcr.io/${{ steps.repo_owner.outputs.lowercase }}/${{ env.APP_NAME }}
+            ${{ env.DOCKER_USERNAME }}/${{ env.APP_NAME }}
+          flavor: latest=false
+          tags: |
+            type=raw,value=nighly,enable=${{ github.event_name == 'push' }}
+            type=raw,value=latest,enable=${{ github.event_name == 'release' }}
+            type=ref,event=tag,enable=${{ github.event_name == 'release' }}
           labels: |
             org.opencontainers.image.title=Amichiamoci Staff
             org.opencontainers.image.description=Portale Staff per Amichiamoci
@@ -58,8 +76,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: |
-            ${{ steps.meta.outputs.tags }}
-            ${{ env.DOCKER_USERNAME }}/${{ env.APP_NAME }}:latest
-            ghcr.io/${{ steps.repo_owner.outputs.lowercase }}/${{ env.APP_NAME }}:latest
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

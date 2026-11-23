@@ -1,9 +1,6 @@
 <?php
-use Amichiamoci\Utils\Link;
-use Amichiamoci\Utils\File;
-use Amichiamoci\Models\Anagrafica;
-use Amichiamoci\Models\AnagraficaConIscrizione;
-use Amichiamoci\Models\User;
+use Amichiamoci\Utils\{Link, Authorization};
+use Amichiamoci\Models\{Anagrafica, AnagraficaConIscrizione, User};
 
 assert(isset($user) && ($user instanceof User), 'var $user not valid');
 assert(isset($anagrafica) && ($anagrafica instanceof Anagrafica), 'var $anagrafica not valid');
@@ -130,18 +127,18 @@ $iscrizioni_aperte = false;
                 <?= htmlspecialchars(string: $anagrafica->DocumentType->Nome) ?>
             </dt>
             <dd class="col-sm-8">
-                <a  href="<?= htmlspecialchars(File::GetExportUrl(path: $anagrafica->DocumentFileName)) ?>"
-                    download
-                    class="link-underline link-underline-opacity-0 text-reset font-monospace"
-                    title="Scarica il documento"
-                >
-                    <?php if (isset($anagrafica->DocumentCode)) { ?>
-                        <?= htmlspecialchars(string: $anagrafica->DocumentCode) ?>
-                    <?php } else { ?>
-                        <i class="bi bi-check"></i>
-                        Presente
-                    <?php } ?>
-                </a>
+                <?php if (Authorization::CanAccessIdentityDocument($user)) { ?>
+                    <a href="<?= $P ?>/file/document?id=<?= $anagrafica->Id ?>"
+                       download 
+                       class="text-reset font-monospace" 
+                       title="Scarica il documento di <?= htmlspecialchars(string: $anagrafica->Nome) ?>"
+                    >
+                        <?= htmlspecialchars(string: $anagrafica->DocumentCode ?? 'Presente') ?>
+                        <i class="bi bi-download"></i>
+                    </a>
+                <?php } else { ?>
+                    <span class="user-select-none">Presente</span>
+                <?php } ?>
             </dd>
             <dt class="col-sm-4 text-nowrap">
                 <i class="bi bi-calendar2-x"></i>
@@ -219,14 +216,18 @@ $iscrizioni_aperte = false;
                 </dt>
                 <dd class="col-sm-8">
                     <?php if (isset($anagrafica->Iscrizione->Certificato)) { ?>
-                        <a  href="<?= htmlspecialchars(File::GetExportUrl(path: $anagrafica->Iscrizione->Certificato)) ?>"
-                            download
-                            class="link-underline link-underline-opacity-0 text-success"
-                            title="Scarica il documento"
-                        >
-                            <i class="bi bi-check"></i>
-                            Presente
-                        </a>
+                        <?php if (Authorization::CanAccessCertificate($user, $staff ?? null, $anagrafica->Iscrizione->Parrocchia)) { ?>
+                            <a  href="<?= $P ?>/file/certificate?id=<?= $anagrafica->Iscrizione->Id ?>"
+                                download
+                                class="link-underline link-underline-opacity-0 text-success"
+                                title="Scarica il documento"
+                            >
+                                <i class="bi bi-check"></i>
+                                Presente
+                            </a>
+                        <?php } else { ?>
+                            <span class="text-success">Presente</span>
+                        <?php } ?>
                     <?php } else { ?>
                         <strong class="text-danger user-select-none">
                             <i class="bi bi-exclamation-triangle"></i>

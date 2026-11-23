@@ -7,3 +7,7 @@ data
 .env.*
 .gitignore
 docs
+.agents
+.aws
+.codex
+/*.sql

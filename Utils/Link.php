@@ -2,6 +2,19 @@
 namespace Amichiamoci\Utils;
 class Link
 {
+    public static function InstallationPath(): string
+    {
+        $root = rtrim($_SERVER['DOCUMENT_ROOT'] ?? '', '/');
+        $installation = dirname(__DIR__);
+        if ($root === '' || $root === $installation) {
+            return '';
+        }
+        if (!str_starts_with($installation, $root . '/')) {
+            throw new \RuntimeException('Installation is outside the document root.');
+        }
+        return substr($installation, strlen($root));
+    }
+
     public static function Geo(string|float|null $lat, string|float|null $lon): string
     {
         if (!isset($lat) || !isset($lon))

@@ -1,9 +1,6 @@
 <?php
 
-use Amichiamoci\Models\User;
-use Amichiamoci\Models\Staff;
-use Amichiamoci\Utils\File;
-use Amichiamoci\Models\Anagrafica;
+use Amichiamoci\Models\{User, Staff, Anagrafica};
 
 assert(isset($user) && ($user instanceof User), 'var $user not valid');
 assert(isset($P) && is_string($P), 'var $P not valid');
@@ -133,7 +130,7 @@ if (empty($tutore) && !empty($tutore_suggerito))
             class="form-control" 
             id="certificato" 
             name="certificato[]"
-            accept="<?= File::ALLOWED_EXT_DOTS() ?>"
+            accept=".jpg,.jpeg,.png,.webp,.pdf"
         >
         <label for="certificato">Certificato medico</label>
         <div class="invalid-feedback">

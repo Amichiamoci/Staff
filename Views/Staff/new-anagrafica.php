@@ -1,7 +1,6 @@
 <?php
 
 use Amichiamoci\Models\Anagrafica;
-use Amichiamoci\Utils\File;
 
 assert(isset($P) && is_string($P), 'var $P not valid');
 assert(isset($tipi_documento) && is_array($tipi_documento), 'var $tipi_documento not valid');
@@ -196,7 +195,7 @@ if ($is_editing) {
             class="form-control" 
             id="doc" 
             name="doc[]"
-            accept="<?= File::ALLOWED_EXT_DOTS() ?>"
+            accept=".jpg,.jpeg,.png,.webp,.pdf"
         >
         <label for="doc">Documento</label>
         <div class="invalid-feedback">

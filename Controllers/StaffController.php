@@ -2,27 +2,31 @@
 
 namespace Amichiamoci\Controllers;
 
-use Amichiamoci\Models\Anagrafica;
-use Amichiamoci\Models\AnagraficaConIscrizione;
-use Amichiamoci\Models\Commissione;
-use Amichiamoci\Models\Edizione;
-use Amichiamoci\Models\Iscrizione;
-use Amichiamoci\Models\Templates\Anagrafica as AnagraficaBase;
-use Amichiamoci\Models\Message;
-use Amichiamoci\Models\MessageType;
-use Amichiamoci\Models\Parrocchia;
-use Amichiamoci\Models\ProblemaIscrizione;
-use Amichiamoci\Models\PunteggioParrocchia;
-use Amichiamoci\Models\Staff;
-use Amichiamoci\Models\StaffBase;
-use Amichiamoci\Models\TesseramentoCSI;
-use Amichiamoci\Models\TipoDocumento;
-use Amichiamoci\Models\Taglia;
-
-use Amichiamoci\Utils\File;
-use Amichiamoci\Controllers\Attributes\RequireStaff;
 use Richie314\SimpleMvc\Controllers\Attributes\RequireLogin;
 use Richie314\SimpleMvc\Http\StatusCode;
+use Richie314\SimpleVirtualFS\{UploadedFiles, Media, VirtualFilesystem};
+
+use Amichiamoci\Models\{
+    Anagrafica,
+    AnagraficaConIscrizione,
+    Commissione,
+    Edizione,
+    Iscrizione,
+    Message,
+    MessageType,
+    Parrocchia,
+    ProblemaIscrizione,
+    PunteggioParrocchia,
+    Staff,
+    StaffBase,
+    TesseramentoCSI,
+    TipoDocumento,
+    Taglia,
+    User,
+};
+use Amichiamoci\Models\Templates\Anagrafica as AnagraficaBase;
+use Amichiamoci\Controllers\Attributes\RequireStaff;
+use Amichiamoci\Utils\Security;
 
 
 class StaffController
@@ -156,17 +160,16 @@ extends Controller
     #[RequireLogin]
     public function anagrafiche(?int $year = null): StatusCode
     {
-        if (empty($year))
-            return $this->Render(
-                view: 'Staff/anagrafiche',
-                title: 'Tutte le anagrafiche',
-                data: ['anagrafiche' => AnagraficaConIscrizione::All(connection: $this->DB)],
-            );
+        $anagrafiche = empty($year)
+            ? AnagraficaConIscrizione::All(connection: $this->DB)
+            : AnagraficaConIscrizione::FromYear(connection: $this->DB, year: $year);
 
         return $this->Render(
             view: 'Staff/anagrafiche',
-            title: 'Iscritti per il ' . $year,
-            data: ['anagrafiche' => AnagraficaConIscrizione::FromYear(connection: $this->DB, year: $year)],
+            title: empty($year) ? 'Tutte le anagrafiche' : 'Iscritti per il ' . $year,
+            data: [
+                'anagrafiche' => $anagrafiche,
+            ],
         );
     }
 
@@ -181,66 +184,58 @@ extends Controller
     }
 
     #[RequireLogin]
-    public function me(
-        ?int $anagrafica = null,
-        ?int $parrocchia = null,
-    ): StatusCode
-    {        
-        if ($this->IsPost() && !empty($parrocchia))
-        {
-            if (isset($this->getUser()->IdStaff))
-            {
-                // Update existing record
-
-                $res = Staff::ChangeParrocchia(
-                    connection: $this->DB, 
-                    staff: $this->getUser()->IdStaff, 
-                    parrocchia: $parrocchia
-                );
-                if ($res) {
-                    $staff = self::_RequireStaff(controller: $this);
-                    $staff->Parrocchia->Id = $parrocchia;
-                }
-            } else {
-                // Create new staff
-
-                $staff_id = Staff::Create(
-                    connection: $this->DB, 
-                    id_anagrafica: $anagrafica, 
-                    user: $this->User->Id, 
-                    parrocchia: $parrocchia
-                );
-                $res = isset($staff_id);
-                if ($res) {
-                    // Load the new data in the existing session
-                    $this->getUser()->IdStaff = $staff_id;
-                    $this->getUser()->IdAnagrafica = $anagrafica;
-                    $this->getUser()->RealName = Anagrafica::NomeDaId(connection: $this->DB, id: $anagrafica);
-                    $this->getUser()->PutAdditionalInSession();
-                    self::_RequireStaff(controller: $this);
-                }
-            }
-
+    public function me(?int $parrocchia = null): StatusCode
+    {
+        $staff = $this->Staff();
+        if ($this->IsPost() && $staff !== null && !empty($parrocchia)) {
+            $res = Staff::ChangeParrocchia($this->DB, $staff->Id, $parrocchia);
             if ($res) {
-                $this->Message(
-                    message: new Message(
-                        type: MessageType::Success, 
-                        content: 'Dati inseriti/modificati correttamente'));
-            } else {
-                $this->Message(
-                    message: new Message(
-                        type: MessageType::Error, 
-                        content: 'Non è stato possibile inserire o modificare i dati'));
+                $staff->Parrocchia->Id = $parrocchia;
             }
+            $this->Message($res
+                ? Message::Success('Dati inseriti/modificati correttamente')
+                : Message::Error('Non è stato possibile modificare i dati'));
         }
 
         return $this->Render(
             view: 'Staff/me',
             title: 'Account STAFF',
             data: [
-                'anagrafiche' => AnagraficaBase::All(connection: $this->DB),
-                'parrocchie' => Parrocchia::All(connection: $this->DB),
-            ]
+                'parrocchie' => Parrocchia::All($this->DB),
+            ],
+        );
+    }
+
+    #[RequireLogin(requireAdmin: true)]
+    public function link_account(?int $account = null, ?int $anagrafica = null, ?int $parrocchia = null): StatusCode
+    {
+        $target = $account === null ? null : User::ById($this->DB, $account);
+        if ($target === null) {
+            return $this->NotFound();
+        }
+        $target->LoadAdditionalData($this->DB);
+        if ($target->HasAdditionalData()) {
+            return $this->Redirect($this->PathPrefix . '/user/view?id=' . $target->Id);
+        }
+
+        if ($this->IsPost()) {
+            if (empty($anagrafica) || empty($parrocchia)) {
+                return $this->BadRequest();
+            }
+            if (Staff::Create($this->DB, $anagrafica, $target->Id, $parrocchia) === null) {
+                return $this->BadRequest('Non è stato possibile associare i dati.');
+            }
+            return $this->Redirect($this->PathPrefix . '/user/view?id=' . $target->Id);
+        }
+
+        return $this->Render(
+            view: 'Staff/me',
+            title: 'Associa account staff',
+            data: [
+                'target' => $target,
+                'anagrafiche' => AnagraficaBase::All($this->DB),
+                'parrocchie' => Parrocchia::All($this->DB),
+            ],
         );
     }
 
@@ -270,7 +265,7 @@ extends Controller
                 is_referente: $church_manager
             );
             if ($res)
-                return $this->Redirect(url: File::getInstallationPath() . '/');
+                return $this->Redirect(url: $this->PathPrefix . '/');
             
             $this->Message(message: Message::Error(content: 'Qualcosa non ha funzionato :/'));
         }
@@ -286,22 +281,74 @@ extends Controller
         );
     }
 
-    private function anagrafica_handle_file(): ?string
+    private function MergeUploads(array $uploads): ?string
     {
-        $files = File::UploadingFiles(form_name: 'doc');
-        $files = array_filter(array: $files, callback: function(array $file): bool {
-            return File::IsUploadOk(file: $file);
-        });
-        if (count(value: $files) === 0)
+        $mimeTypes = [
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'webp' => 'image/webp',
+            'pdf' => 'application/pdf',
+        ];
+        $limit = (int)Security::LoadEnvironmentOrFromFile(var: 'FILE_MAX_SIZE', default: '10485760');
+        $mime = new \finfo(FILEINFO_MIME_TYPE);
+        $directory = sys_get_temp_dir() . '/staff-upload-' . bin2hex(random_bytes(16));
+        if (!mkdir($directory, 0700)) {
             return null;
+        }
 
-        $file_name = "documento_" . str_replace(search: '.', replace: '', subject: uniqid(more_entropy: true));
-        $target_file_name = File::Documents . DIRECTORY_SEPARATOR . $file_name;
+        $staging = new VirtualFilesystem();
+        $temporary = [];
+        try {
+            $staging->mountLocal('upload', $directory);
+            $media = new Media($staging);
+            $pdfs = [];
+            foreach ($uploads as $index => $upload) {
+                $extension = strtolower(pathinfo($upload['name'] ?? '', PATHINFO_EXTENSION));
+                if ($upload['error'] !== UPLOAD_ERR_OK || ($upload['size'] ?? PHP_INT_MAX) > $limit
+                    || !isset($mimeTypes[$extension]) || !is_uploaded_file($upload['tmp_name'])
+                    || $mime->file($upload['tmp_name']) !== $mimeTypes[$extension]
+                ) {
+                    return null;
+                }
 
-        return File::UploadDocumentsMerge(
-            files: $files, 
-            virtual_final_name: $target_file_name,
-        );
+                $source = "upload:///$index.$extension";
+                $temporary[] = $source;
+                $staging->saveUpload($upload, $source);
+                if ($extension !== 'pdf') {
+                    $pdf = "upload:///$index.pdf";
+                    $temporary[] = $pdf;
+                    $media->imagesToPdf([$source], $pdf);
+                    $source = $pdf;
+                }
+                $pdfs[] = $source;
+            }
+
+            if (count($pdfs) === 1) {
+                return $staging->read($pdfs[0]);
+            }
+
+            $merged = 'upload:///merged.pdf';
+            $temporary[] = $merged;
+            $media->mergePdfs($pdfs, $merged);
+            return $staging->read($merged);
+        } catch (\Throwable) {
+            return null;
+        } finally {
+            foreach ($temporary as $uri) {
+                $staging->delete($uri);
+            }
+            rmdir($directory);
+        }
+    }
+
+    private function StoreMedia(string $path, #[\SensitiveParameter] string $content): string
+    {
+        $files = $this->Files();
+        $drive = in_array('drive', array_column($files->listMounts(), 'scheme'), true);
+        $uri = ($drive ? 'drive:///' : 'staff:///') . $path;
+        $files->write($uri, $content);
+        return $uri;
     }
 
     #[RequireLogin]
@@ -344,36 +391,48 @@ extends Controller
                 return $this->BadRequest('Il codice fiscale non corrisponde alla persona selezionata.');
             }
 
-            $document_path = $this->anagrafica_handle_file();
-            $already_existed = false;
-
-
-            if (empty($id) && empty($document_path))
-            {
-                // If we are creating a new record the document is mandatory
-                return $this->BadRequest(
-                    "Qualcosa è andato storto durante il caricamento del documento"
-                );
+            $files = array_values(array_filter(UploadedFiles::fromField($_FILES['doc'] ?? null),
+                static fn(array $file): bool => (int)$file['error'] !== UPLOAD_ERR_NO_FILE));
+            $document = $files === [] ? null : $this->MergeUploads($files);
+            if ($files !== [] && $document === null) {
+                return $this->BadRequest('Carica soltanto immagini JPEG, PNG, WebP o PDF validi.');
+            }
+            if (empty($id) && $document === null) {
+                return $this->BadRequest('Carica un documento di identità.');
             }
 
-            $record_id = Anagrafica::CreateOrUpdate(
-                connection: $this->DB,
-                nome: $nome,
-                cognome: $cognome,
-                provenienza: $provenienza,
-                compleanno: $compleanno,
-                tel: $telefono,
-                email: $email,
-                cf: $cf,
+            $already_existed = false;
+            $this->DB->begin_transaction();
+            try {
+                $record_id = Anagrafica::CreateOrUpdate(
+                    connection: $this->DB,
+                    nome: $nome,
+                    cognome: $cognome,
+                    provenienza: $provenienza,
+                    compleanno: $compleanno,
+                    tel: $telefono,
+                    email: $email,
+                    cf: $cf,
 
-                doc_type: $doc_type,
-                doc_code: $doc_code,
-                doc_expires: $doc_expires,
-                nome_file: $document_path,
+                    doc_type: $doc_type,
+                    doc_code: $doc_code,
+                    doc_expires: $doc_expires,
 
-                already_existing: $already_existed,
-                allowStaffUpdate: $this->getUser()->Admin,
-            );
+                    already_existing: $already_existed,
+                    allowStaffUpdate: $this->getUser()->Admin,
+                );
+                if ($record_id > 0 && $document !== null) {
+                    $path = $this->StoreMedia(
+                        'documenti/documento_' . bin2hex(random_bytes(16)) . '.pdf',
+                        $document,
+                    );
+                    Anagrafica::ReplaceDocumentPath($this->DB, $record_id, $path);
+                }
+                $this->DB->commit();
+            } catch (\Throwable $exception) {
+                $this->DB->rollback();
+                return $this->InternalError(ex: $exception);
+            }
 
             if (!empty($id))
             {
@@ -489,6 +548,9 @@ extends Controller
 
             }
 
+            if ($iscrizione !== null) {
+                $edizione = Iscrizione::EditionId($this->DB, $iscrizione->Id);
+            }
             $edizione ??= Edizione::Current(connection: $this->DB)?->Id;
             if (!$edizione)
                 return $this->NotFound();
@@ -496,25 +558,27 @@ extends Controller
             //
             // Handle the submitted files
             //
-            $files = File::UploadingFiles(form_name: 'certificato');
-            $files = array_filter(array: $files, callback: function (array $file): bool {
-                return File::IsUploadOk(file: $file);
-            });
+            $files = array_values(array_filter(UploadedFiles::fromField($_FILES['certificato'] ?? null),
+                static fn(array $file): bool => (int)$file['error'] !== UPLOAD_ERR_NO_FILE));
             $uploaded_file_path = null;
-            if (count(value: $files) > 0)
-            {
-                $year = Edizione::ById(connection: $this->DB, id: $edizione);
-                if (!isset($year))
+            if ($files !== []) {
+                $edition = Edizione::ById($this->DB, $edizione);
+                if ($edition === null) {
                     return $this->NotFound();
+                }
 
-                $file_name = $year->Year . '_' . 
-                    str_replace(search: '.', replace: '', subject: uniqid(more_entropy: true));
-                
-                $target_file_name = File::Certificates . DIRECTORY_SEPARATOR . $file_name;
-                $uploaded_file_path = File::UploadDocumentsMerge(
-                    files: $files, 
-                    virtual_final_name: $target_file_name,
-                );
+                $document = $this->MergeUploads($files);
+                if ($document === null) {
+                    return $this->BadRequest('Carica soltanto immagini JPEG, PNG, WebP o PDF validi.');
+                }
+                try {
+                    $uploaded_file_path = $this->StoreMedia(
+                        'certificati/' . $edition->Year . '_' . bin2hex(random_bytes(16)) . '.pdf',
+                        $document,
+                    );
+                } catch (\Throwable $exception) {
+                    return $this->InternalError(ex: $exception);
+                }
             }
 
             //

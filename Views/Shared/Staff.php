@@ -1,8 +1,6 @@
 <?php
 
-use Amichiamoci\Models\StaffBase;
-use Amichiamoci\Models\Staff;
-use Amichiamoci\Models\User;
+use Amichiamoci\Models\{StaffBase, Staff, User};
 
 assert(isset($user) && ($user instanceof User), 'var $user not valid');
 assert(isset($staff) && ($staff instanceof StaffBase), 'var $staff not valid');

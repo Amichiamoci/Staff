@@ -2,19 +2,21 @@
 
 namespace Amichiamoci\Controllers;
 
-use Richie314\SimpleMvc\Controllers\Attributes\RequireLogin;
-use Richie314\SimpleMvc\Http\StatusCode;
 use ReflectionClass;
 
-use Amichiamoci\Models\Api\Call as ApiCall;
-use Amichiamoci\Models\Api\Token as ApiToken;
+use Richie314\SimpleMvc\Controllers\Attributes\RequireLogin;
+use Richie314\SimpleMvc\Http\StatusCode;
+
+use Amichiamoci\Models\Api\{Call as ApiCall, Token as ApiToken};
 use Amichiamoci\Models\Message;
-use Amichiamoci\Models\Api\Traits\Anagrafica as AnagraficaTrait;
-use Amichiamoci\Models\Api\Traits\Parrocchia as ParrocchiaTrait;
-use Amichiamoci\Models\Api\Traits\Staff as StaffTrait;
-use Amichiamoci\Models\Api\Traits\Squadra as SquadraTrait;
-use Amichiamoci\Models\Api\Traits\Torneo as TorneoTrait;
-use Amichiamoci\Models\Api\Traits\Partita as PartitaTrait;
+use Amichiamoci\Models\Api\Traits\{
+    Anagrafica as AnagraficaTrait,
+    Parrocchia as ParrocchiaTrait,
+    Staff as StaffTrait,
+    Squadra as SquadraTrait,
+    Torneo as TorneoTrait,
+    Partita as PartitaTrait,
+};
 use Amichiamoci\Utils\Security;
 
 class ApiController

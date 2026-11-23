@@ -65,5 +65,5 @@
         src="https://cdn.ckeditor.com/ckeditor5/49.1.0/translations/it.umd.js"
         integrity="sha384-FGjgPBewHs6FRTPCK+2y/e/yqoN1jS7ewB0Q0HFOgYb134TTZLjCs/Kb6ZzF5iXq"
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="<?= htmlspecialchars($P) ?>/js/email-editor.js" defer></script>
+    <script src="<?= $P ?>/js/email-editor.js" defer></script>
 <?php } ?>

@@ -2,16 +2,25 @@
 namespace Amichiamoci\Controllers;
 
 use Richie314\SimpleMvc\Controllers\Controller as BaseController;
-use Richie314\SimpleMvc\Http\Method;
+use Richie314\SimpleMvc\Http\{Method, StatusCode};
+use Richie314\SimpleVirtualFS\VirtualFilesystem;
 
-use Amichiamoci\Models\Message;
-use Amichiamoci\Models\MessageType;
-use Amichiamoci\Models\Staff;
-use Amichiamoci\Models\User;
+use Amichiamoci\Utils\ErrorLog;
+use Amichiamoci\Models\{
+    Message,
+    MessageType,
+    Staff,
+    User,
+};
 
 class Controller
 extends BaseController
 {
+    protected function Files(): VirtualFilesystem
+    {
+        return $this->ViewBag['files'];
+    }
+
     protected function Staff(): ?Staff
     {
         if (!array_key_exists(key: 'staff', array: $this->ViewBag))
@@ -88,6 +97,12 @@ extends BaseController
             $message = new Message(type: MessageType::Info, content: $message);
         
         $this->Alerts()[] = $message;
+    }
+
+    protected function InternalError(?\Throwable $ex = null, bool $render_error = true): StatusCode
+    {
+        ErrorLog::Report($ex);
+        return parent::InternalError(render_error: $render_error);
     }
 
     protected function PostRequired(): never

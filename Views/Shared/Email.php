@@ -96,7 +96,7 @@
             </p>
             <?php if (isset($open_signature)) { ?>
                 <img 
-                    src="https://<?= htmlspecialchars(DOMAIN . $P) ?>/email/heartbeat?id=<?= $email_id ?>&amp;signature=<?= $open_signature ?>" 
+                    src="https://<?= htmlspecialchars(DOMAIN) ?><?= $P ?>/email/heartbeat?id=<?= $email_id ?>&amp;signature=<?= $open_signature ?>"
                     width="1" height="1" 
                     style="width: 1px; height: 1px;"
                     loading="eager">

@@ -2,17 +2,19 @@
 
 namespace Amichiamoci\Controllers;
 
-use Amichiamoci\Models\Distinta;
-use Amichiamoci\Models\Edizione;
-use Amichiamoci\Models\Iscrizione;
-use Amichiamoci\Models\Parrocchia;
-use Amichiamoci\Models\Sport;
-use Amichiamoci\Models\Squadra;
-use Amichiamoci\Models\Message;
-
-use Amichiamoci\Controllers\Attributes\RequireStaff;
 use Richie314\SimpleMvc\Controllers\Attributes\RequireLogin;
 use Richie314\SimpleMvc\Http\StatusCode;
+
+use Amichiamoci\Models\{
+    Distinta,
+    Edizione,
+    Iscrizione,
+    Parrocchia,
+    Sport,
+    Squadra,
+    Message,
+};
+use Amichiamoci\Controllers\Attributes\RequireStaff;
 
 class TeamsController
 extends Controller

@@ -1,8 +1,9 @@
-FROM php:8.4-fpm-alpine AS base
+ARG PHP_VERSION=8.5
+FROM php:${PHP_VERSION}-fpm-alpine AS base
 
 LABEL author="Riccardo Ciucci <riccardo@ciucci.dev>"
 LABEL author="Leonardo Puccini"
-LABEL description="Portale staffisti per Amichiamoci"
+LABEL description="Portale staffisti di Amichiamoci"
 
 FROM base AS php_extensions
 RUN apk add --no-cache \
@@ -28,7 +29,7 @@ RUN apk add --no-cache \
     nginx curl \
     icu oniguruma \
     libintl libzip \
-    freetype jpeg libpng libwebp libjpeg-turbo \
+    freetype jpeg libpng libwebp libjpeg-turbo so:libwebpdemux.so.2 so:libwebpmux.so.3 \
     mariadb-connector-c mariadb-client \
     openrc
 
@@ -65,6 +66,10 @@ RUN composer install \
     --no-progress \
     --optimize-autoloader \
     $([ "$DEBUG_APP" = "1" ] || echo "--no-dev")
+
+FROM php_deps AS test
+COPY . .
+ENTRYPOINT ["sh", "tests/run.sh"]
 
 FROM alpine AS docs
 ARG DEBUG_APP=0
