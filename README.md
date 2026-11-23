@@ -35,7 +35,6 @@ Il primo avvio importa lo schema solo in un database vuoto. Il container avvia i
 | `MYSQL_USER`, `MYSQL_PASSWORD` | Credenziali MariaDB. Il nome utente predefinito è `amichiamoci`. |
 | `ADMIN_USERNAME`, `ADMIN_PASSWORD` | Credenziali del primo amministratore. Obbligatorie per inizializzare il database. |
 | `SITE_NAME`, `MAIN_SITE_URL`, `DOMAIN` | Nome del portale, URL del sito pubblico e host pubblico. Configura `DOMAIN` per generare i link di recupero password. |
-| `CKEDITOR_LICENSE_KEY` | Chiave CKEditor 5 Cloud CDN per abilitare l’editor di testo ricco in `/email/send`. Senza chiave il modulo usa il campo HTML. |
 | `RECAPTCHA_PUBLIC_KEY`, `RECAPTCHA_SECRET_KEY` | Coppia di chiavi per abilitare la verifica reCAPTCHA al login. |
 | `MAIL_OUTPUT_ADDRESS`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` | Configurazione della posta in uscita. La porta predefinita è `25`. La porta `465` usa TLS implicito. Sulle altre porte, la posta autenticata richiede STARTTLS. |
 | `CRON_CAPTURE_OUTGOING_ADDRESS` | Destinatario di prova per le email inviate dal cron. |
@@ -95,6 +94,10 @@ A ogni push, GitHub Actions esegue i test in Docker con PHP 8.4, 8.5 e 8.6 e un 
 Per pubblicare una release stabile, esegui **Create GitHub release** dal branch desiderato con una versione come `1.2.3`. Il workflow verifica il commit e pubblica una release con tag `v1.2.3`. Configura il segreto `RELEASE_TOKEN` con un token GitHub dotato di permesso **Contents: Read and write** su questo repository. Una release pubblicata tramite quel token attiva i workflow di pubblicazione e deploy. [Documentazione GitHub](https://docs.github.com/en/actions/using-workflows/triggering-a-workflow)
 
 Alla pubblicazione di una release, entrambi i workflow verificano il commit della release prima di procedere. Docker pubblica `:latest` e il tag della release, ad esempio `:v1.2.3`, su entrambi i registri. Il workflow FTP genera la documentazione e carica l’applicazione sul server di produzione.
+
+## Email
+
+Gli amministratori possono comporre un messaggio con l’editor Quill integrato, consultare le ultime 500 email in ordine di invio e aprire lo storico completo di un destinatario. I file di Quill 2.0.3 sono distribuiti con [licenza BSD](Public/quill/LICENSE.txt).
 
 ## Log degli errori
 

@@ -27,9 +27,6 @@ class Email implements DbEntity
     ) {
         $this->Id = (int)$id;
         
-        if (empty($receiver) || !filter_var(value: $receiver, filter: FILTER_VALIDATE_EMAIL)) {
-            throw new \InvalidArgumentException(message: "'$receiver' is not a valid email!");
-        }
         $this->Receiver = $receiver;
 
         if (!empty($sender) && filter_var(value: $sender, filter: FILTER_VALIDATE_EMAIL)) {
@@ -45,32 +42,45 @@ class Email implements DbEntity
             ((bool)$received);
     }
 
-    public static function All(\mysqli $connection) : array
+    public static function All(\mysqli $connection, ?string $recipient = null): array
     {
-        if (!$connection)
-            return [];
-        
-        $result = $connection->query(query: "SELECT * FROM `email_extended_no_body` LIMIT 2000");
-        if (!$result) {
-            return [];
-        }
+        $query = "SELECT id, dest AS destinatario, COALESCE(subject, '') AS oggetto, ricevuta,
+                         DATE_FORMAT(sent, '%d/%m/%Y %H:%i') AS inviata,
+                         DATE_FORMAT(opened, '%d/%m/%Y %H:%i') AS aperta
+                  FROM email";
+        $order = ' ORDER BY sent DESC, id DESC';
+        $result = $recipient === null
+            ? $connection->query($query . $order . ' LIMIT 500')
+            : $connection->execute_query($query . ' WHERE dest = ?' . $order, [$recipient]);
 
-        $arr = [];
-        while ($row = $result->fetch_assoc())
-        {
-            $arr[] = new self(
-                id: $row["id"],
-                receiver: $row["destinatario"],
-                sender: array_key_exists(key: "invio_da", array: $row) ? $row["invio_da"] : null,
-                subject: $row["oggetto"],
-                sent: $row["inviata"],
-                content: array_key_exists(key: "testo", array: $row) ? $row["testo"] : null,
-                opened: $row["aperta"],
-                received: $row["ricevuta"],
-            );
+        $emails = [];
+        while ($row = $result->fetch_assoc()) {
+            $emails[] = self::FromRow($row);
         }
         $result->close();
-        return $arr;
+        return $emails;
+    }
+
+    public static function Recipients(\mysqli $connection): array
+    {
+        $result = $connection->query("SELECT DISTINCT dest FROM email WHERE dest <> '' ORDER BY dest");
+        $recipients = array_column($result->fetch_all(MYSQLI_NUM), 0);
+        $result->close();
+        return $recipients;
+    }
+
+    private static function FromRow(array $row): self
+    {
+        return new self(
+            id: $row['id'],
+            receiver: $row['destinatario'],
+            sender: $row['invio_da'] ?? null,
+            subject: $row['oggetto'],
+            sent: $row['inviata'],
+            content: $row['testo'] ?? null,
+            opened: $row['aperta'],
+            received: $row['ricevuta'],
+        );
     }
 
     public static function ById(\mysqli $connection, int $id): ?Email
@@ -83,20 +93,8 @@ class Email implements DbEntity
             return null;
         }
 
-        $obj = null;
-        if ($row = $result->fetch_assoc())
-        {
-            $obj = new self(
-                id: $row["id"],
-                receiver: $row["destinatario"],
-                sender: array_key_exists(key: "invio_da", array: $row) ? $row["invio_da"] : null,
-                subject: $row["oggetto"],
-                sent: $row["inviata"],
-                content: array_key_exists(key: "testo", array: $row) ? $row["testo"] : null,
-                opened: $row["aperta"],
-                received: $row["ricevuta"],
-            );
-        }
+        $row = $result->fetch_assoc();
+        $obj = $row === null ? null : self::FromRow($row);
         $result->close();
         $connection->next_result();
         return $obj;

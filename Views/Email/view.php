@@ -7,7 +7,7 @@
 
 <h2>
     Email a 
-    <a  href="mailto:<?= htmlspecialchars(string: $email->Receiver) ?>"
+    <a  href="<?= $P ?>/email/history?recipient=<?= rawurlencode($email->Receiver) ?>"
         class="link-underline link-underline-opacity-0 text-reset font-monospace"
     >
         <?= htmlspecialchars(string: $email->Receiver) ?>
@@ -54,4 +54,4 @@
 ></iframe>
 
 <h3>Corpo effettivo dell'email</h3>
-<pre><code><?= htmlspecialchars($email->Content) ?></code></pre>
+<pre><code><?= htmlspecialchars($email->Content ?? '') ?></code></pre>

@@ -1,40 +1,67 @@
 (() => {
+    const form = document.getElementById('email-compose');
     const textarea = document.getElementById('body');
-    if (!window.CKEDITOR) {
-        return;
+    const label = document.getElementById('email-body-label');
+    const error = document.getElementById('email-body-error');
+    let editor;
+
+    if (window.Quill) {
+        try {
+            const quill = new Quill('#email-editor', {
+                theme: 'snow',
+                formats: ['header', 'bold', 'italic', 'underline', 'link', 'list', 'blockquote'],
+                modules: {
+                    toolbar: [
+                        [{ header: [2, 3, false] }],
+                        ['bold', 'italic', 'underline'],
+                        ['link', 'blockquote'],
+                        [{ list: 'ordered' }, { list: 'bullet' }],
+                        ['clean'],
+                    ],
+                },
+            });
+            quill.setContents(quill.clipboard.convert({ html: textarea.value }));
+            quill.root.setAttribute('role', 'textbox');
+            quill.root.setAttribute('aria-multiline', 'true');
+            quill.root.setAttribute('aria-labelledby', label.id);
+            quill.root.setAttribute('aria-describedby', error.id);
+            quill.root.setAttribute('aria-required', 'true');
+            quill.on('text-change', () => {
+                error.hidden = true;
+                quill.root.removeAttribute('aria-invalid');
+            });
+            label.textContent = 'Corpo del messaggio';
+            label.removeAttribute('for');
+            textarea.required = false;
+            textarea.hidden = true;
+            document.getElementById('email-editor-wrapper').hidden = false;
+            editor = quill;
+        } catch (error) {
+            console.warn('Editor visuale non disponibile.', error);
+        }
     }
 
-    const { ClassicEditor, Essentials, Paragraph, Heading, Bold, Italic, Link, List } = window.CKEDITOR;
-    ClassicEditor.create({
-        attachTo: textarea,
-        licenseKey: textarea.dataset.editorLicenseKey,
-        language: 'it',
-        plugins: [Essentials, Paragraph, Heading, Bold, Italic, Link, List],
-        toolbar: ['undo', 'redo', '|', 'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList'],
-    }).then(editor => {
-        const error = document.getElementById('email-body-error');
-        const editable = editor.ui.getEditableElement();
-        textarea.required = false;
-        editable.setAttribute('aria-required', 'true');
-        editable.setAttribute('aria-describedby', error.id);
-
-        editor.model.document.on('change:data', () => {
-            editor.updateSourceElement();
-            error.hidden = true;
-            editable.removeAttribute('aria-invalid');
-        });
-
-        // The existing confirmation modal submits through jQuery.
-        $(textarea.form).on('submit', event => {
-            editor.updateSourceElement();
-            if (!textarea.value.trim()) {
+    form.addEventListener('submit', event => {
+        if (editor) {
+            if (!editor.getText().trim()) {
                 event.preventDefault();
                 error.hidden = false;
-                editable.setAttribute('aria-invalid', 'true');
-                editor.editing.view.focus();
+                editor.root.setAttribute('aria-invalid', 'true');
+                editor.focus();
+                return;
             }
-        });
-    }).catch(() => {
-        console.warn('CKEditor non disponibile. Il campo HTML rimane attivo.');
+            // Quill serializes ordinary spaces as nonbreaking spaces, which prevents email text wrapping.
+            textarea.value = editor.getSemanticHTML().replaceAll('&nbsp;', ' ');
+        }
+
+        if (!window.confirm("Inviare l'email al destinatario indicato?")) {
+            event.preventDefault();
+            return;
+        }
+
+        form.querySelector('button[type="submit"]').disabled = true;
+    });
+    window.addEventListener('pageshow', () => {
+        form.querySelector('button[type="submit"]').disabled = false;
     });
 })();

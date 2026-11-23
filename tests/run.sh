@@ -12,3 +12,4 @@ php tests/reset-token.php
 php tests/file-access.php "${1:?Pass the disposable MariaDB port}"
 php tests/login.php "$1"
 php tests/error-log.php
+php tests/email-history.php "$1"

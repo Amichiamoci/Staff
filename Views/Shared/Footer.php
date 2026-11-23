@@ -4,7 +4,13 @@
     - <?= htmlspecialchars(SITE_NAME) ?>
 
     <?php if (isset($user)) { ?>
-        - <a href="<?= $P ?>/credits">Crediti</a>
+        - 
+        <a  href="<?= $P ?>/credits"
+            title="Vai alla pagina dei crediti" 
+            class="text-decoration-none text-reset"
+        >
+            Crediti
+        </a>
     <?php } ?>
 
     <?php if (defined(constant_name: 'POWERED_BY')) { ?>

@@ -165,7 +165,12 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                             <ul class="dropdown-menu dropdown-menu-lg-start" aria-labelledby="serverDropdownMenuLink">
                                 <li>
                                     <a class="dropdown-item" href="<?= $P ?>/email">
-                                        Lista email
+                                        Ultime 500 email
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="<?= $P ?>/email/history">
+                                        Storico per destinatario
                                     </a>
                                 </li>
                                 <li>

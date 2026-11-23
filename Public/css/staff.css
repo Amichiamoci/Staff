@@ -17,3 +17,33 @@
 #error-body {
     white-space: pre-line;
 }
+
+.email-log-table {
+    max-block-size: 70vh;
+}
+
+#email-editor-wrapper .ql-editor {
+    min-block-size: 18rem;
+    font-size: 1rem;
+}
+
+#email-compose textarea[hidden] {
+    display: none;
+}
+
+[data-bs-theme="dark"] #email-editor-wrapper .ql-snow .ql-stroke {
+    stroke: currentColor;
+}
+
+[data-bs-theme="dark"] #email-editor-wrapper .ql-snow .ql-fill {
+    fill: currentColor;
+}
+
+[data-bs-theme="dark"] #email-editor-wrapper .ql-snow :is(button, .ql-picker) {
+    color: var(--bs-body-color);
+}
+
+[data-bs-theme="dark"] #email-editor-wrapper .ql-snow :is(.ql-tooltip, .ql-picker-options, input) {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}

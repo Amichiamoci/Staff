@@ -1,69 +1,36 @@
-<h1>
-    Invia Email
-</h1>
+<link rel="stylesheet" href="<?= $P ?>/Public/quill/quill.snow.css">
+<script src="<?= $P ?>/Public/quill/quill.js" defer></script>
+<script src="<?= $P ?>/js/email-editor.js" defer></script>
 
-<form method="post">
-    <div class="form-floating mb-3">
-        <input 
-            required
-            type="email"
-            class="form-control" 
-            id="to"
-            name="to"
-            value="<?= htmlspecialchars($to ?? '') ?>"
-        >
-        <label for="to">Destinatario</label>
-        <div class="invalid-feedback">
-            Per favore, immetti un destinatario
-        </div>
-    </div>
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <h1 class="mb-0">Invia email</h1>
+    <a class="btn btn-outline-secondary" href="<?= $P ?>/email">Ultime 500 email</a>
+</div>
 
-    <div class="form-floating mb-3">
-        <input 
-            required
-            type="text" class="form-control" 
-            id="subject"
-            name="subject"
-            value="<?= htmlspecialchars($subject ?? '') ?>"
-        >
-        <label for="subject">Oggetto</label>
-        <div class="invalid-feedback">
-            Per favore, immetti un oggetto
-        </div>
+<form method="post" action="<?= $P ?>/email/send" id="email-compose">
+    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
+
+    <div class="mb-3">
+        <label class="form-label" for="to">Destinatario</label>
+        <input type="email" class="form-control" id="to" name="to" maxlength="64" required
+            autocapitalize="none" spellcheck="false" value="<?= htmlspecialchars($to ?? '') ?>">
     </div>
     <div class="mb-3">
-        <label for="body" class="form-label">Corpo del messaggio (HTML)</label>
-        <textarea id="body" name="body" class="form-control font-monospace" rows="10" required
-            data-editor-license-key="<?= htmlspecialchars($editorLicenseKey) ?>"
-        ><?= htmlspecialchars($body ?? '') ?></textarea>
+        <label class="form-label" for="subject">Oggetto</label>
+        <input type="text" class="form-control" id="subject" name="subject" maxlength="128" required
+            value="<?= htmlspecialchars($subject ?? '') ?>">
+    </div>
+    <div class="mb-3">
+        <label id="email-body-label" for="body" class="form-label">Corpo del messaggio (HTML)</label>
+        <textarea id="body" name="body" class="form-control font-monospace" rows="12" required><?= htmlspecialchars($body ?? '') ?></textarea>
+        <div id="email-editor-wrapper" hidden>
+            <div id="email-editor"></div>
+        </div>
         <p id="email-body-error" class="text-danger mt-1" role="alert" hidden>Inserisci il corpo del messaggio.</p>
     </div>
 
-    <button 
-        type="submit"
-        class="btn btn-primary m-1"
-        title="Invia email"
-        data-confirm="Sicuro di voler inviare l'email? L'operazione non sarà reversibile"
-        data-confirm-btn="Sì"
-        data-cancel-btn="Annulla"
-    >
-        Invia
-        <i class="bi bi-envelope-arrow-up-fill"></i>
+    <button type="submit" class="btn btn-primary">
+        <i class="bi bi-envelope-arrow-up-fill" aria-hidden="true"></i>
+        Invia email
     </button>
 </form>
-
-<?php if ($editorLicenseKey !== '') { ?>
-    <link rel="stylesheet"
-        href="https://cdn.ckeditor.com/ckeditor5/49.1.0/ckeditor5.css"
-        integrity="sha384-Ik86sZFfK6DFSEqNb0YngU5v3igL9OXn0BRTeWz8HuqB8AGVR6ZQBwfkoRKvCvfD"
-        crossorigin="anonymous" referrerpolicy="no-referrer">
-    <script defer
-        src="https://cdn.ckeditor.com/ckeditor5/49.1.0/ckeditor5.umd.js"
-        integrity="sha384-pvS9kI6PwqtRN6Gd07beavMP8NvNjO5Abp96fjdsxAkmcGfzN0IPjkfWySTuBXUz"
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script defer
-        src="https://cdn.ckeditor.com/ckeditor5/49.1.0/translations/it.umd.js"
-        integrity="sha384-FGjgPBewHs6FRTPCK+2y/e/yqoN1jS7ewB0Q0HFOgYb134TTZLjCs/Kb6ZzF5iXq"
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="<?= $P ?>/js/email-editor.js" defer></script>
-<?php } ?>

@@ -6,7 +6,7 @@ use Richie314\SimpleMvc\Controllers\Attributes\RequireLogin;
 use Richie314\SimpleMvc\Http\StatusCode;
 
 use Amichiamoci\Models\{Email, Message};
-use Amichiamoci\Utils\{Email as EmailSender, Security};
+use Amichiamoci\Utils\Email as EmailSender;
 
 class EmailController
 extends Controller
@@ -14,16 +14,40 @@ extends Controller
     #[RequireLogin(requireAdmin: true)]
     public function index(): StatusCode
     {
+        if (!empty($_SESSION['email_sent'])) {
+            unset($_SESSION['email_sent']);
+            $this->Message(Message::Success(content: 'Email inviata.'));
+        }
+
         return $this->Render(
             view: 'Email/index',
-            data: ['emails' => Email::All(connection: $this->DB)],
-            title: 'Lista Email',
+            data: ['heading' => 'Ultime 500 email', 'emails' => Email::All($this->DB)],
+            title: 'Ultime 500 email',
         );
     }
 
     #[RequireLogin(requireAdmin: true)]
-    public function view(?int $id): StatusCode
+    public function history(?string $recipient = null): StatusCode
     {
+        return $this->Render(
+            view: 'Email/index',
+            data: [
+                'heading' => 'Storico per destinatario',
+                'recipients' => Email::Recipients($this->DB),
+                'recipient' => $recipient,
+                'emails' => $recipient === null || $recipient === '' ? [] : Email::All($this->DB, $recipient),
+            ],
+            title: 'Storico per destinatario',
+        );
+    }
+
+    #[RequireLogin(requireAdmin: true)]
+    public function view(?int $id = null): StatusCode
+    {
+        if ($id === null) {
+            return $this->NotFound();
+        }
+
         $email = Email::ById(connection: $this->DB, id: $id);
         if ($email === null)
             return $this->NotFound();
@@ -58,25 +82,30 @@ extends Controller
     public function send(
         ?string $to = null,
         ?string $subject = null,
-        ?string $body = null
+        ?string $body = null,
+        ?string $csrf_token = null,
     ): StatusCode
     {
-        if ($this->IsPost())
-        {
-            if (empty($to) || empty($subject) || empty($body))
-                return $this->BadRequest();
+        $token = $_SESSION['email_csrf_token'] ??= bin2hex(random_bytes(32));
 
-            $res = EmailSender::Send(
-                to: $to,
-                subject: $subject,
-                body: $body,
-                connection: $this->DB
-            );
-            if ($res) {
-                $this->Message(message: Message::Success(content: "Email correttamente inviata a $to"));
-                return $this->index();
+        if ($this->IsPost()) {
+            if ($csrf_token === null || !hash_equals($token, $csrf_token)) {
+                return $this->BadRequest();
             }
-            $this->Message(message: Message::Error(content: "Impossibile inviare l'email"));
+
+            $to = trim($to ?? '');
+            $subject = trim($subject ?? '');
+            $body = trim($body ?? '');
+            if (!filter_var($to, FILTER_VALIDATE_EMAIL) || strlen($to) > 64
+                || $subject === '' || mb_strlen($subject) > 128 || $body === ''
+            ) {
+                $this->Message(Message::Error(content: 'Controlla destinatario, oggetto e corpo del messaggio.'));
+            } elseif (EmailSender::Send(to: $to, subject: $subject, body: $body, connection: $this->DB)) {
+                $_SESSION['email_sent'] = true;
+                return $this->RedirectWithStatus($this->PathPrefix . '/email', StatusCode::SeeOther);
+            } else {
+                $this->Message(Message::Error(content: "Impossibile inviare l'email."));
+            }
         }
 
         return $this->Render(
@@ -86,7 +115,7 @@ extends Controller
                 'to' => $to,
                 'subject' => $subject,
                 'body' => $body,
-                'editorLicenseKey' => trim(Security::LoadEnvironmentOrFromFile(var: 'CKEDITOR_LICENSE_KEY') ?? ''),
+                'csrfToken' => $token,
             ],
         );
     }
