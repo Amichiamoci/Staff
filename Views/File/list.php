@@ -6,7 +6,7 @@ assert(isset($P) && is_string($P), 'var $P not valid');
 $browse = static fn(string $uri, string $path = ''): string =>
     $P . '/file/list?' . http_build_query(['source' => $uri, 'folder' => $path], arg_separator: '&amp;');
 
-$print_size = static fn(int $size): string => {
+$print_size = static function(int $size): string {
     $units = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB'];
     $unit = 0;
     while ($size >= 1024 && $unit < array_key_last($units)) {
@@ -25,7 +25,7 @@ $print_size = static fn(int $size): string => {
     <?php foreach ($sources as $uri => $label) { ?>
         <li class="list-group-item">
             <a  href="<?= $browse($uri) ?>"
-                class="link-underline link-underline-opacity-0 link-secondary"
+                class="link-underline link-underline-opacity-0"
                 title="Espandi"
             >
                 <?= htmlspecialchars($label) ?>
@@ -72,18 +72,19 @@ $print_size = static fn(int $size): string => {
                     <li class="list-group-item">
                         <?php if ($entry->isDir()) { ?>
                             <a  href="<?= $browse($source, $path) ?>"
-                                class="link-underline link-underline-opacity-0 link-secondary"
+                                class="link-underline link-underline-opacity-0"
                                 title="Espandi">
                                 <?= htmlspecialchars(basename($path)) ?>/
                             </a>
                         <?php } else { ?>
                             <a  href="<?= $P ?>/file/download?name=<?= rawurlencode($uri) ?>"
-                                class="link-underline link-underline-opacity-0 link-primary"
+                                class="link-underline link-underline-opacity-0 link-body-emphasis"
                                 title="Scarica">
                                 <?= htmlspecialchars(basename($path)) ?>
                             </a>
                         <?php } ?>
                         <?php if ($size !== null) { ?>
+                            <span class="user-select-none"> - </span>
                             <code class="text-body-secondary"><?= $print_size($size) ?></code>
                         <?php } ?>
                     </li>
