@@ -10,10 +10,10 @@ assert(!isset($body) || is_string($body), 'var $body not valid');
 
 <link
     rel="stylesheet"
-    href="<?= $P ?>/Public/quill/quill.snow.css"
+    href="<?= $P ?>/quill/quill.snow.css"
 >
 <script
-    src="<?= $P ?>/Public/quill/quill.js"
+    src="<?= $P ?>/quill/quill.js"
     defer
 ></script>
 <script

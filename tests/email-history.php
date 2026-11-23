@@ -56,7 +56,8 @@ if ($status !== StatusCode::Ok || !preg_match('/value="archive\+fixture@example\
 }
 
 [$status, $html] = $dispatch('/email/send');
-if ($status !== StatusCode::Ok || !str_contains($html, '/Public/quill/quill.js')
+if ($status !== StatusCode::Ok || !str_contains($html, 'src="/quill/quill.js"')
+    || !str_contains($html, 'href="/quill/quill.snow.css"')
     || !is_file(dirname(__DIR__) . '/Public/quill/quill.js') || !str_contains($html, 'name="csrf_token"')
 ) {
     throw new RuntimeException('The compose form did not include its editor and CSRF token.');
