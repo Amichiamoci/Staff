@@ -97,7 +97,6 @@ define(
 define(
     constant_name: "DOMAIN", 
     value: Security::LoadEnvironmentOrFromFile(var: "DOMAIN", default: $_SERVER['HTTP_HOST']));
-define(constant_name: 'POWERED_BY', value: 'https://github.com/Amichiamoci/Staff');
 
 // Public key, private key will only be loaded when used
 define(

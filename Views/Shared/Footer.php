@@ -10,23 +10,19 @@ assert(isset($P) && is_string($P), 'var $P not valid');
     - <?= htmlspecialchars(SITE_NAME) ?>
 
     <?php if (isset($user)) { ?>
+        - Alimentato da
+        <a  href="<?= $P ?>/about"
+            title="Vai alle informazioni sul portale"
+            class="text-decoration-none text-reset fst-italic"
+        >
+            Portale Staff Amichiamoci
+        </a>
         - 
         <a  href="<?= $P ?>/credits"
             title="Vai alla pagina dei crediti"
             class="text-decoration-none text-reset"
         >
             Crediti
-        </a>
-    <?php } ?>
-
-    <?php if (defined(constant_name: 'POWERED_BY')) { ?>
-        - Alimentato da
-        <a  href="<?= POWERED_BY ?>"
-            title="Apri in un'altra scheda"
-            target="_blank"
-            class="text-decoration-none text-reset fst-italic"
-        >
-            Amichiamoci Staff
         </a>
     <?php } ?>
 </div>

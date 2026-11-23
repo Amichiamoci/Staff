@@ -12,7 +12,6 @@ use Amichiamoci\Models\{Email, User};
 
 define('SITE_NAME', 'Staff fixture');
 define('MAIN_SITE_URL', 'https://example.invalid');
-define('POWERED_BY', 'https://example.invalid');
 $_SERVER['REQUEST_METHOD'] = 'GET';
 $_SERVER['DOCUMENT_ROOT'] = dirname(__DIR__);
 

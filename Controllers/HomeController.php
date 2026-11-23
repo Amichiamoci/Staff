@@ -238,6 +238,26 @@ extends Controller
     }
     
     #[RequireLogin]
+    public function about(): StatusCode
+    {
+        $root = dirname(__DIR__);
+        $project = json_decode(file_get_contents($root . '/composer.json'), true, flags: JSON_THROW_ON_ERROR);
+        $installed = json_decode(file_get_contents($root . '/vendor/composer/installed.json'), true, flags: JSON_THROW_ON_ERROR);
+        $packages = array_intersect_key(array_column($installed['packages'], 'version', 'name'), $project['require']);
+
+        return $this->Render(
+            view: 'Home/about',
+            title: 'Informazioni sul portale',
+            data: [
+                'app_version' => $project['version'],
+                'php_version' => PHP_VERSION,
+                'domain' => DOMAIN,
+                'packages' => $packages,
+            ],
+        );
+    }
+
+    #[RequireLogin]
     public function credits(): StatusCode
     {
         $root = dirname(__DIR__);

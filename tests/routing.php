@@ -13,7 +13,7 @@ use Richie314\SimpleMvc\Routers\Router;
 define('SITE_NAME', 'Staff fixture');
 define('RECAPTCHA_PUBLIC_KEY', '');
 define('MAIN_SITE_URL', 'https://example.invalid');
-define('POWERED_BY', 'https://example.invalid');
+define('DOMAIN', 'portal.example.invalid:8443');
 $_SERVER['REQUEST_METHOD'] = 'GET';
 $_SERVER['DOCUMENT_ROOT'] = dirname(__DIR__);
 
@@ -38,7 +38,40 @@ if ($status !== StatusCode::NotFound || str_contains($html, 'private-query')) {
 $fs = new VirtualFilesystem();
 $fs->mountLocal('staff', sys_get_temp_dir(), name: 'Locale (Portale)');
 $router->SetDefaultVariable('files', $fs);
-$router->SetUser(new User(1, 'Fixture administrator', time(), admin: true));
+$user = new User(1, 'Fixture administrator', time(), admin: true);
+$router->SetUser($user);
+$aboutRouter = new Router(pathPrefix: '/fixture-staff', applicationInstallationPath: dirname(__DIR__));
+$aboutRouter->AddController(HomeController::class, '/');
+$aboutRouter->SetUser($user);
+ob_start();
+$status = $aboutRouter->Dispatch('/fixture-staff/about');
+$html = ob_get_clean();
+$manifest = json_decode(file_get_contents(dirname(__DIR__) . '/composer.json'), true, flags: JSON_THROW_ON_ERROR);
+if ($status !== StatusCode::Ok || !str_contains($html, 'Informazioni sul portale')
+    || !str_contains($html, '<dd class="col-sm-6">' . htmlspecialchars($manifest['version']) . '</dd>')
+    || !str_contains($html, '<dd class="col-sm-6">' . htmlspecialchars(PHP_VERSION) . '</dd>')
+    || !str_contains($html, '<dd class="col-sm-6">portal.example.invalid:8443</dd>')
+    || !str_contains($html, '<dd class="col-sm-6">/fixture-staff</dd>')
+    || !str_contains($html, '<dt class="col-sm-6">richie314/simple-mvc</dt>')
+    || !str_contains($html, '<dd class="col-sm-6">'
+        . htmlspecialchars(Composer\InstalledVersions::getPrettyVersion('richie314/simple-mvc')) . '</dd>')) {
+    throw new RuntimeException('The about page did not render the versions and installation details.');
+}
+
+$renderFooter = static function (string $P, ?User $user): string {
+    ob_start();
+    require dirname(__DIR__) . '/Views/Shared/Footer.php';
+    return ob_get_clean();
+};
+$footer = $renderFooter('/fixture-staff', $user);
+if (substr_count($footer, '<a ') !== 1
+    || !str_contains($footer, 'Alimentato da -')
+    || !str_contains($footer, 'href="/fixture-staff/about"')
+    || !str_contains($footer, 'Portale Staff Amichiamoci')
+    || str_contains($renderFooter('/fixture-staff', null), '<a ')) {
+    throw new RuntimeException('The footer attribution must link to the about page only for signed-in users.');
+}
+
 ob_start();
 $status = $router->Dispatch('/file/list');
 $html = ob_get_clean();

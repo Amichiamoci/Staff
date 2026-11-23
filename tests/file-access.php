@@ -13,7 +13,6 @@ use Amichiamoci\Models\{Staff, User};
 
 define('SITE_NAME', 'Staff fixture');
 define('MAIN_SITE_URL', 'https://example.invalid');
-define('POWERED_BY', 'https://example.invalid');
 $_SERVER['REQUEST_METHOD'] = 'GET';
 
 $db = new mysqli('127.0.0.1', 'root', '', 'fixture', (int)($argv[1] ?? 0));

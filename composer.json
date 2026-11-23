@@ -60,5 +60,6 @@
             "Quill 2.0.3": "BSD-3-Clause",
             "Google reCAPTCHA": "Termini di servizio di Google Cloud"
         }
-    }
+    },
+    "version": "v3.0.0"
 }

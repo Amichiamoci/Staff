@@ -52,18 +52,42 @@ jobs:
     uses: ./.github/workflows/tests.yml
 
   release:
-    name: Publish tested commit
+    name: Publish versioned release
     needs: [validate, test]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: fileinfo, gd, mbstring, mysqli
+          tools: composer:v2
+          coverage: none
+
+      - name: Stamp release version
+        env:
+          RELEASE_TAG: ${{ needs.validate.outputs.tag }}
+        run: |
+          composer config version "$RELEASE_TAG"
+          composer update --lock --no-install --no-interaction --no-audit
+          composer validate --no-check-publish
+          git add composer.json composer.lock
+          if ! git diff --cached --quiet; then
+            git -c user.name=github-actions[bot] -c user.email=41898282+github-actions[bot]@users.noreply.github.com \
+              commit -m "Release $RELEASE_TAG"
+          fi
+
       - name: Publish tag and release
         env:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
           GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ needs.validate.outputs.tag }}
         run: |
-          gh api --method POST "repos/$GH_REPO/git/refs" \
-            -f "ref=refs/tags/$RELEASE_TAG" \
-            -f "sha=$GITHUB_SHA"
+          gh auth setup-git
+          git push origin "HEAD:refs/tags/$RELEASE_TAG"
           gh release create "$RELEASE_TAG" --verify-tag --title "$RELEASE_TAG" --generate-notes
