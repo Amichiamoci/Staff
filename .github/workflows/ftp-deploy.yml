@@ -91,7 +91,6 @@ jobs:
           values = {key: os.environ[key] for key in keys}
           values["DOMAIN"] = "amichiamoci.it"
           values["SESSION_COOKIE_SECURE"] = "1"
-          values["ENABLE_API"] = "true"
 
           with open(".env", "w", encoding="utf-8") as env_file:
               for key, value in values.items():

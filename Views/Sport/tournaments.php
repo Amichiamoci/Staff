@@ -8,6 +8,7 @@ assert(isset($user) && ($user instanceof User), 'var $user not valid');
 assert(isset($tornei) && is_array($tornei), 'var $tornei not valid');
 assert(isset($edizioni) && is_array($edizioni), 'var $edizioni not valid');
 assert(isset($anno) && is_int($anno), 'var $anno not valid');
+assert(isset($can_manage_tournaments) && is_bool($can_manage_tournaments));
 
 $tornei_per_sport = array_reduce(
     array: $tornei,
@@ -51,6 +52,15 @@ $tornei_per_sport = array_reduce(
 <h1>
     Tornei attivi: <output><?= count(value: $tornei) ?></output>
 </h1>
+
+<?php if ($can_manage_tournaments) { ?>
+    <a  href="<?= $P ?>/sport/tournament_create"
+        class="btn btn-primary mb-3"
+        title="Crea un nuovo torneo"
+    >
+        Nuovo torneo
+    </a>
+<?php } ?>
 
 <?php foreach (array_keys($tornei_per_sport) as $sport_id) { ?>
     <details

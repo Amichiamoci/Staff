@@ -11,6 +11,7 @@ use Amichiamoci\Models\{
     AnagraficaConIscrizione,
     Cron,
     Edizione,
+    Settings,
     User,
     Parrocchia,
     Staff,
@@ -146,6 +147,59 @@ extends Controller
             },
             array: $crons
         ));
+    }
+    
+    #[RequireLogin(requireAdmin: true)]
+    public function settings(
+        mixed $csrf_token = null,
+        mixed $subscriptions_enabled = null,
+        mixed $teams_enabled = null,
+        mixed $tournaments_enabled = null,
+        mixed $api_enabled = null,
+    ): StatusCode {
+        if ($this->IsPost()) {
+            if (!is_string($csrf_token) 
+                || !$this->ValidAccountToken($csrf_token)
+                || !in_array($subscriptions_enabled, [null, '1'], true)
+                || !in_array($teams_enabled, [null, '1'], true)
+                || !in_array($tournaments_enabled, [null, '1'], true)
+                || !in_array($api_enabled, [null, '1'], true)
+            ) {
+                return $this->BadRequest();
+            }
+
+            Settings::Save(
+                $this->DB,
+                $subscriptions_enabled === '1',
+                $teams_enabled === '1',
+                $tournaments_enabled === '1',
+                $api_enabled === '1',
+            );
+
+            return $this->RedirectWithStatus($this->PathPrefix . '/settings', StatusCode::SeeOther);
+        }
+
+        $phpInfo = '';
+        if (function_exists('phpinfo')) {
+            ob_start();
+            phpinfo(INFO_GENERAL);
+            $phpInfo = ob_get_clean();
+        }
+
+        return $this->Render(
+            view: 'Home/settings',
+            title: 'Configurazione generale',
+            data: Settings::Read($this->DB) + [
+                'php_info' => $phpInfo,
+                'csrf_token' => $this->AccountToken(),
+                'capture_address' => Security::LoadEnvironmentOrFromFile('CRON_CAPTURE_OUTGOING_ADDRESS') ?? '',
+                'recaptcha_enabled' => !empty(RECAPTCHA_PUBLIC_KEY),
+                'session_cookie_secure' => filter_var(
+                    Security::LoadEnvironmentOrFromFile('SESSION_COOKIE_SECURE'),
+                    FILTER_VALIDATE_BOOL,
+                ),
+            ],
+        );
     }
 
     public function login(

@@ -339,9 +339,23 @@ CREATE TABLE IF NOT EXISTS `cron` (
   `interval_hours` INT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
 
+-- System configuration
+CREATE TABLE IF NOT EXISTS `settings` (
+  `name` VARCHAR(64) NOT NULL PRIMARY KEY,
+  `enabled` BOOLEAN NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_uca1400_ai_ci;
+
+INSERT INTO `settings` (`name`, `enabled`) VALUES
+  ('subscriptions_enabled', TRUE),
+  ('teams_enabled', TRUE),
+  ('tournaments_enabled', FALSE),
+  ('api_enabled', FALSE)
+ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
+
 COMMIT;
 
 /*!40101 SET foreign_key_checks = 1 */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+

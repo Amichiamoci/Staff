@@ -72,3 +72,19 @@
         transition: none;
     }
 }
+
+#php-info-dialog {
+    inline-size: calc(100% - 2rem);
+    max-inline-size: none;
+    overscroll-behavior: contain;
+}
+
+#php-info-dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.55);
+    overflow: hidden;
+    overscroll-behavior: contain;
+}
+
+#php-info-dialog iframe {
+    block-size: 82dvh;
+}

@@ -9,11 +9,6 @@ use Richie314\SimpleMvc\Utils\Security as BaseSecurity;
 class Security
 extends BaseSecurity
 {
-    public static function ApiEnabled(): bool
-    {
-        $enable_api = parent::LoadEnvironmentOrFromFile(var: 'ENABLE_API');
-        return filter_var($enable_api, FILTER_VALIDATE_BOOL);
-    }
     public static function RandomSubset(int $length, array $alphabet): string
     {
         $str = "";

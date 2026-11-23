@@ -1,5 +1,4 @@
 <?php
-use Amichiamoci\Utils\Security;
 
 assert(isset($P) && is_string($P), 'var $P not valid');
 ?>
@@ -233,6 +232,25 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                             >
                                 <li>
                                     <a  class="dropdown-item"
+                                        href="<?= $P ?>/settings"
+                                        title="Configurazione generale"
+                                    >
+                                        Configurazione generale
+                                    </a>
+                                </li>
+                                <li>
+                                    <a  class="dropdown-item"
+                                        href="<?= $P ?>/file/list"
+                                        title="Sorgenti file"
+                                    >
+                                        Sorgenti file
+                                    </a>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <a  class="dropdown-item"
                                         href="<?= $P ?>/email"
                                         title="Ultime 500 email"
                                     >
@@ -260,17 +278,6 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                                 </li>
                                 <li>
                                     <a  class="dropdown-item"
-                                        href="<?= $P ?>/file/list"
-                                        title="Sorgenti file"
-                                    >
-                                        Sorgenti file
-                                    </a>
-                                </li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li>
-                                    <a  class="dropdown-item"
                                         href="<?= $P ?>/docs/index.html"
                                         data-no-swup
                                         title="Documentazione"
@@ -278,7 +285,7 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                                         Documentazione
                                     </a>
                                 </li>
-                                <?php if (Security::ApiEnabled()) { ?>
+                                <?php if ($api_routes_enabled ?? false) { ?>
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>

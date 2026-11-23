@@ -10,6 +10,7 @@ use Amichiamoci\Models\{
     Edizione,
     Iscrizione,
     Parrocchia,
+    Settings,
     Sport,
     Squadra,
     Message,
@@ -59,6 +60,10 @@ extends Controller
         array $members = [],
     ): StatusCode
     {
+        if (!$this->getUser()->Admin && !Settings::Read($this->DB)['teams_enabled']) {
+            return $this->NotAuthorized('La creazione e la modifica delle squadre sono riservate agli amministratori.');
+        }
+
         if (!isset($church) && $this->Staff() !== null)
             $church = $this->Staff()->Parrocchia->Id;
         if (empty($church))
@@ -133,6 +138,10 @@ extends Controller
         ?int $id = null,
     ): StatusCode
     {
+        if (!$this->getUser()->Admin && !Settings::Read($this->DB)['teams_enabled']) {
+            return $this->NotAuthorized('La creazione e la modifica delle squadre sono riservate agli amministratori.');
+        }
+
         if (empty($id))
             return $this->BadRequest();
 

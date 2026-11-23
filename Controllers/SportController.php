@@ -11,6 +11,7 @@ use Amichiamoci\Models\{
     Message,
     Partita,
     Punteggio,
+    Settings,
     Sport,
     TipoTorneo,
     Torneo,
@@ -20,6 +21,32 @@ use Amichiamoci\Controllers\Attributes\RequireStaff;
 class SportController
 extends Controller
 {
+    private function CanManageTournaments(): bool
+    {
+        return $this->getUser()->Admin
+            || ($this->Staff() !== null && Settings::Read($this->DB)['tournaments_enabled']);
+    }
+
+    private function TournamentManagementData(): array
+    {
+        $canManage = $this->CanManageTournaments();
+        return [
+            'can_manage_tournaments' => $canManage,
+            'tournament_csrf_token' => $canManage ? $this->AccountToken() : null,
+        ];
+    }
+
+    private function CheckTournamentManagement(mixed $csrfToken): ?StatusCode
+    {
+        if (!$this->CanManageTournaments()) {
+            return $this->NotAuthorized('La gestione dei tornei è riservata agli amministratori.');
+        }
+        if ($this->IsPost() && (!is_string($csrfToken) || !$this->ValidAccountToken($csrfToken))) {
+            return $this->BadRequest();
+        }
+        return null;
+    }
+
     #[RequireLogin]
     public function fields(): StatusCode
     {
@@ -46,7 +73,7 @@ extends Controller
         return $this->Render(
             view: 'Sport/tournaments',
             title: 'Lista tornei',
-            data: [
+            data: $this->TournamentManagementData() + [
                 'tornei' => $tournaments,
 
                 'anno' => $year,
@@ -69,7 +96,7 @@ extends Controller
         return $this->Render(
             view: 'Sport/tournament',
             title: $torneo->Nome,
-            data: [
+            data: $this->TournamentManagementData() + [
                 'torneo' => $torneo,
                 'partite' => $partite,
                 'edizioni' => Edizione::All(connection: $this->DB),
@@ -78,9 +105,17 @@ extends Controller
         );
     }
 
-    #[RequireLogin(requireAdmin: true)]
-    public function tournament_add_team(?int $tournament, ?int $team): StatusCode
+    #[RequireLogin]
+    public function tournament_add_team(
+        ?int $tournament = null,
+        ?int $team = null,
+        mixed $csrf_token = null,
+    ): StatusCode
     {
+        if (($denied = $this->CheckTournamentManagement($csrf_token)) !== null) {
+            return $denied;
+        }
+
         if (empty($tournament) || empty($team))
             return $this->BadRequest();
 
@@ -97,9 +132,17 @@ extends Controller
         return $this->tournament(id: $tournament);
     }
 
-    #[RequireLogin(requireAdmin: true)]
-    public function tournament_remove_team(?int $tournament, ?int $team): StatusCode
+    #[RequireLogin]
+    public function tournament_remove_team(
+        ?int $tournament = null,
+        ?int $team = null,
+        mixed $csrf_token = null,
+    ): StatusCode
     {
+        if (($denied = $this->CheckTournamentManagement($csrf_token)) !== null) {
+            return $denied;
+        }
+
         if (empty($tournament) || empty($team))
             return $this->BadRequest();
 
@@ -116,13 +159,22 @@ extends Controller
         return $this->tournament(id: $tournament);
     }
 
-    #[RequireLogin(requireAdmin: true)]
+    #[RequireLogin]
     public function tournament_generate_calendar(
-        ?int $id, 
+        ?int $id = null,
         bool $two_ways = false, 
         ?int $field = null,
+        mixed $csrf_token = null,
     ): StatusCode
     {
+        if (($denied = $this->CheckTournamentManagement($csrf_token)) !== null) {
+            return $denied;
+        }
+
+        if (empty($id)) {
+            return $this->BadRequest();
+        }
+
         if (empty($field))
             $field = null;
 
@@ -145,14 +197,19 @@ extends Controller
         return $this->tournament(id: $id);
     }
 
-    #[RequireLogin(requireAdmin: true)]
+    #[RequireLogin]
     public function tournament_create(
         ?int $edition = null,
         ?int $sport = null,
         ?int $type = null,
         ?string $name = null,
+        mixed $csrf_token = null,
     ): StatusCode
     {
+        if (($denied = $this->CheckTournamentManagement($csrf_token)) !== null) {
+            return $denied;
+        }
+
         if ($this->IsPost())
         {
             if (empty($edition) || 
@@ -187,6 +244,7 @@ extends Controller
                 'edizioni' => Edizione::All(connection: $this->DB),
                 'sport' => Sport::All(connection: $this->DB),
                 'tipi_torneo' => TipoTorneo::All(connection: $this->DB),
+                'tournament_csrf_token' => $this->AccountToken(),
             ]
         );
     }

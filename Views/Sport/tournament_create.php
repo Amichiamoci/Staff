@@ -1,6 +1,7 @@
 <?php
 use Amichiamoci\Models\TipoTorneo;
 
+assert(isset($tournament_csrf_token) && is_string($tournament_csrf_token));
 assert(isset($P) && is_string($P), 'var $P not valid');
 assert(isset($edizioni) && is_array($edizioni), 'var $edizioni not valid');
 assert(isset($sport) && is_array($sport), 'var $sport not valid');
@@ -15,6 +16,11 @@ assert(isset($tipi_torneo) && is_array($tipi_torneo), 'var $tipi_torneo not vali
     action="<?= $P ?>/sport/tournament_create"
     method="post"
 >
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="<?= htmlspecialchars($tournament_csrf_token) ?>"
+    >
     <div class="form-floating mb-3">
         <select
             name="edition"

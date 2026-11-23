@@ -54,6 +54,7 @@ $logger->pushHandler(
 use Richie314\SimpleMvc\Routers\Router;
 use Richie314\SimpleMvc\Http\StatusCode;
 
+use Amichiamoci\Models\Settings;
 use Amichiamoci\Utils\Link;
 use Amichiamoci\Controllers\{
     ApiController,
@@ -79,13 +80,15 @@ $router->AddController(controller: SportController::class, route_base: '/sport')
 $router->AddController(controller: EmailController::class, route_base: '/email');
 
 // This controller is not present by default
-if (Security::ApiEnabled())
+$apiEnabled = Settings::Read($connection)['api_enabled'];
+if ($apiEnabled)
     $router->AddController(controller: ApiController::class, route_base: '/api');
 
 // Pass the db connection to the router,
 // so it can be passed to the controllers
 $router->SetDbConnection(connection: $connection);
 $router->SetDefaultVariable('files', $files);
+$router->SetDefaultVariable('api_routes_enabled', $apiEnabled);
 
 /******************************************************************
  *                                                                *

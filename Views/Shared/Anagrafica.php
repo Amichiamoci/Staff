@@ -6,8 +6,6 @@ assert(isset($user) && ($user instanceof User), 'var $user not valid');
 assert(isset($anagrafica) && ($anagrafica instanceof Anagrafica), 'var $anagrafica not valid');
 assert(isset($P) && is_string($P), 'var $P not valid');
 
-$iscrizioni_aperte = false;
-
 ?>
 
 <div
@@ -242,6 +240,14 @@ $iscrizioni_aperte = false;
                             Mancante!
                         </strong>
                     <?php } ?>
+                    <?php if (($certificate_upload_enabled ?? false)
+                        && Authorization::CanAccessCertificate($user, $staff ?? null, $anagrafica->Iscrizione->Parrocchia)) { ?>
+                        <a  href="<?= $P ?>/staff/modifica_iscrizione?id=<?= $anagrafica->Iscrizione->Id ?>"
+                            title="Carica il certificato medico"
+                        >
+                            Carica certificato
+                        </a>
+                    <?php } ?>
                 </dd>
 
                 <?php if ($anagrafica->Eta < 18) { ?>
@@ -268,7 +274,7 @@ $iscrizioni_aperte = false;
 
                 <?php } ?>
             <?php } else { ?>
-                <?php if ($iscrizioni_aperte) { ?>
+                <?php if ($user->Admin || ($subscriptions_enabled ?? false)) { ?>
                     <dt class="col-sm-4 text-nowrap">
                         <i class="bi bi-person-plus"></i>
                         Iscrivi

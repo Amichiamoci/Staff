@@ -13,10 +13,10 @@ use Amichiamoci\Models\{
     Edizione,
     Iscrizione,
     Message,
-    MessageType,
     Parrocchia,
     ProblemaIscrizione,
     PunteggioParrocchia,
+    Settings,
     Staff,
     StaffBase,
     TesseramentoCSI,
@@ -26,7 +26,7 @@ use Amichiamoci\Models\{
 };
 use Amichiamoci\Models\Templates\Anagrafica as AnagraficaBase;
 use Amichiamoci\Controllers\Attributes\RequireStaff;
-use Amichiamoci\Utils\Security;
+use Amichiamoci\Utils\{Authorization, Security};
 
 
 class StaffController
@@ -51,10 +51,15 @@ extends Controller
         if ($church_object === null)
             return $this->NotFound();
 
+        $admin = $this->getUser()->Admin;
+        $subscriptionsEnabled = $admin || Settings::Read($this->DB)['subscriptions_enabled'];
+
         return $this->Render(
             view: 'Staff/index',
             title: 'Portale Staff',
             data: [
+                'subscriptions_enabled' => $subscriptionsEnabled,
+                'certificate_upload_enabled' => !$subscriptionsEnabled,
                 'iscritti_problemi' => ProblemaIscrizione::Parrocchia(
                     connection: $this->DB, 
                     year: $year, 
@@ -543,10 +548,17 @@ extends Controller
         ?int $parrocchia = null,
         ?string $taglia = null,
         ?int $edizione = null,
+        mixed $csrf_token = null,
     ): StatusCode
     {
         if (empty($id))
             return $this->BadRequest();
+
+        $admin = $this->getUser()->Admin;
+        $certificateOnly = !$admin && !Settings::Read($this->DB)['subscriptions_enabled'];
+        if ($certificateOnly && (!$this->IsPost() || empty($id_iscrizione))) {
+            return $this->NotAuthorized('Le nuove iscrizioni sono riservate agli amministratori.');
+        }
 
         $a = AnagraficaBase::ById(connection: $this->DB, id: $id);
         if ($a === null)
@@ -555,18 +567,26 @@ extends Controller
         if ($this->IsPost())
         {
             $shirt = Taglia::tryFrom($taglia ?? '');
-            if (empty($parrocchia) || $shirt === null)
+            if (!$certificateOnly && (empty($parrocchia) || $shirt === null))
                 return $this->BadRequest();
 
             $iscrizione = null;
             if (!empty($id_iscrizione)) {
-                if (!$this->getUser()->Admin)
+                if (!$admin && !$certificateOnly)
                     return $this->NotAuthorized();
 
                 $iscrizione = Iscrizione::ById($this->DB, $id_iscrizione);
                 if ($iscrizione === null || Iscrizione::IdAnagraficaAssociata($this->DB, $id_iscrizione) !== $id)
                     return $this->NotFound();
 
+                if ($certificateOnly && !Authorization::CanAccessCertificate(
+                    $this->getUser(), $this->Staff(), $iscrizione->Parrocchia
+                )) {
+                    return $this->NotAuthorized();
+                }
+                if ($certificateOnly && (!is_string($csrf_token) || !$this->ValidAccountToken($csrf_token))) {
+                    return $this->BadRequest();
+                }
             }
 
             if ($iscrizione !== null) {
@@ -581,6 +601,9 @@ extends Controller
             //
             $files = array_values(array_filter(UploadedFiles::fromField($_FILES['certificato'] ?? null),
                 static fn(array $file): bool => (int)$file['error'] !== UPLOAD_ERR_NO_FILE));
+            if ($certificateOnly && $files === []) {
+                return $this->BadRequest('Carica un certificato medico.');
+            }
             $uploaded_file_path = null;
             if ($files !== []) {
                 $edition = Edizione::ById($this->DB, $edizione);
@@ -605,6 +628,21 @@ extends Controller
             //
             // Handle the submitted data
             //
+            if ($certificateOnly) {
+                try {
+                    if (!Iscrizione::UpdateCertificato($this->DB, $iscrizione->Id, $uploaded_file_path)) {
+                        return $this->InternalError();
+                    }
+                } catch (\Throwable $exception) {
+                    return $this->InternalError(ex: $exception);
+                }
+
+                return $this->RedirectWithStatus(
+                    $this->PathPrefix . '/staff?church=' . $iscrizione->Parrocchia->Id,
+                    StatusCode::SeeOther,
+                );
+            }
+
             if ($iscrizione !== null)
             {
                 $iscrizione->Parrocchia->Id = $parrocchia;
@@ -695,7 +733,7 @@ extends Controller
         return $this->anagrafiche();
     }
 
-    #[RequireLogin(requireAdmin: true)]
+    #[RequireLogin]
     public function modifica_iscrizione(?int $id = null): StatusCode
     {
         if (empty($id))
@@ -704,6 +742,29 @@ extends Controller
         $iscrizione = Iscrizione::ById(connection: $this->DB, id: $id);
         if ($iscrizione === null)
             return $this->NotFound();
+
+        if (!$this->getUser()->Admin) {
+            if (Settings::Read($this->DB)['subscriptions_enabled'] || !Authorization::CanAccessCertificate(
+                $this->getUser(), $this->Staff(), $iscrizione->Parrocchia
+            )) {
+                return $this->NotAuthorized();
+            }
+
+            $personId = Iscrizione::IdAnagraficaAssociata($this->DB, $iscrizione->Id);
+            if ($personId === null) {
+                return $this->NotFound();
+            }
+
+            return $this->Render(
+                view: 'Staff/upload-certificate',
+                title: 'Carica certificato medico',
+                data: [
+                    'subscription_id' => $iscrizione->Id,
+                    'person_id' => $personId,
+                    'csrf_token' => $this->AccountToken(),
+                ],
+            );
+        }
 
         $a = AnagraficaBase::ById(
             connection: $this->DB, 

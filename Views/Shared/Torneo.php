@@ -5,10 +5,14 @@ use Amichiamoci\Models\{TipoTorneo, Torneo, User};
 assert(isset($user) && ($user instanceof User), 'var $user not valid');
 assert(isset($P) && is_string($P), 'var $P not valid');
 assert(isset($torneo) && ($torneo instanceof Torneo), 'var $torneo not valid');
+assert(isset($can_manage_tournaments) && is_bool($can_manage_tournaments));
+if ($can_manage_tournaments) {
+    assert(isset($tournament_csrf_token) && is_string($tournament_csrf_token));
+}
 
 $sport_icon = $torneo->Sport->getIcon();
 $show_details = ($hide_edit_icon ?? null) !== 'yes';
-$details_label = $user->Admin ? 'Modifica il torneo' : 'Vedi il torneo';
+$details_label = $can_manage_tournaments ? 'Modifica il torneo' : 'Vedi il torneo';
 
 ?>
 
@@ -34,7 +38,7 @@ $details_label = $user->Admin ? 'Modifica il torneo' : 'Vedi il torneo';
                         title="<?= $details_label ?>"
                         aria-label="<?= $details_label ?>"
                     >
-                        <i  class="bi <?= $user->Admin ? 'bi-pencil-square' : 'bi-eye' ?>"
+                        <i  class="bi <?= $can_manage_tournaments ? 'bi-pencil-square' : 'bi-eye' ?>"
                             aria-hidden="true"
                         ></i>
                     </a>
@@ -83,7 +87,7 @@ $details_label = $user->Admin ? 'Modifica il torneo' : 'Vedi il torneo';
                 <?php if (count(value: $torneo->IdPartite) > 0) { ?>
                     <?= count(value: $torneo->IdPartite) ?> partite previste
                 <?php } else { ?>
-                    <?php if ($user->Admin) { ?>
+                    <?php if ($can_manage_tournaments) { ?>
                         <button
                             type="button"
                             data-bs-toggle="modal"
@@ -125,6 +129,11 @@ $details_label = $user->Admin ? 'Modifica il torneo' : 'Vedi il torneo';
                                             method="POST"
                                             action="<?= $P ?>/sport/tournament_generate_calendar"
                                         >
+                                            <input
+                                                type="hidden"
+                                                name="csrf_token"
+                                                value="<?= htmlspecialchars($tournament_csrf_token) ?>"
+                                            >
                                             <input
                                                 type="hidden"
                                                 name="id"
@@ -224,12 +233,17 @@ $details_label = $user->Admin ? 'Modifica il torneo' : 'Vedi il torneo';
                             >
                                 <?= htmlspecialchars(string: $nome) ?>
                             </a>
-                            <?php if ($user->Admin) { ?>
+                            <?php if ($can_manage_tournaments) { ?>
                                 <form
                                     action="<?= $P ?>/sport/tournament_remove_team"
                                     method="post"
                                     class="d-inline p-0"
                                 >
+                                    <input
+                                        type="hidden"
+                                        name="csrf_token"
+                                        value="<?= htmlspecialchars($tournament_csrf_token) ?>"
+                                    >
                                     <input
                                         type="hidden"
                                         name="tournament"
@@ -260,9 +274,9 @@ $details_label = $user->Admin ? 'Modifica il torneo' : 'Vedi il torneo';
             </dd>
         </dl>
     </div>
-    <?php if ($user->Admin || ($show_details && $torneo->IdPartite !== [])) { ?>
+    <?php if ($can_manage_tournaments || ($show_details && $torneo->IdPartite !== [])) { ?>
         <footer class="card-footer d-flex flex-wrap justify-content-end gap-2">
-            <?php if ($user->Admin) { ?>
+            <?php if ($can_manage_tournaments) { ?>
                 <button
                     type="button"
                     data-bs-toggle="modal"
@@ -291,7 +305,7 @@ $details_label = $user->Admin ? 'Modifica il torneo' : 'Vedi il torneo';
             <?php } ?>
         </footer>
     <?php } ?>
-    <?php if ($user->Admin) { ?>
+    <?php if ($can_manage_tournaments) { ?>
         <div
             class="modal fade"
             id="modal-torneo-<?= $torneo->Id ?>"
@@ -320,6 +334,11 @@ $details_label = $user->Admin ? 'Modifica il torneo' : 'Vedi il torneo';
                             method="POST"
                             action="<?= $P ?>/sport/tournament_add_team"
                         >
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="<?= htmlspecialchars($tournament_csrf_token) ?>"
+                            >
                             <input
                                 type="hidden"
                                 name="tournament"

@@ -127,14 +127,18 @@ try {
 
 echo "Routing checks passed.\n";
 
+$delegatedTournamentActions = [
+    'tournament_create', 'tournament_add_team', 'tournament_remove_team', 'tournament_generate_calendar',
+];
 $sport = new ReflectionClass(Amichiamoci\Controllers\SportController::class);
 foreach ($sport->getMethods(ReflectionMethod::IS_PUBLIC) as $action) {
     if (!str_starts_with($action->name, 'match_') && !str_starts_with($action->name, 'tournament_')) {
         continue;
     }
     $attributes = $action->getAttributes(Richie314\SimpleMvc\Controllers\Attributes\RequireLogin::class);
-    if ((($attributes[0] ?? null)?->getArguments()['requireAdmin'] ?? false) !== true) {
-        throw new RuntimeException("Sport action {$action->name} must require an administrator.");
+    $adminOnly = !in_array($action->name, $delegatedTournamentActions, true);
+    if ($attributes === [] || ($attributes[0]->getArguments()['requireAdmin'] ?? false) !== $adminOnly) {
+        throw new RuntimeException("Unexpected login requirements for {$action->name}.");
     }
 }
 echo "Sport authorization checks passed.\n";
