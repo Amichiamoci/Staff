@@ -84,8 +84,4 @@ assert(isset($show_accounts) && is_bool($show_accounts), 'var $show_accounts not
             </tbody>
         </table>
     </div>
-    <script
-        src="<?= $P ?>/js/copy-ip.js"
-        defer
-    ></script>
 <?php } ?>

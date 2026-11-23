@@ -24,7 +24,8 @@ $router->AddController(FileController::class, '/file');
 ob_start();
 $status = $router->Dispatch('/login');
 $html = ob_get_clean();
-if ($status !== StatusCode::Ok || !str_contains($html, 'id="login-form"')) {
+if ($status !== StatusCode::Ok || !str_contains($html, 'id="login-form"')
+    || !str_contains($html, '/js/navigation.js')) {
     throw new RuntimeException('Simple MVC did not render the login view.');
 }
 
@@ -48,6 +49,10 @@ $status = $aboutRouter->Dispatch('/fixture-staff/about');
 $html = ob_get_clean();
 $manifest = json_decode(file_get_contents(dirname(__DIR__) . '/composer.json'), true, flags: JSON_THROW_ON_ERROR);
 if ($status !== StatusCode::Ok || !str_contains($html, 'Informazioni sul portale')
+    || !str_contains($html, 'id="swup"')
+    || !str_contains($html, 'id="portal-nav"')
+    || !str_contains($html, 'id="portal-footer"')
+    || !str_contains($html, 'src="/fixture-staff/js/navigation.js"')
     || !str_contains($html, '<dd class="col-sm-6">' . htmlspecialchars($manifest['version']) . '</dd>')
     || !str_contains($html, '<dd class="col-sm-6">' . htmlspecialchars(PHP_VERSION) . '</dd>')
     || !str_contains($html, '<dd class="col-sm-6">portal.example.invalid:8443</dd>')

@@ -47,3 +47,28 @@
     background-color: var(--bs-body-bg);
     color: var(--bs-body-color);
 }
+
+@media (prefers-reduced-motion: no-preference) {
+    #swup {
+        opacity: 1;
+        transition: opacity 100ms ease-in-out;
+    }
+
+    html.is-animating #swup {
+        opacity: 0;
+    }
+}
+
+#portal-header > .swup-progress-bar {
+    position: absolute;
+    inset-block-start: 100%;
+    block-size: 2px;
+    background-color: #1683ff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #portal-header > .swup-progress-bar {
+        transform: none;
+        transition: none;
+    }
+}

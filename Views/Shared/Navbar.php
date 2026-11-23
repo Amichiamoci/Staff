@@ -3,7 +3,10 @@ use Amichiamoci\Utils\Security;
 
 assert(isset($P) && is_string($P), 'var $P not valid');
 ?>
-<nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3">
+<nav
+    id="portal-nav"
+    class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow"
+>
     <div class="container-fluid">
         <a  class="navbar-brand"
             href="<?= $P ?>/"
@@ -269,6 +272,7 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                                 <li>
                                     <a  class="dropdown-item"
                                         href="<?= $P ?>/docs/index.html"
+                                        data-no-swup
                                         title="Documentazione"
                                     >
                                         Documentazione
@@ -373,7 +377,9 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                     </li>
                 <?php } ?>
                 
-                <li class="nav-item dropdown">
+                <li class="nav-item dropdown"
+                    data-swup-persist="portal-theme"
+                >
                     <button
                         class="nav-link text-reset dropdown-toggle"
                         type="button"

@@ -84,6 +84,7 @@ $print_size = static function(int $size): string {
                             </a>
                         <?php } else { ?>
                             <a  href="<?= $P ?>/file/download?name=<?= rawurlencode($uri) ?>"
+                                data-no-swup
                                 class="link-underline link-underline-opacity-0 link-body-emphasis"
                                 title="Scarica"
                             >

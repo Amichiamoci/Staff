@@ -1,7 +1,7 @@
 $(function () {
     const feedbackTimers = new WeakMap();
 
-    $('[data-copy-ip]').on('click', async function () {
+    $(document).on('click', '[data-copy-ip]', async function () {
         const feedback = $(this).siblings('[role="status"]')[0];
         clearTimeout(feedbackTimers.get(feedback));
         feedback.textContent = '';

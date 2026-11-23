@@ -63,8 +63,11 @@ assert(isset($title) && is_string($title), 'var $title not valid');
         <script src="<?= $P ?>/js/darkmode.js"></script>
     </head>
     <body class="d-flex flex-column min-vh-100">
-        <header>
-            <?php include_once __DIR__ . '/Navbar.php'; ?>
+        <header
+            class="position-relative mb-3"
+            id="portal-header"
+        >
+            <?php require __DIR__ . '/Navbar.php'; ?>
         </header>
         <noscript>
             <h2>
@@ -82,7 +85,10 @@ assert(isset($title) && is_string($title), 'var $title not valid');
             referrerpolicy="no-referrer"
         ></script>
 
-        <div class="container">
+        <div
+            class="container"
+            id="swup"
+        >
             <?php if (isset($alerts) && is_array($alerts)) { ?>
                 <?php foreach ($alerts as $message) { ?>
                     <?php require __DIR__ . '/Message.php'; ?>
@@ -104,8 +110,11 @@ assert(isset($title) && is_string($title), 'var $title not valid');
             <i class="bi bi-arrow-up"></i>
         </button>
 
-        <footer class="border-top footer text-muted user-select-none w-100 p-1 mt-auto mb-0">
-            <?php include_once __DIR__ . '/Footer.php'; ?>
+        <footer
+            id="portal-footer"
+            class="border-top footer text-muted user-select-none w-100 p-1 mt-auto mb-0"
+        >
+            <?php require __DIR__ . '/Footer.php'; ?>
         </footer>
 
         <script
@@ -135,11 +144,14 @@ assert(isset($title) && is_string($title), 'var $title not valid');
                     $(element).addClass("is-valid").removeClass("is-invalid");
                 },
             });
-            $(document).ready(function() {
-                $("form").each(function() {
+            const initPageControls = () => {
+                $('form').each(function () {
                     $(this).validate();
                 });
-            });
+                $('[data-confirm]').bsConfirm();
+            };
+            $(initPageControls);
+            $(document).on('swup:page:view', initPageControls);
 
             //
             // Scroll to top
@@ -156,15 +168,52 @@ assert(isset($title) && is_string($title), 'var $title not valid');
                 window.scrollTo({ top: 0 });
             });
 
-            //
-            // jQuery BootStrap Confirm plugin (https://github.com/tropotek/bsConfirm)
-            //
-            jQuery(function($) {
-                $('[data-confirm]').bsConfirm();
-            });
         </script>
         <script
             src="<?= $P ?>/js/match-handling.js"
+            defer
+        ></script>
+        <script
+            src="<?= $P ?>/js/copy-ip.js"
+            defer
+        ></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/swup@4.10.0/dist/Swup.umd.js"
+            integrity="sha384-rHeYt38qWf9UmFaUXj3OKA3CqUD0E5hbtwK0lTQQ/YXHyP8t4BvujfDAZKUagHz7"
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+            defer
+        ></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/@swup/progress-plugin@3.2.0/dist/index.umd.js"
+            integrity="sha384-qGoIb27EpcCt2InX00nzAUlU+g/6TKcGXAsVpafUT5IOmEwpmMiN6MyKyGo+2zeu"
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+            defer
+        ></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/@swup/a11y-plugin@5.2.1/dist/index.umd.js"
+            integrity="sha384-/ehE7pXGqdMd2qf4r2PG99PhEeqcRV1Javfrsxby1H5QH5UdTj2KJ6+28CjEsMEB"
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+            defer
+        ></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/@swup/head-plugin@2.3.1/dist/index.umd.js"
+            integrity="sha384-6Ai7SRlZ50QYQ/dc9y6MRZwhlK74Cwab40Sb63ZxrVuoJL9DG9eNpi70b4zL+qvP"
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+            defer
+        ></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/@swup/scripts-plugin@2.1.0/dist/index.umd.js"
+            integrity="sha384-0OOd/P3xw2RWbA6Dv7vjhsqkMf5b+ak1ekw6K+JNstuXFnzUio9JORhTVZD+xcWH"
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+            defer
+        ></script>
+        <script
+            src="<?= $P ?>/js/navigation.js"
             defer
         ></script>
     </body>

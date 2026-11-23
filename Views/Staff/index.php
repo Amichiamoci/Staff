@@ -239,53 +239,55 @@ assert(isset($iscritti_problemi) && is_array($iscritti_problemi), 'var $iscritti
 </div>
 
 <script>
-    const anagrafiche = [...document.querySelectorAll('[data-keywords]')];
-    var search_timeout_id = 0;
-    function HighLightSearch(str) {
-        if (search_timeout_id !== 0) {
-            clearTimeout(search_timeout_id);
-        }
-        search_timeout_id = setTimeout(s => {
-            HighLightEntity(s);
-            // We reached the end
-            search_timeout_id = 0;
-        }, 100, str);
-    }
-
-    function HighLightEntity(str) {
-        if (typeof str !== 'string' || str.length === 0) {
-            anagrafiche.forEach(anagrafica => anagrafica.classList.remove('d-none'));
-            return;
+    (() => {
+        const anagrafiche = [...document.querySelectorAll('[data-keywords]')];
+        var search_timeout_id = 0;
+        function HighLightSearch(str) {
+            if (search_timeout_id !== 0) {
+                clearTimeout(search_timeout_id);
+            }
+            search_timeout_id = setTimeout(s => {
+                HighLightEntity(s);
+                // We reached the end
+                search_timeout_id = 0;
+            }, 100, str);
         }
 
-        function filter_term(s) {
-            return s.length > 0 && s !== '/' && s !== '\\' && s !== '|';
-        }
-
-        const search_terms = str.toLowerCase().split(' ').filter(filter_term);
-        if (search_terms.length === 0) {
-            anagrafiche.forEach(anagrafica => anagrafica.classList.remove('d-none'));
-            return;
-        }
-
-        anagrafiche.forEach(anagrafica => {
-            const keywords = anagrafica.getAttribute('data-keywords').toLowerCase().split(' ').filter(filter_term);
-            if (keywords.length === 0) {
-                anagrafica.classList.add('d-none');
+        function HighLightEntity(str) {
+            if (typeof str !== 'string' || str.length === 0) {
+                anagrafiche.forEach(anagrafica => anagrafica.classList.remove('d-none'));
                 return;
             }
 
-            const active_search_terms = search_terms.filter(term => keywords.some(keyword => keyword.includes(term)));
-
-            if (active_search_terms.length < search_terms.length) {
-                anagrafica.classList.add('d-none');
-            } else {
-                anagrafica.classList.remove('d-none');
+            function filter_term(s) {
+                return s.length > 0 && s !== '/' && s !== '\\' && s !== '|';
             }
-        });
-    }
 
-    $('input.anagrafiche-search-input').on('input change paste', function () {
-        HighLightSearch($(this).val());
-    });
+            const search_terms = str.toLowerCase().split(' ').filter(filter_term);
+            if (search_terms.length === 0) {
+                anagrafiche.forEach(anagrafica => anagrafica.classList.remove('d-none'));
+                return;
+            }
+
+            anagrafiche.forEach(anagrafica => {
+                const keywords = anagrafica.getAttribute('data-keywords').toLowerCase().split(' ').filter(filter_term);
+                if (keywords.length === 0) {
+                    anagrafica.classList.add('d-none');
+                    return;
+                }
+
+                const active_search_terms = search_terms.filter(term => keywords.some(keyword => keyword.includes(term)));
+
+                if (active_search_terms.length < search_terms.length) {
+                    anagrafica.classList.add('d-none');
+                } else {
+                    anagrafica.classList.remove('d-none');
+                }
+            });
+        }
+
+        $('input.anagrafiche-search-input').on('input change paste', function () {
+            HighLightSearch($(this).val());
+        });
+    })();
 </script>

@@ -1,7 +1,7 @@
 //
 // Update matches results, date, time and whereabout
 //
-$('.match-field-selector').on('input', function() {
+$(document).on('input', '.match-field-selector', function() {
     const $selector = $(this);
     const match = $selector.attr('data-match');
     const field = $selector.val();
@@ -37,7 +37,7 @@ $('.match-field-selector').on('input', function() {
         }
     })
 });
-$('.match-date-selector').on('input', function() {
+$(document).on('input', '.match-date-selector', function() {
     const $selector = $(this);
     const match = $selector.attr('data-match');
     const date = $selector.val();
@@ -203,10 +203,10 @@ const edit_this_result = function () {
     $input.attr('data-timeout', id);
 };
 
-$('.match-result-remove').click(remove_this_result);
-$('.match-result-edit').on('input', edit_this_result);
+$(document).on('click', '.match-result-remove', remove_this_result);
+$(document).on('input', '.match-result-edit', edit_this_result);
 
-$('.match-result-add').click(function() {
+$(document).on('click', '.match-result-add', function() {
     const $btn = $(this);
     const match = $btn.attr('data-match');
     $btn.prop('disabled', true);
@@ -233,8 +233,7 @@ $('.match-result-add').click(function() {
         const $remove_btn = $('<button type="button"><i class="bi bi-trash3"></i></button>')
             .attr('data-result', resp.id)
             .attr('title', 'Rimuovi punteggio')
-            .addClass('btn btn-outline-danger match-result-remove')
-            .click(remove_this_result);
+            .addClass('btn btn-outline-danger match-result-remove');
 
         const $group = $('<div class="input-group mb-2"></div>');
         $group.append($input);
