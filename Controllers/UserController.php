@@ -506,7 +506,7 @@ extends Controller
         );
     }
 
-    private static function welcome_email(
+    private function welcome_email(
         User $user, 
         #[\SensitiveParameter] string $password, 
     ): string
@@ -515,48 +515,9 @@ extends Controller
         if ($domain === null || !preg_match('/^[a-z0-9.-]+(?::[0-9]+)?$/iD', $domain)) {
             return false;
         }
-        $installation_url = htmlspecialchars($domain) . $this->PathPrefix;
+        $P = $this->PathPrefix;
         ob_start();
-        ?>
-            <h3>Benvenuto/a</h3>
-            <h5>
-                È sempre bello vedere dei nuovi staffisti!
-            </h5>
-            <p>
-                È appena stato creato un utente sul portale con questa email.
-                Ti chiediamo di loggarti nella sezione 
-                <a href="https://<?= $installation_url ?>" class="link">admin</a>
-                utilizzando come nome utente: 
-                <code style="font-family: monospace;"><?= htmlspecialchars(string: $user->Name) ?></code>
-                e come <strong>password: </strong>
-                <code style="font-family: monospace;"><?= htmlspecialchars(string: $password) ?></code>
-            </p>
-            <p>
-                Una volta loggato potrai cambiare sia nome utente che password.
-                <br>
-                Nel caso tu non riesca ad accedere con le credenziali appena fornite 
-                prova a cancellare i cookie e riprovare dopo qualche minuto.
-                <br>
-                Se il problema dovesse persistere, provare a contattare un amministratore.
-            </p>
-            <hr>
-            <p>
-                Dal portale ti sarà possibile inserire i tuoi dati anagrafici, scegliendo la mail con cui gestire l'account
-                (puoi quindi non scegliere questa) e, anno per anno, registrarti come staffista all'edizione corrente.
-            </p>
-            <p>
-                In caso di problemi contatta tempestivamente gli staffisti adibiti alla gestione del portale.
-            </p>
-            <br>
-            <p style="font-size: smaller; user-select: none;">
-                Ecco una serie di informazioni che non ti interessaranno, ma io le metto ugualmente:<br>
-                <ul>
-                    <li>
-                        Il tuo Id utente è <output style="user-select:none;"><?= $user->Id ?></output>
-                    </li>
-                </ul>
-            </p>
-        <?php
+        require dirname(path: __DIR__) . "/Views/Email/welcome.php";
         $mail_body = ob_get_contents();
         ob_end_clean();
         return $mail_body;
