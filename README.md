@@ -31,12 +31,12 @@ Questo repository contiene il codice sorgente del portale staff, il pannello di 
 
 ```mermaid
 flowchart LR
-    browser["Browser dello staff"] --> web["NGINX o Apache"]
+    browser["Browser"] --> web["NGINX o Apache"]
     web --> app["Portale PHP"]
     cron["Cron"] --> app
     app --> db[(MariaDB)]
-    app --> local["Archivio locale (staff:///)"]
-    app -.-> drive["Google Drive cifrato (drive:///)"]
+    app --> local["Archivio locale<br />(staff:///)"]
+    app -.-> drive["Google Drive<br />(drive:///)"]
     app -->|Invio email| smtp["Server SMTP"]
 ```
 
