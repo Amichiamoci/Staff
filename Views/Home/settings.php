@@ -84,8 +84,7 @@ assert(isset($php_info) && is_string($php_info));
                                     <?= htmlspecialchars($label) ?>
                                 </label>
                                 <?php if ($description !== null) { ?>
-                                    <p
-                                        class="small text-body-secondary mb-3"
+                                    <p  class="small text-body-secondary mb-3"
                                         id="<?= htmlspecialchars($name) ?>-description"
                                     >
                                         <?= htmlspecialchars($description) ?>
@@ -186,6 +185,15 @@ assert(isset($php_info) && is_string($php_info));
                 </li>
             </ul>
         </section>
+    </div>
+</div>
+
+<div class="row g-4 mt-1">
+    <div class="col-12 col-lg-6">
+        <?php require __DIR__ . '/Partial/CronCard.php'; ?>
+    </div>
+    <div class="col-12 col-lg-6">
+        <?php require __DIR__ . '/Partial/EmailDuplicatesCard.php'; ?>
     </div>
 </div>
 

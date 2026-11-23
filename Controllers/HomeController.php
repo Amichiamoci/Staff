@@ -10,6 +10,7 @@ use Amichiamoci\Models\{
     Anagrafica,
     AnagraficaConIscrizione,
     Cron,
+    DashboardStatistics,
     Edizione,
     Settings,
     User,
@@ -43,14 +44,61 @@ extends Controller
     #[RequireLogin]
     public function index(): StatusCode
     {
+        $editions = Edizione::All($this->DB);
+        $year = (int)date('Y');
+        $currentEdition = array_find($editions, static fn(Edizione $edition): bool => $edition->Year === $year);
+
         return $this->Render(
             view: 'Home/index',
             title: 'Portale',
             data: [
                 'churches' => Parrocchia::All(connection: $this->DB),
-                'editions' => Edizione::All(connection: $this->DB),
+                'editions' => $editions,
+                'current_edition' => $currentEdition,
+                'show_double_subscriptions' => $this->getUser()->Admin && Settings::Read($this->DB)['subscriptions_enabled'],
                 'compleanni' => Anagrafica::NomiCompleannati(connection: $this->DB),
             ]
+        );
+    }
+
+    #[RequireLogin]
+    public function dashboard_chart(?string $chart = null, ?int $year = null): StatusCode
+    {
+        if ($chart === 'history') {
+            return $this->Json(object: ['rows' => DashboardStatistics::Participation($this->DB, (int)date('Y'))]);
+        }
+
+        if ($year === null || !in_array($chart, ['readiness', 'shirts', 'tournaments'], true)) {
+            return $this->BadRequest();
+        }
+
+        $admin = $this->getUser()->Admin;
+        $parish = $admin ? null : $this->Staff()?->Parrocchia->Id;
+        if ($chart === 'readiness' && !$admin && $parish === null) {
+            return $this->NotAuthorized();
+        }
+
+        $edition = Edizione::FromYear($this->DB, $year);
+        if ($edition === null) {
+            return $this->NotFound();
+        }
+
+        $data = match ($chart) {
+            'readiness' => DashboardStatistics::RegistrationReadiness($this->DB, $year, $parish),
+            'shirts' => ['rows' => DashboardStatistics::ShirtDemand($this->DB, $edition->Id, $parish)],
+            'tournaments' => ['groups' => DashboardStatistics::TournamentReadiness($this->DB, $edition->Id)],
+        };
+
+        return $this->Json(object: $data);
+    }
+
+    #[RequireLogin]
+    public function statistics(): StatusCode
+    {
+        return $this->Render(
+            view: 'Home/statistics',
+            title: 'Statistiche',
+            data: ['editions' => Edizione::All($this->DB)],
         );
     }
 

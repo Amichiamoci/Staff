@@ -16,3 +16,4 @@ php tests/error-log.php
 php tests/email-history.php "$1"
 
 php tests/settings.php "$1"
+php tests/dashboard.php "$1"

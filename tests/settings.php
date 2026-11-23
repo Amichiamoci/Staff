@@ -69,6 +69,7 @@ foreach ([
     'capture@example.invalid', 'Attivo', '/file/list', 'name="tournaments_enabled"',
     'name="api_enabled"', 'Reverse proxy HTTPS', 'Cookie sicuri non forzati',
     'id="open-php-info"', 'id="php-info-dialog"', 'sandbox', 'PHP Version',
+    'id="cron-list"', 'id="email_duplicates-list"',
 ] as $expected) {
     if (!str_contains($html, $expected)) {
         throw new RuntimeException('The settings page omitted system information.');

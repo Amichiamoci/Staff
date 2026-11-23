@@ -79,7 +79,8 @@
     overscroll-behavior: contain;
 }
 
-#php-info-dialog::backdrop {
+#php-info-dialog::backdrop,
+.dashboard-data-dialog::backdrop {
     background-color: rgba(0, 0, 0, 0.55);
     overflow: hidden;
     overscroll-behavior: contain;
@@ -87,4 +88,23 @@
 
 #php-info-dialog iframe {
     block-size: 82dvh;
+}
+
+.dashboard-cards .card {
+    block-size: 100%;
+    max-block-size: 30rem;
+}
+
+.dashboard-cards [data-dashboard-chart] {
+    block-size: 30rem;
+}
+
+.dashboard-cards .card-body {
+    min-block-size: 0;
+    overflow: auto;
+}
+
+.dashboard-data-dialog {
+    inline-size: min(52rem, calc(100% - 2rem));
+    overscroll-behavior: contain;
 }

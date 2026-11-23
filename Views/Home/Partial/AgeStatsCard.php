@@ -8,6 +8,12 @@ assert(isset($editions) && is_array($editions), 'var $editions not valid');
 <div class="card">
     <div class="card-header user-select-none">
         <div class="input-group">
+            <label
+                class="visually-hidden"
+                for="stats-age-edition"
+            >
+                Edizione per la distribuzione per età
+            </label>
             <select
                 id="stats-age-edition"
                 class="form-control mb-1"
@@ -30,9 +36,14 @@ assert(isset($editions) && is_array($editions), 'var $editions not valid');
         <canvas
             id="stats-age-chart"
             style="max-height: 200px;"
-            class="m-x-auto m-y-auto"
-            oncontextmenu="return false"
+            class="d-none"
+            role="img"
+            aria-label="Numero di partecipanti per singolo anno di età"
         ></canvas>
+        <p  class="text-body-secondary small mb-0"
+            id="stats-age-status"
+            role="status"
+        ></p>
     </div>
 </div>
 
