@@ -14,7 +14,7 @@ class StaffBase extends NomeIdSemplice
     {
         if (!$connection)
             return [];
-        $query  = "SELECT * FROM `staff_list_raw`";
+        $query  = "SELECT * FROM `staff_list_raw` ORDER BY `nome_completo`, `staff`";
         $result = $connection->query(query: $query);
         $arr = [];
         if (!$result)

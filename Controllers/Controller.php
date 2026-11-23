@@ -112,6 +112,16 @@ extends BaseController
         exit('Metodo non consentito.');
     }
 
+    protected function AccountToken(): string
+    {
+        return $_SESSION['account_csrf_token'] ??= bin2hex(random_bytes(32));
+    }
+
+    protected function ValidAccountToken(?string $token): bool
+    {
+        return $token !== null && hash_equals($this->AccountToken(), $token);
+    }
+
     protected function IsPost(): bool
     {
         return $this->RequestMethod === Method::Post;

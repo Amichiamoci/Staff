@@ -7,6 +7,7 @@ use DateInterval;
 class UserActivity
 {
     public string $UserName;
+    public readonly ?int $UserId;
 
     public ?\DateTime $Start = null;
     public ?\DateTime $LastHit = null;
@@ -20,8 +21,10 @@ class UserActivity
         string|\DateTime|null $time_log,
         string $flag,
         ?string $ip,
+        ?int $user_id = null,
     ) {
         $this->UserName = $user_name;
+        $this->UserId = $user_id;
         $this->Flag = $flag;
         
         $this->Ip = $ip;

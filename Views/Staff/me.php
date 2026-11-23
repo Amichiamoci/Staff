@@ -4,6 +4,7 @@ use Amichiamoci\Models\Templates\Anagrafica as AnagraficaBase;
 
 assert(isset($user) && ($user instanceof User), 'var $user not valid');
 assert(isset($P) && is_string($P), 'var $P not valid');
+assert(isset($csrf_token) && is_string($csrf_token), 'var $csrf_token not valid');
 assert(isset($parrocchie) && is_array($parrocchie), 'var $parrocchie not valid');
 assert(!isset($staff) || $staff instanceof Staff, 'var $staff not valid');
 if (isset($target)) {
@@ -27,6 +28,11 @@ if (isset($target)) {
     method="post"
     id="staff-form"
 >
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="<?= htmlspecialchars($csrf_token) ?>"
+    >
     <?php if (isset($target)) { ?>
         <input
             type="hidden"

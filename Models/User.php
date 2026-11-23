@@ -625,13 +625,17 @@ implements DbEntity
         return $arr;
     }
 
-    /** Returns a recent sample of login sessions for the administrator activity page. */
+    /** Returns the 500 latest login sessions for the administrator activity page. */
     public static function Activity(\mysqli $connection) : array
     {
         if (!$connection)
             return [];
 
-        $result = $connection->query(query: "SELECT * FROM `users_activity` LIMIT 500");
+        $result = $connection->query(
+            'SELECT u.id AS user_id, u.user_name, s.time_start, s.time_log, s.user_flag, s.device_ip
+             FROM sessioni s INNER JOIN utenti u ON u.id = s.user_id
+             ORDER BY s.time_start DESC, s.id DESC LIMIT 500'
+        );
         if (!$result)
             return [];
 
@@ -644,6 +648,7 @@ implements DbEntity
                 time_log: $row["time_log"],
                 flag: $row["user_flag"],
                 ip: $row["device_ip"],
+                user_id: (int)$row["user_id"],
             );
         }
 
@@ -652,14 +657,14 @@ implements DbEntity
     }
     
 
-    /** Lists this account’s sessions in descending activity order. */
+    /** Lists this account’s sessions with the most recent login first. */
     public function LoginList(\mysqli $connection) : array 
     {
         if (!$connection)
             return [];
 
         $result = $connection->execute_query(
-            query: "SELECT * FROM `sessioni` WHERE `user_id` = ? ORDER BY `time_log` DESC",
+            query: "SELECT * FROM `sessioni` WHERE `user_id` = ? ORDER BY `time_start` DESC, `id` DESC",
             params: [$this->Id],
         );
         if (!$result)

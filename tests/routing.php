@@ -64,9 +64,8 @@ $renderFooter = static function (string $P, ?User $user): string {
     return ob_get_clean();
 };
 $footer = $renderFooter('/fixture-staff', $user);
-if (substr_count($footer, '<a ') !== 1
-    || !str_contains($footer, 'Alimentato da -')
-    || !str_contains($footer, 'href="/fixture-staff/about"')
+if (substr_count($footer, 'href="/fixture-staff/about"') !== 1
+    || !str_contains($footer, 'Alimentato da')
     || !str_contains($footer, 'Portale Staff Amichiamoci')
     || str_contains($renderFooter('/fixture-staff', null), '<a ')) {
     throw new RuntimeException('The footer attribution must link to the about page only for signed-in users.');

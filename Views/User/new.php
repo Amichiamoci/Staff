@@ -1,6 +1,8 @@
 <?php
 
 assert(!isset($email) || is_string($email), 'var $email not valid');
+assert(isset($admin) && is_bool($admin), 'var $admin not valid');
+assert(isset($csrf_token) && is_string($csrf_token), 'var $csrf_token not valid');
 
 ?>
 
@@ -9,10 +11,16 @@ assert(!isset($email) || is_string($email), 'var $email not valid');
 </h1>
 
 <form method="post">
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="<?= htmlspecialchars($csrf_token) ?>"
+    >
     <div class="form-floating mb-3">
         <input
             required
-            type="text"
+            type="email"
+            maxlength="64"
             class="form-control"
             id="email"
             name="email"
@@ -29,7 +37,8 @@ assert(!isset($email) || is_string($email), 'var $email not valid');
         <input
             class="form-check-input"
             type="checkbox"
-            value=""
+            value="1"
+            <?= $admin ? 'checked' : '' ?>
             id="admin"
             name="admin"
         >

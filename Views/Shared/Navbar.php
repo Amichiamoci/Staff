@@ -169,9 +169,9 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                             <li>
                                 <a  class="dropdown-item"
                                     href="<?= $P ?>/user/me"
-                                    title="Menù Utente"
+                                    title="Il mio account"
                                 >
-                                    Menù Utente
+                                    Il mio account
                                 </a>
                             </li>
                             <li>

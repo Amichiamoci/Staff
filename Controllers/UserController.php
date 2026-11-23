@@ -9,6 +9,8 @@ use Richie314\SimpleMvc\Utils\Cookie;
 use Amichiamoci\Models\{
     Anagrafica,
     Message,
+    Staff,
+    StaffBase,
     Token,
     User,
 };
@@ -30,15 +32,18 @@ extends Controller
     }
 
     #[RequireLogin(requireAdmin: true)]
-    public function delete(?int $target_id): StatusCode
+    public function delete(?int $target_id = null, ?string $csrf_token = null): StatusCode
     {
         if (!$this->IsPost()) {
             $this->PostRequired();
         }
 
-        if (!isset($target_id))
-            return $this->NotFound();
-        
+        if (!$this->ValidAccountToken($csrf_token) || $target_id === null || $target_id <= 0
+            || $target_id === $this->User->Id
+        ) {
+            return $this->BadRequest();
+        }
+
         $user = User::ById(connection: $this->DB, id: $target_id);
         if (!isset($user))
             return $this->NotFound();
@@ -75,84 +80,92 @@ extends Controller
     }
 
     #[RequireLogin(requireAdmin: true)]
-    public function reset(?int $target_id): StatusCode
+    public function reset(?int $target_id = null, ?string $csrf_token = null): StatusCode
     {
-        if (empty($target_id))
+        if (!$this->IsPost()) {
+            $this->PostRequired();
+        }
+
+        if (!$this->ValidAccountToken($csrf_token) || $target_id === null || $target_id <= 0
+            || $target_id === $this->User->Id
+        ) {
             return $this->BadRequest();
+        }
 
         $target = User::ById(connection: $this->DB, id: $target_id);
         if (!isset($target)) 
             return $this->NotFound();
 
-        if ($this->IsPost())
+        $new_password = Security::RandomPassword();
+
+        $result = $target->ForceSetNewPassword(
+            connection: $this->DB,
+            new_password: $new_password
+        );
+        if (!$result)
+            return $this->InternalError();
+
+        $email = Email::GetByUserId(connection: $this->DB, user: $target->Id);
+        $result = isset($email);
+        if ($result)
         {
-            $new_password = Security::RandomPassword();
-
-            $result = $target->ForceSetNewPassword(
-                connection: $this->DB, 
-                new_password: $new_password
+            $mail_body = $this->reset_password_email(user: $target, new_password: $new_password);
+            $result = Email::Send(
+                to: $email,
+                subject: "Nuova password",
+                body: $mail_body,
+                connection: $this->DB,
+                hide_output: true,
             );
-            if (!$result)
-                return $this->InternalError();
+        }
 
-            $email = Email::GetByUserId(connection: $this->DB, user: $target->Id);
-            $result = isset($email);
-            if ($result)
-            {
-                $mail_body = $this->reset_password_email(user: $target, new_password: $new_password);
-                $result = Email::Send(
-                    to: $email, 
-                    subject: "Nuova password", 
-                    body: $mail_body, 
-                    connection: $this->DB, 
-                    hide_output: true,
-                );
-            }
-
-            if ($result)
-            {
-                $this->Message(message: Message::Success(
-                    content: "Password cambiata ed inviata per mail all'utente con successo"
-                ));
-            } else
-            {
-                $this->Message(message: Message::Warn(content: 'Errore durante l\'invio dell\'email'));
-                $this->Message(message: Message::Warn(content: "Comunica all'utente la seguente password: $new_password"));
-            }
+        if ($result)
+        {
+            $this->Message(message: Message::Success(
+                content: "Password cambiata ed inviata per mail all'utente con successo"
+            ));
+        } else
+        {
+            $this->Message(message: Message::Warn(content: 'Errore durante l\'invio dell\'email'));
+            $this->Message(message: Message::Warn(content: "Comunica all'utente la seguente password: $new_password"));
         }
 
         return $this->view(id: $target_id);
     }
 
     #[RequireLogin(requireAdmin: true)]
-    public function ban(?int $target_id): StatusCode
+    public function ban(?int $target_id = null, ?string $csrf_token = null): StatusCode
     {
-        if (!$this->IsPost()) {
-            $this->PostRequired();
-        }
-
-        if (User::Ban(connection: $this->DB, id: $target_id)) {
-            $this->Message(message: Message::Success(content: 'Utente bloccato'));
-        } else {
-            $this->Message(message: Message::Error(content: 'Qualcosa è andato storto'));
-        }
-        
-        return $this->view(id: $target_id);
+        return $this->setBlocked($target_id, $csrf_token, blocked: true);
     }
 
     #[RequireLogin(requireAdmin: true)]
-    public function restore(?int $target_id): StatusCode
+    public function restore(?int $target_id = null, ?string $csrf_token = null): StatusCode
+    {
+        return $this->setBlocked($target_id, $csrf_token, blocked: false);
+    }
+
+    private function setBlocked(?int $target_id, ?string $csrf_token, bool $blocked): StatusCode
     {
         if (!$this->IsPost()) {
             $this->PostRequired();
         }
 
-        if (User::Restore(connection: $this->DB, id: $target_id)) {
-            $this->Message(message: Message::Success(content: 'Utente sbloccato'));
-        } else {
-            $this->Message(message: Message::Error(content: 'Qualcosa è andato storto'));
+        if (!$this->ValidAccountToken($csrf_token) || $target_id === null || $target_id <= 0
+            || $target_id === $this->User->Id
+        ) {
+            return $this->BadRequest();
         }
-        
+
+        if (User::ById($this->DB, $target_id) === null) {
+            return $this->NotFound();
+        }
+
+        $updated = $blocked ? User::Ban($this->DB, $target_id) : User::Restore($this->DB, $target_id);
+        $this->Message($updated
+            ? Message::Success($blocked ? 'Account bloccato' : 'Account riabilitato')
+            : Message::Error('Non è stato possibile aggiornare lo stato dell’account'));
+
         return $this->view(id: $target_id);
     }
 
@@ -397,13 +410,22 @@ extends Controller
 
     #[RequireLogin]
     public function update(
-        ?string $new_username, 
-        #[\SensitiveParameter] ?string $current_password, 
+        ?string $new_username = null,
+        #[\SensitiveParameter] ?string $current_password = null,
         #[\SensitiveParameter] ?string $new_password = null,
+        ?string $csrf_token = null,
     ): StatusCode
     {
+        if (!$this->IsPost()) {
+            $this->PostRequired();
+        }
+
+        if (!$this->ValidAccountToken($csrf_token)) {
+            return $this->BadRequest();
+        }
+
         $user = $this->getUser();
-        if ($this->IsPost() && !empty($new_username) && !empty($current_password))
+        if (!empty($new_username) && !empty($current_password))
         {
             if ($user->Name !== $new_username)
             {
@@ -441,24 +463,27 @@ extends Controller
             return $this->BadRequest();
         
         $user = $this->User;
-        $target = User::ById(connection: $this->DB, id: $id);
-        if ($target === null)
-            return $this->NotFound();
-
-        if ($target->Id !== $user->Id && !$user->Admin) { 
-            // Admins can view personal pages of others
+        if ($id !== $user->Id && !$user->Admin) {
             return $this->NotAuthorized();
         }
 
-        if ($user->Admin) {
-            $target->LoadAdditionalData($this->DB);
+        $target = User::ById(connection: $this->DB, id: $id);
+        if ($target === null) {
+            return $this->NotFound();
         }
+
+        $target->LoadAdditionalData($this->DB);
+        $linkedStaff = empty($target->IdStaff)
+            ? null
+            : Staff::ById($this->DB, $target->IdStaff) ?? StaffBase::ById($this->DB, $target->IdStaff);
         $activity = $target->LoginList(connection: $this->DB);
         return $this->Render(
             view: 'User/view',
-            title: $target->Name,
+            title: $target->Id === $user->Id ? 'Il mio account' : $target->Name,
             data: [
                 'target' => $target,
+                'linked_staff' => $linkedStaff,
+                'csrf_token' => $this->AccountToken(),
                 'activity' => $activity,
             ],
         );
@@ -501,7 +526,7 @@ extends Controller
     {
         return $this->Render(
             view: 'User/activity',
-            title: 'Attività utenti',
+            title: 'Ultimi accessi',
             data: ['activity' => User::Activity(connection: $this->DB)]
         );
     }
@@ -527,10 +552,18 @@ extends Controller
     public function new(
         ?string $email = null, 
         bool $admin = false,
+        ?string $csrf_token = null,
     ): StatusCode
     {
-        if ($this->IsPost() && !empty($email))
-        {
+        if ($this->IsPost()) {
+            if (!$this->ValidAccountToken($csrf_token)) {
+                return $this->BadRequest();
+            }
+            if ($email === null || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 64) {
+                $this->Message(Message::Error('Inserisci un indirizzo email valido.'));
+                return $this->renderNewAccount($email, $admin);
+            }
+
             $password = Security::RandomPassword();
             $user_name = explode(separator: '@', string: $email)[0];
 
@@ -560,12 +593,18 @@ extends Controller
             return $this->view(id: $created_user->Id);
         }
 
+        return $this->renderNewAccount($email, $admin);
+    }
+
+    private function renderNewAccount(?string $email, bool $admin): StatusCode
+    {
         return $this->Render(
             view: 'User/new', 
             title: 'Crea nuovo utente',
             data: [
                 'email' => $email,
                 'admin' => $admin,
+                'csrf_token' => $this->AccountToken(),
             ],
         );
     }

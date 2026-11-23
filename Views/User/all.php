@@ -5,62 +5,69 @@ assert(isset($users) && is_array($users), 'var $users not valid');
 
 ?>
 
-<h1>
-    Lista utenti
-</h1>
-<div class="row">
-    <?php foreach ($users as $user_info) { ?>
-        <div
-            class="col col-xs-12 col-sm-6 col-md-4 col-xl-3"
-            id="user-<?= $user_info->Id ?>"
-        >
-            <div class="card m-1">
-                <div class="card-header">
-                    <span class="user-select-none text-secondary">
-                        #<?= $user_info->Id ?>
-                    </span>
-                    &nbsp;
-                    <a  title="Vedi nel dettaglio"
-                        href="<?= $P ?>/user/view?id=<?= $user_info->Id ?>"
-                        class="text-reset link-underline link-underline-opacity-0"
-                    >
-                        <?= htmlspecialchars(string: $user_info->Name) ?>
-                        <i class="bi bi-box-arrow-up-right"></i>
-                    </a>
-                </div>
-                <div class="card-body">
-                    <?php if (!empty($user_info->RealName) && !empty($user_info->IdStaff)) { ?>
-                        <h5 class="card-title mb-2">
-                            <a  href="<?= $P ?>/staff/view?id=<?= $user_info->IdStaff ?>"
-                                class="text-reset link-underline-opacity-0"
-                                title="Vai"
+<h1>Utenti (<?= count($users) ?>)</h1>
+<p class="d-flex flex-wrap gap-3">
+    <a  href="<?= $P ?>/user/new"
+        title="Crea un nuovo account"
+    >
+        Nuovo utente
+    </a>
+    <a  href="<?= $P ?>/user/activity"
+        title="Apri gli ultimi accessi di tutti gli account"
+    >
+        Ultimi accessi
+    </a>
+</p>
+
+<?php if ($users === []) { ?>
+    <p>Nessun account disponibile.</p>
+<?php } else { ?>
+    <div
+        class="table-responsive"
+        tabindex="0"
+        role="region"
+        aria-label="Tabella degli utenti"
+    >
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">Account</th>
+                    <th scope="col">Profilo staff</th>
+                    <th scope="col">Ruolo</th>
+                    <th scope="col">Stato</th>
+                    <th scope="col">Ultima attività</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($users as $user_info) { ?>
+                    <tr id="user-<?= $user_info->Id ?>">
+                        <th scope="row">
+                            <a  href="<?= $P ?>/user/view?id=<?= $user_info->Id ?>"
+                                title="Apri la scheda account e le azioni di gestione"
                             >
-                                <?= htmlspecialchars(string: $user_info->RealName) ?>
+                                <?= htmlspecialchars($user_info->Name) ?>
                             </a>
-                        </h5>
-                    <?php } ?>
-                    <?php if ($user_info->Admin) { ?>
-                        <h6 class="card-subtitle mb-2 user-select-none text-secondary">
-                            Amministratore
-                        </h6>
-                    <?php } ?>
-                    <?php if ($user_info->IsBanned) { ?>
-                        <h6 class="card-subtitle mb-2 user-select-none text-secondary">
-                            Bloccato
-                        </h6>
-                    <?php } ?>
-                    
-                    <?php if (empty($user_info->LoginTime)) { ?>
-                        <p class="card-text">
-                            Mai collegato
-                        </p>
-                    <?php } else { ?>
-                        <p class="card-text">
-                            Online <?= htmlspecialchars(string: $user_info->TimeLoggedMessage()) ?>.
-                        </p>
-                    <?php } ?>
-                </div>
-            </div>
-        </div>
-    <?php } ?>
-</div>
+                            <span class="text-body-secondary fw-normal">#<?= $user_info->Id ?></span>
+                        </th>
+                        <td>
+                            <?php if (!empty($user_info->IdStaff) && !empty($user_info->RealName)) { ?>
+                                <a  href="<?= $P ?>/staff/view?id=<?= $user_info->IdStaff ?>"
+                                    title="Apri la scheda staff"
+                                >
+                                    <?= htmlspecialchars($user_info->RealName) ?>
+                                </a>
+                            <?php } else { ?>
+                                Nessuna associazione
+                            <?php } ?>
+                        </td>
+                        <td><?= $user_info->Admin ? 'Amministratore' : 'Utente' ?></td>
+                        <td><?= $user_info->IsBanned ? 'Bloccato' : 'Abilitato' ?></td>
+                        <td class="text-nowrap">
+                            <?= empty($user_info->LoginTime) ? 'Mai collegato' : htmlspecialchars($user_info->TimeLoggedMessage()) ?>
+                        </td>
+                    </tr>
+                <?php } ?>
+            </tbody>
+        </table>
+    </div>
+<?php } ?>

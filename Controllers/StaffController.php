@@ -125,7 +125,11 @@ extends Controller
     {
         return $this->Render(
             view: 'Staff/all',
-            data: ['staffs' => StaffBase::All(connection: $this->DB)],
+            data: [
+                'staffs' => StaffBase::All(connection: $this->DB),
+                'current_staff' => array_column(Staff::All(connection: $this->DB), null, 'Id'),
+                'current_only' => false,
+            ],
             title: 'Staffisti di sempre'
         );
     }
@@ -135,7 +139,10 @@ extends Controller
     {
         return $this->Render(
             view: 'Staff/all',
-            data: ['staffs' => Staff::All(connection: $this->DB)],
+            data: [
+                'staffs' => Staff::All(connection: $this->DB),
+                'current_only' => true,
+            ],
             title: 'Staffisti ' . date(format: "Y")
         );
     }
@@ -146,7 +153,10 @@ extends Controller
         if (empty($id))
             return $this->BadRequest();
 
-        $target = Staff::ById(connection: $this->DB, id: $id);
+        $target = Staff::ById($this->DB, $id);
+        if ($target === null && ($this->User->Admin || $this->Staff() !== null || $this->User->IdStaff === $id)) {
+            $target = StaffBase::ById($this->DB, $id);
+        }
         if ($target === null) 
             return $this->NotFound();
 
@@ -184,13 +194,17 @@ extends Controller
     }
 
     #[RequireLogin]
-    public function me(?int $parrocchia = null): StatusCode
+    public function me(?int $parrocchia = null, ?string $csrf_token = null): StatusCode
     {
         $staff = $this->Staff();
+        if ($this->IsPost() && !$this->ValidAccountToken($csrf_token)) {
+            return $this->BadRequest();
+        }
+
         if ($this->IsPost() && $staff !== null && !empty($parrocchia)) {
             $res = Staff::ChangeParrocchia($this->DB, $staff->Id, $parrocchia);
             if ($res) {
-                $staff->Parrocchia->Id = $parrocchia;
+                $this->ViewBag['staff'] = Staff::ById($this->DB, $staff->Id);
             }
             $this->Message($res
                 ? Message::Success('Dati inseriti/modificati correttamente')
@@ -201,13 +215,19 @@ extends Controller
             view: 'Staff/me',
             title: 'Account STAFF',
             data: [
+                'csrf_token' => $this->AccountToken(),
                 'parrocchie' => Parrocchia::All($this->DB),
             ],
         );
     }
 
     #[RequireLogin(requireAdmin: true)]
-    public function link_account(?int $account = null, ?int $anagrafica = null, ?int $parrocchia = null): StatusCode
+    public function link_account(
+        ?int $account = null,
+        ?int $anagrafica = null,
+        ?int $parrocchia = null,
+        ?string $csrf_token = null,
+    ): StatusCode
     {
         $target = $account === null ? null : User::ById($this->DB, $account);
         if ($target === null) {
@@ -219,7 +239,7 @@ extends Controller
         }
 
         if ($this->IsPost()) {
-            if (empty($anagrafica) || empty($parrocchia)) {
+            if (!$this->ValidAccountToken($csrf_token) || empty($anagrafica) || empty($parrocchia)) {
                 return $this->BadRequest();
             }
             if (Staff::Create($this->DB, $anagrafica, $target->Id, $parrocchia) === null) {
@@ -233,6 +253,7 @@ extends Controller
             title: 'Associa account staff',
             data: [
                 'target' => $target,
+                'csrf_token' => $this->AccountToken(),
                 'anagrafiche' => AnagraficaBase::All($this->DB),
                 'parrocchie' => Parrocchia::All($this->DB),
             ],

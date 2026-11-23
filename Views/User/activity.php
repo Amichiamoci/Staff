@@ -5,20 +5,15 @@ assert(isset($activity) && is_array($activity), 'var $activity not valid');
 
 ?>
 
-<h1>
-    Attività degli Utenti
-</h1>
-
-<div class="row">
-    <div class="col-md-12">
-        <ul class="list list-inline mt-3">
-            <?php foreach ($activity as $login) { ?>
-                <li class="d-flex justify-content-between m-2 border border-1 p-1"
-                    style="max-width: 800px;"
-                >
-                    <?php require __DIR__ . '/LoginRender.php'; ?>
-                </li>
-            <?php } ?>
-        </ul>
-    </div>
-</div>
+<h1>Ultimi accessi</h1>
+<p>
+    <a  href="<?= $P ?>/user/all"
+        title="Apri la lista degli account"
+    >
+        Tutti gli utenti
+    </a>
+</p>
+<?php
+$show_accounts = true;
+require __DIR__ . '/LoginRender.php';
+?>
