@@ -33,7 +33,7 @@ $db->query('CREATE TEMPORARY TABLE staff_correnti_incompleto (
     lista_commissioni VARCHAR(100), maglia VARCHAR(10), referente BOOL, cf VARCHAR(16)
 )');
 $db->query("INSERT INTO staff_correnti_incompleto VALUES
-    (7, 'Staff', '<fixture>', 9, 'Parish fixture', 'Outreach', 'M', 1, NULL)");
+    (7, 'Staff', '<fixture>', 9, 'Parish fixture', 'Outreach', 'M', 1, 'FIXTURECF0000000')");
 $db->query('CREATE TEMPORARY TABLE staff_attuali LIKE staff_correnti_incompleto');
 $db->query('INSERT INTO staff_attuali SELECT * FROM staff_correnti_incompleto');
 $db->query('CREATE TEMPORARY TABLE staff_list_raw (staff INT, nome_completo VARCHAR(100))');
@@ -108,10 +108,16 @@ try {
     ) {
         throw new RuntimeException('The staff directory did not show both current and historical entries.');
     }
+    if (str_contains($html, 'Codice fiscale') || str_contains($html, 'FIXTURECF0000000')) {
+        throw new RuntimeException('The staff directory exposed a fiscal code.');
+    }
 
     [$status, $html] = $dispatch($admin, '/staff/current');
     if ($status !== StatusCode::Ok || str_contains($html, 'Historical fixture') || !str_contains($html, 'Outreach')) {
         throw new RuntimeException('The current edition directory did not filter historical entries.');
+    }
+    if (str_contains($html, 'Codice fiscale') || str_contains($html, 'FIXTURECF0000000')) {
+        throw new RuntimeException('The staff directory exposed a fiscal code.');
     }
 
     [$status, $html] = $dispatch($admin, '/user/view?id=2');

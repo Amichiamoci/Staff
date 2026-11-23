@@ -1,9 +1,8 @@
 <?php
 
-use Amichiamoci\Models\{Staff, User};
+use Amichiamoci\Models\Staff;
 
 assert(isset($P) && is_string($P), 'var $P not valid');
-assert(isset($user) && $user instanceof User, 'var $user not valid');
 assert(isset($title) && is_string($title), 'var $title not valid');
 assert(isset($staffs) && is_array($staffs), 'var $staffs not valid');
 assert(isset($current_only) && is_bool($current_only), 'var $current_only not valid');
@@ -57,9 +56,6 @@ if (!$current_only) {
                     <th scope="col">Parrocchia</th>
                     <th scope="col">Commissioni</th>
                     <th scope="col">Taglia maglia</th>
-                    <?php if ($user->Admin) { ?>
-                        <th scope="col">Codice fiscale</th>
-                    <?php } ?>
                 </tr>
             </thead>
             <tbody>
@@ -87,9 +83,6 @@ if (!$current_only) {
                         </td>
                         <td><?= htmlspecialchars(implode(', ', $current?->Commissioni ?? []) ?: '—') ?></td>
                         <td><?= htmlspecialchars($current?->Taglia?->value ?? '—') ?></td>
-                        <?php if ($user->Admin) { ?>
-                            <td class="font-monospace"><?= htmlspecialchars($current?->CodiceFiscale ?? '—') ?></td>
-                        <?php } ?>
                     </tr>
                 <?php } ?>
             </tbody>
