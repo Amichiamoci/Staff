@@ -32,12 +32,7 @@ if (isset($staff) && $staff instanceof Staff) {
                     <?php } ?>
                 </dt>
                 <dd class="col-sm-8">
-                    <a  href="<?= $P ?>/church?id=<?= $staff->Parrocchia->Id ?>"
-                        class="link-underline-opacity-0 link-secondary"
-                        title="Vedi la parrocchia"
-                    >
-                        <?= htmlspecialchars(string: $staff->Parrocchia->Nome) ?>
-                    </a>
+                    <?= htmlspecialchars(string: $staff->Parrocchia->Nome) ?>
                 </dd>
 
                 <?php if (isset($staff->Taglia)) { ?>

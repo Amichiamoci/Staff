@@ -36,6 +36,13 @@ if ($status !== StatusCode::NotFound || str_contains($html, 'private-query')) {
     throw new RuntimeException('The error view did not handle the request safely.');
 }
 
+ob_start();
+$status = $router->Dispatch('/church?id=1');
+ob_end_clean();
+if ($status !== StatusCode::NotFound) {
+    throw new RuntimeException('The retired parish page is still routed.');
+}
+
 $fs = new VirtualFilesystem();
 $fs->mountLocal('staff', sys_get_temp_dir(), name: 'Locale (Portale)');
 $router->SetDefaultVariable('files', $fs);

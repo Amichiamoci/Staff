@@ -79,11 +79,7 @@ if (!$current_only) {
                         <?php } ?>
                         <td>
                             <?php if ($current instanceof Staff) { ?>
-                                <a  href="<?= $P ?>/church?id=<?= $current->Parrocchia->Id ?>"
-                                    title="Apri la scheda della parrocchia"
-                                >
-                                    <?= htmlspecialchars($current->Parrocchia->Nome) ?>
-                                </a>
+                                <?= htmlspecialchars($current->Parrocchia->Nome) ?>
                                 <?= $current->Referente ? ' · Referente' : '' ?>
                             <?php } else { ?>
                                 —

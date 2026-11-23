@@ -212,32 +212,6 @@ extends Controller
     }
     
     #[RequireLogin]
-    public function church(?int $id = null, ?int $year = null): StatusCode
-    {
-        if (empty($id))
-            return $this->BadRequest();
-
-        if (!isset($year))
-            $year = (int)date(format: 'Y');
-
-        $church = Parrocchia::ById(connection: $this->DB, id: $id);
-        if ($church === null)
-            return $this->NotFound();
-
-        $staffs = Staff::FromParrocchia(connection: $this->DB, id: $id, anno: $year);
-        //$iscritti = Iscrizione::FromParrocchia($this->DB, id: $id);
-        
-        return $this->Render(
-            view: 'Home/church',
-            title: 'Parrocchia ' . $church->Nome,
-            data: [ 
-                'church' => $church,
-                'staffs' => $staffs,
-            ]
-        );
-    }
-    
-    #[RequireLogin]
     public function about(): StatusCode
     {
         $root = dirname(__DIR__);

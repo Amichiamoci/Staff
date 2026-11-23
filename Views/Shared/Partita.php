@@ -8,84 +8,85 @@ assert(isset($partita) && ($partita instanceof Partita), 'var $partita not valid
 assert(isset($campi) && is_array($campi), 'var $campi not valid');
 
 $can_edit = $user->Admin;
+$sport = $partita->getSport();
+$sport_icon = $sport->getIcon();
 ?>
 
-<div
+<article
     class="card"
     id="match-<?= $partita->Id ?>"
 >
-    <?php if ($user->Admin) { ?>
-        <div class="card-header font-monospace">
-            <span class="user-select-none">
-                <?= $partita->getSport()->getIcon() ?>
-            </span>
-
-            #<?= $partita->Id ?>
-
-            <form
-                action="<?= $P ?>/sport/match_delete"
-                method="post"
-                class="d-inline"
-            >
-                <input
-                    type="hidden"
-                    name="match"
-                    value="<?= $partita->Id ?>"
-                >
-                <button
-                    type="submit"
-                    class="p-0 btn btn-link link-danger link-underline link-underline-opacity-0"
-                    title="Elimina la partita"
-                    data-confirm="Sei sicuro di voler eliminare la partita? Tutti i risultati andranno persi"
-                    data-confirm-btn="Sì, elimina"
-                    data-cancel-btn="Annulla"
-                >
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </form>
+    <header class="card-header d-flex align-items-start gap-2">
+        <?php if ($sport_icon !== '') { ?>
+            <span aria-hidden="true"><?= htmlspecialchars($sport_icon) ?></span>
+        <?php } ?>
+        <div class="flex-grow-1 text-break">
+            <strong><?= htmlspecialchars($sport->Nome) ?></strong>
+            <?php if ($can_edit) { ?>
+                <div class="small text-body-secondary font-monospace">#<?= $partita->Id ?></div>
+            <?php } ?>
         </div>
-    <?php } ?>
+        <?php if ($can_edit) { ?>
+            <div class="d-flex align-items-center flex-shrink-0 gap-1">
+                <a  href="#match-date-<?= $partita->Id ?>"
+                    class="btn btn-sm btn-link link-primary"
+                    title="Vai ai campi di modifica della partita"
+                    aria-label="Vai ai campi di modifica della partita"
+                >
+                    <i  class="bi bi-pencil-square"
+                        aria-hidden="true"
+                    ></i>
+                </a>
+                <form
+                    action="<?= $P ?>/sport/match_delete"
+                    method="post"
+                >
+                    <input
+                        type="hidden"
+                        name="match"
+                        value="<?= $partita->Id ?>"
+                    >
+                    <button
+                        type="submit"
+                        class="btn btn-sm btn-link link-danger"
+                        title="Elimina la partita"
+                        aria-label="Elimina la partita"
+                        data-confirm="Sei sicuro di voler eliminare la partita? Tutti i risultati andranno persi"
+                        data-confirm-btn="Sì, elimina"
+                        data-cancel-btn="Annulla"
+                    >
+                        <i  class="bi bi-trash"
+                            aria-hidden="true"
+                        ></i>
+                    </button>
+                </form>
+            </div>
+        <?php } ?>
+    </header>
     <div class="card-body">
-        <div class="card-title text-center">
-            <span class="d-inline-flex align-items-center gap-1">
-                <a  href="<?= $P ?>/teams/details?id=<?= $partita->Casa->Id ?>"
-                    class="link-underline link-underline-opacity-0 link-primary"
-                    title="Vedi la distinta di <?= htmlspecialchars(string: $partita->Casa->Nome) ?>"
-                >
-                    <i class="bi bi-clipboard2-pulse"></i>
-                </a>
-                <a  href="<?= $P ?>/church?id=<?= $partita->Casa->Parrocchia->Id ?>"
-                    title="<?= htmlspecialchars(string: $partita->Casa->Parrocchia->Nome) ?>"
-                    class="text-reset fw-bold"
-                    target="_blank"
-                ><?= htmlspecialchars(string: $partita->Casa->Nome) ?></a>
-            </span>
-            <span>
-                <i class="bi bi-dash-lg text-secondary"></i>
-            </span>
-            <span class="d-inline-flex align-items-center gap-1">
-                <a  href="<?= $P ?>/church?id=<?= $partita->Ospiti->Parrocchia->Id ?>"
-                    title="<?= htmlspecialchars(string: $partita->Ospiti->Parrocchia->Nome) ?>"
-                    class="text-reset fw-bold"
-                    target="_blank"
-                ><?= htmlspecialchars(string: $partita->Ospiti->Nome) ?></a>
-                <a  href="<?= $P ?>/teams/details?id=<?= $partita->Ospiti->Id ?>"
-                    class="link-underline link-underline-opacity-0 link-primary"
-                    title="Vedi la distinta di <?= htmlspecialchars(string: $partita->Ospiti->Nome) ?>"
-                >
-                    <i class="bi bi-clipboard2-pulse"></i>
-                </a>
-            </span>
+        <div class="card-title text-center text-break">
+            <a  href="<?= $P ?>/teams/details?id=<?= $partita->Casa->Id ?>"
+                class="text-reset fw-semibold link-underline link-underline-opacity-0"
+                title="Vedi la distinta di <?= htmlspecialchars($partita->Casa->Nome) ?>"
+            >
+                <i  class="bi bi-clipboard2-pulse"
+                    aria-hidden="true"
+                ></i>
+                <?= htmlspecialchars($partita->Casa->Nome) ?>
+            </a>
+            <span class="text-secondary">–</span>
+            <a  href="<?= $P ?>/teams/details?id=<?= $partita->Ospiti->Id ?>"
+                class="text-reset fw-semibold link-underline link-underline-opacity-0"
+                title="Vedi la distinta di <?= htmlspecialchars($partita->Ospiti->Nome) ?>"
+            >
+                <?= htmlspecialchars($partita->Ospiti->Nome) ?>
+                <i  class="bi bi-clipboard2-pulse"
+                    aria-hidden="true"
+                ></i>
+            </a>
         </div>
 
         <dl class="row">
-            <dt class="col-sm-4 text-nowrap text-secondary user-select-none">
-                Sport
-            </dt>
-            <dd class="col-sm-8 text-secondary user-select-none">
-                <?= htmlspecialchars(string: $partita->getSport()->Nome) ?>
-            </dd>
-
             <dt class="col-sm-4">
                 Data
             </dt>
@@ -93,6 +94,7 @@ $can_edit = $user->Admin;
                 <?php if ($can_edit) { ?>
                     <input
                         type="date"
+                        id="match-date-<?= $partita->Id ?>"
                         class="form-control match-date-selector"
                         data-match="<?= $partita->Id ?>"
                         value="<?= $partita->Data ? htmlspecialchars(string: $partita->Data) : '' ?>"
@@ -207,7 +209,7 @@ $can_edit = $user->Admin;
                         <li class="list-group-item">
                             <button
                                 type="button"
-                                class="btn btn-outline-primary w-100 match-result-add"
+                                class="btn btn-primary w-100 match-result-add"
                                 title="Aggiungi risultato"
                                 data-match="<?= $partita->Id ?>"
                             >
@@ -219,4 +221,4 @@ $can_edit = $user->Admin;
             </dd>
         </dl>
     </div>
-</div>
+</article>

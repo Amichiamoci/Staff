@@ -10,53 +10,50 @@ assert(isset($user) && ($user instanceof User), 'var $user not valid');
 assert(isset($squadra) && ($squadra instanceof Squadra), 'var $squadra not valid');
 assert(isset($P) && is_string($P), 'var $P not valid');
 
-// $allow_edits = true;
-$allow_edits = $user->Admin;
+$sport_icon = $squadra->Sport->getIcon();
 ?>
 
-<div
+<article
     class="card"
     id="squadra-<?= $squadra->Id ?>"
 >
-    <div class="card-header user-select-none">
-        <div class="d-flex align-items-center justify-content-between gap-2">
-            <div class="d-flex align-items-center gap-2">
-                <a  href="<?= $P ?>/teams/details?id=<?= $squadra->Id ?>"
-                    class="link-underline link-underline-opacity-0 link-primary"
-                    title="Vedi la distinta di <?= htmlspecialchars(string: $squadra->Nome) ?>"
-                >
-                    <i class="bi bi-clipboard2-pulse"></i>
-                </a>
-                <strong>
-                    <?= htmlspecialchars(string: $squadra->Nome) ?>
-                </strong>
+    <header class="card-header d-flex align-items-start gap-2 user-select-none">
+        <?php if ($sport_icon !== '') { ?>
+            <span aria-hidden="true"><?= htmlspecialchars($sport_icon) ?></span>
+        <?php } ?>
+        <div class="flex-grow-1 text-break">
+            <a  href="<?= $P ?>/teams/details?id=<?= $squadra->Id ?>"
+                class="fw-semibold text-reset link-underline link-underline-opacity-0"
+                title="Vedi la distinta di <?= htmlspecialchars($squadra->Nome) ?>"
+            >
+                <?= htmlspecialchars($squadra->Nome) ?>
+                <i  class="bi bi-clipboard2-pulse"
+                    aria-hidden="true"
+                ></i>
+            </a>
+            <div class="small text-body-secondary">
+                <?= htmlspecialchars($squadra->Sport->Nome) ?>
             </div>
-            <span>
-                <a
-                    <?php if ($allow_edits) { ?>
-                    href="<?= $P ?>/teams/edit?id=<?= $squadra->Id ?>"
-                    class="link-underline link-underline-opacity-0 link-primary"
-                    title="Modifica <?= htmlspecialchars(string: $squadra->Nome) ?>"
-                    <?php } else { ?>
-                    href="javascript:alert('Non più possibile!')"
-                    class="link-underline link-underline-opacity-0 link-secondary"
-                    title="Non più possibile modificare la squadra"
-                    <?php } ?>
+        </div>
+        <?php if ($user->Admin) { ?>
+            <div class="d-flex align-items-center flex-shrink-0 gap-1">
+                <a  href="<?= $P ?>/teams/edit?id=<?= $squadra->Id ?>"
+                    class="btn btn-sm btn-link link-primary"
+                    title="Modifica <?= htmlspecialchars($squadra->Nome) ?>"
+                    aria-label="Modifica <?= htmlspecialchars($squadra->Nome) ?>"
                 >
-                    <i class="bi bi-pencil-square"></i>
+                    <i  class="bi bi-pencil-square"
+                        aria-hidden="true"
+                    ></i>
                 </a>
-            </span>
-            <?php if ($user->Admin) { ?>
                 <form
                     action="<?= $P ?>/teams/delete"
                     method="post"
-                    class="d-inline"
                 >
                     <input
                         type="hidden"
                         name="id"
                         value="<?= $squadra->Id ?>"
-                        required
                     >
                     <input
                         type="hidden"
@@ -70,18 +67,21 @@ $allow_edits = $user->Admin;
                     >
                     <button
                         type="submit"
-                        class="btn btn-link link-underline link-underline-opacity-0 link-danger p-0"
-                        title="Elimina"
+                        class="btn btn-sm btn-link link-danger"
+                        title="Elimina <?= htmlspecialchars($squadra->Nome) ?>"
+                        aria-label="Elimina <?= htmlspecialchars($squadra->Nome) ?>"
                         data-confirm="Sicuro di voler cancellare la squadra?"
                         data-confirm-btn="Sì, cancella"
                         data-cancel-btn="Annulla"
                     >
-                        <i class="bi bi-x-lg"></i>
+                        <i  class="bi bi-trash"
+                            aria-hidden="true"
+                        ></i>
                     </button>
                 </form>
-            <?php } ?>
-        </div>
-    </div>
+            </div>
+        <?php } ?>
+    </header>
     <div class="card-body p-1">
         <?php 
         $lista_espansa_referenti = [];
@@ -139,4 +139,4 @@ $allow_edits = $user->Admin;
             <?php } ?>
         </ul>
     </div>
-</div>
+</article>

@@ -6,59 +6,69 @@ assert(isset($user) && ($user instanceof User), 'var $user not valid');
 assert(isset($P) && is_string($P), 'var $P not valid');
 assert(isset($torneo) && ($torneo instanceof Torneo), 'var $torneo not valid');
 
+$sport_icon = $torneo->Sport->getIcon();
+$show_details = ($hide_edit_icon ?? null) !== 'yes';
+$details_label = $user->Admin ? 'Modifica il torneo' : 'Vedi il torneo';
+
 ?>
 
-<div
+<article
     class="card mb-1"
     id="torneo-<?= $torneo->Id ?>"
 >
-    <div class="card-header user-select-none">
-        <strong>
-            <?= htmlspecialchars(string: $torneo->Nome) ?>
-        </strong>
-        <?php if (!isset($hide_edit_icon) || $hide_edit_icon !== 'yes') { ?>
-            <a  href="<?= $P ?>/sport/tournament?id=<?= $torneo->Id ?>"
-                class="link-underline link-underline-opacity-0 link-primary text-end"
-                title="Modifica il torneo"
-            >
-                <i class="bi bi-pencil-square"></i>
-            </a>
+    <header class="card-header d-flex align-items-start gap-2 user-select-none">
+        <?php if ($sport_icon !== '') { ?>
+            <span aria-hidden="true"><?= htmlspecialchars($sport_icon) ?></span>
         <?php } ?>
-        <?php if ($user->Admin) { ?>
-            <form
-                action="<?= $P ?>/sport/tournament_delete"
-                method="post"
-                class="d-inline p-0"
-            >
-                <input
-                    type="hidden"
-                    name="id"
-                    value="<?= $torneo->Id ?>"
-                >
-                <button
-                    type="submit"
-                    class="btn btn-link link-danger link-underline link-underline-opacity-0 p-0"
-                    title="Elimina il torneo"
-                    data-confirm="Sei sicuro? Eliminerai anche le iscrizioni delle squadre e le partite"
-                    data-confirm-btn="Sì, elimina"
-                    data-cancel-btn="Annulla"
-                >
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </form>
+        <div class="flex-grow-1 text-break">
+            <strong><?= htmlspecialchars($torneo->Nome) ?></strong>
+            <div class="small text-body-secondary">
+                <?= htmlspecialchars($torneo->Sport->Nome) ?>
+            </div>
+        </div>
+        <?php if ($show_details || $user->Admin) { ?>
+            <div class="d-flex align-items-center flex-shrink-0 gap-1">
+                <?php if ($show_details) { ?>
+                    <a  href="<?= $P ?>/sport/tournament?id=<?= $torneo->Id ?>"
+                        class="btn btn-sm btn-link link-primary"
+                        title="<?= $details_label ?>"
+                        aria-label="<?= $details_label ?>"
+                    >
+                        <i  class="bi <?= $user->Admin ? 'bi-pencil-square' : 'bi-eye' ?>"
+                            aria-hidden="true"
+                        ></i>
+                    </a>
+                <?php } ?>
+                <?php if ($user->Admin) { ?>
+                    <form
+                        action="<?= $P ?>/sport/tournament_delete"
+                        method="post"
+                    >
+                        <input
+                            type="hidden"
+                            name="id"
+                            value="<?= $torneo->Id ?>"
+                        >
+                        <button
+                            type="submit"
+                            class="btn btn-sm btn-link link-danger"
+                            title="Elimina il torneo"
+                            aria-label="Elimina il torneo"
+                            data-confirm="Sei sicuro? Eliminerai anche le iscrizioni delle squadre e le partite"
+                            data-confirm-btn="Sì, elimina"
+                            data-cancel-btn="Annulla"
+                        >
+                            <i  class="bi bi-trash"
+                                aria-hidden="true"
+                            ></i>
+                        </button>
+                    </form>
+                <?php } ?>
+            </div>
         <?php } ?>
-    </div>
+    </header>
     <div class="card-body">
         <dl class="row">
-            <?php if (isset($show_sport) && $show_sport === 'yes') { ?>
-                <dt class="col-sm-4 text-nowrap">
-                    Sport
-                </dt>
-                <dd class="col-sm-8">
-                    <?= htmlspecialchars(string: $torneo->Sport->Nome) ?>
-                </dd>
-            <?php } ?>
-
             <dt class="col-sm-4 text-nowrap">
                 Tipologia
             </dt>
@@ -249,121 +259,121 @@ assert(isset($torneo) && ($torneo instanceof Torneo), 'var $torneo not valid');
                 </ul>
             </dd>
         </dl>
-        <?php if ($user->Admin) { ?>
-            <div class="row m-1">
-                <div class="col">
-                    <button
-                        type="button"
-                        data-bs-toggle="modal"
-                        data-bs-target="#modal-torneo-<?= $torneo->Id ?>"
-                        data-sport="<?= $torneo->Sport->Id ?>"
-                        data-year="<?= $torneo->Edizione->Year ?>"
-                        class="btn btn-outline-primary"
-                        title="Aggiungi squadra"
-                    >
-                        Aggiungi squadra
-                    </button>
-                    <div
-                        class="modal fade"
-                        id="modal-torneo-<?= $torneo->Id ?>"
-                        tabindex="-1"
-                        aria-hidden="true"
-                        aria-labelledby="modal-torneo-<?= $torneo->Id ?>-label"
-                    >
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title"
-                                        id="modal-torneo-<?= $torneo->Id ?>-label"
-                                    >
-                                        Aggiungi una squadra <?= htmlspecialchars(string: $torneo->Nome) ?>
-                                    </h5>
-                                    <button
-                                        type="button"
-                                        class="btn-close"
-                                        data-bs-dismiss="modal"
-                                        aria-label="Chiudi"
-                                        title="Chiudi"
-                                    ></button>
-                                </div>
-                                <div class="modal-body">
-                                    <form
-                                        method="POST"
-                                        action="<?= $P ?>/sport/tournament_add_team"
-                                    >
-                                        <input
-                                            type="hidden"
-                                            name="tournament"
-                                            value="<?= $torneo->Id ?>"
-                                        >
-                                        <div class="form-floating mb-2">
-                                            <select
-                                                name="team"
-                                                id="add-team-<?= $torneo->Id ?>"
-                                                title="La squadra da aggiungere"
-                                                class="form-control"
-                                                required
-                                            >
-                                                <option value="">Caricamento delle squadre...</option>
-                                            </select>
-                                            <label for="add-team-<?= $torneo->Id ?>">Squadra</label>
-                                            <div class="invalid-feedback">
-                                                Per favore, scegli una squadra tra le proposte
-                                            </div>
-                                        </div>
-                                        
-                                        <button
-                                            type="submit"
-                                            class="btn btn-primary"
-                                            title="Aggiungi al torneo"
-                                        >
-                                            Aggiungi al torneo
-                                        </button>
-                                    </form>
-                                </div>
-                                <script>
-                                    $('#modal-torneo-<?= $torneo->Id ?>').on('show.bs.modal', async function (event) {
-                                        const button = $(event.relatedTarget);
-                                        const year = button.data('year'), sport = button.data('sport');
-                                        const modal = $(this);
-
-                                        const resp = await fetch(`<?= $P ?>/teams/sport?year=${year}&sport=${sport}`, { method: 'GET'});
-                                        if (!resp.ok) {
-                                            return;
-                                        }
-                                        const list = await resp.json();
-
-                                        const select = document.getElementById('add-team-<?= $torneo->Id ?>');
-                                        select.innerHTML = '<option value="">Scegli una squadra</option>';
-                                        for (const team of list) {
-                                            const o = document.createElement('option');
-                                            o.value = team.id;
-                                            o.innerText = `${team.name} (${team.church})`;
-                                            select.appendChild(o);
-                                        }
-                                    });
-                                </script>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        <?php } ?>
-
-        <?php 
-        if (count(value: $torneo->IdPartite) > 0 && 
-            (!isset($hide_edit_icon) || $hide_edit_icon !== 'yes')
-        ) { ?>
-            <div class="row m-1">
-                <div class="col">
-                    <a  href="<?= $P ?>/sport/tournament?id=<?= $torneo->Id ?>"
-                        title="Aggiungi un risultato a una partita"
-                        class="btn btn-outline-primary"
-                    >
-                        Inserisci risultato
-                    </a>
-                </div>
-            </div>
-        <?php } ?>
     </div>
-</div>
+    <?php if ($user->Admin || ($show_details && $torneo->IdPartite !== [])) { ?>
+        <footer class="card-footer d-flex flex-wrap justify-content-end gap-2">
+            <?php if ($user->Admin) { ?>
+                <button
+                    type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modal-torneo-<?= $torneo->Id ?>"
+                    data-sport="<?= $torneo->Sport->Id ?>"
+                    data-year="<?= $torneo->Edizione->Year ?>"
+                    class="btn btn-sm btn-primary"
+                    title="Aggiungi una squadra al torneo"
+                >
+                    <i  class="bi bi-plus-lg"
+                        aria-hidden="true"
+                    ></i>
+                    Aggiungi squadra
+                </button>
+            <?php } ?>
+            <?php if ($show_details && $torneo->IdPartite !== []) { ?>
+                <a  href="<?= $P ?>/sport/tournament?id=<?= $torneo->Id ?>"
+                    title="<?= $user->Admin ? 'Aggiungi un risultato a una partita' : 'Vedi le partite del torneo' ?>"
+                    class="btn btn-sm <?= $user->Admin ? 'btn-primary' : 'btn-outline-primary' ?>"
+                >
+                    <i  class="bi <?= $user->Admin ? 'bi-pencil-square' : 'bi-calendar-week' ?>"
+                        aria-hidden="true"
+                    ></i>
+                    <?= $user->Admin ? 'Inserisci risultato' : 'Vedi partite' ?>
+                </a>
+            <?php } ?>
+        </footer>
+    <?php } ?>
+    <?php if ($user->Admin) { ?>
+        <div
+            class="modal fade"
+            id="modal-torneo-<?= $torneo->Id ?>"
+            tabindex="-1"
+            aria-hidden="true"
+            aria-labelledby="modal-torneo-<?= $torneo->Id ?>-label"
+        >
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title"
+                            id="modal-torneo-<?= $torneo->Id ?>-label"
+                        >
+                            Aggiungi una squadra <?= htmlspecialchars(string: $torneo->Nome) ?>
+                        </h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Chiudi"
+                            title="Chiudi"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        <form
+                            method="POST"
+                            action="<?= $P ?>/sport/tournament_add_team"
+                        >
+                            <input
+                                type="hidden"
+                                name="tournament"
+                                value="<?= $torneo->Id ?>"
+                            >
+                            <div class="form-floating mb-2">
+                                <select
+                                    name="team"
+                                    id="add-team-<?= $torneo->Id ?>"
+                                    title="La squadra da aggiungere"
+                                    class="form-control"
+                                    required
+                                >
+                                    <option value="">Caricamento delle squadre...</option>
+                                </select>
+                                <label for="add-team-<?= $torneo->Id ?>">Squadra</label>
+                                <div class="invalid-feedback">
+                                    Per favore, scegli una squadra tra le proposte
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary"
+                                title="Aggiungi al torneo"
+                            >
+                                Aggiungi al torneo
+                            </button>
+                        </form>
+                    </div>
+                    <script>
+                        $('#modal-torneo-<?= $torneo->Id ?>').on('show.bs.modal', async function (event) {
+                            const button = $(event.relatedTarget);
+                            const year = button.data('year'), sport = button.data('sport');
+                            const modal = $(this);
+
+                            const resp = await fetch(`<?= $P ?>/teams/sport?year=${year}&sport=${sport}`, { method: 'GET'});
+                            if (!resp.ok) {
+                                return;
+                            }
+                            const list = await resp.json();
+
+                            const select = document.getElementById('add-team-<?= $torneo->Id ?>');
+                            select.innerHTML = '<option value="">Scegli una squadra</option>';
+                            for (const team of list) {
+                                const o = document.createElement('option');
+                                o.value = team.id;
+                                o.innerText = `${team.name} (${team.church})`;
+                                select.appendChild(o);
+                            }
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+    <?php } ?>
+</article>

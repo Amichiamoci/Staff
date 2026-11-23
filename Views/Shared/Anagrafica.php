@@ -203,12 +203,7 @@ $iscrizioni_aperte = false;
                     Parrocchia
                 </dt>
                 <dd class="col-sm-8">
-                    <a  href="<?= $P ?>/church?id=<?= $anagrafica->Iscrizione->Parrocchia->Id ?>"
-                        class="link-underline link-underline-opacity-0 link-secondary"
-                        title="Vedi la parrocchia"
-                    >
-                        <?= htmlspecialchars(string: $anagrafica->Iscrizione->Parrocchia->Nome) ?>
-                    </a>
+                    <?= htmlspecialchars(string: $anagrafica->Iscrizione->Parrocchia->Nome) ?>
                 </dd>
 
                 <dt class="col-sm-4 text-nowrap">

@@ -8,7 +8,6 @@ assert(isset($partite) && is_array($partite), 'var $partite not valid');
 </h1>
 
 <?php 
-    $show_sport = 'yes'; 
     $hide_edit_icon = 'yes';
     require dirname(path: __DIR__) . '/Shared/Torneo.php';
 ?>
