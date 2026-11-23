@@ -18,7 +18,7 @@
 
 Questo repository contiene il codice sorgente del portale staff, il pannello di controllo di [Amichiamoci](https://www.amichiamoci.it), la manifestazione delle parrocchie di Livorno.
 
-## Funzionalità
+## ✨ Funzionalità
 
 - Gestione delle edizioni, delle parrocchie, delle anagrafiche e delle iscrizioni, con documenti di identità, certificati medici e dati per il tesseramento CSI.
 - Organizzazione dello staff con account, ruoli di commissione e referenti parrocchiali.
@@ -27,7 +27,7 @@ Questo repository contiene il codice sorgente del portale staff, il pannello di 
 - Archivio file locale o su Google Drive con cifratura della sorgente e download soggetti ai permessi del portale.
 - API opzionale per le integrazioni e attività periodiche eseguite via cron.
 
-## Architettura
+## 🏗️ Architettura
 
 ```mermaid
 flowchart LR
@@ -40,7 +40,7 @@ flowchart LR
     app -->|Invio email| smtp["Server SMTP"]
 ```
 
-## Installazione
+## ⚙️ Installazione
 
 <h3>
     <img
@@ -101,7 +101,7 @@ Verifica la configurazione con `apachectl configtest`, quindi ricarica Apache.
 Consulta la [documentazione Apache per PHP-FPM](https://httpd.apache.org/docs/2.4/mod/mod_proxy_fcgi.html).
 
 <details>
-    <summary>Configurazione minima di Apache</summary>
+    <summary>Esempio configurazione Apache</summary>
 
 ```apache
 Listen 127.0.0.1:8080
@@ -144,7 +144,7 @@ Verifica la configurazione con `nginx -t`, quindi ricarica NGINX.
 Consulta la [documentazione NGINX per FastCGI](https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html).
 
 <details>
-    <summary>Configurazione minima di NGINX</summary>
+    <summary>Esempio configurazione NGINX</summary>
 
 ```nginx
 log_format amichiamoci '$remote_addr [$time_local] "$request_method $uri" $status';
@@ -177,7 +177,7 @@ server {
 
 </details>
 
-## Variabili d’ambiente
+## 🔐 Variabili d’ambiente
 
 Il portale legge le variabili dall’ambiente del processo e dal file `.env` nella radice del progetto.
 I valori già presenti nell’ambiente hanno precedenza.
@@ -185,7 +185,7 @@ Per ogni variabile del portale puoi usare anche il suffisso `_FILE` per indicare
 La variabile diretta, se impostata, ha precedenza sulla variante `_FILE`.
 Conserva credenziali e chiavi in un gestore di segreti o in un file protetto.
 
-### Database e amministrazione iniziale
+### 🗄️ Database e amministrazione iniziale
 
 | Variabile | Uso |
 | --- | --- |
@@ -197,7 +197,7 @@ Conserva credenziali e chiavi in un gestore di segreti o in un file protetto.
 | `ADMIN_USERNAME` | Nome utente del primo amministratore, usato durante l’inizializzazione. |
 | `ADMIN_PASSWORD` | Password del primo amministratore, usata durante l’inizializzazione. |
 
-### Sito, accesso e diagnostica
+### 🩺 Sito, accesso e diagnostica
 
 | Variabile | Uso |
 | --- | --- |
@@ -212,7 +212,7 @@ Conserva credenziali e chiavi in un gestore di segreti o in un file protetto.
 
 Gli errori interni sono registrati in `data/log/errors.log` e nel log PHP, che in Docker è visibile anche nell’output del container.
 
-### Posta elettronica
+### 📧 Posta elettronica
 
 | Variabile | Uso |
 | --- | --- |
@@ -224,7 +224,7 @@ Gli errori interni sono registrati in `data/log/errors.log` e nel log PHP, che i
 | `MAIL_OPEN_SIGNING_KEY` | Chiave di almeno 32 byte per firmare i link di rilevamento delle aperture, disabilitati se la chiave manca o è troppo corta. |
 | `CRON_CAPTURE_OUTGOING_ADDRESS` | Indirizzo di prova che sostituisce il destinatario delle email di compleanno inviate dal cron. |
 
-### Archivio e Google Drive
+### 📁 Archivio e Google Drive
 
 | Variabile | Uso |
 | --- | --- |
@@ -240,7 +240,9 @@ Quando tutte e cinque le variabili Drive sono impostate, i nuovi file vengono sa
 Genera la chiave una sola volta con `base64_encode(random_bytes(32))` e conservala per rileggere i file.
 Prima di aggiornare da una versione che cifrava i file per anagrafica, decifrali con la versione precedente e riscrivili con la chiave di sorgente mantenendo gli URI.
 
-### Esportazione CSI
+### ⚽ Esportazione CSI
+
+Il sistema contiene feature per esportare gli iscritti correnti in un excel supportato dal [Centro Sportivo Italiano](https://www.centrosportivoitaliano.it "Vai al loro sito"), nostro provider assicurativo.
 
 | Variabile | Uso |
 | --- | --- |
@@ -248,24 +250,14 @@ Prima di aggiornare da una versione che cifrava i file per anagrafica, decifrali
 | `CODICE_COMITATO_CSI` | Codice del comitato da inserire nell’esportazione CSI. |
 | `CODICE_SOCIETA_CSI` | Codice della società da inserire nell’esportazione CSI. |
 
-### Servizi Docker Compose
-
-I servizi MariaDB e phpMyAdmin in `.vscode/docker-compose.yml` usano variabili proprie oltre a quelle del portale.
-
-| Variabile | Uso |
-| --- | --- |
-| `MYSQL_DATABASE` | Nome del database che il container MariaDB crea quando inizializza il proprio volume. |
-| `MYSQL_ROOT_PASSWORD` | Password dell’account root del servizio MariaDB, condivisa con phpMyAdmin nella configurazione locale. |
-| `TZ` | Fuso orario del container MariaDB, impostato su `Europe/Rome` nella configurazione locale. |
-
-### Build Docker
+### 🛠️ Build Docker
 
 | Argomento | Uso |
 | --- | --- |
 | `PHP_VERSION` | Serie del runtime PHP nell’immagine, predefinita `8.5`. |
 | `DEBUG_APP` | Imposta `1` durante la build per includere Xdebug, le dipendenze di sviluppo e la documentazione Doxygen. |
 
-## Immagini Docker disponibili
+## 📦 Immagini Docker disponibili
 
 L'applicazione è disponibile come `amichiamoci/staff` su Docker Hub e come `ghcr.io/amichiamoci/staff` su GitHub Container Registry.
 
@@ -278,7 +270,8 @@ L'applicazione è disponibile come `amichiamoci/staff` su Docker Hub e come `ghc
 | `:v1.2.3` | Immagine di una specifica release, identificata dal suo numero di versione. |
 | `:nighly` | Immagine di sviluppo con le modifiche più recenti, adatta alle prove. |
 
-## Licenze dei componenti inclusi
+## 📜 Licenze dei componenti inclusi
 
 Quill 2.0.3 è distribuito con [licenza BSD](Public/quill/LICENSE.txt).
+
 [CodiceFiscale.js 2.4.0](https://github.com/lucavandro/CodiceFiscaleJS) è distribuito con [licenza CC BY-SA 4.0](Public/js/codicefiscale.LICENSE.txt).
