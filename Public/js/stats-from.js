@@ -1,12 +1,13 @@
 (async function() {
-    const resp = await fetch(`${BasePath}/stats`);
-    if (!resp.ok) {
+    let data;
+    try {
+        data = await $.getJSON(`${BasePath}/stats`);
+    } catch {
         console.warn('Response not ok!');
         return;
     }
-    const data = await resp.json();
     new Chart(
-        document.getElementById('stats-chart'),
+        $('#stats-chart')[0],
         {
             type: 'pie',
             data: {

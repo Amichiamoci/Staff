@@ -28,7 +28,7 @@ $codice_societa_csi = Security::LoadEnvironmentOrFromFile(var: 'CODICE_SOCIETA_C
 
 <button
     type="button"
-    onclick="exportTables()"
+    id="export-csi"
     class="btn btn-primary mt-2 mb-2"
     title="Esporta tabella"
 >
@@ -331,9 +331,8 @@ $codice_societa_csi = Security::LoadEnvironmentOrFromFile(var: 'CODICE_SOCIETA_C
     defer
 ></script>
 <script>
-    function exportTables()
-    {
-        const table = document.getElementById('csi');
+    $('#export-csi').on('click', function () {
+        const table = $('#csi')[0];
         const wb = XLSX.utils.book_new();
         const sheet = XLSX.utils.table_to_sheet(table);
         sheet["!cols"] = [
@@ -412,5 +411,5 @@ $codice_societa_csi = Security::LoadEnvironmentOrFromFile(var: 'CODICE_SOCIETA_C
         wb.Props.Author = <?= json_encode(SITE_NAME, JSON_HEX_TAG | JSON_THROW_ON_ERROR) ?>;
 
         XLSX.writeFile(wb, <?= json_encode("Iscrizioni-" . SITE_NAME . "-" . date("Y") . ".xlsx", JSON_HEX_TAG | JSON_THROW_ON_ERROR) ?>);
-    }
+    });
 </script>

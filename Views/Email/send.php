@@ -40,15 +40,12 @@ assert(!isset($body) || is_string($body), 'var $body not valid');
         value="<?= htmlspecialchars($csrfToken) ?>"
     >
 
-    <div class="mb-3">
-        <label
-            class="form-label"
-            for="to"
-        >Destinatario</label>
+    <div class="form-floating mb-3">
         <input
             type="email"
             class="form-control"
             id="to"
+            placeholder="Destinatario"
             name="to"
             maxlength="64"
             required
@@ -56,39 +53,41 @@ assert(!isset($body) || is_string($body), 'var $body not valid');
             spellcheck="false"
             value="<?= htmlspecialchars($to ?? '') ?>"
         >
+        <label for="to">Destinatario</label>
     </div>
-    <div class="mb-3">
-        <label
-            class="form-label"
-            for="subject"
-        >Oggetto</label>
+    <div class="form-floating mb-3">
         <input
             type="text"
             class="form-control"
             id="subject"
+            placeholder="Oggetto"
             name="subject"
             maxlength="128"
             required
             value="<?= htmlspecialchars($subject ?? '') ?>"
         >
+        <label for="subject">Oggetto</label>
     </div>
     <div class="mb-3">
-        <label
-            id="email-body-label"
-            for="body"
-            class="form-label"
-        >Corpo del messaggio (HTML)</label>
-        <textarea
-            id="body"
-            name="body"
-            class="form-control font-monospace"
-            rows="12"
-            required
-        ><?= htmlspecialchars($body ?? '') ?></textarea>
+        <div id="email-body-fallback">
+            <textarea
+                id="body"
+                name="body"
+                class="form-control font-monospace"
+                rows="12"
+                required
+            ><?= htmlspecialchars($body ?? '') ?></textarea>
+        </div>
         <div
             id="email-editor-wrapper"
             hidden
         >
+            <div
+                id="email-body-label"
+                class="form-label"
+            >
+                Corpo del messaggio
+            </div>
             <div id="email-editor"></div>
         </div>
         <p  id="email-body-error"

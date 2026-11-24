@@ -56,39 +56,42 @@ $is_owner = $user->Id === $target->Id;
                             name="csrf_token"
                             value="<?= htmlspecialchars($csrf_token) ?>"
                         >
-                        <div class="mb-3">
-                            <label for="new_username">Nome utente</label>
+                        <div class="form-floating mb-3">
                             <input
                                 type="text"
                                 class="form-control"
                                 id="new_username"
+                                placeholder="Nome utente"
                                 name="new_username"
                                 autocomplete="username"
                                 value="<?= htmlspecialchars($target->Name) ?>"
                                 required
                             >
+                            <label for="new_username">Nome utente</label>
                         </div>
-                        <div class="mb-3">
-                            <label for="current_password">Password attuale</label>
+                        <div class="form-floating mb-3">
                             <input
                                 type="password"
                                 class="form-control"
                                 id="current_password"
+                                placeholder="Password attuale"
                                 name="current_password"
                                 autocomplete="current-password"
                                 required
                             >
+                            <label for="current_password">Password attuale</label>
                         </div>
-                        <div class="mb-3">
-                            <label for="new_password">Nuova password (facoltativa)</label>
+                        <div class="form-floating mb-3">
                             <input
                                 type="password"
                                 class="form-control"
                                 id="new_password"
+                                placeholder="Nuova password (facoltativa)"
                                 name="new_password"
                                 autocomplete="new-password"
                                 minlength="6"
                             >
+                            <label for="new_password">Nuova password (facoltativa)</label>
                         </div>
                         <button
                             type="submit"

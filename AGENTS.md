@@ -34,10 +34,14 @@
 
 ## HTML
 
+- Give every page a sharp, modern look consistent with the portal.
+  Use clear visual hierarchy, consistent spacing, and responsive layouts.
 - Use semantic elements for landmarks, headings, lists, tables, navigation, and controls.
   Use a button for an action and a link for navigation.
+- Use Bootstrap floating labels (`form-floating`) for supported form controls.
+  Keep each visible label associated with its control.
 - When an opening tag has multiple attributes, put each attribute on its own line one indentation level deeper than the tag.
-  For one- or two-character tag names such as `a` and `li`, the first attribute can stay on the opening line.
+  For one- or two-character tag names such as `a`, `li`, `i` or `p`, the first attribute can stay on the opening line.
   Use spaces to align it with any attributes on the following lines, as in `<a  href="…"` or `<li class="…"`.
   Align the closing angle bracket with the start of the tag.
 - Put nested elements on separate lines and indent them one level inside their parent.
@@ -47,8 +51,11 @@
 
 ## CSS and JavaScript
 
+- Use Bootstrap component and utility classes whenever they cover the required styling or behavior.
 - Format project-owned CSS with a newline after every opening brace and before every closing brace.
   Indent declarations and nested blocks one level deeper than their enclosing block.
-- Prefer maintained libraries already used by the project, such as jQuery for DOM selection and event handling.
-  Use native APIs for platform features and where a library is unavailable during initialization.
+- Use jQuery Validation for client-side validation in every form.
+  Keep server-side validation for submitted data.
+- Use jQuery whenever it provides the needed functionality in project-owned frontend code.
+  Use native browser APIs only for capabilities jQuery does not provide or for initialization before jQuery is available.
 - Keep bundled third-party source and license files intact.

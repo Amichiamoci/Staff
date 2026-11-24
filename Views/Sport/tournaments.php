@@ -38,13 +38,13 @@ $tornei_per_sport = array_reduce(
     </div>
     <script>
         (() => {
-            const select_a = document.getElementById('anno-selector');
+            const $select_a = $('#anno-selector');
             const f = () => {
-                const a = Number(select_a.value);
-                select_a.removeEventListener('change', f);
+                const a = Number($select_a.val());
+                $select_a.off('change', f);
                 window.location.replace(`?year=${a}`);
             };
-            select_a.addEventListener('change', f);
+            $select_a.on('change', f);
         })();
     </script>
 <?php } ?>

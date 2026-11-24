@@ -189,22 +189,18 @@ $details_label = $can_manage_tournaments ? 'Modifica il torneo' : 'Vedi il torne
                                     </div>
                                     <script>
                                         $('#modal-calendario-<?= $torneo->Id ?>').on('show.bs.modal', async function (event) {
-                                            const select = document.getElementById('field-<?= $torneo->Id ?>');
-                                            if (select.children.length > 1) {
+                                            const $select = $('#field-<?= $torneo->Id ?>');
+                                            if ($select.children().length > 1) {
                                                 return; // Already loaded
                                             }
 
-                                            const resp = await fetch(`<?= $P ?>/sport/fields`, { method: 'GET'});
-                                            if (!resp.ok) {
-                                                return;
-                                            }
-
-                                            const list = await resp.json();
-                                            for (const field of list) {
-                                                const o = document.createElement('option');
-                                                o.value = field.id;
-                                                o.innerText = field.nome;
-                                                select.appendChild(o);
+                                            try {
+                                                const list = await $.getJSON('<?= $P ?>/sport/fields');
+                                                for (const field of list) {
+                                                    $select.append($('<option>').val(field.id).text(field.nome));
+                                                }
+                                            } catch {
+                                                // Opening the modal again retries the request.
                                             }
                                         });
                                     </script>
@@ -372,22 +368,18 @@ $details_label = $can_manage_tournaments ? 'Modifica il torneo' : 'Vedi il torne
                     <script>
                         $('#modal-torneo-<?= $torneo->Id ?>').on('show.bs.modal', async function (event) {
                             const button = $(event.relatedTarget);
-                            const year = button.data('year'), sport = button.data('sport');
-                            const modal = $(this);
-
-                            const resp = await fetch(`<?= $P ?>/teams/sport?year=${year}&sport=${sport}`, { method: 'GET'});
-                            if (!resp.ok) {
-                                return;
-                            }
-                            const list = await resp.json();
-
-                            const select = document.getElementById('add-team-<?= $torneo->Id ?>');
-                            select.innerHTML = '<option value="">Scegli una squadra</option>';
-                            for (const team of list) {
-                                const o = document.createElement('option');
-                                o.value = team.id;
-                                o.innerText = `${team.name} (${team.church})`;
-                                select.appendChild(o);
+                            try {
+                                const list = await $.getJSON('<?= $P ?>/teams/sport', {
+                                    year: button.data('year'),
+                                    sport: button.data('sport'),
+                                });
+                                const $select = $('#add-team-<?= $torneo->Id ?>')
+                                    .empty().append($('<option>').val('').text('Scegli una squadra'));
+                                for (const team of list) {
+                                    $select.append($('<option>').val(team.id).text(`${team.name} (${team.church})`));
+                                }
+                            } catch {
+                                // Opening the modal again retries the request.
                             }
                         });
                     </script>

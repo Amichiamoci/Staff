@@ -8,10 +8,11 @@
 
 <script>
     function t_shirts_js_decoder(i) {
-        const li =document.createElement('li');
-        li.className = 'list-group-item';
-        li.innerHTML = `<strong>${i.taglia}</strong>: <output class="font-monospace">${i.numero}</output>`;
-        return li;
+        return $('<li>').addClass('list-group-item').append(
+            $('<strong>').text(i.taglia),
+            ': ',
+            $('<output>').addClass('font-monospace').text(i.numero),
+        );
     }
 </script>
 

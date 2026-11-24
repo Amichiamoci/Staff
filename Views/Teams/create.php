@@ -209,6 +209,6 @@ $iscritti_per_parrocchia = array_reduce(
 
 <script>
     (() => {
-        document.getElementById('church-<?= $parrocchia ?>').scrollIntoView();
+        $('#church-<?= $parrocchia ?>')[0].scrollIntoView();
     })()
 </script>

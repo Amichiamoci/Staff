@@ -95,42 +95,35 @@ if (!isset($card_name))
 
 <script>
     (() => {
-        async function load(parrocchia, anno) {
-            <?php if (!isset($card_church_year_ignore)) { ?>
-                const r = await fetch(`<?= $P . $card_json_base ?>?church=${parrocchia}&year=${anno}`, { method: 'GET' });
-            <?php } else { ?>
-                const r = await fetch(`<?= $P . $card_json_base ?>`, { method: 'GET' });
-            <?php } ?>
-            
-            if (!r.ok) return;
-            
-            const ul = document.getElementById('<?= $card_name ?>-list');
-            ul.innerHTML = '<li class="list-group-item user-select-none text-danger">Impossibile reperire i dati</li>';
+        const $list = $('#<?= $card_name ?>-list');
+        <?php if (!isset($card_church_year_ignore)) { ?>
+            const $church = $('#<?= $card_name ?>-church');
+            const $year = $('#<?= $card_name ?>-year');
+        <?php } ?>
 
-            const o = await r.json();
-            if (o.length > 0) {
-                ul.innerHTML = '';
-            }
-            for (const i of o) {
-                ul.appendChild(<?= $card_js_mapper ?>(i));
-            }
-            if (o.length === 0) {
-                ul.innerHTML = '<?= $card_nothing_found ?>';
+        async function load() {
+            try {
+                const items = await $.getJSON('<?= $P . $card_json_base ?>'<?php if (!isset($card_church_year_ignore)) { ?>, {
+                    church: $church.val(),
+                    year: $year.val(),
+                }<?php } ?>);
+                if (items.length === 0) {
+                    $list.html('<?= $card_nothing_found ?>');
+                    return;
+                }
+                $list.empty();
+                for (const item of items) {
+                    $list.append(<?= $card_js_mapper ?>(item));
+                }
+            } catch {
+                $list.html('<li class="list-group-item user-select-none text-danger">Impossibile reperire i dati</li>');
             }
         }
+
         <?php if (!isset($card_church_year_ignore)) { ?>
-            const select_p = document.getElementById('<?= $card_name ?>-church');
-            const select_a = document.getElementById('<?= $card_name ?>-year');
-            select_p.addEventListener('change', function() {
-                load(select_p.value, select_a.value);
-            });
-            select_a.addEventListener('change', function() {
-                load(select_p.value, select_a.value);
-            });
-            load(select_p.value, select_a.value);
-        <?php } else { ?>
-            load(null, null);
+            $church.add($year).on('change', load);
         <?php } ?>
+        load();
     })();
 </script>
 

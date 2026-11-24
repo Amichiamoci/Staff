@@ -1,61 +1,46 @@
-/**
- * @type {HTMLInputElement}
- */
-const cf = document.getElementById('cf');
-/**
- * @type {HTMLInputElement}
- */
-const compleanno = document.getElementById('compleanno');
-/**
- * @type {HTMLInputElement}
- */
-const provenienza = document.getElementById('provenienza');
-/**
- * @type {HTMLParagraphElement}
- */
-const resp = document.getElementById('error-body');
-/**
- * @type {HTMLInputElement}
- */
-const btn = document.getElementById('submit');
+const $cf = $('#cf');
+const $compleanno = $('#compleanno');
+const $provenienza = $('#provenienza');
+const $resp = $('#error-body');
+const $btn = $('#submit');
 
 function checkCF()
 {
-    btn.disabled = false;
-    resp.parentElement.classList.add('d-none');
-    resp.textContent = '';
-    cf.classList.remove('is-valid', 'is-invalid');
-    const code = cf.value.toUpperCase().trim();
+    $btn.prop('disabled', false);
+    $resp.parent().addClass('d-none');
+    $resp.text('');
+    $cf.removeClass('is-valid', 'is-invalid');
+    const code = $cf.val().toUpperCase().trim();
     if (code == '')
         return;
     
     if (!CodiceFiscale.check(code))
     {
-        btn.disabled = true;
-        cf.classList.add('is-invalid');
-        resp.parentElement.classList.remove('d-none');
-        resp.textContent = 'Codice fiscale non valido. Controlla di non aver inserito spazi o caratteri non validi.';
+        $btn.prop('disabled', true);
+        $cf.addClass('is-invalid');
+        $resp.parent().removeClass('d-none');
+        $resp.text('Codice fiscale non valido. Controlla di non aver inserito spazi o caratteri non validi.');
         return;
     }
-    cf.classList.add('is-valid');
+    $cf.addClass('is-valid');
     
     const inverse = CodiceFiscale.computeInverse(code);
-    if (!compleanno.value) compleanno.value = inverse.birthday;
-    if (!provenienza.value) provenienza.value = inverse.birthplace + ', ' + inverse.birthplaceProvincia;
+    if (!$compleanno.val()) $compleanno.val(inverse.birthday);
+    if (!$provenienza.val()) $provenienza.val(inverse.birthplace + ', ' + inverse.birthplaceProvincia);
     const message = [];
-    if (compleanno.value != '' && compleanno.value !== inverse.birthday) {
-        btn.disabled = true;
+    if ($compleanno.val() != '' && $compleanno.val() !== inverse.birthday) {
+        $btn.prop('disabled', true);
         message.push('Data di nascita non corrispondente a quella nel codice fiscale!');
     }
-    if (provenienza.value != '') {
-        const p = provenienza.value.trim().toLowerCase();
+    if ($provenienza.val() != '') {
+        const p = $provenienza.val().trim().toLowerCase();
         const invBirthPlace1 = inverse.birthplace + ', ' + inverse.birthplaceProvincia;
         const invBirthPlace2 = inverse.birthplace + ',' + inverse.birthplaceProvincia;
         if (p !== invBirthPlace1.toLowerCase() &&
             p !== invBirthPlace2.toLowerCase() && 
             inverse.birthplaceProvincia.toUpperCase() !== 'EE')
         {
-            btn.disabled = true;
+            $btn.prop('disabled', true);
             message.push('Luogo di nascita non corrispondente a quello nel codice fiscale!');
             message.push('Comune di nascita del codice fiscale: ' + 
                 inverse.birthplace);
@@ -81,10 +66,8 @@ function checkCF()
     }
     if (message.length > 0)
     {
-        resp.parentElement.classList.remove('d-none');
-        resp.textContent = message.join('\n');
+        $resp.parent().removeClass('d-none');
+        $resp.text(message.join('\n'));
     }
 }
-compleanno.addEventListener('input', checkCF);
-provenienza.addEventListener('input', checkCF);
-cf.addEventListener('input', checkCF);
+$cf.add($compleanno).add($provenienza).on('input', checkCF);

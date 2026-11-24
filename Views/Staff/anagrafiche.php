@@ -43,7 +43,7 @@ assert(isset($anagrafiche) && is_array($anagrafiche), 'var $anagrafiche not vali
 
 <script>
     (() => {
-        const anagrafiche = [...document.querySelectorAll('[data-keywords]')];
+        const $anagrafiche = $('[data-keywords]');
         var search_timeout_id = 0;
         function HighLightSearch(str) {
             if (search_timeout_id !== 0) {
@@ -58,7 +58,7 @@ assert(isset($anagrafiche) && is_array($anagrafiche), 'var $anagrafiche not vali
 
         function HighLightEntity(str) {
             if (typeof str !== 'string' || str.length === 0) {
-                anagrafiche.forEach(anagrafica => anagrafica.classList.remove('d-none'));
+                $anagrafiche.removeClass('d-none');
                 return;
             }
 
@@ -68,23 +68,24 @@ assert(isset($anagrafiche) && is_array($anagrafiche), 'var $anagrafiche not vali
 
             const search_terms = str.toLowerCase().split(' ').filter(filter_term);
             if (search_terms.length === 0) {
-                anagrafiche.forEach(anagrafica => anagrafica.classList.remove('d-none'));
+                $anagrafiche.removeClass('d-none');
                 return;
             }
 
-            anagrafiche.forEach(anagrafica => {
-                const keywords = anagrafica.getAttribute('data-keywords').toLowerCase().split(' ').filter(filter_term);
+            $anagrafiche.each(function () {
+                const $anagrafica = $(this);
+                const keywords = $anagrafica.attr('data-keywords').toLowerCase().split(' ').filter(filter_term);
                 if (keywords.length === 0) {
-                    anagrafica.classList.add('d-none');
+                    $anagrafica.addClass('d-none');
                     return;
                 }
 
                 const active_search_terms = search_terms.filter(term => keywords.some(keyword => keyword.includes(term)));
 
                 if (active_search_terms.length < search_terms.length) {
-                    anagrafica.classList.add('d-none');
+                    $anagrafica.addClass('d-none');
                 } else {
-                    anagrafica.classList.remove('d-none');
+                    $anagrafica.removeClass('d-none');
                 }
             });
         }

@@ -1,13 +1,25 @@
 (async function() {
-    const select = document.getElementById('stats-church-year');
+    const $select = $('#stats-church-year');
+    const $canvas = $('#stats-church-chart');
+    let chart;
+    let request;
+
     async function load() {
-        const year = select.value;
-        const resp = await fetch(`${BasePath}/church_stats?year=${year}`);
-        if (!resp.ok) {
-            console.warn('Response not ok!');
+        request?.abort();
+        const active = $.getJSON(`${BasePath}/church_stats`, {year: $select.val()});
+        request = active;
+        let dict;
+        try {
+            dict = await active;
+        } catch {
+            if (request === active && active.statusText !== 'abort') {
+                console.warn('Response not ok!');
+            }
             return;
         }
-        const dict = await resp.json();
+        if (request !== active) {
+            return;
+        }
         const data = [];
         for (const [church, count] of Object.entries(dict))
         {
@@ -17,12 +29,12 @@
             });
         }
 
-        const canvas = document.getElementById('stats-church-chart');
-        canvas.classList.toggle('d-none', data.length === 0);
+        chart?.destroy();
+        $canvas.toggleClass('d-none', data.length === 0);
 
         const sorted = data.sort((a, b) => a.church.localeCompare(b.church));
-        return new Chart(
-            canvas,
+        chart = new Chart(
+            $canvas[0],
             {
                 type: 'pie',
                 data: {
@@ -46,9 +58,6 @@
             }
         );
     }
-    let chart = await load();
-    select.addEventListener('change', async function() {
-        chart.destroy();
-        chart = await load();
-    });
+    $select.on('change', load);
+    await load();
 })();

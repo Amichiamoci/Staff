@@ -37,8 +37,8 @@
                 $error.prop('hidden', true);
                 $editable.removeAttr('aria-invalid');
             });
-            $label.text('Corpo del messaggio').removeAttr('for');
-            $textarea.prop({ required: false, hidden: true });
+            $textarea.prop('required', false);
+            $('#email-body-fallback').prop('hidden', true);
             $('#email-editor-wrapper').prop('hidden', false);
             editor = quill;
         } catch (error) {

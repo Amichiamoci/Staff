@@ -40,17 +40,17 @@ assert(isset($iscritti_problemi) && is_array($iscritti_problemi), 'var $iscritti
     </div>
     <script>
         (() => {
-            const select_p = document.getElementById('parrocchia-selector');
-            const select_a = document.getElementById('anno-selector');
+            const $select_p = $('#parrocchia-selector');
+            const $select_a = $('#anno-selector');
             const f = () => {
-                const p = Number(select_p.value);
-                const a = Number(select_a.value);
-                select_p.removeEventListener('change', f);
-                select_a.removeEventListener('change', f);
+                const p = Number($select_p.val());
+                const a = Number($select_a.val());
+                $select_p.off('change', f);
+                $select_a.off('change', f);
                 window.location.replace(`?church=${p}&year=${a}`);
             };
-            select_p.addEventListener('change', f);
-            select_a.addEventListener('change', f);
+            $select_p.on('change', f);
+            $select_a.on('change', f);
         })();
     </script>
 <?php } ?>
@@ -240,7 +240,7 @@ assert(isset($iscritti_problemi) && is_array($iscritti_problemi), 'var $iscritti
 
 <script>
     (() => {
-        const anagrafiche = [...document.querySelectorAll('[data-keywords]')];
+        const $anagrafiche = $('[data-keywords]');
         var search_timeout_id = 0;
         function HighLightSearch(str) {
             if (search_timeout_id !== 0) {
@@ -255,7 +255,7 @@ assert(isset($iscritti_problemi) && is_array($iscritti_problemi), 'var $iscritti
 
         function HighLightEntity(str) {
             if (typeof str !== 'string' || str.length === 0) {
-                anagrafiche.forEach(anagrafica => anagrafica.classList.remove('d-none'));
+                $anagrafiche.removeClass('d-none');
                 return;
             }
 
@@ -265,23 +265,24 @@ assert(isset($iscritti_problemi) && is_array($iscritti_problemi), 'var $iscritti
 
             const search_terms = str.toLowerCase().split(' ').filter(filter_term);
             if (search_terms.length === 0) {
-                anagrafiche.forEach(anagrafica => anagrafica.classList.remove('d-none'));
+                $anagrafiche.removeClass('d-none');
                 return;
             }
 
-            anagrafiche.forEach(anagrafica => {
-                const keywords = anagrafica.getAttribute('data-keywords').toLowerCase().split(' ').filter(filter_term);
+            $anagrafiche.each(function () {
+                const $anagrafica = $(this);
+                const keywords = $anagrafica.attr('data-keywords').toLowerCase().split(' ').filter(filter_term);
                 if (keywords.length === 0) {
-                    anagrafica.classList.add('d-none');
+                    $anagrafica.addClass('d-none');
                     return;
                 }
 
                 const active_search_terms = search_terms.filter(term => keywords.some(keyword => keyword.includes(term)));
 
                 if (active_search_terms.length < search_terms.length) {
-                    anagrafica.classList.add('d-none');
+                    $anagrafica.addClass('d-none');
                 } else {
-                    anagrafica.classList.remove('d-none');
+                    $anagrafica.removeClass('d-none');
                 }
             });
         }

@@ -238,7 +238,7 @@ assert(isset($php_info) && is_string($php_info));
 </dialog>
 
 <script>
-    document.getElementById('open-php-info').addEventListener('click', () => {
-        document.getElementById('php-info-dialog').showModal();
+    $('#open-php-info').on('click', () => {
+        $('#php-info-dialog')[0].showModal();
     });
 </script>

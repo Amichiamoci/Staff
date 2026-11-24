@@ -1,49 +1,45 @@
 (async () => {
-    const select = document.getElementById('stats-age-edition');
-    const canvas = document.getElementById('stats-age-chart');
-    const status = document.getElementById('stats-age-status');
+    const $select = $('#stats-age-edition');
+    const $canvas = $('#stats-age-chart');
+    const $status = $('#stats-age-status');
     let chart;
     let request;
 
     async function load() {
         request?.abort();
-        const active = new AbortController();
-        request = active;
+        request = null;
 
         chart?.destroy();
         chart = undefined;
-        canvas.classList.add('d-none');
-        if (!select.value) {
-            status.textContent = 'Nessuna edizione disponibile.';
+        $canvas.addClass('d-none');
+        if (!$select.val()) {
+            $status.text('Nessuna edizione disponibile.');
             return;
         }
 
-        status.textContent = 'Caricamento…';
+        $status.text('Caricamento…');
+        const active = $.getJSON(`${BasePath}/ages`, {edition: $select.val()});
+        request = active;
         try {
-            const response = await fetch(`${BasePath}/ages?edition=${select.value}`, {signal: active.signal});
-            if (!response.ok) {
-                throw new Error('Age statistics unavailable');
-            }
-
-            const data = await response.json();
-            if (active.signal.aborted) {
+            const data = await active;
+            if (request !== active) {
                 return;
             }
 
             const ages = Object.keys(data).map(Number).filter(age => age >= 0);
             if (ages.length === 0) {
-                status.textContent = 'Nessun partecipante per questa edizione.';
+                $status.text('Nessun partecipante per questa edizione.');
                 return;
             }
 
             const youngest = Math.min(...ages);
             const oldest = Math.max(...ages);
             const bins = Array.from({length: oldest - youngest + 1}, (_, index) => youngest + index);
-            const theme = getComputedStyle(document.documentElement);
-            const color = theme.getPropertyValue('--bs-body-color').trim();
-            const grid = theme.getPropertyValue('--bs-border-color').trim();
-            canvas.classList.remove('d-none');
-            chart = new Chart(canvas, {
+            const $theme = $('html');
+            const color = ($theme.css('--bs-body-color') ?? '').trim();
+            const grid = ($theme.css('--bs-border-color') ?? '').trim();
+            $canvas.removeClass('d-none');
+            chart = new Chart($canvas[0], {
                 type: 'bar',
                 data: {
                     labels: bins,
@@ -80,15 +76,15 @@
                     },
                 },
             });
-            status.textContent = '';
+            $status.text('');
         } catch {
-            if (!active.signal.aborted) {
-                canvas.classList.add('d-none');
-                status.textContent = 'Impossibile caricare la distribuzione per età.';
+            if (request === active && active.statusText !== 'abort') {
+                $canvas.addClass('d-none');
+                $status.text('Impossibile caricare la distribuzione per età.');
             }
         }
     }
 
-    select.addEventListener('change', load);
+    $select.on('change', load);
     await load();
 })();

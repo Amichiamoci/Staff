@@ -1,60 +1,45 @@
 (() => {
-    function addSummary(results, issues) {
-        const summary = document.createElement('dl');
-        summary.className = 'd-flex flex-wrap gap-2 mb-3';
+    function addSummary($results, issues) {
+        const $summary = $('<dl>').addClass('d-flex flex-wrap gap-2 mb-3');
         for (const [label, count] of Object.entries(issues)) {
-            const item = document.createElement('div');
-            item.className = 'rounded bg-body-tertiary px-3 py-2';
-            const term = document.createElement('dt');
-            term.className = 'small';
-            term.textContent = label;
-            const value = document.createElement('dd');
-            value.className = 'fw-bold mb-0';
-            value.textContent = count;
-            item.append(term, value);
-            summary.append(item);
+            const $term = $('<dt>').addClass('small').text(label);
+            const $value = $('<dd>').addClass('fw-bold mb-0').text(count);
+            $('<div>').addClass('rounded bg-body-tertiary px-3 py-2').append($term, $value).appendTo($summary);
         }
-        results.append(summary);
+        $results.append($summary);
     }
 
-    function renderGroup(card, results, rows, area) {
-        const section = card.querySelector('template').content.firstElementChild.cloneNode(true);
-        results.append(section);
-
-        const button = section.querySelector('[data-chart-details]');
+    function renderGroup($card, $results, rows, area) {
+        const template = $card.find('template')[0];
+        const $section = $(template.content.firstElementChild).clone().appendTo($results);
+        const $button = $section.find('[data-chart-details]');
         if (rows.length === 0) {
-            section.querySelector('p').hidden = false;
-            button.hidden = true;
+            $section.find('p').prop('hidden', false);
+            $button.prop('hidden', true);
             return null;
         }
 
-        const dialog = section.querySelector('dialog');
-        button.addEventListener('click', () => dialog.showModal());
-        const table = dialog.querySelector('table');
+        const $dialog = $section.find('dialog');
+        $button.on('click', () => $dialog[0].showModal());
+        const $table = $dialog.find('table');
         if (area) {
-            const suffix = ' · ' + area;
-            dialog.querySelector('h1').textContent = table.caption.textContent + suffix;
-            table.caption.textContent += suffix;
+            const $caption = $table.find('caption');
+            const title = $caption.text() + ' · ' + area;
+            $dialog.find('h1').text(title);
+            $caption.text(title);
         }
+        const $body = $table.find('tbody');
         for (const row of rows) {
-            const tr = table.tBodies[0].insertRow();
-            const th = document.createElement('th');
-            th.scope = 'row';
+            const $tr = $('<tr>').appendTo($body);
+            const $heading = $('<th>').attr('scope', 'row').appendTo($tr);
             if (row.url) {
-                const link = document.createElement('a');
-                link.href = BasePath + row.url;
-                link.className = 'link-body-emphasis';
-                link.textContent = row.label;
-                link.title = 'Dettagli per ' + row.label;
-                th.append(link);
+                $('<a>').attr({href: BasePath + row.url, title: 'Dettagli per ' + row.label})
+                    .addClass('link-body-emphasis').text(row.label).appendTo($heading);
             } else {
-                th.textContent = row.label;
+                $heading.text(row.label);
             }
-            tr.append(th);
             for (const value of row.values) {
-                const cell = tr.insertCell();
-                cell.className = 'text-end';
-                cell.textContent = value;
+                $('<td>').addClass('text-end').text(value).appendTo($tr);
             }
         }
 
@@ -62,29 +47,28 @@
             return null;
         }
 
-        const theme = getComputedStyle(document.documentElement);
-        const color = theme.getPropertyValue('--bs-body-color').trim();
-        const grid = theme.getPropertyValue('--bs-border-color').trim();
-        const canvas = section.querySelector('canvas');
-        const headings = Array.from(table.tHead.rows[0].cells).slice(1);
-        const type = card.dataset.chartType;
+        const $theme = $('html');
+        const color = ($theme.css('--bs-body-color') ?? '').trim();
+        const grid = ($theme.css('--bs-border-color') ?? '').trim();
+        const $canvas = $section.find('canvas');
+        const headings = $table.find('thead tr').first().children().slice(1).get();
+        const type = $card.attr('data-chart-type');
         const horizontal = type === 'horizontal';
         const stacked = type !== 'line';
         const measure = horizontal ? 'x' : 'y';
-        const container = canvas.parentElement;
-        container.style.height = horizontal ? `${Math.max(200, rows.length * 28 + 85)}px` : '250px';
-        container.hidden = false;
+        $canvas.parent().css('height', horizontal ? `${Math.max(200, rows.length * 28 + 85)}px` : '250px')
+            .prop('hidden', false);
 
         const axis = { ticks: { color }, grid: { color: grid } };
-        return new Chart(canvas, {
+        return new Chart($canvas[0], {
             type: horizontal ? 'bar' : type,
             data: {
                 labels: rows.map(row => row.label),
                 datasets: headings.map((heading, index) => ({
-                    label: heading.textContent.trim(),
+                    label: $(heading).text().trim(),
                     data: rows.map(row => row.values[index]),
-                    backgroundColor: heading.dataset.color,
-                    borderColor: heading.dataset.color,
+                    backgroundColor: $(heading).attr('data-color'),
+                    borderColor: $(heading).attr('data-color'),
                 })),
             },
             options: {
@@ -102,17 +86,18 @@
         });
     }
 
-    for (const card of document.querySelectorAll('[data-dashboard-chart]')) {
-        const select = card.querySelector('[data-chart-year]');
-        const areaSelect = card.querySelector('[data-chart-area]');
-        const metric = card.dataset.dashboardChart;
-        if (!select && metric !== 'history') {
-            continue;
+    $('[data-dashboard-chart]').each(function () {
+        const $card = $(this);
+        const $select = $card.find('[data-chart-year]');
+        const $areaSelect = $card.find('[data-chart-area]');
+        const metric = $card.attr('data-dashboard-chart');
+        if (!$select.length && metric !== 'history') {
+            return;
         }
 
-        const results = card.querySelector('[data-chart-results]');
-        const status = card.querySelector('[role="status"]');
-        const loading = card.querySelector('[data-chart-loading]');
+        const $results = $card.find('[data-chart-results]');
+        const $status = $card.find('[role="status"]');
+        const $loading = $card.find('[data-chart-loading]');
         let request;
         let data;
         let chart;
@@ -120,71 +105,63 @@
         function clearResults() {
             chart?.destroy();
             chart = null;
-            results.replaceChildren();
+            $results.empty();
         }
 
         function render() {
             clearResults();
-            const area = areaSelect?.value ?? '';
-            const rows = areaSelect ? data.groups[area] ?? [] : data.rows;
+            const area = $areaSelect.val() ?? '';
+            const rows = $areaSelect.length ? data.groups[area] ?? [] : data.rows;
             if (rows.length && data.issues) {
-                addSummary(results, data.issues);
+                addSummary($results, data.issues);
             }
-            chart = renderGroup(card, results, rows, area);
+            chart = renderGroup($card, $results, rows, area);
         }
 
         async function load() {
             request?.abort();
-            const active = new AbortController();
-            request = active;
-
             clearResults();
-            if (areaSelect) {
-                areaSelect.disabled = true;
+            $areaSelect.prop('disabled', true);
+            $loading.prop('hidden', false);
+            $status.empty();
+
+            const query = {chart: metric};
+            if ($select.length) {
+                query.year = $select.val();
             }
-            loading.hidden = false;
-            status.textContent = '';
-
+            const active = $.getJSON(`${BasePath}/dashboard_chart`, query);
+            request = active;
             try {
-                const query = new URLSearchParams({chart: metric});
-                if (select) {
-                    query.set('year', select.value);
-                }
-
-                const response = await fetch(`${BasePath}/dashboard_chart?${query}`, {signal: active.signal});
-                if (!response.ok) {
-                    throw new Error('Dashboard statistics unavailable');
-                }
-                const payload = await response.json();
-                if (active.signal.aborted) {
+                const payload = await active;
+                if (request !== active) {
                     return;
                 }
 
                 data = payload;
-                if (areaSelect) {
-                    const previousArea = areaSelect.value;
+                if ($areaSelect.length) {
+                    const previousArea = $areaSelect.val();
                     const areas = Object.keys(data.groups);
-                    areaSelect.replaceChildren(...areas.map(area => new Option(area, area)));
-                    areaSelect.value = areas.includes(previousArea)
+                    $areaSelect.empty().append(areas.map(area => $('<option>').val(area).text(area)[0]));
+                    $areaSelect.val(areas.includes(previousArea)
                         ? previousArea
-                        : areas.find(area => data.groups[area].length) ?? areas[0];
-                    areaSelect.disabled = false;
+                        : areas.find(area => data.groups[area].length) ?? areas[0]);
+                    $areaSelect.prop('disabled', false);
                 }
 
                 render();
             } catch {
-                if (!active.signal.aborted) {
-                    status.textContent = 'Impossibile caricare le statistiche.';
+                if (request === active && active.statusText !== 'abort') {
+                    $status.text('Impossibile caricare le statistiche.');
                 }
             } finally {
-                if (!active.signal.aborted) {
-                    loading.hidden = true;
+                if (request === active && active.statusText !== 'abort') {
+                    $loading.prop('hidden', true);
                 }
             }
         }
 
-        select?.addEventListener('change', load);
-        areaSelect?.addEventListener('change', render);
+        $select.on('change', load);
+        $areaSelect.on('change', render);
         load();
-    }
+    });
 })();

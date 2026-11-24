@@ -9,13 +9,8 @@
 
 <script>
     function problems_js_decoder(i) {
-        const li = document.createElement('li');
-        li.className = 'list-group-item text-warning';
-        li.innerText = `${i.name}: ${i.count}`;
-        if (Number(i.count) > 1) {
-            li.classList.add('text-danger');
-        }
-        return li;
+        return $('<li>').addClass('list-group-item text-warning')
+            .toggleClass('text-danger', Number(i.count) > 1).text(`${i.name}: ${i.count}`);
     }
 </script>
 

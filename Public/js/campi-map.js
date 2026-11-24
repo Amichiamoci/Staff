@@ -1,18 +1,16 @@
 (() => {
-    const container = document.getElementById('campi-map');
-    const status = document.getElementById('campi-map-status');
-    const form = document.getElementById('campo-form');
-    const lat = form?.elements.latitudine;
-    const lon = form?.elements.longitudine;
+    const $container = $('#campi-map');
+    const $status = $('#campi-map-status');
+    const $lat = $('#campo-latitudine');
+    const $lon = $('#campo-longitudine');
+    const $coordinates = $lat.add($lon);
+    const validatePair = () => {
+        $lat.prop('required', $lon.val() !== '');
+        $lon.prop('required', $lat.val() !== '');
+    };
 
-    const coordinates = form ? [lat, lon] : [];
-
-    if (form) {
-        const validatePair = () => {
-            lat.required = lon.value !== '';
-            lon.required = lat.value !== '';
-        };
-        coordinates.forEach(input => input.addEventListener('input', validatePair));
+    if ($coordinates.length) {
+        $coordinates.on('input', validatePair);
         validatePair();
     }
 
@@ -20,37 +18,37 @@
         return;
     }
 
-    container.hidden = false;
-    const map = L.map(container, {scrollWheelZoom: false}).setView([42.5, 12.5], 6);
+    $container.prop('hidden', false);
+    const map = L.map($container[0], {scrollWheelZoom: false}).setView([42.5, 12.5], 6);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         referrerPolicy: 'strict-origin-when-cross-origin',
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" title="Licenza OpenStreetMap">OpenStreetMap</a>',
     }).on('tileerror', () => {
-        status.hidden = false;
-        status.textContent = 'Impossibile caricare lo sfondo della mappa.';
+        $status.prop('hidden', false);
+        $status.text('Impossibile caricare lo sfondo della mappa.');
     }).addTo(map);
 
-    if (form) {
-        status.textContent = 'Tocca o fai clic sulla mappa per impostare le coordinate.';
+    if ($coordinates.length) {
+        $status.text('Tocca o fai clic sulla mappa per impostare le coordinate.');
         const marker = L.marker([0, 0], {title: 'Posizione del campo', alt: 'Posizione del campo'});
         const syncMarker = () => {
-            if (!lat.value || !lon.value || !lat.validity.valid || !lon.validity.valid) {
+            if (!$lat.val() || !$lon.val() || !$lat.prop('validity').valid || !$lon.prop('validity').valid) {
                 marker.remove();
                 return;
             }
-            const point = [lat.valueAsNumber, lon.valueAsNumber];
+            const point = [$lat.prop('valueAsNumber'), $lon.prop('valueAsNumber')];
             marker.setLatLng(point).addTo(map);
             if (!map.getBounds().contains(point)) {
                 map.setView(point, 15);
             }
         };
-        coordinates.forEach(input => input.addEventListener('change', syncMarker));
+        $coordinates.on('change', syncMarker);
         map.on('click', ({latlng}) => {
             const point = latlng.wrap();
-            lat.value = point.lat.toFixed(6);
-            lon.value = point.lng.toFixed(6);
-            lat.dispatchEvent(new Event('input', {bubbles: true}));
+            $lat.val(point.lat.toFixed(6));
+            $lon.val(point.lng.toFixed(6));
+            $lat.trigger('input');
             syncMarker();
         });
         syncMarker();
@@ -61,17 +59,18 @@
     }
 
     const bounds = L.latLngBounds();
-    for (const {dataset} of document.querySelectorAll('[data-campo-lat]')) {
-        const point = [Number(dataset.campoLat), Number(dataset.campoLon)];
-        const label = document.createElement('span');
-        label.textContent = dataset.campoName;
-        L.marker(point, {title: dataset.campoName, alt: dataset.campoName}).addTo(map).bindPopup(label);
+    $('[data-campo-lat]').each(function () {
+        const $field = $(this);
+        const point = [Number($field.attr('data-campo-lat')), Number($field.attr('data-campo-lon'))];
+        const name = $field.attr('data-campo-name');
+        const label = $('<span>').text(name)[0];
+        L.marker(point, {title: name, alt: name}).addTo(map).bindPopup(label);
         bounds.extend(point);
-    }
+    });
     if (bounds.isValid()) {
-        status.hidden = true;
+        $status.prop('hidden', true);
         map.fitBounds(bounds, {padding: [24, 24], maxZoom: 16});
     } else {
-        status.textContent = 'Nessun campo ha una posizione impostata.';
+        $status.text('Nessun campo ha una posizione impostata.');
     }
 })();

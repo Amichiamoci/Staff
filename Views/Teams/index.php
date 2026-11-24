@@ -50,17 +50,17 @@ $squadre_per_sport = array_reduce(
     </div>
     <script>
         (() => {
-            const select_p = document.getElementById('parrocchia-selector');
-            const select_a = document.getElementById('anno-selector');
+            const $select_p = $('#parrocchia-selector');
+            const $select_a = $('#anno-selector');
             const f = () => {
-                const p = Number(select_p.value);
-                const a = Number(select_a.value);
-                select_p.removeEventListener('change', f);
-                select_a.removeEventListener('change', f);
+                const p = Number($select_p.val());
+                const a = Number($select_a.val());
+                $select_p.off('change', f);
+                $select_a.off('change', f);
                 window.location.replace(`?church=${p}&year=${a}`);
             };
-            select_p.addEventListener('change', f);
-            select_a.addEventListener('change', f);
+            $select_p.on('change', f);
+            $select_a.on('change', f);
         })();
     </script>
 <?php } ?>

@@ -37,13 +37,10 @@
     })
   
     window.addEventListener('DOMContentLoaded', () => {  
-      document.querySelectorAll('[data-bs-theme-value]')
-        .forEach(toggle => {
-          toggle.addEventListener('click', () => {
-            const theme = toggle.getAttribute('data-bs-theme-value')
-            setStoredTheme(theme)
-            setTheme(theme)
-          })
-        })
+      window.jQuery?.(document).on('click', '[data-bs-theme-value]', function () {
+        const theme = window.jQuery(this).attr('data-bs-theme-value')
+        setStoredTheme(theme)
+        setTheme(theme)
+      })
     })
   })()

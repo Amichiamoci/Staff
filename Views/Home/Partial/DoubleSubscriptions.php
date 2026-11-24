@@ -10,10 +10,7 @@
 
 <script>
     function double_subscription_js_decoder(i) {
-        const li = document.createElement('li');
-        li.className = 'list-group-item text-warning';
-        li.innerText = `${i.name}: ${i.church}`;
-        return li;
+        return $('<li>').addClass('list-group-item text-warning').text(`${i.name}: ${i.church}`);
     }
 </script>
 

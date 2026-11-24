@@ -4,7 +4,7 @@
         return;
     }
 
-    const header = document.getElementById('portal-header');
+    const $header = $('#portal-header');
     const swup = new Swup({
         cache: false,
         containers: ['#portal-nav', '#swup', '#portal-footer'],
@@ -24,7 +24,7 @@
         // Leave the current content visible while the request is pending.
         visit.animation.wait = true;
 
-        const dialog = document.querySelector('.modal.show');
+        const dialog = $('.modal.show')[0];
         const modal = dialog && window.bootstrap?.Modal.getInstance(dialog);
         if (!modal) {
             return;
@@ -32,12 +32,13 @@
 
         // Let Bootstrap remove its backdrop before a history visit replaces the page.
         return new Promise((resolve) => {
+            const $dialog = $(dialog);
             const hide = () => modal.hide();
-            dialog.addEventListener('shown.bs.modal', hide, {once: true});
-            dialog.addEventListener('hidden.bs.modal', () => {
-                dialog.removeEventListener('shown.bs.modal', hide);
+            $dialog.one('shown.bs.modal', hide);
+            $dialog.one('hidden.bs.modal', () => {
+                $dialog.off('shown.bs.modal', hide);
                 resolve();
-            }, {once: true});
+            });
             hide();
         });
     });
@@ -45,22 +46,17 @@
     swup.hooks.on('page:load', (visit, {page}) => {
         // Pages with external scripts need the browser's script loading and cleanup lifecycle.
         const next = new DOMParser().parseFromString(page.html, 'text/html');
-        if (next.querySelector('#swup script[src]') || document.querySelector('#swup script[src]')) {
+        if ($(next).find('#swup script[src]').length || $('#swup script[src]').length) {
             visit.ignore();
         }
     });
 
     swup.hooks.before('content:replace', (visit) => {
-        visit.to.document.querySelectorAll('#swup script').forEach(script => {
-            script.setAttribute('data-swup-reload-script', '');
-        });
+        $(visit.to.document).find('#swup script').attr('data-swup-reload-script', '');
     });
 
     // The progress plugin inserts its bar at the top of the body.
     new MutationObserver(() => {
-        const progressBar = document.querySelector('body > .swup-progress-bar');
-        if (progressBar) {
-            header.append(progressBar);
-        }
+        $header.append($('body > .swup-progress-bar'));
     }).observe(document.body, {childList: true});
 })();
