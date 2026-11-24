@@ -345,6 +345,7 @@ extends Controller
             title: 'Crediti',
             data: [
                 'repository' => $project['homepage'],
+                'projectLicense' => $project['license'],
                 'contributors' => $project['authors'],
                 'technologies' => $project['extra']['credits'],
                 'packages' => $lock['packages'],

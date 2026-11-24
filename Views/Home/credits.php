@@ -1,6 +1,7 @@
 <?php
 
 assert(isset($repository) && is_string($repository), 'var $repository not valid');
+assert(isset($projectLicense) && is_string($projectLicense));
 assert(isset($contributors) && is_array($contributors), 'var $contributors not valid');
 assert(isset($technologies) && is_array($technologies), 'var $technologies not valid');
 assert(isset($packages) && is_array($packages), 'var $packages not valid');
@@ -24,6 +25,21 @@ assert(isset($packages) && is_array($packages), 'var $packages not valid');
         </a>
     </div>
 </header>
+
+<section class="border rounded-3 bg-body-tertiary px-4 py-3 mb-4">
+    <h2 class="h5">Licenza del portale</h2>
+    <p class="mb-1">
+        <a  href="https://polyformproject.org/licenses/noncommercial/1.0.0"
+            title="Leggi il testo della licenza PolyForm Noncommercial"
+        >
+            <?= htmlspecialchars($projectLicense) ?>
+        </a>
+    </p>
+    <p class="text-body-secondary mb-0">
+        La licenza si applica al codice originale del portale.
+        I componenti di terze parti mantengono le rispettive condizioni.
+    </p>
+</section>
 
 <div class="row g-4 mb-4 align-items-start">
     <div class="col-12 col-lg-4">

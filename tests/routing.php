@@ -60,14 +60,25 @@ if ($status !== StatusCode::Ok || !str_contains($html, 'Informazioni sul portale
     || !str_contains($html, 'id="portal-nav"')
     || !str_contains($html, 'id="portal-footer"')
     || !str_contains($html, 'src="/fixture-staff/js/navigation.js"')
-    || !str_contains($html, '<dd class="col-sm-6">' . htmlspecialchars($manifest['version']) . '</dd>')
-    || !str_contains($html, '<dd class="col-sm-6">' . htmlspecialchars(PHP_VERSION) . '</dd>')
-    || !str_contains($html, '<dd class="col-sm-6">portal.example.invalid:8443</dd>')
-    || !str_contains($html, '<dd class="col-sm-6">/fixture-staff</dd>')
-    || !str_contains($html, '<dt class="col-sm-6">richie314/simple-mvc</dt>')
-    || !str_contains($html, '<dd class="col-sm-6">'
+    || !str_contains($html, 'href="/fixture-staff/credits"')
+    || !str_contains($html, 'Librerie installate')
+    || !str_contains($html, '>' . htmlspecialchars($manifest['version']) . '</dd>')
+    || !str_contains($html, '>' . htmlspecialchars(PHP_VERSION) . '</dd>')
+    || !str_contains($html, '>portal.example.invalid:8443</dd>')
+    || !str_contains($html, '>/fixture-staff</dd>')
+    || !str_contains($html, '>richie314/simple-mvc</dt>')
+    || !str_contains($html, '>'
         . htmlspecialchars(Composer\InstalledVersions::getPrettyVersion('richie314/simple-mvc')) . '</dd>')) {
     throw new RuntimeException('The about page did not render the versions and installation details.');
+}
+
+ob_start();
+$status = $aboutRouter->Dispatch('/fixture-staff/credits');
+$html = ob_get_clean();
+if ($status !== StatusCode::Ok || !str_contains($html, htmlspecialchars($manifest['license']))
+    || !str_contains($html, 'https://polyformproject.org/licenses/noncommercial/1.0.0')
+    || !str_contains($html, 'I componenti di terze parti mantengono le rispettive condizioni.')) {
+    throw new RuntimeException('The credits page did not show the portal license and its scope.');
 }
 
 $renderFooter = static function (string $P, ?User $user): string {

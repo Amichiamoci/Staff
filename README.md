@@ -16,7 +16,7 @@
 [![Deploy FTP](https://github.com/Amichiamoci/Staff/actions/workflows/ftp-deploy.yml/badge.svg)](https://github.com/Amichiamoci/Staff/actions/workflows/ftp-deploy.yml)
 [![PHP 8.4+](https://img.shields.io/badge/PHP-8.4%2B-777BB4?logo=php&logoColor=white)](composer.json)
 
-Questo repository contiene il codice sorgente del portale staff, il pannello di controllo di [Amichiamoci](https://www.amichiamoci.it), la manifestazione delle parrocchie di Livorno.
+Questo repository contiene il codice sorgente del **Portale Staff**, il pannello di controllo di [Amichiamoci](https://www.amichiamoci.it), manifestazione diocesana che si svolge ogni anno a Livorno.
 
 ## ✨ Funzionalità
 
@@ -269,8 +269,10 @@ L'applicazione è disponibile come `amichiamoci/staff` su Docker Hub e come `ghc
 | `:v1.2.3` | Immagine di una specifica release, identificata dal suo numero di versione. |
 | `:nighly` | Immagine di sviluppo con le modifiche più recenti, adatta alle prove. |
 
-## 📜 Licenze dei componenti inclusi
+## 📜 Licenza
 
-Quill 2.0.3 è distribuito con [licenza BSD](Public/quill/LICENSE.txt).
+Il codice originale del _Portale Staff Amichiamoci_ è distribuito con la [PolyForm Noncommercial License 1.0.0](LICENSE).
+La licenza consente di usare, modificare e ridistribuire il codice per finalità non commerciali secondo le condizioni indicate nel testo.
+I componenti di terze parti e i servizi esterni restano soggetti alle rispettive licenze e condizioni d’uso.
 
-[CodiceFiscale.js 2.4.0](https://github.com/lucavandro/CodiceFiscaleJS) è distribuito con [licenza CC BY-SA 4.0](Public/js/codicefiscale.LICENSE.txt).
+Per la lista delle licenze di componenti e pacchetti di terze parti inclusi in questo progetto si veda la sezione `extra` del file `composer.json` o la pagina `/credits` del Portale stesso.
