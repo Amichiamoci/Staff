@@ -113,16 +113,19 @@ try {
     $check(str_contains($home, 'aria-labelledby="chart-details-tournaments"'), true, 'The tournament card omitted its labeled modal.');
     $check(str_contains($home, 'Fixture tournament'), false, 'The home response embedded chart data.');
     $check(
-        strpos($home, 'Compleanni di oggi') < strpos($home, 'data-dashboard-chart=')
+        $document->querySelector('main > header + section[aria-labelledby="today-birthdays"] + .dashboard-cards') !== null
             && strpos($home, 'id="dashboard-tournaments"') < strpos($home, 'Anagrafiche senza email'),
         true,
         'The new chart group moved outside the existing and email cards.',
     );
+    $check(str_contains($home, 'Nessun compleanno oggi.'), true, 'The birthday banner omitted the empty state.');
+    $db->query("INSERT INTO compleanni_oggi VALUES ('Fixture <nome>', 'Cognome', 18)");
     $check(str_contains($home, 'email-stats-chart'), false, 'The demographics charts remained on the dashboard.');
 
     $admin = new User(2, 'Fixture admin', time(), admin: true);
     [$status, $adminHome] = $render('/', $admin);
     $check($status, StatusCode::Ok, 'The admin dashboard did not render.');
+    $check(str_contains($adminHome, 'Fixture &lt;nome&gt;'), true, 'The banner omitted or failed to escape a birthday name.');
     $check(str_contains($adminHome, 'Email duplicate') || str_contains($adminHome, 'Stato CRON'), false, 'Admin cards remained on the home dashboard.');
     $check(str_contains($adminHome, 'id="double_subscriptions-list"'), false, 'Double subscriptions were shown while registrations were closed.');
     $db->query("UPDATE settings SET enabled = TRUE WHERE name = 'subscriptions_enabled'");

@@ -33,6 +33,8 @@ assert(isset($show_double_subscriptions) && is_bool($show_double_subscriptions))
     </a>
 </header>
 
+<?php require __DIR__ . '/Partial/BirthDays.php'; ?>
+
 <div class="container dashboard-cards">
     <div class="row">
         <div class="col col-xs-6 col-sm-4 mb-2">
@@ -59,9 +61,6 @@ assert(isset($show_double_subscriptions) && is_bool($show_double_subscriptions))
         </div>
         <div class="col col-xs-6 col-sm-4 mb-2">
             <?php require_once __DIR__ . '/Partial/AgeStatsCard.php'; ?>
-        </div>
-        <div class="col col-xs-6 col-sm-4 mb-2">
-            <?php require_once __DIR__ . '/Partial/BirthDays.php'; ?>
         </div>
     </div>
 
