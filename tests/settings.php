@@ -103,6 +103,48 @@ foreach ($tournamentActions as $action) {
     $dispatch($admin, '/sport/' . $action, StatusCode::BadRequest, $tournamentPost);
 }
 
+$db->query('CREATE TEMPORARY TABLE campi (
+    id INT PRIMARY KEY AUTO_INCREMENT, nome VARCHAR(128), indirizzo VARCHAR(256), posizione POINT
+)');
+$html = $dispatch($staffUser, '/sport/campi', StatusCode::Ok);
+if (!str_contains($html, 'Nessun campo registrato.') || str_contains($html, 'Aggiungi campo')) {
+    throw new RuntimeException('Disabled tournament management should allow browsing only.');
+}
+$dispatch($admin, '/sport/campo_edit', StatusCode::Ok);
+$campoPost = [
+    'csrf_token' => $_SESSION['account_csrf_token'],
+    'nome' => 'Campo <Fixture>',
+    'indirizzo' => 'Via di prova',
+    'latitudine' => '0',
+    'longitudine' => '12.5',
+];
+$dispatch($staffUser, '/sport/campo_edit', StatusCode::NotAuthorized, $campoPost);
+$dispatch($admin, '/sport/campo_edit', StatusCode::BadRequest, ['csrf_token' => 'invalid'] + $campoPost);
+$dispatch($admin, '/sport/campo_edit', StatusCode::BadRequest, ['longitudine' => ''] + $campoPost);
+$dispatch($admin, '/sport/campo_edit', StatusCode::BadRequest, ['latitudine' => '91'] + $campoPost);
+$dispatch($admin, '/sport/campo_edit', StatusCode::SeeOther, $campoPost);
+$html = $dispatch($staffUser, '/sport/campi', StatusCode::Ok);
+if (!str_contains($html, 'Campo &lt;Fixture&gt;') || !str_contains($html, 'data-campo-lat="0"')
+    || !str_contains($html, 'data-campo-lon="12.5"')
+) {
+    throw new RuntimeException('The field list should show escaped names and stored coordinates.');
+}
+$fields = json_decode($dispatch($admin, '/sport/fields', StatusCode::Ok), true, flags: JSON_THROW_ON_ERROR);
+if ($fields !== [['id' => 1, 'nome' => 'Campo <Fixture>']]) {
+    throw new RuntimeException('The existing field selector response changed.');
+}
+$dispatch($admin, '/sport/campo_edit?id=1', StatusCode::Ok);
+$dispatch($admin, '/sport/campo_edit', StatusCode::SeeOther, [
+    'id' => '1',
+    'nome' => 'Campo aggiornato',
+    'latitudine' => '',
+    'longitudine' => '',
+] + $campoPost);
+$campo = $db->query('SELECT nome, posizione FROM campi')->fetch_all(MYSQLI_ASSOC);
+if ($campo !== [['nome' => 'Campo aggiornato', 'posizione' => null]]) {
+    throw new RuntimeException('Updating a field should preserve its record and allow clearing its position.');
+}
+
 $db->query('CREATE TEMPORARY TABLE iscritti (id INT, dati_anagrafici INT, parrocchia INT)');
 $db->query('INSERT INTO iscritti VALUES (91, 11, 1), (92, 12, 2)');
 $db->query("CREATE PROCEDURE SingolaIscrizione(IN enrollment INT)

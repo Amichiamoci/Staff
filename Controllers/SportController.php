@@ -64,6 +64,74 @@ extends Controller
     }
 
     #[RequireLogin]
+    public function campi(): StatusCode
+    {
+        return $this->Render(
+            view: 'Sport/campi',
+            title: 'Campi',
+            data: [
+                'campi' => Campo::All($this->DB),
+                'can_manage' => $this->CanManageTournaments(),
+            ],
+        );
+    }
+
+    #[RequireLogin]
+    public function campo_edit(
+        mixed $id = null,
+        mixed $nome = null,
+        mixed $indirizzo = null,
+        mixed $latitudine = null,
+        mixed $longitudine = null,
+        mixed $csrf_token = null,
+    ): StatusCode {
+        if (($denied = $this->CheckTournamentManagement($csrf_token)) !== null) {
+            return $denied;
+        }
+
+        if ($id !== null) {
+            $id = filter_var($id, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+            if ($id === false) {
+                return $this->BadRequest();
+            }
+        }
+
+        $campo = $id === null ? null : Campo::ById($this->DB, $id);
+        if ($id !== null && $campo === null) {
+            return $this->NotFound();
+        }
+
+        if ($this->IsPost()) {
+            if (!is_string($nome) || trim($nome) === '' || mb_strlen(trim($nome)) > 128
+                || !is_string($indirizzo) || trim($indirizzo) === '' || mb_strlen(trim($indirizzo)) > 256
+                || !is_string($latitudine) || !is_string($longitudine)
+            ) {
+                return $this->BadRequest();
+            }
+
+            $latitudine = trim($latitudine);
+            $longitudine = trim($longitudine);
+            $lat = $latitudine === '' ? null : filter_var($latitudine, FILTER_VALIDATE_FLOAT);
+            $lon = $longitudine === '' ? null : filter_var($longitudine, FILTER_VALIDATE_FLOAT);
+            if (($lat === null) !== ($lon === null) || $lat === false || $lon === false
+                || ($lat !== null && (abs($lat) > 90 || abs($lon) > 180))
+            ) {
+                return $this->BadRequest();
+            }
+
+            Campo::Save($this->DB, $id, trim($nome), trim($indirizzo), $lat, $lon);
+            $this->Message(Message::Success(content: 'Campo salvato.'));
+            return $this->RedirectWithStatus($this->PathPrefix . '/sport/campi', StatusCode::SeeOther);
+        }
+
+        return $this->Render(
+            view: 'Sport/campo_edit',
+            title: $campo === null ? 'Nuovo campo' : 'Modifica campo',
+            data: ['campo' => $campo, 'csrf_token' => $this->AccountToken()],
+        );
+    }
+
+    #[RequireLogin]
     public function index(?int $year = null): StatusCode
     {
         if (empty($year))

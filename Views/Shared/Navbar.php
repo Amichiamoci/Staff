@@ -163,6 +163,17 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                                     Partite e risultati
                                 </a>
                             </li>
+                            <li>
+                                <a  class="dropdown-item"
+                                    href="<?= $P ?>/sport/campi"
+                                    title="Campi sportivi"
+                                >
+                                    <i  class="bi bi-geo-alt me-2"
+                                        aria-hidden="true"
+                                    ></i>
+                                    Campi
+                                </a>
+                            </li>
                             <?php if ($user->Admin) { ?>
                                 <li>
                                     <hr class="dropdown-divider">
