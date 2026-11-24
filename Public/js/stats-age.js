@@ -41,6 +41,28 @@
             $canvas.removeClass('d-none');
             chart = new Chart($canvas[0], {
                 type: 'bar',
+                plugins: [{
+                    id: 'age-divider',
+                    afterDatasetsDraw({ctx, chartArea, scales}) {
+                        if (youngest > 16 || oldest < 17) {
+                            return;
+                        }
+
+                        // Category positions use indices into the age bins.
+                        const left = scales.x.getPixelForValue(16 - youngest);
+                        const right = scales.x.getPixelForValue(17 - youngest);
+                        const x = (left + right) / 2;
+                        ctx.save();
+                        ctx.strokeStyle = '#e87500';
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([6, 4]);
+                        ctx.beginPath();
+                        ctx.moveTo(x, chartArea.top);
+                        ctx.lineTo(x, chartArea.bottom);
+                        ctx.stroke();
+                        ctx.restore();
+                    },
+                }],
                 data: {
                     labels: bins,
                     datasets: [{
