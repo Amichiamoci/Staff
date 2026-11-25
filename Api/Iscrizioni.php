@@ -58,7 +58,6 @@ final class Iscrizioni
 
     /** Creates a profile for the verified email or updates an accessible profile while preserving its identity. */
     public function savePerson(
-        bool $drive,
         string $firstName,
         string $lastName,
         string $birthDate,
@@ -91,7 +90,9 @@ final class Iscrizioni
         if (!preg_match('/\A[A-Z0-9]{1,64}\z/', $taxCode) || $birthDate > date('Y-m-d')) {
             throw new InvalidArgumentException('Invalid tax code or birth date.');
         }
-        $reference = System::reference($documentUri, 'documentUri', 'documenti', $drive, optional: $id !== null);
+        if ($id === null && ($documentUri === null || $documentUri === '')) {
+            throw new InvalidArgumentException('documentUri is required when creating a profile.');
+        }
         if (!$this->db->execute_query('SELECT 1
             FROM `tipi_documento`
             WHERE `id` = ?', [$documentTypeId])->fetch_row()) {
@@ -111,7 +112,7 @@ final class Iscrizioni
             $saved = Anagrafica::CreateOrUpdate(
                 $this->db, trim($firstName), trim($lastName), $birthDate, trim($birthPlace), $phone === null ? null : trim($phone),
                 $email, $taxCode, $documentTypeId, doc_expires: $documentExpiry,
-                nome_file: $reference, abort_if_existing: $id === null,
+                nome_file: $documentUri, abort_if_existing: $id === null,
             );
             if ($saved === 0 || ($id !== null && $saved !== $id)) {
                 throw new DomainException('This profile could not be saved.');
@@ -135,7 +136,6 @@ final class Iscrizioni
 
     /** Creates or updates a current registration while sign-ups are open. */
     public function subscribe(
-        bool $drive,
         int $personId,
         int $editionId,
         int $parishId,
@@ -144,7 +144,6 @@ final class Iscrizioni
         ?string $certificateUri = null,
     ): array {
         $shirt = Taglia::tryFrom(trim($shirtSize));
-        $certificate = System::reference($certificateUri, 'certificateUri', 'certificati', $drive, optional: true);
         if ($shirt === null || mb_strlen($shirtSize) > 8 || preg_match('/\p{C}/u', $shirtSize) !== 0) {
             throw new InvalidArgumentException('Unknown shirt size.');
         }
@@ -189,7 +188,7 @@ final class Iscrizioni
                 throw new DomainException('Contact the event staff to resolve duplicate subscriptions.');
             }
             if ($existing === []) {
-                if (!Iscrizione::Create($this->db, $personId, $guardianId, $certificate, $parishId, $shirt, $editionId)) {
+                if (!Iscrizione::Create($this->db, $personId, $guardianId, $certificateUri, $parishId, $shirt, $editionId)) {
                     throw new RuntimeException('Subscription could not be created.');
                 }
                 $subscription = $this->db->insert_id;
@@ -200,7 +199,7 @@ final class Iscrizioni
                      SET `parrocchia` = ?, `taglia_maglietta` = ?, `tutore` = COALESCE(?, `tutore`),
                          `certificato_medico` = COALESCE(?, `certificato_medico`)
                      WHERE `id` = ?',
-                    [$parishId, $shirt->value, $guardianId, $certificate, $subscription],
+                    [$parishId, $shirt->value, $guardianId, $certificateUri, $subscription],
                 );
             }
             $row = $this->db->execute_query(

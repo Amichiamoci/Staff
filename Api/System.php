@@ -36,7 +36,7 @@ final class System
                 ORDER BY `id`'),
             'shirtSizes' => Taglia::All(),
             'fields' => $this->fields(),
-            'storage' => self::configuration(),
+            'storage' => $this->configuration(),
         ];
     }
 

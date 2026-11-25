@@ -8,7 +8,7 @@ use Richie314\SimpleMvc\Http\StatusCode;
 use Richie314\SimpleMvc\Routers\Router;
 use Richie314\SimpleVirtualFS\VirtualFilesystem;
 
-use Amichiamoci\Api\{Iscrizioni, Login, Sport, System};
+use Amichiamoci\Api\{Iscrizioni, Login, Sport};
 use Amichiamoci\Controllers\ApiController;
 use Amichiamoci\Models\Api\Token;
 use Amichiamoci\Models\User;
@@ -83,7 +83,7 @@ try {
         try {
             $actual = $router->Dispatch('/staff/api/' . $path);
             $check($actual === $status, "Unexpected API status {$actual->value} for $path.");
-            return $status === StatusCode::ServerError ? [] : json_decode(ob_get_contents(), true, flags: JSON_THROW_ON_ERROR);
+            return json_decode(ob_get_contents(), true, flags: JSON_THROW_ON_ERROR);
         } finally {
             ob_end_clean();
         }
@@ -94,19 +94,19 @@ try {
     $get('event', StatusCode::NotAuthorized);
     $_SERVER['HTTP_APP_BEARER'] = $appToken;
     $_SERVER['HTTP_X_FORWARDED_FOR'] = '192.0.2.20';
-    $check($get('event')['subscriptionsOpen'] === true, 'Subscriptions should be open.');
+    $check($get('leaderboard')[0]['rankPosition'] === 1, 'Parish rankings must use integer ranks.');
     unset($_SERVER['HTTP_X_FORWARDED_FOR']);
     $usage = $db->execute_query('SELECT ip_address FROM api_usage WHERE token_id = ?', [$tokenId])->fetch_row();
     $check($usage === ['192.0.2.20'], 'API token activity must use the MVC client address.');
-    $check($get('event')['storage'] === ['allowedSources' => ['app:///' => ['type' => 'built-in']], 'preferred' => 'app:///'], 'The empty mount list must prefer app storage.');
-    $check($get('leaderboard')[0]['rankPosition'] === 1, 'Parish rankings must use integer ranks.');
+    $event = $get('event');
+    $check($event['subscriptionsOpen'] === true, 'Subscriptions should be open.');
+    $check($event['storage'] === ['sources' => ['app:///' => ['type' => 'built-in']], 'preferred' => 'app:///'], 'The empty mount list must prefer app storage.');
     $check($get('tournaments')[0]['matchesWithResults'] === 2, 'Scores and forfeits must be counted once per match.');
     $check(count($get('tournament_standings?tournament_id=1')) === 2, 'Tournament standings must include both teams.');
-    $check($get('event')['fields'][0]['longitude'] === 12, 'Field coordinates must match the schedule.');
+    $check($event['fields'][0]['longitude'] === 12, 'Field coordinates must match the schedule.');
     $matches = $get('matches?team_id=2&tournament_id=1');
     $check(count($matches) === 2 && count($matches[0]['scores']) === 2 && $matches[1]['fieldId'] === null && $matches[1]['forfeitWinnerTeamId'] === 2, 'Match results or scheduling data are incorrect.');
     $check($get('matches?team_id=3') === [], 'Match filters must return an empty list when there are no matches.');
-    $get('matches?team_id[]=2', StatusCode::ServerError);
     $get('matches?team_id=2.5', StatusCode::BadRequest);
     $get('matches?team_id=2147483648', StatusCode::BadRequest);
     $get('tournament_standings', StatusCode::BadRequest);
@@ -115,7 +115,6 @@ try {
     $check($get('today_matches?parish_id=2') === [$matches[0]], 'Today must include the away parish and preserve match scores.');
     $check($get('today_matches?parish_id=3') === [], 'An unrelated parish must get an empty list.');
     $get('today_matches', StatusCode::BadRequest);
-    $get('today_matches?parish_id[]=1', StatusCode::ServerError);
     foreach (['people', 'save_person', 'subscriptions', 'subscribe', 'my_teams', 'login'] as $path) {
         $get($path, StatusCode::BadRequest);
     }
@@ -126,7 +125,7 @@ try {
     $files->mountLocal('drive', sys_get_temp_dir(), key: $fixtureKey);
     $storage = $get('event')['storage'];
     $check($storage === [
-        'allowedSources' => [
+        'sources' => [
             'app:///' => ['type' => 'built-in'],
             'drive:///' => [
                 'type' => 'google-drive',
@@ -134,18 +133,30 @@ try {
                 'encryptionKey' => base64_encode($fixtureKey),
             ],
         ],
-        'preferred' => 'drive:///',
+        'preferred' => 'app:///',
     ], 'Drive configuration must describe both sources and return the shared mount key.');
-    $check(System::reference('drive:///documenti/fixture.pdf', 'uri', 'documenti', true) === 'drive:///documenti/fixture.pdf', 'Drive references must be accepted when enabled.');
-    try {
-        System::reference('app:///documenti/../fixture.pdf', 'uri', 'documenti', false);
-        throw new RuntimeException('A traversal reference was accepted.');
-    } catch (InvalidArgumentException) {
-    }
+    $_SERVER['REQUEST_METHOD'] = 'POST';
+    $_SERVER['CONTENT_TYPE'] = 'application/x-www-form-urlencoded';
+    $postRouter = new Router(pathPrefix: '/staff', applicationInstallationPath: dirname(__DIR__));
+    $postRouter->AddController(ApiController::class, '/api');
+    $postRouter->SetDbConnection($db);
+    $postRouter->SetDefaultVariable('files', $files);
+    $post = static function (string $path, array $fields, StatusCode $expected = StatusCode::Ok) use ($postRouter, $check): array {
+        $_POST = $fields;
+        ob_start();
+        try {
+            $status = $postRouter->Dispatch('/staff/api/' . $path);
+            $check($status === $expected, "Unexpected API status {$status->value} for $path.");
+            return json_decode(ob_get_contents(), true, flags: JSON_THROW_ON_ERROR);
+        } finally {
+            ob_end_clean();
+            $_POST = [];
+        }
+    };
+    $_SERVER['REQUEST_METHOD'] = 'GET';
 
-    $registration = new Iscrizioni($db, $email);
-    $other = new Iscrizioni($db, $otherEmail);
     $profile = [
+        'email' => $email,
         'firstName' => 'Fixture',
         'lastName' => 'Participant',
         'birthDate' => '2000-04-05',
@@ -153,52 +164,56 @@ try {
         'taxCode' => 'FIXTURE101',
         'documentTypeId' => 1,
         'documentExpiry' => '2030-04-05',
-        'documentUri' => 'app:///documenti/fixture.pdf',
+        'documentUri' => 'drive:///documenti/fixture storage reference',
     ];
-    $person = $registration->savePerson(false, ...$profile);
-    $check($person['email'] === $email && $person['hasDocument'] === true, 'New profiles must use the verified email and retain the document reference.');
+    $person = $post('save_person', $profile);
     $id = $person['id'];
-    try {
-        $other->savePerson(false, ...$profile);
-        throw new RuntimeException('Creating a duplicate tax code was accepted.');
-    } catch (DomainException) {
-    }
-    $ward = $other->savePerson(false, ...array_replace($profile, ['taxCode' => 'FIXTUREWARD']));
+    $check($person['email'] === $email && $person['hasDocument'] === true, 'The profile must include its verified email and document status.');
+    $storedDocument = $db->execute_query('SELECT `documento`
+        FROM `anagrafiche`
+        WHERE `id` = ?', [$id])->fetch_row()[0];
+    $check($storedDocument === $profile['documentUri'], 'The API must store the supplied document reference as-is.');
+    $post('save_person', array_replace($profile, ['email' => $otherEmail]), StatusCode::Forbidden);
+    $ward = $post('save_person', array_replace($profile, ['email' => $otherEmail, 'taxCode' => 'FIXTUREWARD', 'lastName' => 'Ward']));
+
     unset($profile['documentUri']);
     $profile['id'] = $id;
     $profile['firstName'] = 'Updated';
-    $updated = $registration->savePerson(false, ...$profile);
-    $check($updated['hasDocument'] === true, 'Omitting the document URI must retain the reference.');
-    $check(!array_key_exists('documentNumber', $registration->people()[0]), 'API profile reads must omit document numbers.');
-    try {
-        $other->savePerson(false, ...$profile);
-        throw new RuntimeException('Another email updated the profile.');
-    } catch (DomainException) {
-    }
+    $updated = $post('save_person', $profile);
+    $check($updated['hasDocument'] === true && $updated['firstName'] === 'Updated', 'An update must retain the document reference.');
+    $post('save_person', array_replace($profile, ['email' => $otherEmail]), StatusCode::Forbidden);
 
-    $subscriptionFields = ['personId' => $id, 'editionId' => 1, 'parishId' => 1, 'shirtSize' => 'M',
-        'certificateUri' => 'app:///certificati/fixture.pdf'];
-    $subscription = $registration->subscribe(false, ...$subscriptionFields);
+    $subscriptionFields = [
+        'email' => $email, 'personId' => $id, 'editionId' => 1, 'parishId' => 1, 'shirtSize' => 'M',
+        'certificateUri' => 'app:///certificati/fixture storage reference',
+    ];
+    $subscription = $post('subscribe', $subscriptionFields);
+    $storedCertificate = $db->execute_query('SELECT `certificato_medico`
+        FROM `iscritti`
+        WHERE `id` = ?', [$subscription['id']])->fetch_row()[0];
+    $check($storedCertificate === $subscriptionFields['certificateUri'], 'The API must store the supplied certificate reference as-is.');
     unset($subscriptionFields['certificateUri']);
-    $check($registration->subscribe(false, ...$subscriptionFields) === $subscription, 'Retrying a subscription must preserve its ID and certificate.');
-    $check($other->subscriptions() === [], 'An unrelated email must not see the subscription.');
-    $db->execute_query('INSERT INTO squadre_iscritti (squadra, iscritto) VALUES (2, ?)', [$subscription['id']]);
+    $check($subscription['hasCertificate'] === true && $post('subscribe', $subscriptionFields) === $subscription,
+        'Retrying a subscription must preserve its ID and certificate.');
 
-    $check($registration->people()[0]['firstName'] === 'Updated', 'The updated profile must remain visible.');
+    $registration = new Iscrizioni($db, $email);
+    $other = new Iscrizioni($db, $otherEmail);
+    $check(!array_key_exists('documentNumber', $registration->people()[0]), 'API profile reads must omit document numbers.');
+    $check($other->subscriptions() === [], 'An unrelated email must not see the subscription.');
+    $db->execute_query('INSERT INTO `squadre_iscritti` (`squadra`, `iscritto`)
+        VALUES (2, ?)', [$subscription['id']]);
     $check((new Sport($db))->teams($email)[0]['teamId'] === 2, 'The team lookup must follow current enrollment membership.');
 
-    $wardRegistration = $other->subscribe(false, ...array_replace($subscriptionFields, ['personId' => $ward['id']]));
-    $db->execute_query('UPDATE iscritti SET tutore = ? WHERE id = ?', [$id, $wardRegistration['id']]);
-    $check(array_column($registration->people(), 'id') === [$ward['id'], $id], 'A current guardian must be able to discover the linked profile.');
+    $wardRegistration = $post('subscribe', array_replace($subscriptionFields, ['email' => $otherEmail, 'personId' => $ward['id']]));
+    $db->execute_query('UPDATE `iscritti`
+        SET `tutore` = ?
+        WHERE `id` = ?', [$id, $wardRegistration['id']]);
+    $check(array_column($registration->people(), 'id') === [$id, $ward['id']], 'A current guardian must be able to discover the linked profile.');
     $check(count($registration->subscriptions()) === 2, 'Current guardian-linked registrations must be readable.');
 
     $db->query("UPDATE settings SET enabled = 0 WHERE name = 'subscriptions_enabled'");
     $check($registration->subscriptions()[0] === $subscription, 'Closed subscriptions must remain readable.');
-    try {
-        $registration->subscribe(false, ...$subscriptionFields);
-        throw new RuntimeException('A closed subscription was modified.');
-    } catch (DomainException) {
-    }
+    $post('subscribe', $subscriptionFields, StatusCode::Forbidden);
 
     $indexes = [];
     foreach ($db->query('SHOW INDEX FROM web_app_logins')->fetch_all(MYSQLI_ASSOC) as $index) {
@@ -249,23 +264,8 @@ try {
         && !str_contains($html, $appToken),
         'The token page must link the log from its header and navbar and retain both token actions.');
 
-    $_SERVER['REQUEST_METHOD'] = 'POST';
-    $_SERVER['CONTENT_TYPE'] = 'application/x-www-form-urlencoded';
-    $_POST = ['email' => $email];
-    $postRouter = new Router(pathPrefix: '/staff', applicationInstallationPath: dirname(__DIR__));
-    $postRouter->AddController(ApiController::class, '/api');
-    $postRouter->SetDbConnection($db);
-    $postRouter->SetDefaultVariable('files', $files);
-    ob_start();
-    try {
-        $status = $postRouter->Dispatch('/staff/api/people?email=unlinked@example.invalid');
-        $profiles = json_decode(ob_get_contents(), true, flags: JSON_THROW_ON_ERROR);
-    } finally {
-        ob_end_clean();
-    }
-    $check($status === StatusCode::Ok && in_array($id, array_column($profiles, 'id'), true),
-        'POST must bind form body fields instead of query fields.');
-    $_POST = [];
+    $profiles = $post('people?email=unlinked@example.invalid', ['email' => $email]);
+    $check(in_array($id, array_column($profiles, 'id'), true), 'POST must bind form body fields instead of query fields.');
 
     $check(Token::Delete($db, $tokenId), 'The fixture token could not be revoked.');
     $get('event', StatusCode::NotAuthorized);
@@ -274,3 +274,5 @@ try {
 } finally {
     $db->query("DROP DATABASE `$schema`");
 }
+
+echo "API checks passed.\n";

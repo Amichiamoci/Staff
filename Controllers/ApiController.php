@@ -116,29 +116,34 @@ extends Controller
 
     public function event(): StatusCode
     {
-        return $this->respond(Method::Get, fn() => (new System($this->DB))->details($this->Files()));
+        $system = new System($this->DB, $this->Files());
+        return $this->respond(Method::Get, fn() => $system->details());
     }
 
     public function leaderboard(): StatusCode
     {
-        return $this->respond(Method::Get, fn() => (new Sport($this->DB))->leaderboard());
+        $sport = new Sport($this->DB);
+        return $this->respond(Method::Get, fn() => $sport->leaderboard());
     }
 
     public function tournaments(): StatusCode
     {
-        return $this->respond(Method::Get, fn() => (new Sport($this->DB))->tournaments());
+        $sport = new Sport($this->DB);
+        return $this->respond(Method::Get, fn() => $sport->tournaments());
     }
 
     public function tournament_standings(int|string|null $tournament_id = null): StatusCode
     {
-        return $this->respond(Method::Get, fn() => (new Sport($this->DB))->standings(
+        $sport = new Sport($this->DB);
+        return $this->respond(Method::Get, fn() => $sport->standings(
             $this->checkId($tournament_id, 'tournament_id'),
         ));
     }
 
     public function matches(int|string|null $tournament_id = null, int|string|null $team_id = null): StatusCode
     {
-        return $this->respond(Method::Get, fn() => (new Sport($this->DB))->matches(
+        $sport = new Sport($this->DB);
+        return $this->respond(Method::Get, fn() => $sport->matches(
             $tournament_id === null ? null : $this->checkId($tournament_id, 'tournament_id'),
             $team_id === null ? null : $this->checkId($team_id, 'team_id'),
         ));
@@ -146,7 +151,8 @@ extends Controller
 
     public function today_matches(int|string|null $parish_id = null): StatusCode
     {
-        return $this->respond(Method::Get, fn() => (new Sport($this->DB))->todayMatches(
+        $sport = new Sport($this->DB);
+        return $this->respond(Method::Get, fn() => $sport->todayMatches(
             $this->checkId($parish_id, 'parish_id'),
         ));
     }
@@ -170,7 +176,6 @@ extends Controller
         ?string $documentUri = null,
     ): StatusCode {
         return $this->withIscrizioni($email, fn(Iscrizioni $iscrizioni) => $iscrizioni->savePerson(
-            drive: System::driveEnabled($this->Files()),
             firstName: $firstName ?? '',
             lastName: $lastName ?? '',
             birthDate: $birthDate ?? '',
@@ -199,7 +204,6 @@ extends Controller
         ?string $certificateUri = null,
     ): StatusCode {
         return $this->withIscrizioni($email, fn(Iscrizioni $iscrizioni) => $iscrizioni->subscribe(
-            drive: System::driveEnabled($this->Files()),
             personId: $this->checkId($personId, 'personId'),
             editionId: $this->checkId($editionId, 'editionId'),
             parishId: $this->checkId($parishId, 'parishId'),
@@ -211,12 +215,14 @@ extends Controller
 
     public function my_teams(?string $email = null): StatusCode
     {
-        return $this->respond(Method::Post, fn() => (new Sport($this->DB))->teams($this->verifiedEmail($email)));
+        $sport = new Sport($this->DB);
+        return $this->respond(Method::Post, fn() => $sport->teams($this->verifiedEmail($email)));
     }
 
     private function withIscrizioni(?string $email, callable $action): StatusCode
     {
-        return $this->respond(Method::Post, fn() => $action(new Iscrizioni($this->DB, $this->verifiedEmail($email))));
+        $iscrizioni = new Iscrizioni($this->DB, $this->verifiedEmail($email));
+        return $this->respond(Method::Post, fn() => $action($iscrizioni));
     }
 
     private function verifiedEmail(?string $value): string
