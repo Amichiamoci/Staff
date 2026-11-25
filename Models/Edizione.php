@@ -6,7 +6,6 @@ class Edizione
     public int $Id = 0;
     public int $Year = 0;
     public ?string $Motto = null;
-    public ?string $ImgPath = null;
 
     /** Checks whether the object has a persisted edition ID. */
     public function Ok(): bool
@@ -18,7 +17,6 @@ class Edizione
         string|int|null $id, 
         string|int|null $year,
         string|null $motto, 
-        string|null $img,
     ) {
         if (isset($id))
             $this->Id = (int)$id;
@@ -27,8 +25,6 @@ class Edizione
         
         if (isset($motto) && is_string(value: $motto))
             $this->Motto = $motto;
-        if (isset($img) && is_string(value: $img))
-            $this->ImgPath = $img;
     }
 
     /** Finds an edition by its database ID. */
@@ -48,7 +44,6 @@ class Edizione
                 id: $row["id"], 
                 year: $row['anno'],
                 motto: $row["motto"], 
-                img: $row["path_immagine"], 
             );
         }
         return null;
@@ -71,7 +66,6 @@ class Edizione
                 id: $row["id"], 
                 year: $row['anno'],
                 motto: $row["motto"], 
-                img: $row["path_immagine"], 
             );
         }
         return null;
@@ -94,7 +88,6 @@ class Edizione
                     id: $row["id"], 
                     year: $row['anno'],
                     motto: $row["motto"], 
-                    img: $row["path_immagine"], 
                 );
                 $ret[] = $edizione;
             }
@@ -118,7 +111,6 @@ class Edizione
                 id: $row["id"], 
                 year: $row['anno'],
                 motto: $row["motto"], 
-                img: $row["path_immagine"], 
             );
         }
         return null;
@@ -141,20 +133,19 @@ class Edizione
             id: $connection->insert_id,
             year: $year,
             motto: $motto,
-            img: null
         );
     }
 
-    /** Persists this edition’s year, motto, and image path. */
+    /** Persists this edition’s year and motto. */
     public function Update(\mysqli $connection): ?self
     {
         if (!$connection) {
             return null;
         }
         $query = "UPDATE `edizioni`
-            SET `anno` = ?, `motto` = ?, `path_immagine` = ?
+            SET `anno` = ?, `motto` = ?
             WHERE `id` = ?";
-        $result = $connection->execute_query(query: $query, params: [$this->Year, $this->Motto, $this->ImgPath, $this->Id]);
+        $result = $connection->execute_query(query: $query, params: [$this->Year, $this->Motto, $this->Id]);
         if (!$result) {
             return null;
         }

@@ -110,7 +110,7 @@ final class Iscrizioni
             }
             $saved = Anagrafica::CreateOrUpdate(
                 $this->db, trim($firstName), trim($lastName), $birthDate, trim($birthPlace), $phone === null ? null : trim($phone),
-                $email, $taxCode, $documentTypeId, doc_code: null, doc_expires: $documentExpiry,
+                $email, $taxCode, $documentTypeId, doc_expires: $documentExpiry,
                 nome_file: $reference, abort_if_existing: $id === null,
             );
             if ($saved === 0 || ($id !== null && $saved !== $id)) {

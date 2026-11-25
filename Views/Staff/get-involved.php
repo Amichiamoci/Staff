@@ -105,23 +105,6 @@ if (!$user->Admin) {
         <?php } ?>
     </ul>
 
-    <div class="form-check">
-        <input
-            class="form-check-input"
-            type="checkbox"
-            value=""
-            id="church_manager"
-            name="church_manager"
-            <?= ($staff ?? null)?->Referente ? 'checked' : '' ?>
-        >
-        <label
-            class="form-check-label"
-            for="church_manager"
-        >
-            Sarò referente parrocchiale
-        </label>
-    </div>
-
     <div class="col-12 mt-2">
         <button
             class="btn btn-primary"

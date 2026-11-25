@@ -168,21 +168,6 @@ if ($is_editing) {
             Per favore, scegli un tipo di documento
         </div>
     </div>
-    <?php if ($is_editing && !empty($anagrafica->DocumentCode)) { ?>
-        <div class="form-floating mb-3">
-            <input
-                type="text"
-                class="form-control"
-                id="doc_code"
-                name="doc_code"
-                value="<?= htmlspecialchars(string: $anagrafica->DocumentCode) ?>"
-            >
-            <label for="doc_code">Codice Documento <small>(facoltativo)</small></label>
-            <div class="invalid-feedback">
-                Per favore, immetti il codice del documento
-            </div>
-        </div>
-    <?php } ?>
     <div class="form-floating mb-3">
         <input
             required

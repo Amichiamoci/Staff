@@ -136,7 +136,7 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                         class="text-reset font-monospace"
                         title="Scarica il documento di <?= htmlspecialchars(string: $anagrafica->Nome) ?>"
                     >
-                        <?= htmlspecialchars(string: $anagrafica->DocumentCode ?? 'Presente') ?>
+                        Presente
                         <i class="bi bi-download"></i>
                     </a>
                 <?php } else { ?>

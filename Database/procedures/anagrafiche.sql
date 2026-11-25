@@ -1,13 +1,5 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS `NomeDaAnagrafica` //
-CREATE PROCEDURE `NomeDaAnagrafica` (IN anagrafica INT)
-BEGIN
-    SELECT CONCAT(`nome`, ' ', `cognome`) AS "nome_completo"
-    FROM `anagrafiche`
-    WHERE `id` = anagrafica;
-END; //
-
 DROP PROCEDURE IF EXISTS `CreaAnagrafica` //
 CREATE PROCEDURE `CreaAnagrafica` (
     IN nome VARCHAR(128),
@@ -18,7 +10,6 @@ CREATE PROCEDURE `CreaAnagrafica` (
     IN email VARCHAR(64),
     IN cf VARCHAR(64),
     IN doc_type INT,
-    IN doc_code VARCHAR(128),
     IN doc_expires DATE,
     IN doc_addr VARCHAR(4096),
     IN abort_if_existing BOOLEAN)
@@ -60,9 +51,6 @@ crea_anagrafica_body:BEGIN
         `anagrafiche`.`tipo_documento` = CASE
             WHEN doc_type IS NOT NULL THEN doc_type
             ELSE `anagrafiche`.`tipo_documento` END,
-        `anagrafiche`.`codice_documento` = CASE
-            WHEN doc_code IS NOT NULL AND doc_code != '' THEN REPLACE(UPPER(doc_code), ' ', '')
-            ELSE `anagrafiche`.`codice_documento` END,
         `anagrafiche`.`scadenza` = CASE
             WHEN doc_expires IS NOT NULL THEN doc_expires
             ELSE `anagrafiche`.`scadenza` END,
@@ -82,13 +70,10 @@ crea_anagrafica_body:BEGIN
             `email`,
             `codice_fiscale`,
             `tipo_documento`,
-            `codice_documento`,
             `scadenza`,
-            `documento`,
-            `self_generated`
+            `documento`
         )
-
-      VALUES (
+        VALUES (
             TRIM(nome),
             TRIM(cognome),
             compleanno,
@@ -97,10 +82,8 @@ crea_anagrafica_body:BEGIN
             REPLACE(email, ' ', ''),
             REPLACE(UPPER(cf), ' ', ''),
             doc_type,
-            REPLACE(UPPER(doc_code), ' ', ''),
             doc_expires,
-            doc_addr,
-            abort_if_existing
+            doc_addr
         );
         SET id = LAST_INSERT_ID();
     END IF;

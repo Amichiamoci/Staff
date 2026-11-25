@@ -16,7 +16,6 @@ BEGIN
         a.`documento`,
         a.`tipo_documento`,
         a.`tipo_documento_nome`,
-        a.`codice_documento`,
         a.`scadenza`,
         a.`eta`,
         a.`sesso`,
@@ -27,7 +26,6 @@ BEGIN
         LPAD(HEX(i.`id`), 8, '0')             AS "codice_iscrizione",
         NULL                                  AS "iscrivi",
         i.`id`                                AS "id_iscrizione",
-        a.`creatore_dati`,
         i.`certificato_medico`,
         i.`taglia_maglietta`                  AS "maglia",
         CONCAT (a2.`cognome`, ' ', a2.`nome`) AS "tutore",
@@ -56,7 +54,6 @@ BEGIN
         a.`cf`,
         a.`sesso`,
         a.`documento`,
-        a.`codice_documento`,
         t.`label`,
         p.`nome`                              AS "parrocchia",
         p.`id`                                AS "id_parrocchia",
@@ -65,7 +62,6 @@ BEGIN
         LPAD(HEX(i.`id`), 8, '0')             AS "codice_iscrizione",
         NULL                                  AS "iscrivi",
         i.`id`                                AS "id_iscrizione",
-        a.`creatore_dati`,
         i.`certificato_medico`,
         i.`taglia_maglietta`                  AS "maglia",
         CONCAT (a2.`cognome`, ' ', a2.`nome`) AS "tutore",
@@ -77,49 +73,6 @@ BEGIN
     	INNER JOIN `parrocchie` p        ON i.`parrocchia` = p.`id`
     	LEFT OUTER JOIN `anagrafiche` a2 ON i.`tutore` = a2.`id`
     WHERE i.`id` = id;
-END; //
-
-DROP PROCEDURE IF EXISTS `NonIscrittiNonStaff` //
-CREATE PROCEDURE `NonIscrittiNonStaff` (IN anno YEAR)
-BEGIN
-    -- anno IS NULL -> tutte le anagrafiche di chi non e' mai stato iscritto
-    -- anno = X -> tutti i non iscritti e non staff dell'anno X
-
-    SELECT
-        a.`id`,
-        a.`cognome`,
-        a.`nome`,
-        a.`data_nascita_italiana`                                    AS "data_nascita",
-        a.`eta`,
-        a.`telefono`,
-        a.`email`,
-        a.`cf`,
-        a.`documento`,
-        a.`codice_documento`,
-        t.`label`,
-        a.`sesso`,
-        a.`creatore_dati`,
-        CONCAT('Iscrivi per il ', IFNULL (anno, YEAR(CURRENT_DATE))) AS "iscrivi"
-    FROM `anagrafiche_espanse` AS a
-    	INNER JOIN `tipi_documento` t ON a.`tipo_documento` = t.`id`
-    WHERE
-        NOT EXISTS (
-            SELECT *
-            FROM `iscritti` i
-            	INNER JOIN `edizioni` e ON e.`id` = i.`edizione`
-            WHERE i.`dati_anagrafici` = a.`id` AND (
-                e.`anno` = anno OR anno IS NULL
-            ))
-        AND
-        NOT EXISTS (
-            SELECT *
-            FROM `staffisti` s
-            	INNER JOIN `partecipaz_staff_ediz` p ON p.`staff` = s.`id`
-            	INNER JOIN `edizioni` e              ON e.`id` = p.`edizione`
-            WHERE s.`dati_anagrafici` = a.`id` AND (
-                e.`anno` = anno OR anno IS NULL
-            ))
-    ORDER BY YEAR(a.`data_nascita`) ASC, a.`cognome` ASC, a.`nome` ASC;
 END; //
 
 DROP PROCEDURE IF EXISTS `ContaMaglie` //
@@ -210,30 +163,6 @@ lista_body:BEGIN
     	INNER JOIN `edizioni` e    ON i.`edizione` = e.`id`
     WHERE e.`anno` = @_anno
     ORDER BY `Parrocchia`, `Taglia`, `Cognome`, `Nome`;
-END ; //
-
-DROP PROCEDURE IF EXISTS `IscriviEdizioneCorrente` //
-CREATE PROCEDURE `IscriviEdizioneCorrente` (IN anagrafica INT, IN parrocchia INT, IN taglia VARCHAR(8), IN tutore INT, IN certificato VARCHAR(2048))
-lista_body:BEGIN
-    DECLARE _ediz INT DEFAULT 0;
-    DECLARE _id INT DEFAULT 0;
-
-    SELECT e.`id`
-    INTO _ediz
-    FROM `edizioni` e
-    WHERE e.`anno` = YEAR(CURRENT_DATE);
-
-    INSERT INTO `iscritti` (`dati_anagrafici`, `edizione`, `tutore`, `parrocchia`, `taglia_maglietta`, `certificato_medico`)
-
-
-VALUES (anagrafica, _ediz, tutore, parrocchia, taglia, certificato);
-
-    SELECT LAST_INSERT_ID()
-    INTO _id;
-
-    SELECT _id AS "id", p.`nome` AS "nome_parrocchia"
-    FROM `parrocchie` p
-    WHERE p.`id` = parrocchia;
 END ; //
 
 DELIMITER ;

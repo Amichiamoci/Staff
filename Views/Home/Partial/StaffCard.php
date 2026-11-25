@@ -25,11 +25,7 @@ if (isset($staff) && $staff instanceof Staff) {
 
             <dl class="row">
                 <dt class="col-sm-4">
-                    <?php if ($staff->Referente) { ?>
-                        <strong>Referente</strong>
-                    <?php } else { ?>
-                        Parrocchia
-                    <?php } ?>
+                    Parrocchia
                 </dt>
                 <dd class="col-sm-8">
                     <?= htmlspecialchars(string: $staff->Parrocchia->Nome) ?>

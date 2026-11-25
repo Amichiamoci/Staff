@@ -76,7 +76,6 @@ if (!$current_only) {
                         <td>
                             <?php if ($current instanceof Staff) { ?>
                                 <?= htmlspecialchars($current->Parrocchia->Nome) ?>
-                                <?= $current->Referente ? ' · Referente' : '' ?>
                             <?php } else { ?>
                                 —
                             <?php } ?>

@@ -25,8 +25,7 @@ final class DashboardStatistics
             foreach ($issues as $issue) {
                 $counts['Certificati mancanti'] += (int)($issue->Certificato !== null);
                 $counts['Tutori mancanti'] += (int)($issue->Tutore !== null);
-                $counts['Problemi con i documenti'] += (int)($issue->Documento !== null
-                    || $issue->ScadenzaDocumento !== null || $issue->CodiceDocumento !== null);
+                $counts['Problemi con i documenti'] += (int)($issue->Documento !== null || $issue->ScadenzaDocumento !== null);
             }
             $count = count($issues);
             $rows[] = [
@@ -102,12 +101,7 @@ final class DashboardStatistics
         $groups = ['Calcio' => [], 'Pallavolo' => [], 'Basket' => []];
         foreach ($result as $row) {
             $id = (int)$row['id'];
-            $area = match ($row['area']) {
-                'PALLACANESTRO' => 'Basket',
-                '' => 'Altri sport',
-                default => ucfirst(strtolower($row['area'])),
-            };
-            $groups[$area][] = [
+            $groups[$row['area']][] = [
                 'label' => $row['nome'],
                 'url' => "/sport/tournament?id=$id",
                 'values' => [(int)$row['incomplete'], (int)$row['scheduled'], (int)$row['result']],

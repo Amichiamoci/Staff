@@ -1,19 +1,5 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS IsUserLogged //
-CREATE PROCEDURE IsUserLogged(IN id INT, IN flag VARCHAR(64))
-BEGIN
-    SELECT
-        u.`id`,
-        u.`user_name`,
-        u.`is_admin`,
-        s.`user_flag`,
-        s.`id` AS "session_id"
-    FROM `utenti` AS u
-    	INNER JOIN `sessioni` AS s ON s.`user_id` = u.`id`
-    WHERE s.`user_flag` = flag AND u.`id` = id AND TIMESTAMPDIFF(MINUTE, s.`time_log`, CURRENT_TIMESTAMP) < 31 AND u.`is_blocked` = 0;
-END; //
-
 DROP PROCEDURE IF EXISTS UpdateSession //
 CREATE PROCEDURE UpdateSession(IN sess_id INT)
 BEGIN

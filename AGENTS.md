@@ -37,6 +37,8 @@
 - Keep database definitions in the `Database` folder.
 - Define reusable read queries with complex joins, subqueries, or aggregation as SQL views in `Database/views`.
   Query those views from PHP and keep request-specific filters and parameters in PHP.
+- Configure collations in database and table definitions and at connection setup.
+  Keep collation overrides out of queries, views, functions, and procedures.
 - Write SQL compatible with MariaDB 12+ and MySQL 8+.
 - Start each major clause on its own line, including `SELECT`, `FROM`, each `JOIN`, `WHERE`, `GROUP BY`, `HAVING`, `ORDER BY`, and `LIMIT`.
   Indent each `JOIN` one tab deeper than its corresponding `FROM`.
@@ -48,6 +50,9 @@
 - In long or complex queries that select multiple columns, put each select-list item on its own line.
   Align all select-list `AS` keywords in the same visual column.
 - Enclose every column alias in double quotes, as in `` t.`id` AS "identifier" ``.
+- Within each table definition, align the start of every column data type in the same visual column.
+  Align the `REFERENCES` keywords and `ON DELETE` clauses across that table’s foreign key declarations.
+- Use `CREATE TABLE` when the preceding statement drops the same table with `DROP TABLE IF EXISTS`.
 
 ## HTML
 

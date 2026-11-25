@@ -270,7 +270,6 @@ extends Controller
     public function get_involved(
         ?int $edition = null,
         array $roles = [],
-        bool $church_manager = false,
         ?string $t_shirt = null,
     ): StatusCode
     {
@@ -289,7 +288,6 @@ extends Controller
                 edizione: $edition, 
                 maglia: $t_shirt, 
                 commissioni: $roles, 
-                is_referente: $church_manager
             );
             if ($res)
                 return $this->Redirect(url: $this->PathPrefix . '/');
@@ -385,7 +383,6 @@ extends Controller
         string $cognome = '',
         string $cf = '',
         int $doc_type = 1,
-        ?string $doc_code = null,
         string $doc_expires = '',
         string $email = '',
         string $compleanno = '',
@@ -406,7 +403,6 @@ extends Controller
             if (empty($nome) ||
                 empty($cognome) ||
                 empty($cf) ||
-                // empty($doc_code) ||
                 empty($doc_expires) ||
                 empty($email) ||
                 empty($provenienza) ||
@@ -442,7 +438,6 @@ extends Controller
                     cf: $cf,
 
                     doc_type: $doc_type,
-                    doc_code: $doc_code,
                     doc_expires: $doc_expires,
 
                     already_existing: $already_existed,

@@ -27,7 +27,6 @@ SELECT
     `parrocchie`.`nome`                            AS "parrocchia",
     `parrocchie`.`id`                              AS "id_parrocchia",
     s.`id`                                         AS "id_staffista",
-    p.`is_referente`                               AS "referente",
     p.`maglia`,
     GROUP_CONCAT(DISTINCT c.`nome` SEPARATOR ', ') AS "lista_commissioni",
     e.`anno`,
@@ -53,7 +52,6 @@ SELECT
     `parrocchie`.`nome`                                        AS "parrocchia",
     `parrocchie`.`id`                                          AS "id_parrocchia",
     s.`id`                                                     AS "id_staffista",
-    MAX(IFNULL(p.`is_referente`, FALSE))                       AS "referente",
     MAX(p.`maglia`)                                            AS "maglia",
     IFNULL(GROUP_CONCAT(DISTINCT c.`nome` SEPARATOR ', '), '') AS "lista_commissioni",
 

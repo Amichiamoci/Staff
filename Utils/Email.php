@@ -5,37 +5,6 @@ use PHPMailer\PHPMailer\PHPMailer;
 
 class Email
 {
-    public static function GetByUserName(
-        \mysqli $connection, 
-        string $user,
-    ): string
-    {
-        if (!$connection || empty($user))
-            return "";
-
-        $query = "CALL GetAssociatedMailByUserName('" . $connection->real_escape_string(string: $user) . "')";
-        $result = $connection->query(query: $query);
-        $return = "";
-        if ($result)
-        {
-            if ($row = $result->fetch_assoc())
-            {
-                if (isset($row["email"]))
-                {
-                    $return = $row["email"];
-                }
-                if (isset($row["id"]))
-                {
-                    $id = $row["id"];
-                    $return .= ",$id";
-                }
-            }
-            $result->close();
-        }
-        $connection->next_result();
-        return $return;
-    }
-
     public static function GetByUserId(
         \mysqli $connection, 
         int $user,

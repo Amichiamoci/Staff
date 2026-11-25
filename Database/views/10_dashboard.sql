@@ -52,7 +52,7 @@ SELECT
     t.`id`,
     t.`nome`,
     t.`edizione`,
-    UPPER(TRIM(s.`area`)) AS "area",
+    s.`area`,
     CASE
         WHEN p.`id` IS NULL THEN 'no_matches'
         WHEN p.`a_tavolino` IS NOT NULL OR EXISTS (

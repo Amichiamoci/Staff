@@ -36,7 +36,6 @@ SELECT
     CONCAT(a.`nome`, ' ', a.`cognome`)                                           AS "chi",
     `SessoDaCF`(a.`codice_fiscale`)                                              AS "sesso",
     -- Problems
-    `CodiceDocumentOk`(a.`codice_documento`, a.`tipo_documento`)                 AS "doc_code_problem",
     IF (a.`documento` IS NOT NULL, NULL, 'Documento mancante')                   AS "doc_problem",
     `ScadeInGiorni`(a.`scadenza`, 1)                                             AS "scadenza_problem",
     IF (i.`certificato_medico` IS NOT NULL, NULL, 'Certificato medico mancante') AS "certificato_problem",

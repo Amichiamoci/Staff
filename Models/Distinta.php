@@ -25,7 +25,7 @@ class Distinta extends Squadra
         while ($row = $result->fetch_assoc())
         {
             $problems = [];
-            foreach (['doc_problem', 'scadenza_problem', 'certificato_problem', 'tutore_problem', 'doc_code_problem'] as $field)
+            foreach (['doc_problem', 'scadenza_problem', 'certificato_problem', 'tutore_problem'] as $field)
             {
                 if (array_key_exists(key: $field, array: $row) && is_string(value: $row[$field]) && trim(string: $row[$field]) !== '')
                 {

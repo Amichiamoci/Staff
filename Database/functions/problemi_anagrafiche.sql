@@ -1,37 +1,5 @@
 DELIMITER //
 
-DROP FUNCTION IF EXISTS `CodiceDocumentOk` //
-CREATE FUNCTION `CodiceDocumentOk` (codice VARCHAR(128), tipo INT)
-RETURNS VARCHAR(128)
-NOT DETERMINISTIC
-READS SQL DATA
-BEGIN
-    DECLARE doc_regex VARCHAR(64) DEFAULT NULL;
-    DECLARE doc_label VARCHAR(64) DEFAULT NULL;
-
-    IF codice IS NULL OR TRIM(codice) = '' THEN
-        -- RETURN 'Codice mancante!';
-        RETURN NULL;
-    END IF;
-
-    SELECT t.`regex`, t.`label`
-    INTO doc_regex, doc_label
-    FROM `tipi_documento` AS t
-    WHERE t.`id` = tipo;
-
-    IF doc_regex IS NULL THEN
-        RETURN NULL;
-    END IF;
-
-    IF TRIM(UPPER(codice)) REGEXP doc_regex THEN
-        RETURN NULL;
-    END IF;
-
-    RETURN CONCAT(codice, ' non è codice di ', doc_label);
-END ; //
-
-
-
 DROP FUNCTION IF EXISTS `ProblemaEta` //
 CREATE FUNCTION `ProblemaEta` (data_nascita DATE)
 RETURNS VARCHAR(128)

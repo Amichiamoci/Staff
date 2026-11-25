@@ -29,11 +29,7 @@ assert(isset($P) && is_string($P), 'var $P not valid');
 
             <dl class="row">
                 <dt class="col-sm-4 text-nowrap">
-                    <?php if ($staff->Referente) { ?>
-                        <strong>Referente</strong>
-                    <?php } else { ?>
-                        Parrocchia
-                    <?php } ?>
+                    Parrocchia
                 </dt>
                 <dd class="col-sm-8">
                     <?= htmlspecialchars(string: $staff->Parrocchia->Nome) ?>

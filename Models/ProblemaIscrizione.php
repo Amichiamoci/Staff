@@ -11,7 +11,6 @@ class ProblemaIscrizione
     public string $Sesso;
 
 
-    public ?string $CodiceDocumento;
     public ?string $Documento;
     public ?string $ScadenzaDocumento;
 
@@ -33,7 +32,6 @@ class ProblemaIscrizione
         string $cf,
         string $sesso,
 
-        ?string $codice_documento = null,
         ?string $documento = null,
         ?string $scadenza_documento = null,
         ?string $certificato = null,
@@ -49,7 +47,6 @@ class ProblemaIscrizione
         $this->CodiceFiscale = $cf;
         $this->Sesso = $sesso;
 
-        $this->CodiceDocumento = $codice_documento;
         $this->Documento = $documento;
         $this->ScadenzaDocumento = $scadenza_documento;
         $this->Certificato = $certificato;
@@ -88,7 +85,6 @@ class ProblemaIscrizione
                 cf: $row['cf'],
                 sesso: $row['sesso'],
 
-                codice_documento: $row['doc_code'],
                 documento: $row['doc'],
                 scadenza_documento: $row['scadenza'],
                 certificato: $row['certificato'],

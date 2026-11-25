@@ -7,7 +7,6 @@ class Staff extends StaffBase
     public array $Commissioni = [];
     public ?Taglia $Taglia = null;
     public Parrocchia $Parrocchia;
-    public bool $Referente = false;
     public ?string $CodiceFiscale = null;
     
 
@@ -36,7 +35,6 @@ class Staff extends StaffBase
         string|int $nome_parrocchia,
         array $commissioni = [],
         string|Taglia|null $taglia = null,
-        string|int|bool $is_referente = false,
         string|null $codice_fiscale = null, 
     ) {
         parent::__construct(id: $id, nome: $nome);
@@ -51,7 +49,6 @@ class Staff extends StaffBase
         {
             $this->Taglia = ($taglia instanceof Taglia) ? $taglia : Taglia::from(value: $taglia);
         }
-        $this->Referente = (bool)$is_referente;
         if (isset($codice_fiscale))
         {
             $this->CodiceFiscale = $codice_fiscale;
@@ -91,7 +88,6 @@ class Staff extends StaffBase
                         string: $row["lista_commissioni"] ?? '',
                     )),
                 taglia: $row["maglia"],
-                is_referente: $row["referente"],
                 codice_fiscale: $row["cf"],
             );
         }
@@ -151,37 +147,21 @@ class Staff extends StaffBase
         return (bool)$connection->query(query: $query) && $connection->affected_rows === 1;
     }
 
-    /** Enrolls a staff member in an edition with their shirt size, commissions, and representative status. */
+    /** Enrolls a staff member in an edition with their shirt size and commissions. */
     public static function Partecipa(
         \mysqli $connection, 
         int $staff, 
         int $edizione, 
         string $maglia, 
         array $commissioni, 
-        bool $is_referente = false,
     ): bool
     {
         if (!$connection)
             return false;
-        $maglia_sana = $connection->real_escape_string(string: $maglia);
-        $query = "CALL PartecipaStaff($staff, $edizione, '$maglia_sana', '";
-        for ($i = 0; $i < count(value: $commissioni); $i++)
-        {
-            $commissione = (int)$commissioni[$i];
-            $query .= "$commissione";
-            if ($i < count(value: $commissioni) - 1)
-            {
-                $query .= ",";
-            }
-        }
-        $query .= "', ";
-        if ($is_referente) {
-            $query .= "1";
-        } else {
-            $query .= "0";
-        }
-        $query .= ");";
-        $result = (bool)$connection->query(query: $query);
+        $result = (bool)$connection->execute_query(
+            'CALL `PartecipaStaff`(?, ?, ?, ?)',
+            [$staff, $edizione, $maglia, implode(',', array_map('intval', $commissioni))],
+        );
         $connection->next_result();
         return $result;
     }
@@ -212,7 +192,6 @@ class Staff extends StaffBase
                         string: $row["lista_commissioni"] ?? '',
                     )),
                 taglia: $row["maglia"],
-                is_referente: $row["referente"],
                 codice_fiscale: $row["cf"]
             );
         }
@@ -249,8 +228,7 @@ class Staff extends StaffBase
                         string: $row["lista_commissioni"] ?? '',
                     )),
                 taglia: $row["maglia"],
-                is_referente: $row["codice_fiscale"],
-                codice_fiscale: $row["referente"],
+                codice_fiscale: $row["codice_fiscale"],
             );
         }
         return $arr;

@@ -3,12 +3,14 @@ setlocale(LC_ALL, 'ita', 'it_IT.utf8');
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-use Amichiamoci\Utils\Security;
+use Dotenv\Dotenv;
 use Google\Client as GoogleClient;
 use Google\Service\Drive;
 use GuzzleHttp\Client as HttpClient;
+
 use Richie314\SimpleVirtualFS\VirtualFilesystem;
-use Dotenv\Dotenv;
+
+use Amichiamoci\Utils\{Database, Security};
 
 $_ENV += getenv();
 $dotenv = Dotenv::createImmutable(paths: __DIR__);
@@ -78,6 +80,7 @@ try {
         password: $db_password, 
         database: $db_name,
     );
+    Database::ConfigureConnection($connection);
 } catch (\Exception) {
     $connection = null;
 }

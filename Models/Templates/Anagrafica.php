@@ -79,28 +79,6 @@ class Anagrafica
         return null;
     }
 
-    /** Resolves a person’s display name from the database ID. */
-    public static function NomeDaId(\mysqli $connection, int $id) : string
-    {
-        if (!$connection)
-            return "";
-        $query = "CALL NomeDaAnagrafica($id)";
-        $result = $connection->query(query: $query);
-        if (!$result)
-        {
-            $connection->next_result();
-            return "";
-        }
-        if ($row = $result->fetch_assoc())
-        {
-            $result->close();
-            $connection->next_result();
-            return $row["nome_completo"];
-        }
-        $result->close();
-        return "";
-    }
-
     /** Returns the names of people whose birthday is today. */
     public static function NomiCompleannati(\mysqli $connection): array
     {

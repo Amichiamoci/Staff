@@ -35,10 +35,10 @@ $db->query("INSERT INTO sessioni (user_id, time_start, time_log, user_flag, devi
     (3, '2000-01-02 10:00:00', '2000-01-02 10:00:00', 'device fixture', NULL)");
 $db->query('CREATE TEMPORARY TABLE staff_correnti_incompleto (
     id_staffista INT, nome VARCHAR(100), cognome VARCHAR(100), id_parrocchia INT, parrocchia VARCHAR(100),
-    lista_commissioni VARCHAR(100), maglia VARCHAR(10), referente BOOL, cf VARCHAR(16)
+    lista_commissioni VARCHAR(100), maglia VARCHAR(10), cf VARCHAR(16)
 )');
 $db->query("INSERT INTO staff_correnti_incompleto VALUES
-    (7, 'Staff', '<fixture>', 9, 'Parish fixture', 'Outreach', 'M', 1, 'FIXTURECF0000000')");
+    (7, 'Staff', '<fixture>', 9, 'Parish fixture', 'Outreach', 'M', 'FIXTURECF0000000')");
 $db->query('CREATE TEMPORARY TABLE staff_attuali LIKE staff_correnti_incompleto');
 $db->query('INSERT INTO staff_attuali SELECT * FROM staff_correnti_incompleto');
 $db->query('CREATE TEMPORARY TABLE staff_list_raw (staff INT, nome_completo VARCHAR(100))');

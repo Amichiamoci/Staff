@@ -18,7 +18,6 @@ class Torneo extends NomeIdSemplice
 
     public array $IdPartite = [];
 
-    public ?self $Successore = null;
 
     public function __construct(
         string|int|null $id,
@@ -40,7 +39,7 @@ class Torneo extends NomeIdSemplice
         $this->Nome = $nome;
         $this->Tipo = new TipoTorneo(id: $id_tipo, nome: $tipo);
         $this->Sport = new Sport(id: $id_sport, nome: $sport);
-        $this->Edizione = new Edizione(id: $id_edizione, year: $anno_edizione, motto: null, img: null);
+        $this->Edizione = new Edizione(id: $id_edizione, year: $anno_edizione, motto: null);
         $this->ListaSquadre = $squadre;
         $this->IdPartite = $id_partite;
     }

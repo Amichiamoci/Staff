@@ -1,13 +1,5 @@
 DELIMITER //
 
-DROP PROCEDURE IF EXISTS GetUserPassword //
-CREATE PROCEDURE GetUserPassword(IN user_name VARCHAR(256))
-BEGIN
-    SELECT `utenti`.`id`, `utenti`.`password`, `utenti`.`is_admin`
-    FROM `utenti`
-    WHERE LOWER(`utenti`.`user_name`) = LOWER(user_name) AND `utenti`.`is_blocked` = 0;
-END; //
-
 DROP PROCEDURE IF EXISTS GetUserPasswordFromId //
 CREATE PROCEDURE GetUserPasswordFromId(IN user_id INT)
 BEGIN

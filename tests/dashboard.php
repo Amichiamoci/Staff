@@ -36,7 +36,7 @@ $db->query('CREATE TABLE partite (
 )');
 $db->query('CREATE TABLE punteggi (partita INT)');
 $db->query('CREATE TABLE compleanni_oggi (nome VARCHAR(32), cognome VARCHAR(32), eta INT)');
-$db->query('ALTER TABLE edizioni ADD motto VARCHAR(64), ADD path_immagine VARCHAR(64)');
+$db->query('ALTER TABLE edizioni ADD motto VARCHAR(64)');
 $db->multi_query(file_get_contents(dirname(__DIR__) . '/Database/views/10_dashboard.sql'));
 while ($db->more_results()) {
     $db->next_result();
@@ -49,7 +49,7 @@ $db->query("INSERT INTO iscritti VALUES (1, 101, 1, 1, 'S'), (2, 101, 2, 1, 'M')
     (3, 102, 2, 1, 'unknown'), (4, 103, 2, 2, 'S'), (5, 101, 2, 2, 'M')");
 $db->query('INSERT INTO staffisti VALUES (201, 1), (202, 2)');
 $db->query("INSERT INTO partecipaz_staff_ediz VALUES (201, 2, 'XL'), (202, 2, NULL), (201, 1, 'L')");
-$db->query("INSERT INTO sport VALUES (1, 'Calcio'), (2, 'PALLAVOLO'), (3, 'pallacanestro')");
+$db->query("INSERT INTO sport VALUES (1, 'Calcio'), (2, 'Pallavolo'), (3, 'Basket')");
 $db->query("INSERT INTO tornei VALUES (1, 2, 'Fixture tournament', 1), (2, 2, 'Empty tournament', 2),
     (3, 1, 'Older tournament', 1), (4, 2, 'Fixture basket tournament', 3)");
 $db->query("INSERT INTO partite VALUES (1, 1, NULL, NULL, NULL, NULL),
@@ -57,7 +57,7 @@ $db->query("INSERT INTO partite VALUES (1, 1, NULL, NULL, NULL, NULL),
 $db->query('INSERT INTO punteggi VALUES (3), (3)');
 $db->query("CREATE PROCEDURE ProblemiParrocchia(IN parish_id INT, IN year_filter YEAR)
     SELECT 102 AS id, 3 AS iscrizione, 'Fixture participant' AS chi, 'SYNTHETIC' AS cf, 'M' AS sesso,
-        'Non valido' AS doc_code, 'Mancante' AS doc, NULL AS scadenza,
+        'Mancante' AS doc, NULL AS scadenza,
         'Mancante' AS certificato, 'Mancante' AS tutore,
         NULL AS eta, NULL AS maglia, NULL AS email, NULL AS telefono
     WHERE parish_id = 1 AND year_filter = 2025");

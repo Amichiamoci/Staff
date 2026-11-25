@@ -137,7 +137,6 @@ $is_owner = $user->Id === $target->Id;
                         <dt class="col-sm-5">Parrocchia</dt>
                         <dd class="col-sm-7">
                             <?= htmlspecialchars($linked_staff->Parrocchia->Nome) ?>
-                            <?= $linked_staff->Referente ? ' · Referente' : '' ?>
                         </dd>
                         <dt class="col-sm-5">Commissioni (<?= $edition_year ?>)</dt>
                         <dd class="col-sm-7">

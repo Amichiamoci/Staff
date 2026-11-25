@@ -10,7 +10,6 @@ BEGIN
         CONCAT(a.`nome`, ' ', a.`cognome`)                           AS "chi",
         `SessoDaCF`(a.`codice_fiscale`)                              AS "sesso",
 
-        `CodiceDocumentOk`(a.`codice_documento`, a.`tipo_documento`) AS "doc_code",
         IF (a.`documento` IS NOT NULL, NULL, 'Mancante')             AS "doc",
         `ScadeInGiorni`(a.`scadenza`, 62)                            AS "scadenza",
 

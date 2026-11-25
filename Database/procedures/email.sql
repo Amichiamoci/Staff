@@ -20,22 +20,6 @@ BEGIN
     SELECT @email AS "email";
 END; //
 
-DROP PROCEDURE IF EXISTS GetAssociatedMailByUserName //
-CREATE PROCEDURE GetAssociatedMailByUserName(IN user_name VARCHAR(256))
-BEGIN
-    DECLARE id INT DEFAULT 0;
-
-    SELECT `utenti`.`id`
-    INTO id
-    FROM `utenti`
-    WHERE LOWER(`utenti`.`user_name`) = LOWER(user_name);
-
-    IF id <> 0 THEN
-        CALL GetAssociatedMail(id, @email_out);
-        SELECT id, @email_out AS "email";
-    END IF;
-END; //
-
 DROP PROCEDURE IF EXISTS CreateEmail //
 CREATE PROCEDURE CreateEmail(
     IN e_dest VARCHAR(64),

@@ -17,6 +17,7 @@ use Amichiamoci\Utils\Database;
 define('SITE_NAME', 'Portal test');
 
 $db = new mysqli('127.0.0.1', 'root', '', 'fixture', (int)$argv[1]);
+Database::ConfigureConnection($db);
 $schema = 'fixture_api_' . bin2hex(random_bytes(8));
 $db->query("CREATE DATABASE `$schema`");
 $db->select_db($schema);
@@ -50,7 +51,15 @@ try {
     $tokenId = $db->insert_id;
     $db->query("INSERT INTO parrocchie (nome) VALUES ('Fixture parish'), ('Second parish')");
     $db->query("UPDATE settings SET enabled = 1 WHERE name = 'subscriptions_enabled'");
-    $db->query("INSERT INTO sport (nome, area) VALUES ('Fixture sport', 'fixture')");
+    $db->query("INSERT INTO sport (nome, area) VALUES ('Fixture sport', 'Calcio')");
+    foreach (['Unknown', 'calcio', 'Calcio '] as $area) {
+        try {
+            $db->execute_query('INSERT INTO sport (nome, area) VALUES (?, ?)', ['Invalid fixture sport', $area]);
+            throw new RuntimeException('The schema accepted an invalid sport area.');
+        } catch (mysqli_sql_exception $error) {
+            $check(in_array($error->getCode(), [3819, 4025], true), 'The sport area constraint must reject invalid values.');
+        }
+    }
     $db->query("INSERT INTO squadre (nome, parrocchia, sport, edizione) VALUES ('Fixture home', 1, 1, 1), ('Fixture away', 2, 1, 1)");
     $db->query("INSERT INTO tornei (edizione, nome, sport, tipo_torneo) VALUES (1, 'Fixture tournament', 1, 1)");
     $db->query("INSERT INTO partecipaz_squad_torneo (torneo, squadra) VALUES (1, 1), (1, 2)");
@@ -149,11 +158,6 @@ try {
     $person = $registration->savePerson(false, ...$profile);
     $check($person['email'] === $email && $person['hasDocument'] === true, 'New profiles must use the verified email and retain the document reference.');
     $id = $person['id'];
-    $documentNumber = static fn() => $db->execute_query(
-        'SELECT codice_documento FROM anagrafiche WHERE id = ?', [$id],
-    )->fetch_row()[0];
-    $check($documentNumber() === null && !array_key_exists('documentNumber', $person), 'API creation must ignore and omit the document number.');
-    $db->execute_query("UPDATE anagrafiche SET codice_documento = 'SYNTHETIC' WHERE id = ?", [$id]);
     try {
         $other->savePerson(false, ...$profile);
         throw new RuntimeException('Creating a duplicate tax code was accepted.');
@@ -165,7 +169,6 @@ try {
     $profile['firstName'] = 'Updated';
     $updated = $registration->savePerson(false, ...$profile);
     $check($updated['hasDocument'] === true, 'Omitting the document URI must retain the reference.');
-    $check($documentNumber() === 'SYNTHETIC' && !array_key_exists('documentNumber', $updated), 'API updates must preserve and omit an existing document number.');
     $check(!array_key_exists('documentNumber', $registration->people()[0]), 'API profile reads must omit document numbers.');
     try {
         $other->savePerson(false, ...$profile);

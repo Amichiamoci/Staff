@@ -3,6 +3,13 @@ namespace Amichiamoci\Utils;
 
 class Database
 {
+    /** Sets UTF-8 encoding for the driver and matches the session to the schema collation. */
+    public static function ConfigureConnection(\mysqli $connection): void
+    {
+        $connection->set_charset('utf8mb4');
+        $connection->query("SET SESSION collation_connection = 'utf8mb4_unicode_520_ci'");
+    }
+
     public static function GetSchema(): string
     {
         $output = '';

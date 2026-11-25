@@ -108,16 +108,6 @@ assert(isset($iscritti_problemi) && is_array($iscritti_problemi), 'var $iscritti
                                     <?= htmlspecialchars(string: $problema->ScadenzaDocumento) ?>
                                 </dd>
                             <?php } ?>
-                            <?php if (isset($problema->CodiceDocumento)) { ?>
-                                <dt class="col-sm-4 text-nowrap">
-                                    Documento
-                                </dt>
-                                <dd class="col-sm-8 text-warning">
-                                    <?= htmlspecialchars(string: $problema->CodiceDocumento) ?>
-                                </dd>
-                            <?php } ?>
-
-
                             <?php if (isset($problema->Tutore)) { ?>
                                 <dt class="col-sm-4 text-nowrap">
                                     Tutore
