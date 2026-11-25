@@ -42,31 +42,34 @@ class Token extends NomeIdSemplice
         return $arr;
     }
 
-    /** Verifies an API credential and records request activity on success. */
-    public static function Test(\mysqli $connection, string $key, string $ip): bool
+    /** Returns the verified token ID and records request activity, or returns null for a rejected credential. */
+    public static function Authenticate(\mysqli $connection, #[\SensitiveParameter] string $key, string $ip): ?int
     {
-        if (!$connection)
-            return false;
+        if ($key === '' || strlen($key) > 128) {
+            return null;
+        }
 
-        $result = $connection->execute_query(
-            query: 'CALL `ApiCallValidate`(?, ?);', 
-            params: [$key, $ip],
+        $row = $connection->execute_query(
+            'SELECT `id`
+             FROM `api_token`
+             WHERE `key` = ? AND BINARY `key` = BINARY ?',
+            [$key, $key],
+        )->fetch_row();
+        if ($row === null) {
+            return null;
+        }
+
+        // The usage table stores IPv4-sized labels.
+        $address = filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false ? $ip : 'other';
+        $connection->execute_query(
+            'INSERT INTO `api_usage` (`token_id`, `ip_address`, `hits`)
+             SELECT `id`, ?, 1
+             FROM `api_token`
+             WHERE `id` = ?
+             ON DUPLICATE KEY UPDATE `hits` = `hits` + 1, `last_usage` = CURRENT_TIMESTAMP',
+            [$address, $row[0]],
         );
-        if (!$result || $result->num_rows === 0)
-        {
-            $connection->next_result();
-            return false;
-        }
-
-        $row = $result->fetch_assoc();
-        if (!$row || !array_key_exists(key: 'id', array: $row) || !isset($row['id']))
-        {
-            $connection->next_result();
-            return false;
-        }
-
-        $connection->next_result();
-        return true;
+        return $connection->affected_rows > 0 ? (int)$row[0] : null;
     }
 
     /** Generates a new named API credential and returns it to the caller. */
@@ -79,7 +82,8 @@ class Token extends NomeIdSemplice
             length: 64, 
             alphabet: str_split(string: Security::LETTERS . Security::DIGITS),
         );
-        $query = "INSERT INTO `api_token` (`name`, `key`) VALUES (?, ?)";
+        $query = "INSERT INTO `api_token` (`name`, `key`)
+            VALUES (?, ?)";
 
         $result = $connection->execute_query(query: $query, params: [$name, $token]);
         if (!$result || $connection->affected_rows !== 1)
@@ -101,7 +105,9 @@ class Token extends NomeIdSemplice
             return false;
         
         $result = $connection->execute_query(
-            query: 'DELETE FROM `api_token` WHERE `id` = ?', 
+            query: 'DELETE
+                FROM `api_token`
+                WHERE `id` = ?',
             params: [$id],
         );
         return (bool)$result && $connection->affected_rows > 0;

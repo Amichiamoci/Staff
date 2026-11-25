@@ -43,8 +43,10 @@ class Anagrafica extends AnagraficaBase
             return 0;
         if (!$allowStaffUpdate) {
             $staff = $connection->execute_query(
-                'SELECT 1 FROM `staffisti` s JOIN `anagrafiche` a ON a.`id` = s.`dati_anagrafici`
-                 WHERE LOWER(a.`codice_fiscale`) = LOWER(TRIM(?)) LIMIT 1',
+                'SELECT 1
+                 FROM `codici_fiscali_staff`
+                 WHERE LOWER(`codice_fiscale`) = LOWER(TRIM(?))
+                 LIMIT 1',
                 [$cf],
             );
             $isStaff = $staff->num_rows > 0;
@@ -95,7 +97,9 @@ class Anagrafica extends AnagraficaBase
     public static function ReplaceDocumentPath(\mysqli $connection, int $id, string $path): void
     {
         $connection->execute_query(
-            'UPDATE anagrafiche SET documento = ? WHERE id = ?',
+            'UPDATE `anagrafiche`
+             SET `documento` = ?
+             WHERE `id` = ?',
             [$path, $id],
         );
         if ($connection->affected_rows !== 1) {
@@ -108,7 +112,9 @@ class Anagrafica extends AnagraficaBase
     {
         if (!$connection || $id === 0)
             return null;
-        $query = "SELECT * FROM `anagrafiche_espanse` WHERE `id` = $id";
+        $query = "SELECT *
+            FROM `anagrafiche_espanse`
+            WHERE `id` = $id";
         $result = $connection->query(query: $query);
         if (!$result || $result->num_rows === 0)
         {
@@ -129,7 +135,9 @@ class Anagrafica extends AnagraficaBase
             return [];
         
         $result = $connection->query(
-            query: "SELECT * FROM `anagrafiche_espanse` ORDER BY `cognome`, `nome`"
+            query: "SELECT *
+                FROM `anagrafiche_espanse`
+                ORDER BY `cognome`, `nome`"
         );
         if (!$result)
             return [];
@@ -152,7 +160,9 @@ class Anagrafica extends AnagraficaBase
             return null;
 
         $result = $connection->execute_query(
-            'SELECT * FROM `anagrafiche_espanse` WHERE LOWER(`cf`) = LOWER(TRIM(?))',
+            'SELECT *
+             FROM `anagrafiche_espanse`
+             WHERE LOWER(`cf`) = LOWER(TRIM(?))',
             [$cf],
         );
         if (!$result || $result->num_rows === 0)
@@ -235,7 +245,8 @@ class Anagrafica extends AnagraficaBase
     {
         if (!$connection) 
             return [];
-        $query = "SELECT `luogo`, `nati` FROM `statistiche_nascita`";
+        $query = "SELECT `luogo`, `nati`
+            FROM `statistiche_nascita`";
 
         $result = $connection->query(query: $query);
         if (!$result)
@@ -250,7 +261,8 @@ class Anagrafica extends AnagraficaBase
         if (!$connection)
             return [];
 
-        $result = $connection->query(query: 'SELECT `provider`, `email` FROM `statistiche_email`');
+        $result = $connection->query(query: 'SELECT `provider`, `email`
+            FROM `statistiche_email`');
         if (!$result)
             return [];
 

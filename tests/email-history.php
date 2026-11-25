@@ -16,7 +16,12 @@ $_SERVER['REQUEST_METHOD'] = 'GET';
 $_SERVER['DOCUMENT_ROOT'] = dirname(__DIR__);
 
 $db = new mysqli('127.0.0.1', 'root', '', 'fixture', (int)$argv[1]);
-$db->query('CREATE TEMPORARY TABLE email (
+$schema = 'fixture_email_' . bin2hex(random_bytes(8));
+$db->query("CREATE DATABASE `$schema`");
+$db->select_db($schema);
+register_shutdown_function(static fn() => $db->query("DROP DATABASE `$schema`"));
+
+$db->query('CREATE TABLE email (
     id INT PRIMARY KEY, dest VARCHAR(64) NOT NULL, subject VARCHAR(128),
     sent DATETIME NOT NULL, opened DATETIME, ricevuta BOOL NOT NULL
 )');
@@ -27,6 +32,8 @@ $db->query("INSERT INTO email
 $db->query("INSERT INTO email VALUES
     (506, 'other@example.invalid', 'Same time', '2026-01-01 08:25:00', NULL, FALSE),
     (507, 'archive+fixture@example.invalid', 'Older imported email', '2025-12-31 00:00:00', NULL, TRUE)");
+
+$db->query(file_get_contents(dirname(__DIR__) . '/Database/views/08_email_history.sql'));
 
 $recent = Email::All($db);
 $history = Email::All($db, 'archive+fixture@example.invalid');

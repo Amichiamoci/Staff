@@ -150,7 +150,9 @@ implements DbEntity
 
         // Compare against a bound value so the column's collation controls the lookup.
         $result = $connection->execute_query(
-            query: 'SELECT id, password, is_admin FROM utenti WHERE LOWER(user_name) = LOWER(?) AND is_blocked = 0',
+            query: 'SELECT `id`, `password`, `is_admin`
+                FROM `utenti`
+                WHERE LOWER(`user_name`) = LOWER(?) AND `is_blocked` = 0',
             params: [trim($username)],
         );
         $row = $result->fetch_assoc();
@@ -467,7 +469,8 @@ implements DbEntity
 
         $hash = Security::Hash(str: $password);
         $result = $connection->execute_query(
-            query: 'INSERT INTO `utenti` (`user_name`, `password`, `is_admin`) VALUES (?, ?, ?)', 
+            query: 'INSERT INTO `utenti` (`user_name`, `password`, `is_admin`)
+                VALUES (?, ?, ?)',
             params: [
                 $username,
                 $hash,
@@ -551,7 +554,9 @@ implements DbEntity
         if (!$connection)
             return null;
 
-        $result = $connection->query(query: "SELECT * FROM `utenti` WHERE `id` = $id");
+        $result = $connection->query(query: "SELECT *
+            FROM `utenti`
+            WHERE `id` = $id");
         if (!$result || $result->num_rows === 0)
             return null;
 
@@ -572,7 +577,9 @@ implements DbEntity
             return null;
 
         $result = $connection->execute_query(
-            query: "SELECT * FROM `utenti` WHERE `user_name` = ?",
+            query: "SELECT *
+                FROM `utenti`
+                WHERE `user_name` = ?",
             params: [ $username ]
         );
         if (!$result || $result->num_rows === 0)
@@ -632,9 +639,10 @@ implements DbEntity
             return [];
 
         $result = $connection->query(
-            'SELECT u.id AS user_id, u.user_name, s.time_start, s.time_log, s.user_flag, s.device_ip
-             FROM sessioni s INNER JOIN utenti u ON u.id = s.user_id
-             ORDER BY s.time_start DESC, s.id DESC LIMIT 500'
+            'SELECT `user_id`, `user_name`, `time_start`, `time_log`, `user_flag`, `device_ip`
+             FROM `user_sessions`
+             ORDER BY `time_start` DESC, `id` DESC
+             LIMIT 500'
         );
         if (!$result)
             return [];
@@ -664,7 +672,10 @@ implements DbEntity
             return [];
 
         $result = $connection->execute_query(
-            query: "SELECT * FROM `sessioni` WHERE `user_id` = ? ORDER BY `time_start` DESC, `id` DESC",
+            query: "SELECT *
+                FROM `sessioni`
+                WHERE `user_id` = ?
+                ORDER BY `time_start` DESC, `id` DESC",
             params: [$this->Id],
         );
         if (!$result)

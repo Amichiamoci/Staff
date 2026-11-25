@@ -3,7 +3,7 @@ set -eu
 
 composer validate --no-check-publish
 composer check-platform-reqs
-find Controllers Models Utils Views script tests -name '*.php' -exec php -l {} +
+find Api Controllers Models Utils Views script tests -name '*.php' -exec php -l {} +
 php -l config.php
 php -l index.php
 php tests/file-paths.php
@@ -17,3 +17,4 @@ php tests/email-history.php "$1"
 
 php tests/settings.php "$1"
 php tests/dashboard.php "$1"
+php tests/api.php "$1"

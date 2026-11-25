@@ -10,13 +10,10 @@ final class DashboardStatistics
     public static function RegistrationReadiness(mysqli $connection, int $year, ?int $parish): array
     {
         $parishes = $connection->execute_query(
-            'SELECT p.id, p.nome, COUNT(*) AS enrolled
-            FROM iscritti i
-            JOIN edizioni e ON e.id = i.edizione
-            JOIN parrocchie p ON p.id = i.parrocchia
-            WHERE e.anno = ? AND (? IS NULL OR p.id = ?)
-            GROUP BY p.id, p.nome
-            ORDER BY enrolled DESC, p.nome, p.id',
+            'SELECT `id`, `nome`, `enrolled`
+             FROM `dashboard_enrollment_counts`
+             WHERE `anno` = ? AND (? IS NULL OR `id` = ?)
+             ORDER BY `enrolled` DESC, `nome`, `id`',
             [$year, $parish, $parish],
         )->fetch_all(MYSQLI_ASSOC);
 
@@ -45,18 +42,10 @@ final class DashboardStatistics
     public static function Participation(mysqli $connection, int $currentYear): array
     {
         $result = $connection->execute_query(
-            'SELECT e.anno, COUNT(DISTINCT i.dati_anagrafici) AS total,
-                COUNT(DISTINCT CASE WHEN f.first_year = e.anno THEN i.dati_anagrafici END) AS first_time
-            FROM edizioni e
-            LEFT JOIN iscritti i ON i.edizione = e.id
-            LEFT JOIN (
-                SELECT i.dati_anagrafici, MIN(e.anno) AS first_year
-                FROM iscritti i JOIN edizioni e ON e.id = i.edizione
-                GROUP BY i.dati_anagrafici
-            ) f ON f.dati_anagrafici = i.dati_anagrafici
-            WHERE e.anno <= ?
-            GROUP BY e.anno
-            ORDER BY e.anno',
+            'SELECT `anno`, `total`, `first_time`
+             FROM `dashboard_participation`
+             WHERE `anno` <= ?
+             ORDER BY `anno`',
             [$currentYear],
         );
 
@@ -77,16 +66,10 @@ final class DashboardStatistics
     public static function ShirtDemand(mysqli $connection, int $edition, ?int $parish): array
     {
         $result = $connection->execute_query(
-            'SELECT taglia_maglietta AS size, COUNT(*) AS quantity, 0 AS staff
-            FROM iscritti
-            WHERE edizione = ? AND (? IS NULL OR parrocchia = ?)
-            GROUP BY taglia_maglietta
-            UNION ALL
-            SELECT p.maglia AS size, COUNT(*) AS quantity, 1 AS staff
-            FROM partecipaz_staff_ediz p JOIN staffisti s ON s.id = p.staff
-            WHERE p.edizione = ? AND (? IS NULL OR s.parrocchia = ?)
-            GROUP BY p.maglia',
-            [$edition, $parish, $parish, $edition, $parish, $parish],
+            'SELECT `size`, `quantity`, `staff`
+             FROM `dashboard_shirt_counts`
+             WHERE `edizione` = ? AND (? IS NULL OR `parrocchia` = ?)',
+            [$edition, $parish, $parish],
         );
 
         $counts = array_fill_keys([...Taglia::All(), 'Da assegnare'], [0, 0]);
@@ -109,21 +92,10 @@ final class DashboardStatistics
     public static function TournamentReadiness(mysqli $connection, int $edition): array
     {
         $result = $connection->execute_query(
-            "SELECT id, nome, area, SUM(status = 'incomplete') AS incomplete,
-                SUM(status = 'scheduled') AS scheduled, SUM(status = 'result') AS result
-            FROM (
-                SELECT t.id, t.nome, UPPER(TRIM(s.area)) AS area, CASE
-                    WHEN p.id IS NULL THEN 'no_matches'
-                    WHEN p.a_tavolino IS NOT NULL OR EXISTS (SELECT 1 FROM punteggi r WHERE r.partita = p.id) THEN 'result'
-                    WHEN p.data IS NULL OR p.orario IS NULL OR p.campo IS NULL THEN 'incomplete'
-                    ELSE 'scheduled'
-                END AS status
-                FROM tornei t JOIN sport s ON s.id = t.sport
-                LEFT JOIN partite p ON p.torneo = t.id
-                WHERE t.edizione = ?
-            ) matches
-            GROUP BY id, nome, area
-            ORDER BY incomplete DESC, scheduled DESC, nome, id",
+            'SELECT `id`, `nome`, `area`, `incomplete`, `scheduled`, `result`
+             FROM `dashboard_tournament_readiness`
+             WHERE `edizione` = ?
+             ORDER BY `incomplete` DESC, `scheduled` DESC, `nome`, `id`',
             [$edition],
         );
 

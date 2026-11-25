@@ -132,15 +132,7 @@ class AnagraficaConIscrizione extends Anagrafica
     {
         if (!$connection)
             return [];
-        $query = "
-        SELECT a.*
-        FROM anagrafiche_con_iscrizioni_correnti a
-        WHERE  EXISTS (
-            SELECT *
-            FROM anagrafiche_con_iscrizioni_correnti a2
-            WHERE a2.id = a.id AND a2.id_iscrizione <> a.id_iscrizione
-        );
-        ";
+        $query = 'SELECT * FROM `iscrizioni_correnti_duplicate`';
 
         $result = $connection->query(query: $query);
         if (!$result) {

@@ -122,6 +122,6 @@ jobs:
             docker-compose.yml
             .dockerignore
             *.sh
-            **/queries/**
+            **/Database/**
             **/.vscode/**
             Doxyfile

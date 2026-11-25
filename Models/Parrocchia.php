@@ -12,10 +12,9 @@ class Parrocchia extends NomeIdSemplice
     {
         if (!$connection || $user <= 0)
             return null;
-        $query  = "SELECT *
-        FROM `parrocchie`
-            INNER JOIN `staffisti` ON `staffisti`.`parrocchia` = `parrocchie`.`id`
-        WHERE `staffisti`.`id_utente` = $user
+        $query  = "SELECT `id`, `nome`
+        FROM `parrocchie_staff`
+        WHERE `id_utente` = $user
         LIMIT 1";
 
         $result = $connection->query(query: $query);
@@ -37,7 +36,9 @@ class Parrocchia extends NomeIdSemplice
         if (!$connection || $this->Id === 0)
             return [];
 
-        $query = "SELECT `taglia`, `numero` FROM `anni_parrocchie_taglie` WHERE `anno` = ? AND `parrocchia` = ?";
+        $query = "SELECT `taglia`, `numero`
+            FROM `anni_parrocchie_taglie`
+            WHERE `anno` = ? AND `parrocchia` = ?";
         $res = $connection->execute_query(
             query: $query, 
             params: [

@@ -133,7 +133,9 @@ class Partita implements DbEntity
         if (!$connection)
             return null;
 
-        $query = "SELECT * FROM `partite_completo` WHERE `id` = $id";
+        $query = "SELECT *
+            FROM `partite_completo`
+            WHERE `id` = $id";
         $result = $connection->query(query: $query);
         if (!$result || $result->num_rows === 0)
         {
@@ -200,7 +202,9 @@ class Partita implements DbEntity
 
         return self::ArrayQueryHandler(
             connection: $connection, 
-            query: "SELECT * FROM `partite_completo` WHERE `id_torneo` = $torneo" 
+            query: "SELECT *
+                FROM `partite_completo`
+                WHERE `id_torneo` = $torneo"
         );
     }
 
@@ -209,7 +213,7 @@ class Partita implements DbEntity
     {
         return self::ArrayQueryHandler(
             connection: $connection, 
-            query: "SELECT * FROM `partite_settimana`" 
+            query: "SELECT * FROM `partite_settimana`"
         );
     }
 
@@ -220,7 +224,9 @@ class Partita implements DbEntity
             return false;
         
         $result = $connection->execute_query(
-            query: 'UPDATE `partite` SET `campo` = ? WHERE `id` = ?', 
+            query: 'UPDATE `partite`
+                SET `campo` = ?
+                WHERE `id` = ?',
             params: [
                 $campo,
                 $partita,
@@ -239,7 +245,9 @@ class Partita implements DbEntity
             return false;
         
         $result = $connection->execute_query(
-            query: 'UPDATE `partite` SET `orario` = ? WHERE `id` = ?', 
+            query: 'UPDATE `partite`
+                SET `orario` = ?
+                WHERE `id` = ?',
             params: [
                 $orario,
                 $partita,
@@ -258,7 +266,9 @@ class Partita implements DbEntity
             return false;
         
         $result = $connection->execute_query(
-            query: 'UPDATE `partite` SET `data` = ? WHERE `id` = ?', 
+            query: 'UPDATE `partite`
+                SET `data` = ?
+                WHERE `id` = ?',
             params: [
                 $data,
                 $partita,
@@ -276,7 +286,9 @@ class Partita implements DbEntity
         if (!$connection)
             return false;
 
-        $result = $connection->query(query: "DELETE FROM `partite` WHERE `id` = $id");
+        $result = $connection->query(query: "DELETE
+            FROM `partite`
+            WHERE `id` = $id");
         return (bool)$result && $connection->affected_rows >= 1;
     }
 
@@ -287,7 +299,8 @@ class Partita implements DbEntity
             return null;
 
         $result = $connection->query(
-            query: "INSERT INTO `punteggi` (`partita`, `home`, `guest`) VALUES ($match, '', '')"
+            query: "INSERT INTO `punteggi` (`partita`, `home`, `guest`)
+                VALUES ($match, '', '')"
         );
 
         if (!$result || $connection->affected_rows !== 1)

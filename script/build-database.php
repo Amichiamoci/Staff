@@ -19,11 +19,11 @@ $init_file = dirname(path: __DIR__) . '/starting-db.tmp.sql';
 function rebuild_db(): void {
     global $init_file;
 
-    $MYSQL_HOST = Security::LoadEnvironmentOrFromFile(var: 'MYSQL_HOST', default: 'localhost');
-    $MYSQL_PORT = (int)Security::LoadEnvironmentOrFromFile(var: 'MYSQL_PORT', default: '3306');
-    $MYSQL_USER = Security::LoadEnvironmentOrFromFile(var: 'MYSQL_USER', default: 'amichiamoci');
-    $MYSQL_PASSWORD = Security::LoadEnvironmentOrFromFile(var: 'MYSQL_PASSWORD');
-    $MYSQL_DB = Security::LoadEnvironmentOrFromFile(var: 'MYSQL_DB');
+    $host =      Security::LoadEnvironmentOrFromFile(var: 'MYSQL_HOST', default: 'localhost');
+    $port = (int)Security::LoadEnvironmentOrFromFile(var: 'MYSQL_PORT', default: '3306');
+    $user =      Security::LoadEnvironmentOrFromFile(var: 'MYSQL_USER', default: 'amichiamoci');
+    $pass =      Security::LoadEnvironmentOrFromFile(var: 'MYSQL_PASSWORD');
+    $name =      Security::LoadEnvironmentOrFromFile(var: 'MYSQL_DB');
 
     echo "Rebuilding db..." . PHP_EOL;
 
@@ -31,14 +31,14 @@ function rebuild_db(): void {
     file_put_contents(filename: $init_file, data: $schema);
 
     $params = [
-        '--database' => $MYSQL_DB,
-        '--host' => $MYSQL_HOST,
-        '--port' => $MYSQL_PORT,
-        '--user' => $MYSQL_USER,
+        '--database' => $name,
+        '--host' => $host,
+        '--port' => $port,
+        '--user' => $user,
         # '--default-charset-set' => 'uf8mb4'
     ];
-    if (!empty($MYSQL_PASSWORD)) {
-        $params['--password'] = $MYSQL_PASSWORD;
+    if (!empty($pass)) {
+        $params['--password'] = $pass;
     }
     $joined_params = implode(
         separator: ' ', 
@@ -46,9 +46,10 @@ function rebuild_db(): void {
             return "$k=$v";
         }, array_keys($params), array_values(array: $params))
     );
-    unset($MYSQL_HOST, $MYSQL_PORT, $MYSQL_USER, $MYSQL_PASSWORD, $MYSQL_DB);
+    unset($host, $port, $user, $pass, $name);
     
     $result = passthru(command: "mariadb --skip-ssl $joined_params < $init_file");
+    unset($joined_params);
 
     if ($result === false) {
         echo "⚠️ Rebuild process failed!" . PHP_EOL;
@@ -63,7 +64,8 @@ function rebuild_db(): void {
 
 function add_first_user(): void {
     global $connection;
-    $admin = Security::LoadEnvironmentOrFromFile(var: 'ADMIN_USERNAME');
+
+    $admin =          Security::LoadEnvironmentOrFromFile(var: 'ADMIN_USERNAME');
     $admin_password = Security::LoadEnvironmentOrFromFile(var: 'ADMIN_PASSWORD');
     
     if (empty($admin) || empty($admin_password)) {
@@ -81,6 +83,7 @@ function add_first_user(): void {
         echo "⚠️ Creation of user account failed." . PHP_EOL;
         exit(1);
     }
+
     $id = $user->Id;
     echo "User created with id $id" . PHP_EOL;
 }

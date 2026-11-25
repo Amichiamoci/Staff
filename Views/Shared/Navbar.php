@@ -363,12 +363,23 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                                     <li>
                                         <a  class="dropdown-item"
                                             href="<?= $P ?>/api/admin"
-                                            title="Api"
+                                            title="Gestisci i token Web App"
                                         >
                                             <i  class="bi bi-key me-2"
                                                 aria-hidden="true"
                                             ></i>
-                                            Api
+                                            Token Web App
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a  class="dropdown-item"
+                                            href="<?= $P ?>/api/logins"
+                                            title="Consulta il registro degli accessi Web App"
+                                        >
+                                            <i  class="bi bi-clock-history me-2"
+                                                aria-hidden="true"
+                                            ></i>
+                                            Accessi Web App
                                         </a>
                                     </li>
                                 <?php } ?>

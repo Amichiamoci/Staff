@@ -122,7 +122,9 @@ class Squadra extends NomeIdSemplice
         if (!$connection || $id === 0)
             return null;
         
-        $result = $connection->query(query: "SELECT `nome` FROM `squadre` WHERE `id` = $id");
+        $result = $connection->query(query: "SELECT `nome`
+            FROM `squadre`
+            WHERE `id` = $id");
         if (!$result || $result->num_rows === 0)
         {
             return null;
@@ -147,7 +149,9 @@ class Squadra extends NomeIdSemplice
             return false;
 
         $result = $connection->query(
-            query: "DELETE FROM `squadre` WHERE `squadre`.`id` = $id");
+            query: "DELETE
+                FROM `squadre`
+                WHERE `squadre`.`id` = $id");
         $connection->next_result();
         return (bool)$result && $connection->affected_rows === 1;
     }

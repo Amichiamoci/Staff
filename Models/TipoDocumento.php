@@ -16,7 +16,9 @@ class TipoDocumento extends NomeIdSemplice
             return [];
         
         $result = $connection->query(
-            query: "SELECT `id`, `label` FROM `tipi_documento` ORDER BY `id` ASC"
+            query: "SELECT `id`, `label`
+                FROM `tipi_documento`
+                ORDER BY `id` ASC"
         );
         if (!$result)
             return [];
@@ -37,7 +39,9 @@ class TipoDocumento extends NomeIdSemplice
             return null;
         
         $result = $connection->query(
-            query: "SELECT `label` FROM `tipi_documento` WHERE `id` = $id"
+            query: "SELECT `label`
+                FROM `tipi_documento`
+                WHERE `id` = $id"
         );
 
         if (!$result || $result->num_rows === 0)

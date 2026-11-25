@@ -26,7 +26,9 @@ class Token
         if (!$connection)
             return false;
 
-        $query = "UPDATE `token` SET `usage_date` = CURRENT_TIMESTAMP WHERE `value` = ? AND `usage_date` IS NULL AND `expiration_date` > CURRENT_TIMESTAMP";
+        $query = "UPDATE `token`
+            SET `usage_date` = CURRENT_TIMESTAMP
+            WHERE `value` = ? AND `usage_date` IS NULL AND `expiration_date` > CURRENT_TIMESTAMP";
 
         $result = $connection->execute_query(
             query: $query, 
@@ -88,7 +90,10 @@ class Token
             return null;
 
         $result = $connection->execute_query(
-            query: 'SELECT * FROM `token` WHERE `value` = ? LIMIT 1', 
+            query: 'SELECT *
+                FROM `token`
+                WHERE `value` = ?
+                LIMIT 1',
             params: [ $value ],
         );
 

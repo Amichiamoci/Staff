@@ -16,8 +16,14 @@ class Campo extends NomeIdSemplice
     public static function All(\mysqli $connection): array
     {
         $rows = $connection->query(
-            'SELECT id, nome, indirizzo, ST_Y(posizione) AS latitudine, ST_X(posizione) AS longitudine
-             FROM campi ORDER BY nome'
+            'SELECT
+                 `id`,
+                 `nome`,
+                 `indirizzo`,
+                 ST_Y(`posizione`) AS "latitudine",
+                 ST_X(`posizione`) AS "longitudine"
+             FROM `campi`
+             ORDER BY `nome`'
         );
         return array_map(static fn(array $row): Campo => new Campo(...$row), $rows->fetch_all(MYSQLI_ASSOC));
     }
@@ -26,8 +32,14 @@ class Campo extends NomeIdSemplice
     public static function ById(\mysqli $connection, int $id): ?self
     {
         $row = $connection->execute_query(
-            'SELECT id, nome, indirizzo, ST_Y(posizione) AS latitudine, ST_X(posizione) AS longitudine
-             FROM campi WHERE id = ?',
+            'SELECT
+                 `id`,
+                 `nome`,
+                 `indirizzo`,
+                 ST_Y(`posizione`) AS "latitudine",
+                 ST_X(`posizione`) AS "longitudine"
+             FROM `campi`
+             WHERE `id` = ?',
             [$id]
         )->fetch_assoc();
         return $row === null ? null : new Campo(...$row);
@@ -45,12 +57,15 @@ class Campo extends NomeIdSemplice
         $values = [$nome, $indirizzo, $longitudine, $latitudine];
         if ($id === null) {
             $connection->execute_query(
-                'INSERT INTO campi (nome, indirizzo, posizione) VALUES (?, ?, POINT(?, ?))',
+                'INSERT INTO `campi` (`nome`, `indirizzo`, `posizione`)
+                 VALUES (?, ?, POINT(?, ?))',
                 $values
             );
         } else {
             $connection->execute_query(
-                'UPDATE campi SET nome = ?, indirizzo = ?, posizione = POINT(?, ?) WHERE id = ?',
+                'UPDATE `campi`
+                 SET `nome` = ?, `indirizzo` = ?, `posizione` = POINT(?, ?)
+                 WHERE `id` = ?',
                 [...$values, $id]
             );
         }

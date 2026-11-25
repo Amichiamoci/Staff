@@ -13,7 +13,10 @@ class Distinta extends Squadra
         if ($team === null)
             return null;
 
-        $query = "SELECT * FROM `distinte` WHERE `squadra_id` = $id ORDER BY `chi` ASC";
+        $query = "SELECT *
+            FROM `distinte`
+            WHERE `squadra_id` = $id
+            ORDER BY `chi` ASC";
         $result = $connection->query(query: $query);
         if (!$result)
             return null;

@@ -159,7 +159,8 @@ extends Controller
             return $this->BadRequest();
 
         $target = Staff::ById($this->DB, $id);
-        if ($target === null && ($this->User->Admin || $this->Staff() !== null || $this->User->IdStaff === $id)) {
+        $staff = $this->Staff();
+        if ($target === null && ($this->User->Admin || $staff !== null && $staff->Id === $id)) {
             $target = StaffBase::ById($this->DB, $id);
         }
         if ($target === null) 

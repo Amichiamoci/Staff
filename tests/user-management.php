@@ -16,12 +16,17 @@ define('RECAPTCHA_PUBLIC_KEY', '');
 $_SERVER['DOCUMENT_ROOT'] = dirname(__DIR__);
 
 $db = new mysqli('127.0.0.1', 'root', '', 'fixture', (int)$argv[1]);
-$db->query('CREATE TEMPORARY TABLE utenti (
+$schema = 'fixture_users_' . bin2hex(random_bytes(8));
+$db->query("CREATE DATABASE `$schema`");
+$db->select_db($schema);
+register_shutdown_function(static fn() => $db->query("DROP DATABASE `$schema`"));
+
+$db->query('CREATE TABLE utenti (
     id INT PRIMARY KEY, user_name VARCHAR(100), is_admin BOOL, is_blocked BOOL DEFAULT 0
 )');
 $db->query("INSERT INTO utenti (id, user_name, is_admin) VALUES
     (1, 'Admin fixture', 1), (2, 'Member <fixture>', 0), (3, 'Unlinked fixture', 0)");
-$db->query('CREATE TEMPORARY TABLE sessioni (
+$db->query('CREATE TABLE sessioni (
     id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, time_start DATETIME,
     time_log DATETIME, user_flag VARCHAR(64), device_ip VARCHAR(32)
 )');
@@ -45,6 +50,8 @@ $db->query('CREATE TEMPORARY TABLE users_extended (
 $db->query("INSERT INTO users_extended VALUES
     (2, 'Member <fixture>', '2000-01-01 11:15:00', 0, 0, 7, 5, 'Staff <fixture>'),
     (3, 'Unlinked fixture', NULL, 0, 0, NULL, NULL, NULL)");
+
+$db->query(file_get_contents(dirname(__DIR__) . '/Database/views/09_user_sessions.sql'));
 
 $procedures = [
     'GetStaffFromUserId' => "IN account_id INT)

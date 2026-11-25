@@ -43,7 +43,9 @@ class Cron
     public static function fetchFromDb(\mysqli $connection, string $name): ?self
     {
         $result = $connection->execute_query(
-            query: "SELECT `function_name`, `last_run`, `interval_hours` FROM `cron` WHERE `name` = ?",
+            query: "SELECT `function_name`, `last_run`, `interval_hours`
+                FROM `cron`
+                WHERE `name` = ?",
             params: [$name]
         );
         if (!$result || $result->num_rows === 0) 
@@ -65,7 +67,8 @@ class Cron
     public static function fetchAllFromDb(\mysqli $connection): array
     {
         $result = $connection->execute_query(
-            query: "SELECT `name`, `function_name`, `last_run`, `interval_hours` FROM `cron`"
+            query: "SELECT `name`, `function_name`, `last_run`, `interval_hours`
+                FROM `cron`"
         );
         if (!$result) 
             return [];
@@ -92,7 +95,8 @@ class Cron
     public function createInDB(\mysqli $connection): void
     {
         $connection->execute_query(
-            query: "INSERT INTO `cron` (`name`, `function_name`, `interval_hours`) VALUES (?, ?, ?)",
+            query: "INSERT INTO `cron` (`name`, `function_name`, `interval_hours`)
+                VALUES (?, ?, ?)",
             params: [
                 $this->Name,
                 $this->FunctionName,
@@ -105,7 +109,9 @@ class Cron
     public function updateLastRunInDb(\mysqli $connection): void
     {
         $connection->execute_query(
-            query: "UPDATE `cron` SET `last_run` = ? WHERE `name` = ?",
+            query: "UPDATE `cron`
+                SET `last_run` = ?
+                WHERE `name` = ?",
             params: [
                 $this->LastRun->format(format: 'Y-m-d H:i:s'),
                 $this->Name,

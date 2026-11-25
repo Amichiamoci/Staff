@@ -15,23 +15,33 @@ define('MAIN_SITE_URL', 'https://example.invalid');
 $_SERVER['REQUEST_METHOD'] = 'GET';
 
 $db = new mysqli('127.0.0.1', 'root', '', 'fixture', (int)$argv[1]);
-$db->query('CREATE TEMPORARY TABLE settings (name VARCHAR(64), enabled BOOLEAN)');
+$schema = 'fixture_dashboard_' . bin2hex(random_bytes(8));
+$db->query("CREATE DATABASE `$schema`");
+$db->select_db($schema);
+register_shutdown_function(static fn() => $db->query("DROP DATABASE `$schema`"));
+
+$db->query('CREATE TABLE settings (name VARCHAR(64), enabled BOOLEAN)');
 $db->query("INSERT INTO settings VALUES ('subscriptions_enabled', FALSE), ('teams_enabled', TRUE)");
-$db->query('CREATE TEMPORARY TABLE edizioni (id INT, anno YEAR)');
-$db->query('CREATE TEMPORARY TABLE parrocchie (id INT, nome VARCHAR(64), indirizzo VARCHAR(64), website VARCHAR(64))');
-$db->query('CREATE TEMPORARY TABLE iscritti (
+$db->query('CREATE TABLE edizioni (id INT, anno YEAR)');
+$db->query('CREATE TABLE parrocchie (id INT, nome VARCHAR(64), indirizzo VARCHAR(64), website VARCHAR(64))');
+$db->query('CREATE TABLE iscritti (
     id INT, dati_anagrafici INT, edizione INT, parrocchia INT, taglia_maglietta VARCHAR(8)
 )');
-$db->query('CREATE TEMPORARY TABLE staffisti (id INT, parrocchia INT)');
-$db->query('CREATE TEMPORARY TABLE partecipaz_staff_ediz (staff INT, edizione INT, maglia VARCHAR(8))');
-$db->query('CREATE TEMPORARY TABLE sport (id INT, area VARCHAR(16))');
-$db->query('CREATE TEMPORARY TABLE tornei (id INT, edizione INT, nome VARCHAR(64), sport INT)');
-$db->query('CREATE TEMPORARY TABLE partite (
+$db->query('CREATE TABLE staffisti (id INT, parrocchia INT)');
+$db->query('CREATE TABLE partecipaz_staff_ediz (staff INT, edizione INT, maglia VARCHAR(8))');
+$db->query('CREATE TABLE sport (id INT, area VARCHAR(16))');
+$db->query('CREATE TABLE tornei (id INT, edizione INT, nome VARCHAR(64), sport INT)');
+$db->query('CREATE TABLE partite (
     id INT, torneo INT, data DATE, orario TIME, campo INT, a_tavolino INT
 )');
-$db->query('CREATE TEMPORARY TABLE punteggi (partita INT)');
-$db->query('CREATE TEMPORARY TABLE compleanni_oggi (nome VARCHAR(32), cognome VARCHAR(32), eta INT)');
+$db->query('CREATE TABLE punteggi (partita INT)');
+$db->query('CREATE TABLE compleanni_oggi (nome VARCHAR(32), cognome VARCHAR(32), eta INT)');
 $db->query('ALTER TABLE edizioni ADD motto VARCHAR(64), ADD path_immagine VARCHAR(64)');
+$db->multi_query(file_get_contents(dirname(__DIR__) . '/Database/views/10_dashboard.sql'));
+while ($db->more_results()) {
+    $db->next_result();
+}
+
 $currentYear = (int)date('Y');
 $db->execute_query('INSERT INTO edizioni (id, anno) VALUES (1, 2024), (2, 2025), (3, ?), (4, ?)', [$currentYear, $currentYear + 1]);
 $db->query("INSERT INTO parrocchie VALUES (1, 'Fixture parish', NULL, NULL), (2, 'Other parish', NULL, NULL)");

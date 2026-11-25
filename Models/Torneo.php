@@ -138,7 +138,9 @@ class Torneo extends NomeIdSemplice
             return null;
 
         $result = $connection->execute_query(
-            query: "SELECT * FROM `tornei_espanso` WHERE `id` = ?",
+            query: "SELECT *
+                FROM `tornei_espanso`
+                WHERE `id` = ?",
             params: [ $id ],
         );
 
@@ -178,7 +180,9 @@ class Torneo extends NomeIdSemplice
         
         try {
             return (bool)$connection->execute_query(
-                query: 'DELETE FROM `partecipaz_squad_torneo` WHERE `torneo` = ? AND `squadra` = ?',
+                query: 'DELETE
+                    FROM `partecipaz_squad_torneo`
+                    WHERE `torneo` = ? AND `squadra` = ?',
                 params: [ $torneo, $squadra ],
             );
         } catch (\Exception) {
@@ -198,7 +202,8 @@ class Torneo extends NomeIdSemplice
         if (!$connection)
             return null;
         
-        $query = "INSERT INTO `tornei` (`edizione`, `nome`, `sport`, `tipo_torneo`) VALUES (?, ?, ?, ?)";
+        $query = "INSERT INTO `tornei` (`edizione`, `nome`, `sport`, `tipo_torneo`)
+            VALUES (?, ?, ?, ?)";
         $result = $connection->execute_query(
             query: $query, 
             params: [
@@ -221,7 +226,9 @@ class Torneo extends NomeIdSemplice
             return false;
 
         $result = $connection->execute_query(
-            query: "DELETE FROM `tornei` WHERE `id` = ?",
+            query: "DELETE
+                FROM `tornei`
+                WHERE `id` = ?",
             params: [ $id ],
         );
 

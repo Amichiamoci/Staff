@@ -37,7 +37,9 @@ class Edizione
         if (!$connection || !isset($id))
             return null;
         $id = (int)$id;
-        $query = "SELECT * FROM `edizioni` WHERE `id` = $id";
+        $query = "SELECT *
+            FROM `edizioni`
+            WHERE `id` = $id";
         $result = $connection->query(query: $query);
         if (!$result || $result->num_rows === 0) return null;
         if ($row = $result->fetch_assoc())
@@ -58,7 +60,9 @@ class Edizione
         if (!$connection || !isset($year))
             return null;
         $year = (int)$year;
-        $query = "SELECT * FROM `edizioni` WHERE `anno` = $year";
+        $query = "SELECT *
+            FROM `edizioni`
+            WHERE `anno` = $year";
         $result = $connection->query(query: $query);
         if (!$result || $result->num_rows === 0) return null;
         if ($row = $result->fetch_assoc())
@@ -77,7 +81,9 @@ class Edizione
     public static function All(\mysqli $connection) : array
     {
         if (!$connection) return array();
-        $query = "SELECT * FROM `edizioni` ORDER BY `anno` DESC";
+        $query = "SELECT *
+            FROM `edizioni`
+            ORDER BY `anno` DESC";
         $ret = array();
         $result = $connection->query(query: $query);
         if ($result)
@@ -101,7 +107,9 @@ class Edizione
     {
         if (!$connection)
             return null;
-        $query = "SELECT * FROM `edizioni` WHERE `anno` = YEAR(CURRENT_DATE)";
+        $query = "SELECT *
+            FROM `edizioni`
+            WHERE `anno` = YEAR(CURRENT_DATE)";
         $result = $connection->query(query: $query);
         if (!$result || $result->num_rows === 0) return null;
         if ($row = $result->fetch_assoc())
@@ -122,7 +130,8 @@ class Edizione
         if (!$connection) {
             return null;
         }
-        $query = "INSERT INTO `edizioni` (`anno`, `motto`) VALUES (?, ?)";
+        $query = "INSERT INTO `edizioni` (`anno`, `motto`)
+            VALUES (?, ?)";
         $result = $connection->execute_query(query: $query, params: [$year, $motto]);
         if (!$result) {
             return null;
@@ -142,7 +151,9 @@ class Edizione
         if (!$connection) {
             return null;
         }
-        $query = "UPDATE `edizioni` SET `anno` = ?, `motto` = ?, `path_immagine` = ? WHERE `id` = ?";
+        $query = "UPDATE `edizioni`
+            SET `anno` = ?, `motto` = ?, `path_immagine` = ?
+            WHERE `id` = ?";
         $result = $connection->execute_query(query: $query, params: [$this->Year, $this->Motto, $this->ImgPath, $this->Id]);
         if (!$result) {
             return null;
@@ -156,7 +167,9 @@ class Edizione
     {
         if (!$connection)
             return [];
-        $query = "SELECT * FROM `eta_iscritti_edizione` WHERE id = ?";
+        $query = "SELECT *
+            FROM `eta_iscritti_edizione`
+            WHERE `id` = ?";
         
         $result = $connection->execute_query(query: $query, params: [$id]);
         if (!$result)

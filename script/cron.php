@@ -78,7 +78,9 @@ function birthday_emails(): void
         return;
     }
 
-    $query = "SELECT `nome`, `email` FROM `compleanni_oggi` WHERE `email` IS NOT NULL";
+    $query = "SELECT `nome`, `email`
+        FROM `compleanni_oggi`
+        WHERE `email` IS NOT NULL";
     $result = $connection->query(query: $query);
     if (!$result)
     {

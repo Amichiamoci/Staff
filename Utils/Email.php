@@ -141,7 +141,9 @@ class Email
         
         if (!$email_sent && $connection && $id !== null)
         {
-            $query = "UPDATE `email` SET `email`.`ricevuta` = FALSE WHERE `email`.`id` = $id";
+            $query = "UPDATE `email`
+                SET `email`.`ricevuta` = FALSE
+                WHERE `email`.`id` = $id";
             $connection->query(query: $query);
         }
         return $email_sent;

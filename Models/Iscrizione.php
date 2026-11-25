@@ -133,7 +133,9 @@ class Iscrizione extends NomeIdSemplice
     /** Returns the edition ID of an enrollment, or null when the enrollment does not exist. */
     public static function EditionId(\mysqli $connection, int $id): ?int
     {
-        $result = $connection->execute_query('SELECT edizione FROM iscritti WHERE id = ?', [$id]);
+        $result = $connection->execute_query('SELECT `edizione`
+            FROM `iscritti`
+            WHERE `id` = ?', [$id]);
         $row = $result->fetch_row();
         return $row === null ? null : (int)$row[0];
     }
@@ -145,7 +147,10 @@ class Iscrizione extends NomeIdSemplice
             return null;
         
         $result = $connection->query(
-            query: "SELECT `dati_anagrafici` FROM `iscritti` WHERE `id` = $id LIMIT 1"
+            query: "SELECT `dati_anagrafici`
+                FROM `iscritti`
+                WHERE `id` = $id
+                LIMIT 1"
         );
         if (!$result || $result->num_rows === 0)
             return null;
@@ -165,7 +170,8 @@ class Iscrizione extends NomeIdSemplice
     ): bool {
         if (!$connection)
             return false;
-        $query = "INSERT INTO `iscritti` (`dati_anagrafici`, `edizione`, `tutore`, `certificato_medico`, `parrocchia`, `taglia_maglietta`) VALUES (?, ?, ?, ?, ?, ?)";
+        $query = "INSERT INTO `iscritti` (`dati_anagrafici`, `edizione`, `tutore`, `certificato_medico`, `parrocchia`, `taglia_maglietta`)
+            VALUES (?, ?, ?, ?, ?, ?)";
         
         return (bool)$connection->execute_query(
             query: $query, 
@@ -192,7 +198,9 @@ class Iscrizione extends NomeIdSemplice
         {
             $certificato = null;
         }
-        $query = "UPDATE `iscritti` SET `certificato_medico` = ? WHERE `id` = ?";
+        $query = "UPDATE `iscritti`
+            SET `certificato_medico` = ?
+            WHERE `id` = ?";
         $result = $connection->execute_query(query: $query, params: [
             $certificato,
             $id,
@@ -206,7 +214,9 @@ class Iscrizione extends NomeIdSemplice
     {
         if (!$connection)
             return false;
-        $query = "UPDATE `iscritti` SET `taglia_maglietta` = ?, `tutore` = ?, `parrocchia` = ? WHERE `id` = ?";
+        $query = "UPDATE `iscritti`
+            SET `taglia_maglietta` = ?, `tutore` = ?, `parrocchia` = ?
+            WHERE `id` = ?";
         $result = $connection->execute_query(query: $query, params: [
             $this->Taglia->value,
             $this->IdTutore,
@@ -224,7 +234,9 @@ class Iscrizione extends NomeIdSemplice
             return false;
         }
 
-        $query = "DELETE FROM `iscritti` WHERE `id` = $id";
+        $query = "DELETE
+            FROM `iscritti`
+            WHERE `id` = $id";
         $res = (bool)$connection->query(query: $query);
         return $res && $connection->affected_rows >= 1;
     }

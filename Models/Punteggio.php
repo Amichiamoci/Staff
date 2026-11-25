@@ -90,7 +90,9 @@ class Punteggio implements DbEntity
         if (!$connection)
             return null;
 
-        $result = $connection->query(query: "SELECT * FROM `punteggi` WHERE `id` = $id");
+        $result = $connection->query(query: "SELECT *
+            FROM `punteggi`
+            WHERE `id` = $id");
         if (!$result || $result->num_rows === 0) {
             return null;
         }
@@ -114,7 +116,9 @@ class Punteggio implements DbEntity
         if (!$connection)
             return false;
 
-        $result = $connection->query(query: "DELETE FROM `punteggi` WHERE `id` = $id");
+        $result = $connection->query(query: "DELETE
+            FROM `punteggi`
+            WHERE `id` = $id");
         return (bool)$result && $connection->affected_rows === 1;
     }
 
@@ -125,7 +129,9 @@ class Punteggio implements DbEntity
             return false;
 
         $result = $connection->execute_query(
-            query: 'UPDATE `punteggi` SET `home` = ?, `guest`= ? WHERE `id` = ?', 
+            query: 'UPDATE `punteggi`
+                SET `home` = ?, `guest`= ?
+                WHERE `id` = ?',
             params: [
                 $casa, 
                 $ospiti, 

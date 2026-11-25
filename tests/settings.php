@@ -19,7 +19,7 @@ $_ENV['PHP_INFO_FIXTURE'] = 'synthetic-private-setting';
 $_SERVER['HTTP_AUTHORIZATION'] = 'synthetic-private-header';
 
 $db = new mysqli('127.0.0.1', 'root', '', 'fixture', (int)$argv[1]);
-$schema = file_get_contents(dirname(__DIR__) . '/queries/db-schema.sql');
+$schema = file_get_contents(dirname(__DIR__) . '/Database/db-schema.sql');
 $settingsSchema = strstr($schema, '-- System configuration');
 if ($settingsSchema === false) {
     throw new RuntimeException('The database schema is missing the settings section.');

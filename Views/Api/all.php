@@ -6,93 +6,124 @@ assert(isset($tokens) && is_array($tokens), 'var $tokens not valid');
 
 ?>
 
-<h1>
-    <?= htmlspecialchars(string: $title) ?>
-    (<?= count(value: $tokens) ?>)
-</h1>
+<header class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <h1 class="mb-0"><?= htmlspecialchars($title) ?></h1>
+    <a  href="<?= $P ?>/api/logins"
+        class="btn btn-outline-primary"
+        title="Consulta gli accessi delle applicazioni"
+    >
+        Accessi Web App
+    </a>
+</header>
 
 <?php if (isset($new_key)) { ?>
+    <?php assert(is_string($new_key)); ?>
     <div
-        class="alert alert-info user-select-text alert-dismissible fade show d-flex"
+        class="alert alert-info alert-dismissible fade show"
         role="alert"
     >
-        <div>
-            <span class="user-select-none">
-                Token generato:
-            </span>
-            <strong>
-                <?= htmlspecialchars(string: $new_key) ?>
-            </strong>
-        </div>
+        <p class="fw-semibold mb-1">Token generato</p>
+        <code class="d-block text-body-emphasis text-break user-select-all"><?= htmlspecialchars($new_key) ?></code>
         <button
             type="button"
             class="btn-close"
             data-bs-dismiss="alert"
             aria-label="Chiudi"
-            title="Chiudi"
+            title="Chiudi l’avviso del token generato"
         ></button>
     </div>
 <?php } ?>
 
-<ul class="list-group">
-    <?php foreach ($tokens as $token) { ?>
-        <li class="list-group-item">
-            #<?= $token->Id ?>
-            -
-            <?= htmlspecialchars(string: $token->Nome) ?>
-
-            <form
-                action="<?= $P ?>/api/delete_token"
-                method="post"
-                class="p-0 d-inline"
-            >
-                <input
-                    type="hidden"
-                    name="id"
-                    value="<?= $token->Id ?>"
-                >
-                <button
-                    type="submit"
-                    class="btn btn-link link-danger link-underline link-underline-opacity-0 p-0"
-                    title="Elimina il token"
-                    data-confirm="Sei sicuro di voler eliminare il token?"
-                    data-confirm-btn="Sì, elimina"
-                    data-cancel-btn="Annulla"
-                >
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </form>
-        </li>
-    <?php } ?>
-</ul>
-
-<form
-    action="<?= $P ?>/api/admin"
-    method="post"
-    class="m-2 p-2 border border-1 rounded"
->
-    <h3>
-        Genera nuovo token
-    </h3>
-    <div class="form-floating mb-3">
-        <input
-            required
-            type="text"
-            class="form-control"
-            id="name"
-            name="token_name"
-        >
-        <label for="name">Nome</label>
-        <div class="invalid-feedback">
-            Per favore, immetti un nome per il token
-        </div>
-    </div>
-
-    <button
-        type="submit"
-        class="btn btn-outline-primary"
-        title="Genera"
+<div class="row g-4">
+    <section
+        class="col-lg-5"
+        aria-labelledby="new-token-heading"
     >
-        Genera
-    </button>
-</form>
+        <form
+            action="<?= $P ?>/api/admin"
+            method="post"
+            class="border rounded-3 p-3 p-sm-4"
+            aria-labelledby="new-token-heading"
+        >
+            <h2
+                id="new-token-heading"
+                class="h5 mb-3"
+            >
+                Genera un token
+            </h2>
+            <div class="form-floating mb-3">
+                <input
+                    type="text"
+                    class="form-control"
+                    id="token-name"
+                    name="token_name"
+                    placeholder="Nome applicazione"
+                    maxlength="256"
+                    required
+                >
+                <label for="token-name">Nome applicazione</label>
+                <div class="invalid-feedback">Inserisci il nome dell’applicazione.</div>
+            </div>
+            <button
+                type="submit"
+                class="btn btn-primary"
+                title="Genera un nuovo token Web App"
+            >
+                Genera token
+            </button>
+        </form>
+    </section>
+
+    <section
+        class="col-lg-7"
+        aria-labelledby="active-tokens-heading"
+    >
+        <h2
+            id="active-tokens-heading"
+            class="h5 mb-3"
+        >
+            Token attivi (<?= count($tokens) ?>)
+        </h2>
+        <?php if ($tokens === []) { ?>
+            <p class="border rounded-3 p-3 mb-0">Nessun token attivo.</p>
+        <?php } else { ?>
+            <ul class="list-group">
+                <?php foreach ($tokens as $token) { ?>
+                    <li class="list-group-item d-flex flex-wrap align-items-center justify-content-between gap-3 p-3">
+                        <div class="text-break">
+                            <span
+                                id="token-<?= $token->Id ?>"
+                                class="fw-semibold"
+                            >
+                                <?= htmlspecialchars($token->Nome) ?>
+                            </span>
+                            <span class="d-block small text-body-emphasis">#<?= $token->Id ?></span>
+                        </div>
+                        <form
+                            action="<?= $P ?>/api/delete_token"
+                            method="post"
+                            aria-labelledby="revoke-token-<?= $token->Id ?> token-<?= $token->Id ?>"
+                        >
+                            <input
+                                type="hidden"
+                                name="id"
+                                value="<?= $token->Id ?>"
+                            >
+                            <button
+                                id="revoke-token-<?= $token->Id ?>"
+                                type="submit"
+                                class="btn btn-outline-danger"
+                                title="Revoca il token di <?= htmlspecialchars($token->Nome) ?>"
+                                data-confirm="Vuoi revocare questo token?"
+                                data-confirm-btn="Sì, revoca"
+                                data-cancel-btn="Annulla"
+                            >
+                                Revoca
+                            </button>
+                        </form>
+                    </li>
+                <?php } ?>
+            </ul>
+        <?php } ?>
+    </section>
+</div>

@@ -32,6 +32,23 @@
   Keep optional inputs optional and check branch-specific inputs only in their branch.
   Use assertions for template contracts and keep runtime validation in the controller or model.
 
+## SQL
+
+- Keep database definitions in the `Database` folder.
+- Define reusable read queries with complex joins, subqueries, or aggregation as SQL views in `Database/views`.
+  Query those views from PHP and keep request-specific filters and parameters in PHP.
+- Write SQL compatible with MariaDB 12+ and MySQL 8+.
+- Start each major clause on its own line, including `SELECT`, `FROM`, each `JOIN`, `WHERE`, `GROUP BY`, `HAVING`, `ORDER BY`, and `LIMIT`.
+  Indent each `JOIN` one tab deeper than its corresponding `FROM`.
+  Align the `ON` keywords for joins belonging to the same `FROM` in the same visual column.
+  A short query of the form `` SELECT * FROM `table` `` may stay on one line.
+- Always specify the join type explicitly using `INNER JOIN`, `CROSS JOIN`, `LEFT OUTER JOIN`, or `RIGHT OUTER JOIN`.
+- Enclose table and column names in backticks, quoting each part of a qualified name separately, as in `` `table`.`id` ``.
+  Table aliases may be unquoted in both their declaration and column qualifiers, as in `` SELECT t.`id` FROM `table` t ``.
+- In long or complex queries that select multiple columns, put each select-list item on its own line.
+  Align all select-list `AS` keywords in the same visual column.
+- Enclose every column alias in double quotes, as in `` t.`id` AS "identifier" ``.
+
 ## HTML
 
 - Give every page a sharp, modern look consistent with the portal.

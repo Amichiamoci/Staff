@@ -15,6 +15,8 @@
 [![Docker release](https://github.com/Amichiamoci/Staff/actions/workflows/docker.yml/badge.svg)](https://github.com/Amichiamoci/Staff/actions/workflows/docker.yml)
 [![Deploy FTP](https://github.com/Amichiamoci/Staff/actions/workflows/ftp-deploy.yml/badge.svg)](https://github.com/Amichiamoci/Staff/actions/workflows/ftp-deploy.yml)
 [![PHP 8.4+](https://img.shields.io/badge/PHP-8.4%2B-777BB4?logo=php&logoColor=white)](composer.json)
+[![MariaDB 12+](https://img.shields.io/badge/MariaDB-12%2B-003545?logo=mariadb&logoColor=white)](#preparazione-comune-per-apache-e-nginx)
+[![MySQL 8+](https://img.shields.io/badge/MySQL-8%2B-4479A1?logo=mysql&logoColor=white)](#preparazione-comune-per-apache-e-nginx)
 
 Questo repository contiene il codice sorgente del **Portale Staff**, il pannello di controllo di [Amichiamoci](https://www.amichiamoci.it), manifestazione diocesana che si svolge ogni anno a Livorno.
 
@@ -53,8 +55,8 @@ flowchart LR
     Docker
 </h3>
 
-Prepara un database MariaDB vuoto in codifica utf8mb4 e un utente con permessi per creare tabelle, viste e routine.
-Se MariaDB è in un altro container, collega i due container alla stessa rete Docker e usa il nome del servizio come `MYSQL_HOST`.
+Prepara un database vuoto su MariaDB 12 o successivo oppure MySQL 8 o successivo, in codifica `utf8mb4`, e un utente con permessi per creare tabelle, viste e routine.
+Se il server del database è in un altro container, collega i due container alla stessa rete Docker e usa il nome del servizio come `MYSQL_HOST`.
 
 Configura un file `.env` con le variabili descritte di seguito e limita l’accesso al file con `chmod 600 .env`.
 Imposta `ADMIN_USERNAME` e `ADMIN_PASSWORD` per la creazione del primo amministratore.
@@ -75,7 +77,7 @@ Prima di aggiornare un’installazione esistente, salva un backup del database e
 Installa PHP-FPM 8.4 o successivo con `mysqli`, `gd`, `mbstring`, `fileinfo` e `sodium`, Composer 2 e il client `mariadb`.
 Installa le dipendenze con `composer install --no-interaction --prefer-dist --optimize-autoloader` e verifica l’ambiente con `composer check-platform-reqs`.
 
-Prepara un database MariaDB vuoto e configura il file `.env`, includendo le credenziali del primo amministratore.
+Prepara un database vuoto su MariaDB 12 o successivo oppure MySQL 8 o successivo, in codifica `utf8mb4`, e configura il file `.env`, includendo le credenziali del primo amministratore.
 Crea le directory `data/documenti`, `data/certificati`, `data/tmp/cron` e `data/log` e rendile scrivibili dall’utente PHP.
 Esegui `php script/build-database.php` e pianifica `php /srv/amichiamoci/script/cron.php` nel cron di sistema con l’utente PHP.
 

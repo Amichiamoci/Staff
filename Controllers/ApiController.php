@@ -2,22 +2,17 @@
 
 namespace Amichiamoci\Controllers;
 
-use ReflectionClass;
+use DomainException;
+use InvalidArgumentException;
+use Throwable;
 
 use Richie314\SimpleMvc\Controllers\Attributes\RequireLogin;
-use Richie314\SimpleMvc\Http\StatusCode;
+use Richie314\SimpleMvc\Http\{Method, StatusCode};
+use Richie314\SimpleMvc\Utils\Security;
 
-use Amichiamoci\Models\Api\{Call as ApiCall, Token as ApiToken};
+use Amichiamoci\Api\{Iscrizioni, Login, Sport, System};
+use Amichiamoci\Models\Api\Token as ApiToken;
 use Amichiamoci\Models\Message;
-use Amichiamoci\Models\Api\Traits\{
-    Anagrafica as AnagraficaTrait,
-    Parrocchia as ParrocchiaTrait,
-    Staff as StaffTrait,
-    Squadra as SquadraTrait,
-    Torneo as TorneoTrait,
-    Partita as PartitaTrait,
-};
-use Amichiamoci\Utils\Security;
 
 class ApiController
 extends Controller
@@ -51,6 +46,11 @@ extends Controller
 
         if ($this->IsPost() && isset($token_name))
         {
+            $token_name = trim($token_name);
+            if ($token_name === '' || mb_strlen($token_name) > 256) {
+                return $this->BadRequest('Inserisci un nome applicazione da 1 a 256 caratteri.');
+            }
+
             $new_token = ApiToken::New(connection: $this->DB, name: $token_name);
             if (isset($new_token))
             {
@@ -68,7 +68,7 @@ extends Controller
 
         return $this->Render(
             view: 'Api/all',
-            title: 'Applicazioni attive',
+            title: 'Token Web App',
             data: [
                 'tokens' => ApiToken::All(connection: $this->DB),
                 'new_key' => $generated_key,
@@ -76,149 +76,196 @@ extends Controller
         );
     }
 
-    public function index(?string $resource = null): StatusCode
+    #[RequireLogin(requireAdmin: true)]
+    public function logins(int|string|null $page = null): StatusCode
     {
-        $bearer = $this->get_bearer();
-        if (!isset($bearer))
-        {
-            return $this->Json(
-                object: [
-                    'Message' => "Header 'App-Bearer' missing",
-                ],
-                statusCode: StatusCode::BadRequest,
-            );
+        try {
+            $page = $page === null ? 1 : $this->checkId($page, 'page');
+        } catch (InvalidArgumentException) {
+            return $this->BadRequest();
         }
 
-        if (!ApiToken::Test(
-            connection: $this->DB, 
-            key: $bearer, 
-            ip: Security::GetIpAddress(),
-        )) {
-            return $this->Json(
-                object: [
-                    'Message' => 'Invalid bearer token',
-                ],
-                statusCode: StatusCode::NotAuthorized,
-            );
-        }
+        header('Cache-Control: no-store');
+        $pageSize = 100;
+        $logins = Login::recent($this->DB, ($page - 1) * $pageSize, $pageSize + 1);
+        $next = count($logins) > $pageSize ? $page + 1 : null;
+        return $this->Render(
+            view: 'Api/logins',
+            title: 'Accessi Web App',
+            data: ['logins' => array_slice($logins, 0, $pageSize), 'next' => $next, 'page' => $page],
+        );
+    }
 
-        if (!isset($resource))
-        {
-            return $this->Json(
-                object: [
-                    'Message' => 'Invalid resource (null)',
-                    'Stack' => [__METHOD__],
-                    'Line' => __LINE__,
-                    'File' => __FILE__,
-                ],
-                statusCode: StatusCode::BadRequest,
-            );
-        }
+    public function login(?string $email = null, ?string $ipAddress = null): StatusCode
+    {
+        return $this->respond(Method::Post, function (int $tokenId, string $clientIp) use ($email, $ipAddress): array {
+            $email = $this->verifiedEmail($email);
+            $ip = $ipAddress ?? $clientIp;
+            if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
+                throw new InvalidArgumentException('ipAddress must be a valid IPv4 or IPv6 address.');
+            }
 
-        if (!array_key_exists(key: $resource, array: $this->avaible_methods))
-        {
-            return $this->Json(
-                object: [
-                    'Message' => "Action '$resource' not found",
-                    'Stack' => [__METHOD__],
-                    'Line' => __LINE__,
-                    'File' => __FILE__,
-                ],
-                statusCode: StatusCode::NotFound,
-            );
+            return ['isAdmin' => Login::record($this->DB, $email, $tokenId, $ip)];
+        });
+    }
+
+    public function index(): StatusCode
+    {
+        return $this->respond(Method::Get, null);
+    }
+
+    public function event(): StatusCode
+    {
+        return $this->respond(Method::Get, fn() => (new System($this->DB))->details($this->Files()));
+    }
+
+    public function leaderboard(): StatusCode
+    {
+        return $this->respond(Method::Get, fn() => (new Sport($this->DB))->leaderboard());
+    }
+
+    public function tournaments(): StatusCode
+    {
+        return $this->respond(Method::Get, fn() => (new Sport($this->DB))->tournaments());
+    }
+
+    public function tournament_standings(int|string|null $tournament_id = null): StatusCode
+    {
+        return $this->respond(Method::Get, fn() => (new Sport($this->DB))->standings(
+            $this->checkId($tournament_id, 'tournament_id'),
+        ));
+    }
+
+    public function matches(int|string|null $tournament_id = null, int|string|null $team_id = null): StatusCode
+    {
+        return $this->respond(Method::Get, fn() => (new Sport($this->DB))->matches(
+            $tournament_id === null ? null : $this->checkId($tournament_id, 'tournament_id'),
+            $team_id === null ? null : $this->checkId($team_id, 'team_id'),
+        ));
+    }
+
+    public function today_matches(int|string|null $parish_id = null): StatusCode
+    {
+        return $this->respond(Method::Get, fn() => (new Sport($this->DB))->todayMatches(
+            $this->checkId($parish_id, 'parish_id'),
+        ));
+    }
+
+    public function people(?string $email = null): StatusCode
+    {
+        return $this->withIscrizioni($email, fn(Iscrizioni $iscrizioni) => $iscrizioni->people());
+    }
+
+    public function save_person(
+        ?string $email = null,
+        int|string|null $id = null,
+        ?string $firstName = null,
+        ?string $lastName = null,
+        ?string $birthDate = null,
+        ?string $birthPlace = null,
+        ?string $phone = null,
+        ?string $taxCode = null,
+        int|string|null $documentTypeId = null,
+        ?string $documentExpiry = null,
+        ?string $documentUri = null,
+    ): StatusCode {
+        return $this->withIscrizioni($email, fn(Iscrizioni $iscrizioni) => $iscrizioni->savePerson(
+            drive: System::driveEnabled($this->Files()),
+            firstName: $firstName ?? '',
+            lastName: $lastName ?? '',
+            birthDate: $birthDate ?? '',
+            birthPlace: $birthPlace ?? '',
+            taxCode: $taxCode ?? '',
+            documentTypeId: $this->checkId($documentTypeId, 'documentTypeId'),
+            documentExpiry: $documentExpiry ?? '',
+            id: $id === null ? null : $this->checkId($id, 'id'),
+            phone: $phone,
+            documentUri: $documentUri,
+        ));
+    }
+
+    public function subscriptions(?string $email = null): StatusCode
+    {
+        return $this->withIscrizioni($email, fn(Iscrizioni $iscrizioni) => $iscrizioni->subscriptions());
+    }
+
+    public function subscribe(
+        ?string $email = null,
+        int|string|null $personId = null,
+        int|string|null $editionId = null,
+        int|string|null $parishId = null,
+        ?string $shirtSize = null,
+        int|string|null $guardianId = null,
+        ?string $certificateUri = null,
+    ): StatusCode {
+        return $this->withIscrizioni($email, fn(Iscrizioni $iscrizioni) => $iscrizioni->subscribe(
+            drive: System::driveEnabled($this->Files()),
+            personId: $this->checkId($personId, 'personId'),
+            editionId: $this->checkId($editionId, 'editionId'),
+            parishId: $this->checkId($parishId, 'parishId'),
+            shirtSize: $shirtSize ?? '',
+            guardianId: $guardianId === null ? null : $this->checkId($guardianId, 'guardianId'),
+            certificateUri: $certificateUri,
+        ));
+    }
+
+    public function my_teams(?string $email = null): StatusCode
+    {
+        return $this->respond(Method::Post, fn() => (new Sport($this->DB))->teams($this->verifiedEmail($email)));
+    }
+
+    private function withIscrizioni(?string $email, callable $action): StatusCode
+    {
+        return $this->respond(Method::Post, fn() => $action(new Iscrizioni($this->DB, $this->verifiedEmail($email))));
+    }
+
+    private function verifiedEmail(?string $value): string
+    {
+        $email = strtolower(trim($value ?? ''));
+        if (strlen($email) > 64 || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+            throw new InvalidArgumentException('email must be a valid email address of at most 64 bytes.');
         }
+        return $email;
+    }
+
+    private function checkId(int|string|null $value, string $name): int
+    {
+        if (is_string($value) && ctype_digit($value)) {
+            $value = (int)$value;
+        }
+        if (!is_int($value) || $value < 1 || $value > 2147483647) {
+            throw new InvalidArgumentException("$name must be a positive integer ID.");
+        }
+        return $value;
+    }
+
+    private function respond(Method $method, ?callable $action): StatusCode
+    {
+        header('Cache-Control: no-store');
 
         try {
-            $parameters = self::get_parameters();
-            $controller = new ReflectionClass($this);
-            $method = $controller->getMethod($this->avaible_methods[$resource]);
-            $call_object = $method->invokeArgs(object: $this, args: $parameters);
-            $result = $call_object->Execute($this->DB);
-
-            if (!isset($result))
-            {
-                return $this->Json(
-                    object: [
-                        'Message' => 'Could not obtain result from action',
-                        'Stack' => [__METHOD__],
-                        'Line' => __LINE__,
-                        'File' => __FILE__,
-                    ],
-                    statusCode: StatusCode::ServerError,
-                );
+            $token = $_SERVER['HTTP_APP_BEARER'] ?? '';
+            $clientIp = Security::GetIpAddress();
+            $tokenId = ApiToken::Authenticate($this->DB, $token, $clientIp);
+            if ($tokenId === null) {
+                header('WWW-Authenticate: App-Bearer');
+                return $this->Json(['error' => 'A valid App-Bearer token is required.'], StatusCode::NotAuthorized);
             }
-            return $this->Json(object: $result);
-        } catch (\Throwable) {
-            return $this->Json(
-                object: [
-                    'Message' => 'Could not execute action',
-                    'Stack' => [__METHOD__],
-                    'Line' => __LINE__,
-                    'File' => __FILE__,
-                ],
-                statusCode: StatusCode::ServerError,
-            );
+
+            if ($action === null) {
+                return $this->Json(['error' => 'Unknown API route.'], StatusCode::NotFound);
+            }
+            if ($this->RequestMethod !== $method) {
+                return $this->Json(['error' => 'Unsupported method for this route.'], StatusCode::BadRequest);
+            }
+
+            return $this->Json($action($tokenId, $clientIp));
+        } catch (InvalidArgumentException $error) {
+            return $this->Json(['error' => $error->getMessage()], StatusCode::BadRequest);
+        } catch (DomainException $error) {
+            return $this->Json(['error' => $error->getMessage()], StatusCode::Forbidden);
+        } catch (Throwable) {
+            return $this->Json(['error' => 'The request could not be completed.'], StatusCode::ServerError);
         }
     }
-
-    private function get_bearer(): ?string
-    {
-        $headers = getallheaders();
-        if (!array_key_exists(key: "App-Bearer", array: $headers))
-        {
-            return null;
-        }
-        return $headers["App-Bearer"];
-    }
-    private static function get_parameters(): array
-    {
-        $arr = [];
-        foreach (getallheaders() as $key => $value)
-        {
-            if (!str_starts_with(haystack: $key, needle: 'Data-Param-'))
-                continue;
-
-            $base_name = substr(string: $key, offset: strlen(string: 'Data-Param-'));
-            $arr[str_replace(search: '-', replace: '_', subject: $base_name)] = $value;
-        }
-        return $arr;
-    }
-
-    private array $avaible_methods = [
-        'teams-info' => 'teams_info',
-
-        'staff-list' => 'staff_list',
-        'get-user-claims' => 'get_user_claims',
-        'get-staff-email' => 'get_staff_email',
-
-        'today-matches-of' => 'today_matches_of',
-        'today-matches-sport' => 'today_matches_sport',
-        'today-yesterday-matches' => 'today_and_yesterday_matchest',
-
-        'tournament' => 'tournament',
-        'tournament-matches' => 'tournament_matches',
-        'tournament-leaderboard' => 'tournament_leaderboard',
-        'tournament-sport' => 'tournament_sport',
-
-        'new-match-result' => 'add_result',
-        'delete-match-result' => 'delete_result',
-
-        'church' => 'church',
-        'churches' => 'churches',
-        'leaderboard' => 'leaderboard',
-        'all-fields' => 'all_fields',
-
-        'document-types' => 'document_types',
-        'managed-anagraphicals' => 'managed_anagraphicals',
-        'subscribe' => 'subscribe',
-        'anagraphical' => 'anagraphical',
-    ];
-    
-    use AnagraficaTrait;
-
-    use ParrocchiaTrait, StaffTrait;
-
-    use SquadraTrait;
-
-    use TorneoTrait, PartitaTrait;
 }

@@ -86,7 +86,9 @@ if ($apiEnabled)
 
 // Pass the db connection to the router,
 // so it can be passed to the controllers
+assert(isset($connection) && $connection instanceof \mysqli, 'Database connection is not valid!');
 $router->SetDbConnection(connection: $connection);
+
 $router->SetDefaultVariable('files', $files);
 $router->SetDefaultVariable('api_routes_enabled', $apiEnabled);
 

@@ -27,7 +27,9 @@ abstract class NomeIdSemplice implements DbEntity
 
         $class_name = get_called_class();
         $table = $class_name::Table();
-        $result = $connection->query(query: "SELECT `id`, `nome` FROM `$table` ORDER BY `nome`");
+        $result = $connection->query(query: "SELECT `id`, `nome`
+            FROM `$table`
+            ORDER BY `nome`");
 
         if (!$result)
         {
@@ -55,7 +57,9 @@ abstract class NomeIdSemplice implements DbEntity
         $class_name = get_called_class();
         $table = $class_name::Table();
         if (empty($table)) { return null; }
-        $result = $connection->query(query: "SELECT `nome` FROM `$table` WHERE `id` = $id");
+        $result = $connection->query(query: "SELECT `nome`
+            FROM `$table`
+            WHERE `id` = $id");
 
         if (!$result || $result->num_rows === 0)
         {

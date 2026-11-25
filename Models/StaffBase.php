@@ -14,7 +14,9 @@ class StaffBase extends NomeIdSemplice
     {
         if (!$connection)
             return [];
-        $query  = "SELECT * FROM `staff_list_raw` ORDER BY `nome_completo`, `staff`";
+        $query  = "SELECT *
+            FROM `staff_list_raw`
+            ORDER BY `nome_completo`, `staff`";
         $result = $connection->query(query: $query);
         $arr = [];
         if (!$result)
@@ -37,7 +39,9 @@ class StaffBase extends NomeIdSemplice
             return null;
         
         $table = self::Table();
-        $result = $connection->query(query: "SELECT `nome_completo` FROM `$table` WHERE `staff` = $id");
+        $result = $connection->query(query: "SELECT `nome_completo`
+            FROM `$table`
+            WHERE `staff` = $id");
 
         if (!$result || $result->num_rows === 0)
         {

@@ -70,14 +70,20 @@ $db_user =      Security::LoadEnvironmentOrFromFile(var: 'MYSQL_USER', default: 
 $db_password =  Security::LoadEnvironmentOrFromFile(var: 'MYSQL_PASSWORD');
 $db_name =      Security::LoadEnvironmentOrFromFile(var: 'MYSQL_DB');
 
-$connection = new \mysqli(
-    hostname: $db_host, 
-    port:     $db_port,
-    username: $db_user, 
-    password: $db_password, 
-    database: $db_name,
-);
-unset($db_host, $db_port, $db_user, $db_password, $db_name);
+try {
+    $connection = new \mysqli(
+        hostname: $db_host, 
+        port:     $db_port,
+        username: $db_user, 
+        password: $db_password, 
+        database: $db_name,
+    );
+} catch (\Exception) {
+    $connection = null;
+}
+finally {
+    unset($db_host, $db_port, $db_user, $db_password, $db_name);
+}
 
 
 /******************************************************************

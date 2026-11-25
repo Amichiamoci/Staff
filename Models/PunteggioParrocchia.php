@@ -50,11 +50,10 @@ class PunteggioParrocchia
         if (!$connection)
             return [];
 
-        $query = "SELECT l.*, p.`punteggio` AS \"punti\" 
-            FROM `lista_parrocchie_partecipanti` l
-                LEFT OUTER JOIN `punteggio_parrocchia` p ON l.`id` = p.`parrocchia` AND l.`id_edizione` = p.`edizione`
-            WHERE l.`anno` = $year
-            ORDER BY l.`nome` ASC";
+        $query = "SELECT `id`, `nome`, `id_edizione`, `punti`
+            FROM `punteggi_parrocchie_per_edizione`
+            WHERE `anno` = $year
+            ORDER BY `nome` ASC";
         
         $result = $connection->query($query);
         if (!$result)

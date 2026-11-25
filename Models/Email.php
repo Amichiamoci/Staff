@@ -48,14 +48,15 @@ class Email implements DbEntity
      */
     public static function All(\mysqli $connection, ?string $recipient = null): array
     {
-        $query = "SELECT id, dest AS destinatario, COALESCE(subject, '') AS oggetto, ricevuta,
-                         DATE_FORMAT(sent, '%d/%m/%Y %H:%i') AS inviata,
-                         DATE_FORMAT(opened, '%d/%m/%Y %H:%i') AS aperta
-                  FROM email";
-        $order = ' ORDER BY sent DESC, id DESC';
         $result = $recipient === null
-            ? $connection->query($query . $order . ' LIMIT 500')
-            : $connection->execute_query($query . ' WHERE dest = ?' . $order, [$recipient]);
+            ? $connection->query('SELECT *
+                FROM `email_history`
+                ORDER BY `sent` DESC, `id` DESC
+                LIMIT 500')
+            : $connection->execute_query('SELECT *
+                FROM `email_history`
+                WHERE `destinatario` = ?
+                ORDER BY `sent` DESC, `id` DESC', [$recipient]);
 
         $emails = [];
         while ($row = $result->fetch_assoc()) {
@@ -68,7 +69,10 @@ class Email implements DbEntity
     /** Lists distinct recorded recipient addresses in database sort order. */
     public static function Recipients(\mysqli $connection): array
     {
-        $result = $connection->query("SELECT DISTINCT dest FROM email WHERE dest <> '' ORDER BY dest");
+        $result = $connection->query("SELECT DISTINCT `dest`
+            FROM `email`
+            WHERE `dest` <> ''
+            ORDER BY `dest`");
         $recipients = array_column($result->fetch_all(MYSQLI_NUM), 0);
         $result->close();
         return $recipients;
