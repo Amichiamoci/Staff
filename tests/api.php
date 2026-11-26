@@ -68,7 +68,6 @@ try {
                 VALUES (1, CURRENT_DATE, '17:00', 1, 1, 2), (1, NULL, NULL, NULL, 1, 2)");
     $db->query('UPDATE partite SET a_tavolino = 2 WHERE id = 2');
     $db->query("INSERT INTO punteggi (partita, home, guest) VALUES (1, '3', '1'), (1, '2', '0')");
-    $db->query('UPDATE partite SET a_tavolino = 2 WHERE id = 2');
     $db->query("INSERT INTO punteggio_parrocchia (parrocchia, edizione, punteggio) VALUES (1, 1, '10')");
 
     $_SERVER['REQUEST_METHOD'] = 'GET';
@@ -116,7 +115,8 @@ try {
     $check($get('today_matches?parish_id=3') === [], 'An unrelated parish must get an empty list.');
     $get('today_matches', StatusCode::BadRequest);
     foreach (['people', 'save_person', 'subscriptions', 'subscribe', 'my_teams', 'login'] as $path) {
-        $get($path, StatusCode::BadRequest);
+        $response = $get($path . '?email=' . rawurlencode($email), StatusCode::BadRequest);
+        $check(($response['error'] ?? null) === 'Unsupported method for this route.', "$path must reject GET requests.");
     }
 
     $fixtureKey = random_bytes(32);
