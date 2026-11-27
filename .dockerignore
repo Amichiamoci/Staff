@@ -6,7 +6,6 @@ data
 .env
 .env.*
 .gitignore
-docs
 .agents
 .aws
 .codex

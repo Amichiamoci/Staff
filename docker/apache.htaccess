@@ -6,6 +6,6 @@ RewriteRule "(^|/)\.|\.(php[0-9]*|phtml|phar)([./]|$)" - [E=staff_rejected:1,R=4
 RewriteRule "(^|/)(wp-[^/]*|wordpress|xmlrpc\.php|phpmyadmin|pma|cpanel|webmail|whm|plesk|panel|adminer|phpinfo)([./]|$)" - [E=staff_rejected:1,R=404,END,NC]
 
 RewriteRule ^(css|js|images|quill)/(.*)$ Public/$1/$2 [END]
-RewriteRule ^(Public|docs)/ - [END]
+RewriteRule ^Public/ - [END]
 
 RewriteRule ^ index.php [END]

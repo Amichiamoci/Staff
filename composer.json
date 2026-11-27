@@ -47,8 +47,6 @@
             "NGINX": "BSD-2-Clause",
             "Apache HTTP Server": "Apache-2.0",
             "Alpine Linux": "Licenze dei singoli pacchetti",
-            "Doxygen": "GPL-2.0-only",
-            "Graphviz": "EPL-2.0",
             "Xdebug": "Xdebug License",
             "phpMyAdmin": "GPL-2.0-only",
             "Docker Engine e Docker Compose": "Apache-2.0",

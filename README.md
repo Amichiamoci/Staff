@@ -165,7 +165,7 @@ server {
         rewrite ^ /Public$uri last;
     }
 
-    location ~ ^/(Public|docs)/ {
+    location ~ ^/Public/ {
         try_files $uri =404;
     }
 
@@ -268,7 +268,7 @@ Il sistema contiene feature per esportare gli iscritti correnti in un excel supp
 | Argomento | Uso |
 | --- | --- |
 | `PHP_VERSION` | Serie del runtime PHP nell’immagine, predefinita `8.5`. |
-| `DEBUG_APP` | Imposta `1` durante la build per includere Xdebug, le dipendenze di sviluppo e la documentazione Doxygen. |
+| `DEBUG_APP` | Imposta `1` durante la build per includere Xdebug e le dipendenze di sviluppo. |
 
 ## 📦 Immagini Docker disponibili
 

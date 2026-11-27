@@ -341,21 +341,6 @@ assert(isset($P) && is_string($P), 'var $P not valid');
                                         Invia Email
                                     </a>
                                 </li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li>
-                                    <a  class="dropdown-item"
-                                        href="<?= $P ?>/docs/index.html"
-                                        data-no-swup
-                                        title="Documentazione"
-                                    >
-                                        <i  class="bi bi-book me-2"
-                                            aria-hidden="true"
-                                        ></i>
-                                        Documentazione
-                                    </a>
-                                </li>
                                 <?php if ($api_routes_enabled ?? false) { ?>
                                     <li>
                                         <hr class="dropdown-divider">

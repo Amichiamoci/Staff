@@ -127,13 +127,13 @@ try {
     $check(str_contains($home, 'aria-labelledby="chart-details-tournaments"'), true, 'The tournament card omitted its labeled modal.');
     $check(str_contains($home, 'Fixture tournament'), false, 'The home response embedded chart data.');
     $check(
-        $document->querySelector('main > header + section[aria-labelledby="today-birthdays"] + section[aria-labelledby="live-matches"] + .dashboard-cards') !== null
+        $document->querySelector('main > header + section[aria-labelledby="today-birthdays"] + .dashboard-cards') !== null
             && strpos($home, 'id="dashboard-tournaments"') < strpos($home, 'Anagrafiche senza email'),
         true,
         'The new chart group moved outside the existing and email cards.',
     );
     $check(str_contains($home, 'Nessun compleanno oggi.'), true, 'The birthday banner omitted the empty state.');
-    $check(str_contains($home, 'Nessuna partita in corso o in partenza.'), true, 'The live banner omitted the empty state.');
+    $check($document->querySelector('section[aria-labelledby="live-matches"]'), null, 'The live banner was shown without live matches.');
     $db->query("INSERT INTO compleanni_oggi VALUES ('Fixture <nome>', 'Cognome', 18)");
     $check(str_contains($home, 'email-stats-chart'), false, 'The demographics charts remained on the dashboard.');
 

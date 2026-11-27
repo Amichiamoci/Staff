@@ -71,17 +71,6 @@ FROM php_deps AS test
 COPY . .
 ENTRYPOINT ["sh", "tests/run.sh"]
 
-FROM alpine AS docs
-ARG DEBUG_APP=0
-
-RUN apk add --no-cache doxygen graphviz
-RUN mkdir -p /amichiamoci /amichiamoci/docs /amichiamoci/docs/html
-WORKDIR /amichiamoci
-COPY . .
-RUN if [ "$DEBUG_APP" = "1" ]; then \
-      doxygen; \
-    fi;
-
 FROM php_ready
 
 COPY --chown=www-data ./docker/entrypoint.sh .
@@ -89,9 +78,8 @@ RUN chmod +x ./entrypoint.sh
 
 COPY --chown=www-data --from=php_deps /amichiamoci/vendor ./vendor
 COPY --chown=www-data . .
-COPY --chown=www-data --from=docs /amichiamoci/docs/html ./docs
 
-RUN chmod -R a+rX ./Public ./docs
+RUN chmod -R a+rX ./Public
 RUN chmod +x ./script/build-database.php
 RUN chmod +x ./script/cron.php
 

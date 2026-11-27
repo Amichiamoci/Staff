@@ -4,5 +4,4 @@ cron/*.txt
 vendor
 data/*
 !data/.gitkeep
-docs
 /*.sql
