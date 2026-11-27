@@ -62,16 +62,13 @@ extends Controller
         );
     }
 
-    public function heartbeat(?int $id = null, ?string $signature = null): StatusCode
+    public function heartbeat(?int $id = null): StatusCode
     {
-        if (empty($id))
+        if ($id === null || $id <= 0)
             return $this->NotFound();
 
-        $expected = EmailSender::OpenSignature($id);
-        if ($expected !== null && $signature !== null && hash_equals($expected, $signature)) {
-            Email::HeartBeat(connection: $this->DB, id: $id);
-        }
-        
+        Email::HeartBeat(connection: $this->DB, id: $id);
+
         return $this->File(
             file_path: dirname(path: __DIR__) . '/Public/images/blank_dot.svg',
             additional_headers: false

@@ -360,7 +360,8 @@ VALUES
   ('subscriptions_enabled', TRUE),
   ('teams_enabled', TRUE),
   ('tournaments_enabled', FALSE),
-  ('api_enabled', FALSE)
+  ('api_enabled', FALSE),
+  ('email_tracking_enabled', TRUE)
 ON DUPLICATE KEY UPDATE `name` =
 VALUES(`name`);
 

@@ -6,7 +6,7 @@ assert(isset($iscrizioni) && is_array($iscrizioni), 'var $iscrizioni not valid')
 
 $amichiamoci_full_address = Security::LoadEnvironmentOrFromFile(
     var: 'LEGAL_ADDRESS', 
-    default: 'Via del Seminario, 68, Livorno, 57121, LI',
+    default: '',
 );
 
 $amichiamoci_address_parts = explode(separator: ',', string: $amichiamoci_full_address, limit: 5);

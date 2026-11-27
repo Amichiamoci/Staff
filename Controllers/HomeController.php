@@ -206,6 +206,7 @@ extends Controller
         ?string $teams_enabled = null,
         ?string $tournaments_enabled = null,
         ?string $api_enabled = null,
+        ?string $email_tracking_enabled = null,
     ): StatusCode {
         if ($this->IsPost()) {
             if (!$this->ValidAccountToken($csrf_token)
@@ -213,6 +214,7 @@ extends Controller
                 || !in_array($teams_enabled, [null, '1'], true)
                 || !in_array($tournaments_enabled, [null, '1'], true)
                 || !in_array($api_enabled, [null, '1'], true)
+                || !in_array($email_tracking_enabled, [null, '1'], true)
             ) {
                 return $this->BadRequest();
             }
@@ -223,6 +225,7 @@ extends Controller
                 $teams_enabled === '1',
                 $tournaments_enabled === '1',
                 $api_enabled === '1',
+                $email_tracking_enabled === '1',
             );
 
             return $this->RedirectWithStatus($this->PathPrefix . '/settings', StatusCode::SeeOther);

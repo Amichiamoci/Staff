@@ -3,6 +3,8 @@ namespace Amichiamoci\Utils;
 
 use PHPMailer\PHPMailer\PHPMailer;
 
+use Amichiamoci\Models\Settings;
+
 class Email
 {
     public static function GetByUserId(
@@ -83,6 +85,7 @@ class Email
         }
 
         $id = null;
+        $trackOpens = false;
         if ($connection)
         {
             $storedBody = $hide_output ? '[Contenuto riservato]' : $body;
@@ -94,12 +97,13 @@ class Email
                     $result->close();
                 }
                 $connection->next_result();
+                $trackOpens = $id !== null && Settings::Read($connection)['email_tracking_enabled'];
             } catch (\mysqli_sql_exception) {
-                error_log('Unable to record outgoing staff email.');
+                error_log('Unable to prepare email history or open tracking for outgoing staff email.');
             }
         }
 
-        $mail->Body = self::Render(title: $subject, content: $body, id: $id);
+        $mail->Body = self::Render(title: $subject, content: $body, id: $trackOpens ? $id : null);
         $mail->AltBody = $mail->html2text($body);
 
         try {
@@ -118,17 +122,6 @@ class Email
         return $email_sent;
     }
 
-    public static function OpenSignature(int $id): ?string
-    {
-        $key = Security::LoadEnvironmentOrFromFile(var: 'MAIL_OPEN_SIGNING_KEY');
-        if ($key === null || strlen($key) < 32) {
-            return null;
-        }
-
-        $database = Security::LoadEnvironmentOrFromFile(var: 'MYSQL_DB');
-        return hash_hmac('sha256', "staff-email-open:$database:$id", $key);
-    }
-
     public static function Render(
         string $title,
         string $content,
@@ -138,7 +131,6 @@ class Email
             'title' => $title,
             'content' => $content,
             'email_id' => $id,
-            'open_signature' => $id === null ? null : self::OpenSignature($id),
             'site_name' => SITE_NAME,
             'site_url' => MAIN_SITE_URL,
             'P' => Link::InstallationPath(),

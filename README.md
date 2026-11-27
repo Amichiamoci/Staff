@@ -227,6 +227,9 @@ Gli errori interni sono registrati in `data/log/errors.log` e nel log PHP, che i
 
 ### 📧 Posta elettronica
 
+Gli amministratori possono attivare o disattivare il rilevamento delle aperture per le nuove email in **Configurazione generale**.
+Il rilevamento è attivo per impostazione predefinita e i link di tracciamento senza firma già inviati continuano a funzionare.
+
 | Variabile | Uso |
 | --- | --- |
 | `MAIL_OUTPUT_ADDRESS` | Indirizzo mittente impostato nelle email, necessario per l’invio. |
@@ -234,7 +237,6 @@ Gli errori interni sono registrati in `data/log/errors.log` e nel log PHP, che i
 | `SMTP_PORT` | Porta del server configurato con `SMTP_HOST`, predefinita `25`, con TLS implicito sulla porta `465`. |
 | `SMTP_USER` | Nome utente per autenticarsi sul server `SMTP_HOST`, con STARTTLS sulle porte diverse da `465`. |
 | `SMTP_PASSWORD` | Password per l’autenticazione SMTP. |
-| `MAIL_OPEN_SIGNING_KEY` | Chiave di almeno 32 byte per firmare i link di rilevamento delle aperture, disabilitati se la chiave manca o è troppo corta. |
 | `CRON_CAPTURE_OUTGOING_ADDRESS` | Indirizzo di prova che sostituisce il destinatario delle email di compleanno inviate dal cron. |
 
 ### 📁 Archivio e Google Drive
@@ -259,7 +261,7 @@ Il sistema contiene feature per esportare gli iscritti correnti in un excel supp
 
 | Variabile | Uso |
 | --- | --- |
-| `LEGAL_ADDRESS` | Indirizzo legale esportato nel formato via, civico, comune, CAP e provincia, predefinito `Via del Seminario, 68, Livorno, 57121, LI`. |
+| `LEGAL_ADDRESS` | Indirizzo legale esportato nel formato via, civico, comune, CAP e provincia, vuoto per impostazione predefinita. |
 | `CODICE_COMITATO_CSI` | Codice del comitato da inserire nell’esportazione CSI. |
 | `CODICE_SOCIETA_CSI` | Codice della società da inserire nell’esportazione CSI. |
 

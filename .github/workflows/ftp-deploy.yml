@@ -64,7 +64,6 @@ jobs:
           SMTP_PORT: ${{ vars.SMTP_PORT }}
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
-          MAIL_OPEN_SIGNING_KEY: ${{ secrets.MAIL_OPEN_SIGNING_KEY }}
           CODICE_COMITATO_CSI: ${{ secrets.CODICE_COMITATO_CSI }}
           CODICE_SOCIETA_CSI: ${{ secrets.CODICE_SOCIETA_CSI }}
         run: |
@@ -76,7 +75,7 @@ jobs:
           keys = (
               "MYSQL_HOST", "MYSQL_USER", "MYSQL_PASSWORD", "MYSQL_DB",
               "RECAPTCHA_PUBLIC_KEY", "RECAPTCHA_SECRET_KEY", "MAIL_OUTPUT_ADDRESS",
-              "SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASSWORD", "MAIL_OPEN_SIGNING_KEY",
+              "SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASSWORD",
               "CODICE_COMITATO_CSI", "CODICE_SOCIETA_CSI",
           )
           values = {key: os.environ[key] for key in keys}

@@ -111,9 +111,10 @@ assert(isset($content) && is_string($content), 'var $content not valid');
                 <p>
                     Si prega cortesemente di non rispondere a questa email
                 </p>
-                <?php if (isset($open_signature)) { ?>
+                <?php if (isset($email_id)) { ?>
                     <img
-                        src="https://<?= htmlspecialchars(DOMAIN) ?><?= $P ?>/email/heartbeat?id=<?= $email_id ?>&amp;signature=<?= $open_signature ?>"
+                        src="https://<?= htmlspecialchars(DOMAIN) ?><?= $P ?>/email/heartbeat?id=<?= $email_id ?>"
+                        alt=""
                         width="1"
                         height="1"
                         style="width: 1px; height: 1px;"

@@ -18,6 +18,7 @@ final class Settings
             'teams_enabled' => (bool)($flags['teams_enabled']),
             'tournaments_enabled' => (bool)($flags['tournaments_enabled'] ?? false),
             'api_enabled' => (bool)($flags['api_enabled'] ?? false),
+            'email_tracking_enabled' => (bool)($flags['email_tracking_enabled'] ?? true),
         ];
     }
 
@@ -28,12 +29,13 @@ final class Settings
         bool $teamsEnabled,
         bool $tournamentsEnabled,
         bool $apiEnabled,
+        bool $emailTrackingEnabled,
     ): void {
         $connection->execute_query(
             "INSERT INTO `settings` (`name`, `enabled`)
-             VALUES ('subscriptions_enabled', ?), ('teams_enabled', ?), ('tournaments_enabled', ?), ('api_enabled', ?)
+             VALUES ('subscriptions_enabled', ?), ('teams_enabled', ?), ('tournaments_enabled', ?), ('api_enabled', ?), ('email_tracking_enabled', ?)
             ON DUPLICATE KEY UPDATE `enabled` = VALUES(`enabled`)",
-            [(int)$subscriptionsEnabled, (int)$teamsEnabled, (int)$tournamentsEnabled, (int)$apiEnabled],
+            [(int)$subscriptionsEnabled, (int)$teamsEnabled, (int)$tournamentsEnabled, (int)$apiEnabled, (int)$emailTrackingEnabled],
         );
     }
 }

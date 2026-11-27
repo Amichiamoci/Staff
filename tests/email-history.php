@@ -9,9 +9,11 @@ use Richie314\SimpleMvc\Routers\Router;
 
 use Amichiamoci\Controllers\EmailController;
 use Amichiamoci\Models\{Email, User};
+use Amichiamoci\Utils\Email as EmailSender;
 
 define('SITE_NAME', 'Staff fixture');
 define('MAIN_SITE_URL', 'https://example.invalid');
+define('DOMAIN', 'example.invalid');
 $_SERVER['REQUEST_METHOD'] = 'GET';
 $_SERVER['DOCUMENT_ROOT'] = dirname(__DIR__);
 
@@ -44,11 +46,13 @@ if (count($recent) !== 500 || $recent[0]->Id !== 506 || $recent[1]->Id !== 505
     throw new RuntimeException('Email ordering, limit or recipient selection is incorrect.');
 }
 
-$dispatch = static function (string $path) use ($db): array {
+$dispatch = static function (string $path, bool $admin = true) use ($db): array {
     $router = new Router(applicationInstallationPath: dirname(__DIR__));
     $router->AddController(EmailController::class, '/email');
     $router->SetDbConnection($db);
-    $router->SetUser(new User(1, 'Fixture administrator', time(), admin: true));
+    if ($admin) {
+        $router->SetUser(new User(1, 'Fixture administrator', time(), admin: true));
+    }
     ob_start();
     $status = $router->Dispatch($path);
     return [$status, ob_get_clean()];
@@ -67,6 +71,31 @@ if ($status !== StatusCode::Ok || !str_contains($html, 'src="/quill/quill.js"')
     || !is_file(dirname(__DIR__) . '/Public/quill/quill.js') || !str_contains($html, 'name="csrf_token"')
 ) {
     throw new RuntimeException('The compose form did not include its editor and CSRF token.');
+}
+
+$procedures = file_get_contents(dirname(__DIR__) . '/Database/procedures/email.sql');
+foreach (explode('//', $procedures) as $procedure) {
+    if (str_starts_with(trim($procedure), 'CREATE PROCEDURE OpenedEmail(')) {
+        $db->query($procedure);
+        break;
+    }
+}
+
+$tracked = EmailSender::Render(title: 'Fixture', content: 'Fixture', id: 505);
+$untracked = EmailSender::Render(title: 'Fixture', content: 'Fixture');
+if (!str_contains($tracked, '/email/heartbeat?id=505"') || str_contains($untracked, '/email/heartbeat')) {
+    throw new RuntimeException('Email rendering did not distinguish unsigned tracking links from untracked messages.');
+}
+[$status, $pixel] = $dispatch('/email/heartbeat?id=505', admin: false);
+if ($status !== StatusCode::Ok || !str_contains($pixel, '<svg')) {
+    throw new RuntimeException('The tracking link did not return the image.');
+}
+$opened = $db->query('SELECT `id`
+    FROM `email`
+    WHERE `opened` IS NOT NULL
+    ORDER BY `id`')->fetch_all(MYSQLI_ASSOC);
+if (array_map('intval', array_column($opened, 'id')) !== [505]) {
+    throw new RuntimeException('The tracking link did not record an opening for its email.');
 }
 
 $_SERVER['REQUEST_METHOD'] = 'POST';

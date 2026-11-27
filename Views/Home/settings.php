@@ -8,6 +8,7 @@ assert(isset($tournaments_enabled) && is_bool($tournaments_enabled));
 assert(isset($capture_address) && is_string($capture_address));
 assert(isset($recaptcha_enabled) && is_bool($recaptcha_enabled));
 assert(isset($api_enabled) && is_bool($api_enabled));
+assert(isset($email_tracking_enabled) && is_bool($email_tracking_enabled));
 assert(isset($session_cookie_secure) && is_bool($session_cookie_secure));
 assert(isset($php_info) && is_string($php_info));
 ?>
@@ -61,6 +62,11 @@ assert(isset($php_info) && is_string($php_info));
                             'Abilita API',
                             'Attiva gli endpoint API e la gestione dei token.',
                             $api_enabled,
+                        ],
+                        'email_tracking_enabled' => [
+                            'Rileva le aperture delle nuove email',
+                            'Le email già inviate con il tracciamento continuano a registrare le aperture.',
+                            $email_tracking_enabled,
                         ],
                     ] as $name => [$label, $description, $enabled]) { ?>
                         <div class="list-group-item px-3 py-0">

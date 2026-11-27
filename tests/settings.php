@@ -63,11 +63,11 @@ $dispatch = static function (
     }
 };
 
-$db->query("DELETE FROM settings WHERE name IN ('tournaments_enabled', 'api_enabled')");
+$db->query("DELETE FROM settings WHERE name IN ('tournaments_enabled', 'api_enabled', 'email_tracking_enabled')");
 $html = $dispatch($admin, '/settings', StatusCode::Ok);
 foreach ([
     'capture@example.invalid', 'Attivo', '/file/list', 'name="tournaments_enabled"',
-    'name="api_enabled"', 'Reverse proxy HTTPS', 'Cookie sicuri non forzati',
+    'name="api_enabled"', 'name="email_tracking_enabled"', 'Reverse proxy HTTPS', 'Cookie sicuri non forzati',
     'id="open-php-info"', 'id="php-info-dialog"', 'sandbox', 'PHP Version',
     'id="cron-list"', 'id="email_duplicates-list"',
 ] as $expected) {
@@ -85,12 +85,25 @@ $dispatch($admin, '/settings', StatusCode::BadRequest, [
     'csrf_token' => $_SESSION['account_csrf_token'],
     'api_enabled' => 'invalid',
 ]);
+$dispatch($admin, '/settings', StatusCode::BadRequest, [
+    'csrf_token' => $_SESSION['account_csrf_token'],
+    'email_tracking_enabled' => 'invalid',
+]);
 $dispatch($admin, '/settings', StatusCode::BadRequest, ['csrf_token' => 'invalid']);
-if (Settings::Read($db) !== ['subscriptions_enabled' => true, 'teams_enabled' => true, 'tournaments_enabled' => false, 'api_enabled' => false]) {
+if (Settings::Read($db) !== [
+    'subscriptions_enabled' => true,
+    'teams_enabled' => true,
+    'tournaments_enabled' => false,
+    'api_enabled' => false,
+    'email_tracking_enabled' => true,
+]) {
     throw new RuntimeException('Feature defaults changed after an invalid submission.');
 }
 $dispatch($admin, '/settings', StatusCode::SeeOther, ['csrf_token' => $_SESSION['account_csrf_token']]);
 $applySchema();
+if (Settings::Read($db)['email_tracking_enabled']) {
+    throw new RuntimeException('The administrator could not disable tracking for new email.');
+}
 $dispatch($staffUser, '/staff/iscrivi', StatusCode::NotAuthorized, ['id' => '1']);
 $dispatch($staffUser, '/teams/new', StatusCode::NotAuthorized, ['name' => 'Fixture']);
 $dispatch($staffUser, '/teams/edit?id=1', StatusCode::NotAuthorized);
@@ -167,8 +180,15 @@ $dispatch($admin, '/settings', StatusCode::SeeOther, [
     'teams_enabled' => '1',
     'tournaments_enabled' => '1',
     'api_enabled' => '1',
+    'email_tracking_enabled' => '1',
 ]);
-if (Settings::Read($db) !== ['subscriptions_enabled' => true, 'teams_enabled' => true, 'tournaments_enabled' => true, 'api_enabled' => true]) {
+if (Settings::Read($db) !== [
+    'subscriptions_enabled' => true,
+    'teams_enabled' => true,
+    'tournaments_enabled' => true,
+    'api_enabled' => true,
+    'email_tracking_enabled' => true,
+]) {
     throw new RuntimeException('The feature flags could not be re-enabled.');
 }
 
