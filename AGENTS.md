@@ -4,6 +4,11 @@
   Update `composer.lock` alongside changes to dependency requirements.
 - Keep controllers responsible for HTTP handling, models for database access, and views for escaped output.
   Verify route, form and JavaScript callers together when changing a request.
+- Declare concrete controller action parameter types and choose defaults that reflect optional inputs.
+  Use types such as `int`, `?int`, `?string`, and `int|string|null`.
+  Never use `mixed` to receive a parameter and validate its type manually.
+  Rely on `richie314/simple-mvc` and PHP parameter types for argument binding and type enforcement.
+  Validate business rules and decoded payload contents in the action.
 - Output the installation path (`$P`) and integer IDs directly in HTML.
   Escape other dynamic values as required by their output context.
 - In namespaced PHP files, put the `namespace` declaration before imports.
@@ -23,8 +28,10 @@
 - Keep periods in URLs, version numbers, and abbreviations within their sentence.
   Use a single sentence or a short phrase in Markdown table cells.
 
-## PHP documentation
+## PHP
 
+- Format PHP associative array literals with one key per line, including single-key arrays.
+  Put the opening and closing brackets on separate lines from the entries.
 - Document model methods with a concise PHPDoc summary that explains their purpose and caller-visible behavior.
   Describe non-obvious parameters, return values, side effects, or failure cases where they matter.
   Use inline comments to explain decisions and invariants that the code alone cannot convey.

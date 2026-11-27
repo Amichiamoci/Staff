@@ -3,9 +3,11 @@ namespace Amichiamoci\Utils;
 
 class Database
 {
-    /** Sets UTF-8 encoding for the driver and matches the session to the schema collation. */
+    /** Sets UTF-8 encoding for the driver and sets schema collation and event-local time. */
     public static function ConfigureConnection(\mysqli $connection): void
     {
+        $offset = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Rome'))->format('P');
+        $connection->query("SET SESSION time_zone = '$offset'");
         $connection->set_charset('utf8mb4');
         $connection->query("SET SESSION collation_connection = 'utf8mb4_unicode_520_ci'");
     }

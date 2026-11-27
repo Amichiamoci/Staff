@@ -22,6 +22,7 @@ class Partita implements DbEntity
     }
 
     public array $Punteggi = [];
+    public ?int $VincitoreATavolino = null;
 
     public function __construct(
         string|int $id,
@@ -51,6 +52,7 @@ class Partita implements DbEntity
         string|array|null $id_punteggi = null,
         string|array|null $punteggi_casa = null,
         string|array|null $punteggi_ospiti = null,
+        ?string $area_sport = null,
     ) {
         $this->Id = (int)$id;
         $this->Torneo = (int)$torneo;
@@ -75,6 +77,7 @@ class Partita implements DbEntity
             id_parrocchia: $id_parrocchia_casa,
             sport: $nome_sport,
             id_sport: $id_sport,
+            area_sport: $area_sport,
         );
         $this->Ospiti = new Squadra(
             id: $id_ospiti,
@@ -83,6 +86,7 @@ class Partita implements DbEntity
             id_parrocchia: $id_parrocchia_ospiti,
             sport: $nome_sport,
             id_sport: $id_sport,
+            area_sport: $area_sport,
         );
 
         $this->Punteggi = Punteggio::Decompress(
@@ -96,7 +100,7 @@ class Partita implements DbEntity
     /** Reconstructs a match and its related teams, venue, and scores from an expanded row. */
     private static function ParseFromRow(array $row): self
     {
-        return new self(
+        $match = new self(
             id: $row['id'],
             torneo: $row['id_torneo'],
             data: $row['data'],
@@ -110,6 +114,7 @@ class Partita implements DbEntity
 
             id_sport: $row['id_sport'],
             nome_sport: $row['nome_sport'],
+            area_sport: $row['area_sport'],
 
             id_casa: $row['id_casa'],
             nome_casa: $row['casa'],
@@ -125,6 +130,8 @@ class Partita implements DbEntity
             punteggi_casa: $row['punteggi_casa'],
             punteggi_ospiti: $row['punteggi_ospiti'],
         );
+        $match->VincitoreATavolino = isset($row['a_tavolino']) ? (int)$row['a_tavolino'] : null;
+        return $match;
     }
 
     /** Loads one match from the expanded match view. */
@@ -173,6 +180,35 @@ class Partita implements DbEntity
         return self::ArrayQueryHandler(
             connection: $connection, 
             query: 'SELECT * FROM `partite_tornei_attivi`'
+        );
+    }
+
+    /** Returns the selected forfeit winner, if the match was awarded. */
+    public function SquadraVincitriceATavolino(): ?Squadra
+    {
+        return match ($this->VincitoreATavolino) {
+            $this->Casa->Id => $this->Casa,
+            $this->Ospiti->Id => $this->Ospiti,
+            default => null,
+        };
+    }
+
+    /** Lists the live window in kickoff order, excluding forfeits. */
+    public static function Live(\mysqli $connection): array
+    {
+        return self::ArrayQueryHandler($connection, 'SELECT *
+            FROM `partite_live`
+            ORDER BY `data`, `orario`, `id`');
+    }
+
+    /** Sets or clears the forfeit award without discarding scores. */
+    public static function ImpostaTavolino(\mysqli $connection, int $match, ?int $winner): void
+    {
+        $connection->execute_query(
+            'UPDATE `partite`
+            SET `a_tavolino` = ?
+            WHERE `id` = ? AND (? IS NULL OR ? IN (`squadra_casa`, `squadra_ospite`))',
+            [$winner, $match, $winner, $winner],
         );
     }
 
@@ -300,7 +336,9 @@ class Partita implements DbEntity
 
         $result = $connection->query(
             query: "INSERT INTO `punteggi` (`partita`, `home`, `guest`)
-                VALUES ($match, '', '')"
+                SELECT `id`, '', ''
+                FROM `partite`
+                WHERE `id` = $match AND `a_tavolino` IS NULL"
         );
 
         if (!$result || $connection->affected_rows !== 1)

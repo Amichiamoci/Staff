@@ -15,6 +15,7 @@ use Amichiamoci\Models\{
     Settings,
     User,
     Parrocchia,
+    Partita,
     Staff,
 };
 use Amichiamoci\Utils\Security;
@@ -56,6 +57,7 @@ extends Controller
                 'editions' => $editions,
                 'current_edition' => $currentEdition,
                 'show_double_subscriptions' => $this->getUser()->Admin && Settings::Read($this->DB)['subscriptions_enabled'],
+                'live_matches' => Partita::Live($this->DB),
                 'compleanni' => Anagrafica::NomiCompleannati(connection: $this->DB),
             ]
         );
@@ -199,15 +201,14 @@ extends Controller
     
     #[RequireLogin(requireAdmin: true)]
     public function settings(
-        mixed $csrf_token = null,
-        mixed $subscriptions_enabled = null,
-        mixed $teams_enabled = null,
-        mixed $tournaments_enabled = null,
-        mixed $api_enabled = null,
+        ?string $csrf_token = null,
+        ?string $subscriptions_enabled = null,
+        ?string $teams_enabled = null,
+        ?string $tournaments_enabled = null,
+        ?string $api_enabled = null,
     ): StatusCode {
         if ($this->IsPost()) {
-            if (!is_string($csrf_token) 
-                || !$this->ValidAccountToken($csrf_token)
+            if (!$this->ValidAccountToken($csrf_token)
                 || !in_array($subscriptions_enabled, [null, '1'], true)
                 || !in_array($teams_enabled, [null, '1'], true)
                 || !in_array($tournaments_enabled, [null, '1'], true)

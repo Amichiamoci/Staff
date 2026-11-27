@@ -30,7 +30,7 @@ BEGIN
     SELECT
         SUM(`EsitoPartita`(p.`id`, `team`)),
         COUNT(DISTINCT p.`id`),
-        SUM(IF (EXISTS (
+        SUM(IF (p.`a_tavolino` IS NOT NULL OR EXISTS (
             SELECT 1
             FROM `punteggi` r
             WHERE r.`partita` = p.`id`
@@ -78,7 +78,7 @@ BEGIN
     SELECT
         SUM(FLOOR(`EsitoPartita`(p.`id`, team) / 2)),
         COUNT(DISTINCT p.`id`),
-        SUM(IF (EXISTS (
+        SUM(IF (p.`a_tavolino` IS NOT NULL OR EXISTS (
             SELECT 1
             FROM `punteggi` r
             WHERE r.`partita` = p.`id`

@@ -29,6 +29,7 @@ class Squadra extends NomeIdSemplice
         string|array|null $iscrizione_membri = [],
 
         ?string $referenti = null,
+        ?string $area_sport = null,
     ) {
         parent::__construct(id: $id, nome: $nome);
         
@@ -53,7 +54,8 @@ class Squadra extends NomeIdSemplice
 
         $this->Sport = new Sport(
             id: $id_sport,
-            nome: $sport
+            nome: $sport,
+            area: $area_sport,
         );
 
         $this->Referenti = $referenti;
@@ -94,6 +96,7 @@ class Squadra extends NomeIdSemplice
                 
                 sport: $row["nome_sport"],
                 id_sport: $row["id_sport"],
+                area_sport: $row["area_sport"] ?? null,
 
                 referenti: array_key_exists(key: 'referenti', array: $row) ? $row['referenti'] : null,
             );
@@ -186,6 +189,7 @@ class Squadra extends NomeIdSemplice
 
                 sport: $row["sport"],
                 id_sport: $row["id_sport"],
+                area_sport: $row["area_sport"] ?? null,
 
                 referenti: array_key_exists(key: 'referenti', array: $row) ? $row['referenti'] : null,
             );

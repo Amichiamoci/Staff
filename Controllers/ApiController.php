@@ -149,6 +149,12 @@ extends Controller
         ));
     }
 
+    public function live_matches(): StatusCode
+    {
+        $sport = new Sport($this->DB);
+        return $this->respond(Method::Get, fn() => $sport->liveMatches());
+    }
+
     public function today_matches(int|string|null $parish_id = null): StatusCode
     {
         $sport = new Sport($this->DB);

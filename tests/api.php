@@ -9,9 +9,9 @@ use Richie314\SimpleMvc\Routers\Router;
 use Richie314\SimpleVirtualFS\VirtualFilesystem;
 
 use Amichiamoci\Api\{Iscrizioni, Login, Sport};
-use Amichiamoci\Controllers\ApiController;
+use Amichiamoci\Controllers\{ApiController, SportController};
 use Amichiamoci\Models\Api\Token;
-use Amichiamoci\Models\User;
+use Amichiamoci\Models\{Partita, Punteggio, Sport as SportModel, Squadra, Staff, Torneo, User};
 use Amichiamoci\Utils\Database;
 
 define('SITE_NAME', 'Portal test');
@@ -101,7 +101,9 @@ try {
     $check($event['subscriptionsOpen'] === true, 'Subscriptions should be open.');
     $check($event['storage'] === ['sources' => ['app:///' => ['type' => 'built-in']], 'preferred' => 'app:///'], 'The empty mount list must prefer app storage.');
     $check($get('tournaments')[0]['matchesWithResults'] === 2, 'Scores and forfeits must be counted once per match.');
-    $check(count($get('tournament_standings?tournament_id=1')) === 2, 'Tournament standings must include both teams.');
+    $standings = $get('tournament_standings?tournament_id=1');
+    $check(count($standings) === 2 && array_column($standings, 'matchesRemaining') === [0, 0],
+        'Tournament standings must include both teams and treat forfeits as decided.');
     $check($event['fields'][0]['longitude'] === 12, 'Field coordinates must match the schedule.');
     $matches = $get('matches?team_id=2&tournament_id=1');
     $check(count($matches) === 2 && count($matches[0]['scores']) === 2 && $matches[1]['fieldId'] === null && $matches[1]['forfeitWinnerTeamId'] === 2, 'Match results or scheduling data are incorrect.');
@@ -114,6 +116,18 @@ try {
     $check($get('today_matches?parish_id=2') === [$matches[0]], 'Today must include the away parish and preserve match scores.');
     $check($get('today_matches?parish_id=3') === [], 'An unrelated parish must get an empty list.');
     $get('today_matches', StatusCode::BadRequest);
+    $db->query("SET timestamp = UNIX_TIMESTAMP(CONCAT(YEAR(CURRENT_DATE), '-10-10 12:00:00'))");
+    $db->query("UPDATE `partite`
+        SET `data` = CURRENT_DATE, `orario` = IF(`id` = 1, '11:00:00', '12:00:00')");
+    $db->query("INSERT INTO `partite` (`torneo`, `data`, `orario`, `squadra_casa`, `squadra_ospite`)
+        VALUES (1, CURRENT_DATE, '10:59:59', 1, 2), (1, CURRENT_DATE, '12:10:00', 1, 2), (1, CURRENT_DATE, '12:10:01', 1, 2)");
+    $live = $get('live_matches');
+    $check(array_column($live, 'id') === [1, 4] && $live[0]['sportId'] === 1 && $live[0]['sportName'] === 'Fixture sport',
+        'The live endpoint must include both window boundaries, exclude forfeits, and identify the sport.');
+    $check(array_map(static fn(Partita $match): int => $match->Id, Partita::Live($db)) === [1, 4],
+        'The dashboard and API must use the same live window.');
+    $db->query('SET timestamp = DEFAULT');
+
     foreach (['people', 'save_person', 'subscriptions', 'subscribe', 'my_teams', 'login'] as $path) {
         $response = $get($path . '?email=' . rawurlencode($email), StatusCode::BadRequest);
         $check(($response['error'] ?? null) === 'Unsupported method for this route.', "$path must reject GET requests.");
@@ -266,6 +280,145 @@ try {
 
     $profiles = $post('people?email=unlinked@example.invalid', ['email' => $email]);
     $check(in_array($id, array_column($profiles, 'id'), true), 'POST must bind form body fields instead of query fields.');
+
+    $router->AddController(SportController::class, '/sport');
+    $postRouter->AddController(SportController::class, '/sport');
+    $postRouter->SetUser(new User($adminId, 'Synthetic admin', time(), admin: true));
+    $writeMatch = static function (string $action, array $fields, StatusCode $expected) use ($postRouter, $check): void {
+        $_POST = $fields;
+        ob_start();
+        try {
+            $check($postRouter->Dispatch('/staff/sport/' . $action) === $expected, "Unexpected status for $action.");
+        } finally {
+            ob_end_clean();
+            $_POST = [];
+        }
+    };
+
+    $matchSport = Partita::ById($db, 1)->getSport();
+    $check($matchSport->Area === 'Calcio' && $matchSport->getIcon() === '⚽'
+        && SportModel::All($db)[0]->Area === 'Calcio'
+        && SportModel::ById($db, 1)?->Area === 'Calcio'
+        && Squadra::ById($db, 1)?->Sport->Area === 'Calcio'
+        && Torneo::ById($db, 1)?->Sport->Area === 'Calcio',
+        'Sport area must be hydrated on sport, team, tournament, and match reads.');
+    $board = $render('/staff/sport/match_results?match_id=1');
+    $check(str_contains($board, 'id="scoreboard"') && str_contains($board, '⚽'), 'Football scoring must be available even with a customized sport name.');
+    $check(!str_contains($board, 'name="winner_team_id"'), 'Forfeit entry must only be available from the match card.');
+    $check(str_contains($board, 'id="scoreboard-view"')
+        && str_contains($board, 'data-bs-theme="dark"')
+        && str_contains($board, '/images/banner.png')
+        && !str_contains($board, 'id="portal-header"')
+        && substr_count($board, 'data-board-step="1"') === 2
+        && !str_contains($board, '+1'),
+        'The minimal dark scoreboard must use the two score cards to add one point.');
+    $boardDocument = Dom\HTMLDocument::createFromString($board, LIBXML_NOERROR);
+    $boardDate = new DateTimeImmutable('now', new DateTimeZone('Europe/Rome'));
+    $check($boardDocument->querySelector('#scoreboard header time')?->getAttribute('datetime') === $boardDate->format('Y-m-d')
+        && str_contains($boardDocument->querySelector('#scoreboard header')->textContent, 'Fixture sport')
+        && str_contains($boardDocument->querySelector('#scoreboard footer')->textContent, Partita::ById($db, 1)->Campo->Nome),
+        'The scoreboard must show its sport and current date by the logo and its field in the footer.');
+    $staffUser = new User(200, 'Fixture staff user', time());
+    $staff = new Staff(1, 'Fixture staff', 1, 'Fixture parish');
+    foreach ([$router, $postRouter] as $sportRouter) {
+        $sportRouter->SetUser($staffUser);
+        $sportRouter->SetDefaultVariable('staff', $staff);
+    }
+
+    $db->query('UPDATE `partite` SET `data` = CURRENT_DATE WHERE `id` = 1');
+    $db->query('UPDATE `partite` SET `data` = NULL WHERE `id` = 3');
+    $db->query('UPDATE `partite` SET `data` = CURRENT_DATE + INTERVAL 1 DAY WHERE `id` = 4');
+    $db->query('UPDATE `partite` SET `data` = CURRENT_DATE - INTERVAL 1 DAY WHERE `id` IN (2, 5)');
+    $db->query("INSERT INTO `partite` (`torneo`, `data`, `squadra_casa`, `squadra_ospite`)
+        VALUES (1, CURRENT_DATE - INTERVAL 2 DAY, 1, 2)");
+    $blankScoreMatch = $db->insert_id;
+    Partita::PunteggioVuoto($db, $blankScoreMatch);
+    $staffCalendar = $render('/staff/sport/tournament?id=1');
+    $calendarDocument = Dom\HTMLDocument::createFromString($staffCalendar, LIBXML_NOERROR);
+    $todayCard = $calendarDocument->getElementById('match-1');
+    $warningByMatch = [
+        1 => false,
+        2 => false,
+        3 => false,
+        4 => false,
+        5 => true,
+        $blankScoreMatch => true,
+    ];
+    foreach ($warningByMatch as $fixtureMatch => $warn) {
+        $fixtureCard = $calendarDocument->getElementById('match-' . $fixtureMatch);
+        $check($fixtureCard !== null && $fixtureCard->classList->contains('border-warning') === $warn,
+            "Incorrect missing-result warning on match $fixtureMatch.");
+    }
+    $check($todayCard?->querySelector('header strong + .match-forfeit-trigger') !== null
+        && $todayCard->querySelector('header + a.w-100[data-board-open]:not([hidden])')?->textContent !== null
+        && trim($todayCard->querySelector('[data-board-open]')->textContent) === 'Segnapunti'
+        && $todayCard->querySelector('[data-board-template]') !== null,
+        'Today’s match must have a full-width Segnapunti link, preloaded content, and the forfeit action beside the sport.');
+    foreach ([3, 4] as $otherMatch) {
+        $otherCard = $calendarDocument->getElementById('match-' . $otherMatch);
+        $check($otherCard !== null && $otherCard->querySelector('[data-board-open]:not([hidden]), [data-board-template]') === null,
+            'Unscheduled and future matches must not show or preload Segnapunti.');
+    }
+    $check(str_contains($staffCalendar, 'class="form-control match-date-selector"')
+        && str_contains($staffCalendar, '/sport/match_results?match_id=1')
+        && str_contains($staffCalendar, 'data-board-open')
+        && str_contains($staffCalendar, 'aria-controls="match-forfeit-1"')
+        && str_contains($staffCalendar, 'id="match-forfeit-1"')
+        && str_contains($staffCalendar, 'action="/staff/sport/match_results"')
+        && preg_match('/data-single-result\s+disabled/', $staffCalendar)
+        && !str_contains($staffCalendar, 'action="/staff/sport/match_delete"'),
+        'Staff must have match editing controls while the delete action remains administrator-only.');
+    $check(str_contains($render('/staff/sport/match_results?match_id=1'), 'id="scoreboard"'), 'A staff member must be able to operate the scoreboard.');
+    $award = ['match_id' => '1', 'winner_team_id' => '2', 'csrf_token' => $_SESSION['account_csrf_token']];
+    $schedule = ['match' => '3', 'csrf_token' => $award['csrf_token']];
+    $writeMatch('match_date', $schedule + ['date' => '2026-12-01'], StatusCode::Ok);
+    $writeMatch('match_time', $schedule + ['time' => '09:00'], StatusCode::Ok);
+    $writeMatch('match_field', $schedule + ['field' => '1'], StatusCode::Ok);
+    $writeMatch('match_add_score', $schedule, StatusCode::Ok);
+    $scoreId = Partita::ById($db, 3)->Punteggi[0]->Id;
+    $manualScore = ['score' => (string)$scoreId, 'csrf_token' => $award['csrf_token']];
+    $writeMatch('match_edit_score', $manualScore + ['home' => '1', 'guest' => '2'], StatusCode::Ok);
+    $writeMatch('match_remove_score', $manualScore, StatusCode::Ok);
+    $rescheduled = Partita::ById($db, 3);
+    $check($rescheduled->Data === '2026-12-01' && $rescheduled->Orario === '09:00:00'
+        && $rescheduled->Campo?->Id === 1 && $rescheduled->Punteggi === [], 'Staff match changes must persist.');
+    $writeMatch('match_results', array_replace($award, ['csrf_token' => 'wrong']), StatusCode::BadRequest);
+    $writeMatch('match_results', array_replace($award, ['winner_team_id' => '99']), StatusCode::BadRequest);
+    $writeMatch('match_results', $award, StatusCode::SeeOther);
+    $forfeit = Partita::ById($db, 1);
+    $check($forfeit->SquadraVincitriceATavolino()?->Id === 2 && $forfeit->Punteggi === [], 'An awarded forfeit must hide the normal scores.');
+    $awardPage = $render('/staff/sport/match_results?match_id=1');
+    $check(str_contains($awardPage, 'Partita assegnata a tavolino.') && !str_contains($awardPage, 'id="scoreboard"'), 'The scoreboard URL for a forfeited match must hide score entry.');
+    $check(array_column($get('matches'), 'scores', 'id')[1] === [], 'An awarded forfeit must also hide the normal scores in the API.');
+    $check(!Punteggio::SalvaTabellone($db, 1, 0, 1, ['3', '1'], ['4', '1'])
+        && !Punteggio::Edit($db, 1, '4', '1') && !Punteggio::Delete($db, 1) && Partita::PunteggioVuoto($db, 1) === null,
+        'Score writes from stale pages must leave awarded matches untouched.');
+    $writeMatch('match_results', array_replace($award, ['winner_team_id' => '0']), StatusCode::SeeOther);
+    $check(count(Partita::ById($db, 1)->Punteggi) === 2, 'Revoking the award must restore the original scores.');
+
+    $db->query("INSERT INTO `sport` (`nome`, `area`) VALUES ('Fixture basketball', 'Basket')");
+    $db->execute_query("UPDATE `tornei` SET `sport` = ? WHERE `id` = 1", [$db->insert_id]);
+    $check(preg_match('/data-single-result\s+disabled/', $render('/staff/sport/tournament?id=1')) === 1,
+        'Basketball match cards must disable adding a second result.');
+
+    $db->query("INSERT INTO `sport` (`nome`, `area`) VALUES ('Fixture volleyball', 'Pallavolo')");
+    $volleyball = $db->insert_id;
+    $db->execute_query("UPDATE `tornei` SET `sport` = ? WHERE `id` = 1", [$volleyball]);
+    $volleyballCalendar = $render('/staff/sport/tournament?id=1');
+    $check(str_contains($volleyballCalendar, 'match-result-add') && !str_contains($volleyballCalendar, 'data-single-result'),
+        'Volleyball match cards must allow multiple results.');
+    $writeMatch('match_board_score', [
+        'match_id' => '1',
+        'score_change' => json_encode(['position' => 1, 'score_id' => 2, 'previous' => ['2', '0'], 'score' => ['2', '25']]),
+        'csrf_token' => $award['csrf_token'],
+    ], StatusCode::Ok);
+    $check(Punteggio::SalvaTabellone($db, 1, 2, null, null, ['1', '0'])
+        && Punteggio::SalvaTabellone($db, 1, 2, null, null, ['1', '0'])
+        && !Punteggio::SalvaTabellone($db, 1, 2, null, null, ['0', '1'])
+        && !Punteggio::SalvaTabellone($db, 1, 2, 2, ['1', '0'], ['2', '0']),
+        'Retries must be idempotent and stale writes must fail.');
+    $scores = array_map('strval', Partita::ById($db, 1)->Punteggi);
+    $check($scores === ['3 - 1', '2 - 25', '1 - 0'], 'Volleyball scoring must preserve all sets in order.');
 
     $check(Token::Delete($db, $tokenId), 'The fixture token could not be revoked.');
     $get('event', StatusCode::NotAuthorized);

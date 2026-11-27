@@ -179,7 +179,7 @@ if (!str_contains($html, '/api/admin') || !str_contains($html, 'Cookie sicuri fo
 }
 
 $db->query('CREATE TEMPORARY TABLE edizioni (anno INT)');
-$db->query('CREATE TEMPORARY TABLE sport (id INT, nome VARCHAR(32))');
+$db->query('CREATE TEMPORARY TABLE sport (id INT, nome VARCHAR(32), area VARCHAR(16))');
 $db->query('CREATE TEMPORARY TABLE tipi_torneo (id INT, nome VARCHAR(32))');
 $html = $dispatch($staffUser, '/sport/tournament_create', StatusCode::Ok);
 if (!str_contains($html, 'name="csrf_token"') || !str_contains($html, 'name="edition"')) {

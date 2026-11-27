@@ -141,9 +141,20 @@ echo "Routing checks passed.\n";
 $delegatedTournamentActions = [
     'tournament_create', 'tournament_add_team', 'tournament_remove_team', 'tournament_generate_calendar',
 ];
+$staffMatchActions = [
+    'match_results', 'match_board_score', 'match_date', 'match_time', 'match_field',
+    'match_add_score', 'match_edit_score', 'match_remove_score',
+];
 $sport = new ReflectionClass(Amichiamoci\Controllers\SportController::class);
 foreach ($sport->getMethods(ReflectionMethod::IS_PUBLIC) as $action) {
     if (!str_starts_with($action->name, 'match_') && !str_starts_with($action->name, 'tournament_')) {
+        continue;
+    }
+    if (in_array($action->name, $staffMatchActions, true)) {
+        $staffAttributes = $action->getAttributes(Amichiamoci\Controllers\Attributes\RequireStaff::class);
+        if ($staffAttributes === [] || $staffAttributes[0]->getArguments() !== []) {
+            throw new RuntimeException("{$action->name} must be available to all staff.");
+        }
         continue;
     }
     $attributes = $action->getAttributes(Richie314\SimpleMvc\Controllers\Attributes\RequireLogin::class);

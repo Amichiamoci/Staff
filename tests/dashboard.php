@@ -35,6 +35,10 @@ $db->query('CREATE TABLE partite (
     id INT, torneo INT, data DATE, orario TIME, campo INT, a_tavolino INT
 )');
 $db->query('CREATE TABLE punteggi (partita INT)');
+$db->query('CREATE VIEW partite_live AS
+    SELECT `id`, `data`, `orario`
+    FROM `partite`
+    WHERE FALSE');
 $db->query('CREATE TABLE compleanni_oggi (nome VARCHAR(32), cognome VARCHAR(32), eta INT)');
 $db->query('ALTER TABLE edizioni ADD motto VARCHAR(64)');
 $db->multi_query(file_get_contents(dirname(__DIR__) . '/Database/views/10_dashboard.sql'));
@@ -123,12 +127,13 @@ try {
     $check(str_contains($home, 'aria-labelledby="chart-details-tournaments"'), true, 'The tournament card omitted its labeled modal.');
     $check(str_contains($home, 'Fixture tournament'), false, 'The home response embedded chart data.');
     $check(
-        $document->querySelector('main > header + section[aria-labelledby="today-birthdays"] + .dashboard-cards') !== null
+        $document->querySelector('main > header + section[aria-labelledby="today-birthdays"] + section[aria-labelledby="live-matches"] + .dashboard-cards') !== null
             && strpos($home, 'id="dashboard-tournaments"') < strpos($home, 'Anagrafiche senza email'),
         true,
         'The new chart group moved outside the existing and email cards.',
     );
     $check(str_contains($home, 'Nessun compleanno oggi.'), true, 'The birthday banner omitted the empty state.');
+    $check(str_contains($home, 'Nessuna partita in corso o in partenza.'), true, 'The live banner omitted the empty state.');
     $db->query("INSERT INTO compleanni_oggi VALUES ('Fixture <nome>', 'Cognome', 18)");
     $check(str_contains($home, 'email-stats-chart'), false, 'The demographics charts remained on the dashboard.');
 

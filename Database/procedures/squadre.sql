@@ -109,6 +109,7 @@ BEGIN
         `parrocchie`.`nome`                                             AS "parrocchia",
         `parrocchie`.`id`                                               AS "id_parrocchia",
         sp.`nome`                                                       AS "nome_sport",
+        sp.`area`                                                       AS "area_sport",
         sp.`id`                                                         AS "id_sport",
         GROUP_CONCAT(CONCAT(a.`nome`, ' ', a.`cognome`) SEPARATOR ', ') AS "lista_membri",
         GROUP_CONCAT(a.`id` SEPARATOR ', ')                             AS "id_membri",
@@ -138,6 +139,7 @@ BEGIN
         p.`nome`                                                       AS "parrocchia",
         p.`id`                                                         AS "id_parrocchia",
         sp.`nome`                                                      AS "sport",
+        sp.`area`                                                      AS "area_sport",
         sp.`id`                                                        AS "id_sport"
     FROM `squadre` AS s
     	INNER JOIN `parrocchie` p             ON s.`parrocchia` = p.`id`

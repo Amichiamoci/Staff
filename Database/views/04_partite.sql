@@ -16,6 +16,7 @@ SELECT
 
     p.`data`,
     p.`orario`,
+    p.`a_tavolino`,
 
     s1.`nome`           AS "casa",
     s1.`id`             AS "id_casa",
@@ -41,19 +42,19 @@ CREATE OR REPLACE VIEW `partite_completo` AS
 SELECT
     p.*,
 
-    p1.`nome`                                                       AS "nome_parrocchia_casa",
-    p2.`nome`                                                       AS "nome_parrocchia_ospiti",
+    p1.`nome`                                                                       AS "nome_parrocchia_casa",
+    p2.`nome`                                                                       AS "nome_parrocchia_ospiti",
 
-    GROUP_CONCAT(r.`home` SEPARATOR '|')                            AS "punteggi_casa",
-    GROUP_CONCAT(r.`guest` SEPARATOR '|')                           AS "punteggi_ospiti",
-    GROUP_CONCAT(r.`id` SEPARATOR '|')                              AS "id_punteggi",
-    GROUP_CONCAT(CONCAT(r.`home`, ' - ', r.`guest`) SEPARATOR ', ') AS "punteggio",
-    COUNT(r.`id`)                                                   AS "punteggi"
+    GROUP_CONCAT(r.`home` ORDER BY r.`id` SEPARATOR '|')                            AS "punteggi_casa",
+    GROUP_CONCAT(r.`guest` ORDER BY r.`id` SEPARATOR '|')                           AS "punteggi_ospiti",
+    GROUP_CONCAT(r.`id` ORDER BY r.`id` SEPARATOR '|')                              AS "id_punteggi",
+    GROUP_CONCAT(CONCAT(r.`home`, ' - ', r.`guest`) ORDER BY r.`id` SEPARATOR ', ') AS "punteggio",
+    COUNT(r.`id`)                                                                   AS "punteggi"
 
 FROM `partite_espanso` p
 	INNER JOIN `parrocchie` p1   ON p1.`id` = p.`id_parrocchia_casa`
 	INNER JOIN `parrocchie` p2   ON p2.`id` = p.`id_parrocchia_ospiti`
-	LEFT OUTER JOIN `punteggi` r ON r.`partita` = p.`id`
+	LEFT OUTER JOIN `punteggi` r ON r.`partita` = p.`id` AND p.`a_tavolino` IS NULL
 GROUP BY p.`id`
 ORDER BY p.`data` DESC, p.`orario` ASC
 ;
@@ -83,6 +84,13 @@ SELECT p.*
 FROM `partite_settimana` p
 WHERE p.`data` = CURRENT_DATE;
 
+CREATE OR REPLACE VIEW `partite_live` AS
+SELECT p.*
+FROM `partite_completo` p
+WHERE p.`a_tavolino` IS NULL
+    AND TIMESTAMP(p.`data`, p.`orario`) BETWEEN CURRENT_TIMESTAMP - INTERVAL 1 HOUR
+        AND CURRENT_TIMESTAMP + INTERVAL 10 MINUTE;
+
 --
 -- Matches not yet played
 --
@@ -90,7 +98,7 @@ WHERE p.`data` = CURRENT_DATE;
 CREATE OR REPLACE VIEW `partite_da_giocare` AS
 SELECT p.*
 FROM `partite_tornei_attivi` p
-WHERE p.`punteggi` = 0;
+WHERE p.`punteggi` = 0 AND p.`a_tavolino` IS NULL;
 
 CREATE OR REPLACE VIEW `partite_da_giocare_oggi` AS
 SELECT p.*

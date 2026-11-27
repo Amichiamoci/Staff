@@ -52,21 +52,32 @@ final class Sport
     public function matches(?int $tournament, ?int $team): array
     {
         return $this->matchList(
-            '(? IS NULL OR `tournamentId` = ?) AND (? IS NULL OR `homeId` = ? OR `awayId` = ?)',
+            '`editionYear` = YEAR(CURRENT_DATE)
+                AND (? IS NULL OR `tournamentId` = ?) AND (? IS NULL OR `homeId` = ? OR `awayId` = ?)',
             [$tournament, $tournament, $team, $team, $team],
         );
+    }
+
+    /** Lists matches in the live window with sport information. */
+    public function liveMatches(): array
+    {
+        return $this->matchList('EXISTS (
+            SELECT 1
+            FROM `partite_live` l
+            WHERE l.`id` = `api_matches`.`id`
+        )', [], true);
     }
 
     /** Lists today's current-edition matches with a home or away team from the parish. */
     public function todayMatches(int $parish): array
     {
         return $this->matchList(
-            '`date` = CURRENT_DATE AND (`homeParishId` = ? OR `awayParishId` = ?)',
+            '`editionYear` = YEAR(CURRENT_DATE) AND `date` = CURRENT_DATE AND (`homeParishId` = ? OR `awayParishId` = ?)',
             [$parish, $parish],
         );
     }
 
-    private function matchList(string $filter, array $parameters): array
+    private function matchList(string $filter, array $parameters, bool $withSport = false): array
     {
         $rows = $this->rows(
             'SELECT *
@@ -90,6 +101,10 @@ final class Sport
                 'awayTeam' => ['id' => $row['awayId'], 'name' => $row['awayName']],
                 'scores' => [],
             ];
+            if ($withSport) {
+                $matches[$id]['sportId'] = $row['sportId'];
+                $matches[$id]['sportName'] = $row['sportName'];
+            }
             if ($row['scoreId'] !== null) {
                 $matches[$id]['scores'][] = ['home' => $row['homeScore'], 'away' => $row['awayScore']];
             }

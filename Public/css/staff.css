@@ -108,3 +108,64 @@
     inline-size: min(52rem, calc(100% - 2rem));
     overscroll-behavior: contain;
 }
+
+.match-forfeit:modal {
+    max-inline-size: min(26rem, calc(100% - 1.5rem));
+    overscroll-behavior: contain;
+}
+
+.match-forfeit::backdrop {
+    background: rgb(0 0 0 / 60%);
+    overflow: hidden;
+    overscroll-behavior: contain;
+}
+
+@media (pointer: coarse) {
+    .match-forfeit-trigger {
+        min-inline-size: 2.75rem;
+        min-block-size: 2.75rem;
+    }
+}
+
+.match-scoreboard-dialog {
+    inset: 0;
+    margin: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    max-inline-size: none;
+    max-block-size: none;
+    overscroll-behavior: contain;
+}
+
+.match-scoreboard-dialog::backdrop {
+    overflow: hidden;
+    overscroll-behavior: contain;
+}
+
+.match-scoreboard-view {
+    min-block-size: 100dvh;
+}
+
+.match-scoreboard-view:fullscreen {
+    overflow: auto;
+}
+
+.match-scoreboard-logo {
+    max-inline-size: 45%;
+    max-block-size: 2.5rem;
+    object-fit: contain;
+}
+
+.match-scoreboard-score {
+    font-size: clamp(3.25rem, 1rem + 14dvmin, 8rem);
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+}
+
+.match-scoreboard .btn {
+    min-block-size: 2.75rem;
+    min-inline-size: 2.75rem;
+    touch-action: manipulation;
+}

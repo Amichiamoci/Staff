@@ -36,12 +36,12 @@ extends Controller
         ];
     }
 
-    private function CheckTournamentManagement(mixed $csrfToken): ?StatusCode
+    private function CheckTournamentManagement(?string $csrfToken): ?StatusCode
     {
         if (!$this->CanManageTournaments()) {
             return $this->NotAuthorized('La gestione dei tornei è riservata agli amministratori.');
         }
-        if ($this->IsPost() && (!is_string($csrfToken) || !$this->ValidAccountToken($csrfToken))) {
+        if ($this->IsPost() && !$this->ValidAccountToken($csrfToken)) {
             return $this->BadRequest();
         }
         return null;
@@ -78,12 +78,12 @@ extends Controller
 
     #[RequireLogin]
     public function campo_edit(
-        mixed $id = null,
-        mixed $nome = null,
-        mixed $indirizzo = null,
-        mixed $latitudine = null,
-        mixed $longitudine = null,
-        mixed $csrf_token = null,
+        int|string|null $id = null,
+        ?string $nome = null,
+        ?string $indirizzo = null,
+        ?string $latitudine = null,
+        ?string $longitudine = null,
+        ?string $csrf_token = null,
     ): StatusCode {
         if (($denied = $this->CheckTournamentManagement($csrf_token)) !== null) {
             return $denied;
@@ -102,9 +102,9 @@ extends Controller
         }
 
         if ($this->IsPost()) {
-            if (!is_string($nome) || trim($nome) === '' || mb_strlen(trim($nome)) > 128
-                || !is_string($indirizzo) || trim($indirizzo) === '' || mb_strlen(trim($indirizzo)) > 256
-                || !is_string($latitudine) || !is_string($longitudine)
+            if (trim($nome ?? '') === '' || mb_strlen(trim($nome)) > 128
+                || trim($indirizzo ?? '') === '' || mb_strlen(trim($indirizzo)) > 256
+                || !isset($latitudine, $longitudine)
             ) {
                 return $this->BadRequest();
             }
@@ -169,6 +169,7 @@ extends Controller
                 'partite' => $partite,
                 'edizioni' => Edizione::All(connection: $this->DB),
                 'campi' => Campo::All(connection: $this->DB),
+                'match_csrf_token' => $this->getUser()->Admin || $this->Staff() !== null ? $this->AccountToken() : null,
             ]
         );
     }
@@ -177,7 +178,7 @@ extends Controller
     public function tournament_add_team(
         ?int $tournament = null,
         ?int $team = null,
-        mixed $csrf_token = null,
+        ?string $csrf_token = null,
     ): StatusCode
     {
         if (($denied = $this->CheckTournamentManagement($csrf_token)) !== null) {
@@ -204,7 +205,7 @@ extends Controller
     public function tournament_remove_team(
         ?int $tournament = null,
         ?int $team = null,
-        mixed $csrf_token = null,
+        ?string $csrf_token = null,
     ): StatusCode
     {
         if (($denied = $this->CheckTournamentManagement($csrf_token)) !== null) {
@@ -232,7 +233,7 @@ extends Controller
         ?int $id = null,
         bool $two_ways = false, 
         ?int $field = null,
-        mixed $csrf_token = null,
+        ?string $csrf_token = null,
     ): StatusCode
     {
         if (($denied = $this->CheckTournamentManagement($csrf_token)) !== null) {
@@ -271,7 +272,7 @@ extends Controller
         ?int $sport = null,
         ?int $type = null,
         ?string $name = null,
-        mixed $csrf_token = null,
+        ?string $csrf_token = null,
     ): StatusCode
     {
         if (($denied = $this->CheckTournamentManagement($csrf_token)) !== null) {
@@ -353,16 +354,100 @@ extends Controller
             data: [
                 'partite' => $matches,
                 'campi' => $fields,
+                'match_csrf_token' => $this->AccountToken(),
             ]
         );
     }
     
 
-    #[RequireLogin(requireAdmin: true)]
-    public function match_field(?int $match, string|int|null $field = null): StatusCode
+    private function CheckMatchWrite(?string $csrfToken): ?StatusCode
     {
         if (!$this->IsPost()) {
             $this->PostRequired();
+        }
+        if (!$this->ValidAccountToken($csrfToken)) {
+            return $this->Json(['message' => 'Richiesta non valida.'], statusCode: StatusCode::BadRequest);
+        }
+        return null;
+    }
+
+    #[RequireStaff]
+    public function match_results(
+        int|string|null $match_id = null,
+        ?string $winner_team_id = null,
+        ?string $csrf_token = null,
+        ?string $return_calendar = null,
+    ): StatusCode {
+        $match_id = filter_var($match_id, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 2147483647]]);
+        if ($match_id === false) {
+            return $this->BadRequest();
+        }
+        $partita = Partita::ById($this->DB, $match_id);
+        if ($partita === null) {
+            return $this->NotFound();
+        }
+
+        if ($this->IsPost()) {
+            if (($denied = $this->CheckMatchWrite($csrf_token)) !== null) {
+                return $denied;
+            }
+            if (!in_array($winner_team_id, ['0', (string)$partita->Casa->Id, (string)$partita->Ospiti->Id], true)) {
+                return $this->BadRequest();
+            }
+            Partita::ImpostaTavolino($this->DB, $match_id, $winner_team_id === '0' ? null : (int)$winner_team_id);
+            $calendar = $return_calendar === 'matches' ? '/sport/matches' : '/sport/tournament?id=' . $partita->Torneo;
+            return $this->RedirectWithStatus($this->PathPrefix . $calendar . '#match-' . $match_id, StatusCode::SeeOther);
+        }
+
+        return $this->Render(
+            view: 'Sport/match_results',
+            title: 'Segnapunti',
+            data: [
+                'partita' => $partita,
+                'match_csrf_token' => $this->AccountToken(),
+            ],
+            cutomLayout: dirname(__DIR__) . '/Views/Shared/LayoutSegnapunti.php',
+        );
+    }
+
+    #[RequireStaff]
+    public function match_board_score(
+        int|string|null $match_id = null,
+        string $score_change = '',
+        ?string $csrf_token = null,
+    ): StatusCode {
+        if (($denied = $this->CheckMatchWrite($csrf_token)) !== null) {
+            return $denied;
+        }
+
+        $match_id = filter_var($match_id, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 2147483647]]);
+        $change = json_decode($score_change, true, 4);
+        $position = $change['position'] ?? null;
+        $scoreId = $change['score_id'] ?? null;
+        $previous = $change['previous'] ?? null;
+        $score = $change['score'] ?? null;
+        $validPair = static fn(array $pair, string $pattern): bool => array_is_list($pair) && count($pair) === 2
+            && is_string($pair[0]) && is_string($pair[1])
+            && preg_match($pattern, $pair[0]) && preg_match($pattern, $pair[1]);
+
+        if ($match_id === false || !is_int($position) || $position < 0 || !is_array($score) || !$validPair($score, '/^[0-9]{1,8}$/D')
+            || ($scoreId !== null && (!is_int($scoreId) || $scoreId < 1))
+            || (($scoreId === null) !== ($previous === null))
+            || ($previous !== null && (!is_array($previous) || !$validPair($previous, '/^[0-9]{0,8}$/D')))) {
+            return $this->Json(['message' => 'Richiesta non valida.'], statusCode: StatusCode::BadRequest);
+        }
+        $saved = Punteggio::SalvaTabellone($this->DB, $match_id, $position, $scoreId, $previous, $score);
+        if ($saved === null) {
+            return $this->Json(['conflict' => true], statusCode: StatusCode::BadRequest);
+        }
+        return $this->Json(['result' => 'success', 'id' => $saved]);
+    }
+
+    #[RequireStaff]
+    public function match_field(?int $match, string|int|null $field = null, ?string $csrf_token = null): StatusCode
+    {
+        if (($denied = $this->CheckMatchWrite($csrf_token)) !== null) {
+            return $denied;
         }
 
         if (empty($match))
@@ -371,8 +456,14 @@ extends Controller
                 'message' => 'Partita non specificata',
             ], statusCode: StatusCode::BadGateway);
 
-        if (is_string(value: $field))
-            $field = ($field === '') ? null : (int)$field;
+        if ($field === '') {
+            $field = null;
+        } elseif ($field !== null) {
+            $field = filter_var($field, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 2147483647]]);
+            if ($field === false || Campo::ById($this->DB, $field) === null) {
+                return $this->Json(['message' => 'Campo non valido.'], statusCode: StatusCode::BadRequest);
+            }
+        }
 
         if (!Partita::ImpostaCampo(connection: $this->DB, partita: $match, campo: $field))
             return $this->Json(object: [
@@ -385,11 +476,11 @@ extends Controller
         ]);
     }
 
-    #[RequireLogin(requireAdmin: true)]
-    public function match_time(?int $match, ?string $time = null): StatusCode
+    #[RequireStaff]
+    public function match_time(?int $match, ?string $time = null, ?string $csrf_token = null): StatusCode
     {
-        if (!$this->IsPost()) {
-            $this->PostRequired();
+        if (($denied = $this->CheckMatchWrite($csrf_token)) !== null) {
+            return $denied;
         }
 
         if (empty($match))
@@ -398,8 +489,11 @@ extends Controller
                 'message' => 'Partita non specificata',
             ], statusCode: StatusCode::BadRequest);
 
-        if ($time === '')
+        if ($time === '') {
             $time = null;
+        } elseif ($time !== null && !preg_match('/^(?:[01][0-9]|2[0-3]):[0-5][0-9](?::[0-5][0-9])?$/D', $time)) {
+            return $this->Json(['message' => 'Orario non valido.'], statusCode: StatusCode::BadRequest);
+        }
 
         if (!Partita::ImpostaOrario(connection: $this->DB, partita: $match, orario: $time))
             return $this->Json(object: [
@@ -412,11 +506,11 @@ extends Controller
         ]);
     }
 
-    #[RequireLogin(requireAdmin: true)]
-    public function match_date(?int $match, ?string $date = null): StatusCode
+    #[RequireStaff]
+    public function match_date(?int $match, ?string $date = null, ?string $csrf_token = null): StatusCode
     {
-        if (!$this->IsPost()) {
-            $this->PostRequired();
+        if (($denied = $this->CheckMatchWrite($csrf_token)) !== null) {
+            return $denied;
         }
 
         if (empty($match)) 
@@ -425,8 +519,12 @@ extends Controller
                 'message' => 'Partita non specificata',
             ], statusCode: StatusCode::BadRequest);
 
-        if ($date === '')
+        if ($date === '') {
             $date = null;
+        } elseif ($date !== null && (!preg_match('/^([1-9][0-9]{3})-([0-9]{2})-([0-9]{2})$/D', $date, $parts)
+            || !checkdate((int)$parts[2], (int)$parts[3], (int)$parts[1]))) {
+            return $this->Json(['message' => 'Data non valida.'], statusCode: StatusCode::BadRequest);
+        }
 
         if (!Partita::ImpostaData(connection: $this->DB, partita: $match, data: $date))
             return $this->Json(object: [
@@ -463,11 +561,11 @@ extends Controller
         return $this->tournament(id: $partita->Torneo);
     }
 
-    #[RequireLogin(requireAdmin: true)]
-    public function match_add_score(?int $match): StatusCode
+    #[RequireStaff]
+    public function match_add_score(?int $match, ?string $csrf_token = null): StatusCode
     {
-        if (!$this->IsPost()) {
-            $this->PostRequired();
+        if (($denied = $this->CheckMatchWrite($csrf_token)) !== null) {
+            return $denied;
         }
 
         if (empty($match))
@@ -489,11 +587,11 @@ extends Controller
         ]);
     }
 
-    #[RequireLogin(requireAdmin: true)]
-    public function match_remove_score(?int $score): StatusCode
+    #[RequireStaff]
+    public function match_remove_score(?int $score, ?string $csrf_token = null): StatusCode
     {
-        if (!$this->IsPost()) {
-            $this->PostRequired();
+        if (($denied = $this->CheckMatchWrite($csrf_token)) !== null) {
+            return $denied;
         }
 
         if (empty($score))
@@ -514,18 +612,21 @@ extends Controller
         ]);
     }
 
-    #[RequireLogin(requireAdmin: true)]
+    #[RequireStaff]
     public function match_edit_score(
         ?int $score, 
         ?string $home, 
         ?string $guest,
+        ?string $csrf_token = null,
     ): StatusCode
     {
-        if (!$this->IsPost()) {
-            $this->PostRequired();
+        if (($denied = $this->CheckMatchWrite($csrf_token)) !== null) {
+            return $denied;
         }
 
-        if (empty($score) || !isset($home) || !isset($guest))
+        $home = trim($home ?? '');
+        $guest = trim($guest ?? '');
+        if (empty($score) || !preg_match('/^[0-9]{1,8}$/D', $home) || !preg_match('/^[0-9]{1,8}$/D', $guest))
             return $this->Json(object: [
                 'result' => 'fail',
                 'message' => 'Richiesta non valida',

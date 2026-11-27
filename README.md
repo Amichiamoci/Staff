@@ -179,6 +179,18 @@ server {
 
 </details>
 
+## Dati di test
+
+Genera e importa i dati sintetici su un server MariaDB di test.
+
+```sh
+php script/mock-database.php > /tmp/portale-mock.sql
+mariadb --host=127.0.0.1 --user=utente_test --password < /tmp/portale-mock.sql
+```
+
+Lo script genera un nuovo database `amichiamoci` e stampa nel terminale il nome del database e le credenziali di prova.
+Per scegliere un altro nome, passalo come argomento allo script e usa lo stesso valore per `MYSQL_DB` nel portale di test.
+
 ## 🔐 Variabili d’ambiente
 
 Il portale legge le variabili dall’ambiente del processo e dal file `.env` nella radice del progetto.

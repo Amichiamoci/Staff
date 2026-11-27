@@ -34,11 +34,12 @@ class Torneo extends NomeIdSemplice
 
         array $squadre,
         array $id_partite,
+        ?string $area_sport = null,
     ) {
         $this->Id = (int)$id;
         $this->Nome = $nome;
         $this->Tipo = new TipoTorneo(id: $id_tipo, nome: $tipo);
-        $this->Sport = new Sport(id: $id_sport, nome: $sport);
+        $this->Sport = new Sport(id: $id_sport, nome: $sport, area: $area_sport);
         $this->Edizione = new Edizione(id: $id_edizione, year: $anno_edizione, motto: null);
         $this->ListaSquadre = $squadre;
         $this->IdPartite = $id_partite;
@@ -76,6 +77,7 @@ class Torneo extends NomeIdSemplice
 
             sport: $row["nome_sport"],
             id_sport: $row["id_sport"],
+            area_sport: $row["area_sport"],
             
             anno_edizione: $row["anno"],
             id_edizione: $row["id_edizione"],

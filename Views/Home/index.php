@@ -34,6 +34,7 @@ assert(isset($show_double_subscriptions) && is_bool($show_double_subscriptions))
 </header>
 
 <?php require __DIR__ . '/Partial/BirthDays.php'; ?>
+<?php require __DIR__ . '/Partial/LiveMatches.php'; ?>
 
 <div class="container dashboard-cards">
     <div class="row">

@@ -1,5 +1,6 @@
 <?php
 use Amichiamoci\Utils\Security;
+use Amichiamoci\Models\ExternalAssets;
 
 assert(isset($iscrizioni) && is_array($iscrizioni), 'var $iscrizioni not valid');
 
@@ -323,13 +324,8 @@ $codice_societa_csi = Security::LoadEnvironmentOrFromFile(var: 'CODICE_SOCIETA_C
     </tbody>
 </table>
 
-<script
-    src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"
-    integrity="sha384-EnyY0/GSHQGSxSgMwaIPzSESbqoOLSexfnSMN2AP+39Ckmn92stwABZynq1JyzdT"
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-    defer
-></script>
+<?php ExternalAssets::sheetJS(); ?>
+
 <script>
     $('#export-csi').on('click', function () {
         const table = $('#csi')[0];

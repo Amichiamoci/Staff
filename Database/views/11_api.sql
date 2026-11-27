@@ -69,6 +69,7 @@ CREATE OR REPLACE VIEW `api_matches` AS
 SELECT
     m.`id`,
     m.`id_torneo`            AS "tournamentId",
+    m.`anno`                 AS "editionYear",
     m.`data`                 AS "date",
     m.`orario`               AS "time",
     m.`id_campo`             AS "fieldId",
@@ -76,16 +77,16 @@ SELECT
     m.`casa`                 AS "homeName",
     m.`id_ospiti`            AS "awayId",
     m.`ospiti`               AS "awayName",
-    f.`a_tavolino`           AS "forfeitWinnerTeamId",
+    m.`id_sport`             AS "sportId",
+    m.`nome_sport`           AS "sportName",
+    m.`a_tavolino`           AS "forfeitWinnerTeamId",
     p.`id`                   AS "scoreId",
     p.`home`                 AS "homeScore",
     p.`guest`                AS "awayScore",
     m.`id_parrocchia_casa`   AS "homeParishId",
     m.`id_parrocchia_ospiti` AS "awayParishId"
 FROM `partite_espanso` m
-	INNER JOIN `partite` f       ON f.`id` = m.`id`
-	LEFT OUTER JOIN `punteggi` p ON p.`partita` = m.`id`
-WHERE m.`anno` = YEAR(CURRENT_DATE);
+	LEFT OUTER JOIN `punteggi` p ON p.`partita` = m.`id` AND m.`a_tavolino` IS NULL;
 
 CREATE OR REPLACE VIEW `api_team_members` AS
 SELECT

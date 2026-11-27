@@ -210,7 +210,7 @@ A team matches either side of the match.
 Use `POST /api/my_teams` to find the user's team IDs.
 `date`, `time`, and `fieldId` can be `null` while scheduling is pending.
 `forfeitWinnerTeamId` identifies the awarded winner when a forfeit result exists and is otherwise `null`.
-`scores` contains the recorded score entries in order, or `[]` for matches without scores.
+`scores` contains the recorded score entries in order, or `[]` for matches without scores or with an awarded forfeit.
 Score values are strings.
 Join `fieldId` to `fields[].id` from `GET /api/event` for the venue name, address, and optional coordinates.
 
@@ -251,6 +251,13 @@ Returns today's matches for the current edition where either team belongs to the
 Use a parish ID from `GET /api/event`.
 Results use the same format as `GET /api/matches`, including recorded scores and forfeits.
 A parish with no matches today receives `[]`.
+
+### `GET /api/live_matches`
+
+Returns non-forfeited matches scheduled between 60 minutes ago and 10 minutes from now, inclusive.
+Results use the same format as `GET /api/matches` and include `sportId` and `sportName`.
+Scores can change while a match is in progress.
+An empty window returns `[]`.
 
 ## Document storage
 

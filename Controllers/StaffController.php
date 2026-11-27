@@ -544,7 +544,7 @@ extends Controller
         ?int $parrocchia = null,
         ?string $taglia = null,
         ?int $edizione = null,
-        mixed $csrf_token = null,
+        ?string $csrf_token = null,
     ): StatusCode
     {
         if (empty($id))
@@ -580,7 +580,7 @@ extends Controller
                 )) {
                     return $this->NotAuthorized();
                 }
-                if ($certificateOnly && (!is_string($csrf_token) || !$this->ValidAccountToken($csrf_token))) {
+                if ($certificateOnly && !$this->ValidAccountToken($csrf_token)) {
                     return $this->BadRequest();
                 }
             }
