@@ -38,7 +38,7 @@ flowchart LR
     cron["Cron"] --> app
     app --> db[(MariaDB)]
     app --> local["Archivio locale<br />(staff:///)"]
-    app -.-> drive["Google Drive<br />(drive:///)"]
+    app -.->|🔐| drive["Google Drive<br />(drive:///)"]
     app -->|Invio email| smtp["Server SMTP"]
 ```
 
